@@ -39,3 +39,8 @@ Added concrete v0 tasks after deciding to consolidate DMETA YAML. Planned three 
 
 Created dmeta/design-docs/04-concrete-dmeta-system-spec.md. The spec defines the v0 artifact layout, Markdown-vs-YAML policy, the four minimal YAML source artifacts, system lifecycle, runtime boundary, first widget families, domain pressure tests, HAIR-041 relationship, and implementation order. Updated dmeta/README.md.
 
+
+## 2026-05-19
+
+Created dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md. The spec defines the consolidated 01-core-model.yaml structure for archetypes/capabilities/presentations/actions/domain examples and the 03-widgets.yaml structure for generic dense-operational widgets. Updated dmeta/README.md.
+

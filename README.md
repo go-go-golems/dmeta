@@ -13,6 +13,7 @@ This directory contains durable design-system factory documents promoted out of 
 - `design-docs/02-semantic-archetype-and-capability-model.md` — reusable semantic archetypes, capabilities, projections, presentations, and action model.
 - `design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md` — sober dense operational UI graphic design and UX archetype.
 - `design-docs/04-concrete-dmeta-system-spec.md` — concrete v0 system architecture, Markdown/YAML split, artifact layout, lifecycle, and implementation order.
+- `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` — concrete v0 specification for `01-core-model.yaml` and `03-widgets.yaml`.
 
 ## Ticket history
 

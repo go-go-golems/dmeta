@@ -232,3 +232,22 @@ Created `dmeta/design-docs/04-concrete-dmeta-system-spec.md` as the top-level co
 
 ### Validation
 Marked task 12 complete. Updated `dmeta/README.md` to include the new document.
+
+## 2026-05-19 — Core model and widget IR spec written
+
+### What happened
+Created `dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md`.
+
+### What the document covers
+- Concrete top-level shape for `01-core-model.yaml`.
+- Archetype fields and validation rules.
+- Capability fields, projections, and validation rules.
+- Presentation fields, layer attachment rules, and validation rules.
+- Action fields, accepted target selectors, argument modes, and validation rules.
+- Domain example structure for agent workflows and retail logistics.
+- Concrete top-level shape for `03-widgets.yaml`.
+- Widget object shape, required fields, optional fields, initial widget inventory, design rules, validation rules, and generation targets.
+- Manual pressure-test flows for both example domains.
+
+### Validation
+Marked task 13 complete. Updated `dmeta/README.md` to include the new document.
