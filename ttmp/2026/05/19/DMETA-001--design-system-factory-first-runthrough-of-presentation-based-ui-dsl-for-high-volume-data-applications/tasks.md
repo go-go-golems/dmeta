@@ -21,4 +21,4 @@
 - [x] Draft dmeta/sources/dmeta-ir/01-core-model.yaml consolidating archetypes, capabilities, presentations, actions, and domain examples
 - [x] Draft dmeta/sources/dmeta-ir/02-design-language.yaml with range-based visual/design constraints for v0
 - [x] Draft dmeta/sources/dmeta-ir/03-widgets.yaml with the first generic dense-operational widget classes
-- [ ] Validate docmgr hygiene, update diary/changelog, and commit work at logical intervals
+- [x] Validate docmgr hygiene, update diary/changelog, and commit work at logical intervals
