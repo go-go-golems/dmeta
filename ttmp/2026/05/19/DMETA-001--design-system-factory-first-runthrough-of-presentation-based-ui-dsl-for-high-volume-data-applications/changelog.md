@@ -44,3 +44,8 @@ Created dmeta/design-docs/04-concrete-dmeta-system-spec.md. The spec defines the
 
 Created dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md. The spec defines the consolidated 01-core-model.yaml structure for archetypes/capabilities/presentations/actions/domain examples and the 03-widgets.yaml structure for generic dense-operational widgets. Updated dmeta/README.md.
 
+
+## 2026-05-19
+
+Created dmeta/design-docs/06-dmeta-design-language-and-tooling-spec.md. The spec defines 02-design-language.yaml structure, theme axes, typography/density/color/border/layout/presentation recipes, data attributes, lint rules, and the planned validator/generator/lint/promotion tooling sequence. Updated dmeta/README.md.
+

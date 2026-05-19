@@ -16,7 +16,7 @@
 - [ ] Build lint + validation tooling for the new schema layers
 - [x] Create concrete DMETA system spec at dmeta/design-docs/04-concrete-dmeta-system-spec.md
 - [x] Create core model and widget IR spec at dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md
-- [ ] Create design language and tooling spec at dmeta/design-docs/06-dmeta-design-language-and-tooling-spec.md
+- [x] Create design language and tooling spec at dmeta/design-docs/06-dmeta-design-language-and-tooling-spec.md
 - [ ] Create minimal DMETA IR source directory dmeta/sources/dmeta-ir with 00-index.yaml
 - [ ] Draft dmeta/sources/dmeta-ir/01-core-model.yaml consolidating archetypes, capabilities, presentations, actions, and domain examples
 - [ ] Draft dmeta/sources/dmeta-ir/02-design-language.yaml with range-based visual/design constraints for v0

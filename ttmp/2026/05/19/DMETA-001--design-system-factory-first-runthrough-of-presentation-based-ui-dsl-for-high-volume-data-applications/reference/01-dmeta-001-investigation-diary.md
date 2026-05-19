@@ -251,3 +251,26 @@ Created `dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md`.
 
 ### Validation
 Marked task 13 complete. Updated `dmeta/README.md` to include the new document.
+
+## 2026-05-19 — Design language and tooling spec written
+
+### What happened
+Created `dmeta/design-docs/06-dmeta-design-language-and-tooling-spec.md`.
+
+### What the document covers
+- Concrete top-level shape for `02-design-language.yaml`.
+- Theme axes: density, neutral tone, type mode, radius, row treatment, surface separation, accent strategy.
+- Typography roles in range-based and concrete forms.
+- Density and spacing scales.
+- Neutral and semantic color roles.
+- Border/radius/elevation rules.
+- Layout primitives.
+- Presentation recipes linking core-model presentations to visual behavior.
+- Interaction states.
+- Data attribute conventions.
+- Initial lint rule inventory.
+- Tooling plan for validators, presentation/action registry generators, design helper generator, widget scaffold generator, design-system lint, and widget promotion validation.
+- Implementation order for tooling and validation/lint staging.
+
+### Validation
+Marked task 14 complete. Updated `dmeta/README.md` to include the new document.
