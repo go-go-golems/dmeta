@@ -5,6 +5,16 @@ topics:
       description: Backend services
     - slug: websocket
       description: WebSocket lifecycle & events
+    - slug: design-system
+      description: Design system architecture and implementation
+    - slug: dsl
+      description: Domain-specific languages and schemas
+    - slug: presentation-based-ui
+      description: Presentation-based UI semantics and interactions
+    - slug: code-generation
+      description: Code generation and deterministic tooling
+    - slug: react
+      description: React frontend implementation
 docTypes:
     - slug: design-doc
       description: Structured rationale and architecture notes

@@ -1,0 +1,215 @@
+---
+Title: DMETA-001 Investigation Diary
+Ticket: DMETA-001
+Status: active
+Topics:
+    - design-system
+    - dsl
+    - presentation-based-ui
+    - code-generation
+    - react
+DocType: reference
+Intent: long-term
+Owners: []
+RelatedFiles: []
+ExternalSources: []
+Summary: "Chronological investigation diary for DMETA-001."
+LastUpdated: 2026-05-19T17:36:00-04:00
+WhatFor: "Use to resume the ticket with context about source imports, scope corrections, design decisions, and open questions."
+WhenToUse: "Read before continuing DMETA-001 work or writing follow-up specs/playbooks."
+---
+
+# DMETA-001 Investigation Diary
+
+## 2026-05-19 — Ticket creation and source import
+
+### What happened
+Created DMETA-001 ticket and imported all source artifacts from HAIR-041 and the Obsidian vault:
+
+**Playbooks imported:**
+- Collaborative Schema Design Sessions for Presentation-Based UI
+- Widget IR to Finished Widget Playbook
+- Admin DSL Widget Design System Review Playbook
+- Widget Playbook Compliance Audit Guide
+- Intern Widget Compliance Review Kickoff
+
+**Specifications imported:**
+- Design System DSL Data Structures and Toolchain (full technical spec)
+
+**Sources imported:**
+- Article: A DSL for Creating Design Systems
+- Widget IR source catalog (08-*.md)
+- Widget IR YAML format spec (09-*.md)
+- All HAIR-041 YAML source artifacts (pass model, shared types, widget categories, design language, storybook manifest)
+
+**Live code references related:**
+- log-presentation-based-ui app (React + Vite + RTK + Tailwind, PBUI pattern)
+- image-collector app (minimal typography aesthetic)
+
+### Key observations from reading the source material
+
+1. **The HAIR-041 pipeline is genuinely reusable.** The pass model (renderer inventory → IR formalization → scaffold generation → manual promotion → adapter → story hardening → lint → audit) is solid. The key insight is that each pass has explicit input and output artifacts, not just steps.
+
+2. **The presentation-based UI pattern already works in practice.** The log-presentation-based-ui app has a working implementation of:
+   - Semantic types (`SemanticType` union: `time-instant`, `log-level`, `agent-id`, `session-id`, etc.)
+   - Presentation tokens (each rendered element knows its `kind`, `semanticType`, `tone`)
+   - Operation registry with `startsFrom: SemanticType[]` — operations declare which semantic types they accept
+   - Candidate presentations — arguments filled by selecting on-screen values of the matching type
+   - Command state machine: idle → menu-open → awaiting-argument → showing-result
+
+3. **The minimal typography aesthetic is well-defined.** Both apps converge on:
+   - Berkeley Mono, 13px body / 24-28px display
+   - Paper (#f8f7f5) + ink (#111111) + muted + status accents
+   - Four roles: body, label, caption, display
+   - Zero decorative chrome, monospace-first
+
+4. **The gap between HAIR-041 and this project** is primarily:
+   - HAIR-041 was CRUD/admin — widgets are form-heavy, resource-table-heavy
+   - DMETA needs streaming/virtualized data, keyboard-first, presentation-polymorphic
+   - The semantic type layer needs to handle "reference types" (agent-id, session-id) not just "object types"
+   - The action model needs to handle real-time streaming contexts
+
+### What's next
+Per the Collaborative Schema Design Sessions playbook, Phase 1 is: elicit the domain model. We need to define semantic types for high-volume data applications before anything else.
+
+### Open questions for the human
+- What are the 3-5 most important domain objects for the pilot?
+- Are reference types (agent-id, session-id) first-class semantic types or projections of their parent objects?
+- How many presentation variants per type is realistic for v1?
+- Should the design language be identical to HAIR-041's, or start fresh with the minimal typography system?
+
+## 2026-05-19 — Scope correction: domain entities become archetypes
+
+### What changed
+The user clarified that the goal is not to define a precise domain model for one agentic workflow app. The goal is to define a more generic design-system factory for apps that are functionally congruent: agent dashboards, retail logistics order pipelines, incident queues, build systems, monitoring streams, and other dense operational information systems.
+
+Therefore Phase 1 should not start with concrete entity types like `Agent`, `Session`, `ToolCall`, and `LogEvent` as if those were the universal model. Those should be treated as examples of broader semantic archetypes.
+
+### Updated interpretation
+The semantic layer should define **archetypes** such as:
+- Actor — agent, user, customer, warehouse, carrier, service, assignee
+- Work Item — order, task, job, shipment, tool call, ticket, process step
+- Event — log event, status transition, scan event, lifecycle update, incident update
+- State — pending, running, blocked, completed, failed, delayed, escalated
+- Resource — file, package, inventory item, machine, endpoint, location
+- Relation — depends-on, assigned-to, belongs-to, triggered-by, located-at
+- Metric — duration, latency, count, throughput, cost, error rate
+- Timeline Span — session, route, workflow run, incident window, execution phase
+
+Application-specific domain entities then map onto these archetypes. Example: `Agent` in an agent dashboard and `Carrier` in a logistics dashboard can both map to Actor for purposes of presentation, filtering, selection, and action dispatch.
+
+The graphic design layer should also be treated as an archetype, not a fixed theme. The target is sober, dense, typographic, low-chrome information UI. Berkeley Mono / paper-and-ink is one instance, not the universal output.
+
+### Consequence
+The first real design session should define:
+1. The initial archetype inventory.
+2. How app-specific domain types map onto archetypes.
+3. Which presentation variants belong to archetypes vs. domain types.
+4. Which visual constraints are mandatory vs. theme-level choices.
+
+## 2026-05-19 — Visual references and intermediate document drafting
+
+### What happened
+Copied the two user-provided visual reference images into:
+
+- `sources/images/01-dense-typographic-reference.png`
+- `sources/images/02-dense-typographic-reference.png`
+
+Asked a vision model to extract reusable design-system principles from the images, focusing on typography, spacing, layout, color, hierarchy, components, and interaction affordances. The interpretation matched the intended direction: sober, typographic, low-chrome, high-density operational UI with strict alignment, compact components, semantic color, keyboard/context affordances, and progressive disclosure.
+
+### User clarifications incorporated
+- Archetypes are best understood as collections of capabilities that recur in roughly similar form across concrete domains.
+- Archetypes should be composable; a concrete type can map to multiple archetypes.
+- A tool call has multiple semantic layers:
+  - a definition/signature (`ActionSpec` or similar);
+  - a concrete scheduled/running execution (`ActionInvocation` / `WorkItem`);
+  - emitted observations (`Event`).
+- A shipment is compositional rather than meta-layered: it can be WorkItem + TimelineSpan + related Resource/Actor/Event facets.
+- A status badge is the representation of the `stateful` capability; a `State` archetype only exists when state itself is first-class.
+- Design constraints should be ranges for now, not hard rules. Hard rules will be produced later when creating a concrete design system instance.
+
+### Documents created
+Created two intermediate design documents that sit between this collaboration/playbook phase and the later concrete DSL/tooling phase:
+
+1. `design-doc/03-semantic-archetype-and-capability-model.md`
+   - Defines domain types, archetypes, capabilities, projections, presentations, and actions.
+   - Explains compositional archetypes and capability-level presentations.
+   - Clarifies ToolCall and Shipment as examples.
+   - Sketches future `archetypes.yaml`, `capabilities.yaml`, `domain-mapping.yaml`, `presentations.yaml`, and `actions.yaml` artifacts.
+
+2. `design-doc/04-dense-operational-ui-graphic-design-and-ux-archetype.md`
+   - Defines the Sober Dense Operational UI archetype.
+   - Captures design ranges for typography, spacing, borders, color, density, layout, component archetypes, and interaction affordances.
+   - Describes how to later harden ranges into concrete `design-language.yaml`, generated helpers, lint rules, and playbooks.
+
+### Updated pipeline understanding
+The intended production path is now:
+
+```text
+this discussion + collaborative playbook
+  -> intermediate semantic/archetype document
+  -> intermediate graphic design/UX archetype document
+  -> concrete widget DSL spec
+  -> concrete playbooks
+  -> computational codegen/linting/tools
+  -> hard design guidelines
+  -> concrete domain-specific design system instance
+```
+
+### Playbook refinement
+Created `playbook/03-dmeta-design-system-factory-runthrough-playbook.md`, which turns this pipeline into a repeatable protocol with phases:
+
+1. orientation/source import;
+2. intermediate semantic/archetype model;
+3. intermediate graphic design/UX archetype;
+4. concrete schema design;
+5. hard design rules;
+6. widget DSL and generator design;
+7. tooling/validation;
+8. concrete domain instantiation.
+
+## 2026-05-19 — Promoted long-term documents out of the ticket workspace
+
+### What happened
+The user asked to establish the emerging playbooks and design docs as long-term DMETA documents rather than keeping them only under the ticket workspace.
+
+Updated the original imported collaborative playbook to reflect the current DMETA model: semantic archetypes, capabilities, capability-level presentations, composable archetypes, range-based graphic design archetype, concrete schema hardening, and the full path from collaboration to concrete domain instantiation.
+
+Moved long-term playbooks to:
+
+- `dmeta/playbooks/01-collaborative-schema-design-sessions-for-presentation-based-ui.md`
+- `dmeta/playbooks/02-dmeta-design-system-factory-runthrough-playbook.md`
+
+Moved long-term design docs to:
+
+- `dmeta/design-docs/01-design-system-factory-vision-and-scope.md`
+- `dmeta/design-docs/02-semantic-archetype-and-capability-model.md`
+- `dmeta/design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md`
+
+### Consequence
+The ticket now acts as the historical workspace and source-import context. The root `dmeta/playbooks/` and `dmeta/design-docs/` directories are the durable starting points for future design-system factory work.
+
+## 2026-05-19 — Concrete v0 planning and task creation
+
+### What happened
+After reviewing the HAIR-041 organization, we decided not to split the first DMETA concrete system into many YAML files. HAIR-041 used Markdown for reasoning, specification, playbooks, audits, and diary entries; YAML was reserved for source artifacts consumed by generators/validators. DMETA should follow that pattern.
+
+### Decision
+For DMETA v0, create three concrete Markdown specs and four minimal YAML sources:
+
+**Markdown specs**
+- `dmeta/design-docs/04-concrete-dmeta-system-spec.md`
+- `dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md`
+- `dmeta/design-docs/06-dmeta-design-language-and-tooling-spec.md`
+
+**YAML sources**
+- `dmeta/sources/dmeta-ir/00-index.yaml`
+- `dmeta/sources/dmeta-ir/01-core-model.yaml`
+- `dmeta/sources/dmeta-ir/02-design-language.yaml`
+- `dmeta/sources/dmeta-ir/03-widgets.yaml`
+
+### Rationale
+YAML is only justified when tooling will consume it: generators, validators, runtime registries, lint rules, or synchronized manifests. Markdown remains the right format for rationale, examples, alternatives, design intent, and process.
+
+### Task update
+Added ticket tasks for the three concrete docs, the four minimal YAML artifacts, and the ongoing diary/changelog/commit hygiene work.
