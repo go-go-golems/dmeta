@@ -172,3 +172,32 @@ severity=info code=validation_ok artifact=package message="DMETA IR package has 
 ### Tasks
 
 Marked tasks 4, 5, 6, 7, and 8 complete.
+
+## 2026-05-19 — Implementation committed and ticket relationships updated
+
+### What happened
+Committed the Go/Glazed validator implementation:
+
+```text
+2f221be Implement DMETA IR validator CLI
+```
+
+Related the ticket to the implementation files:
+
+- `cmd/dmeta/main.go`
+- `pkg/dmeta/cmds/validate_ir.go`
+- `pkg/dmeta/validator`
+
+Marked task 9 complete.
+
+### Current command
+
+From `dmeta/`:
+
+```bash
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+```
+
+### Current result
+
+The command reports an info `validation_ok` row and exits successfully. The current DMETA v0 IR has no error-severity validation findings.

@@ -11,4 +11,4 @@
 - [x] Implement cross-reference validation rules for core model, design language, and widgets
 - [x] Expose validator as a Glazed command with structured row output
 - [x] Run validator against dmeta/sources/dmeta-ir and fix discovered IR issues
-- [ ] Run gofmt/go test/go run validation and commit at logical intervals
+- [x] Run gofmt/go test/go run validation and commit at logical intervals

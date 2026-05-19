@@ -11,12 +11,18 @@ DocType: index
 Intent: long-term
 Owners: []
 RelatedFiles:
+    - Path: dmeta/cmd/dmeta/main.go
+      Note: CLI entry point registering the Glazed validate-ir command
     - Path: dmeta/design-docs/04-concrete-dmeta-system-spec.md
       Note: Concrete v0 system architecture and validator context
     - Path: dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md
       Note: Core model and widget IR validation rules
     - Path: dmeta/design-docs/06-dmeta-design-language-and-tooling-spec.md
       Note: Design-language and tooling validation rules
+    - Path: dmeta/pkg/dmeta/cmds/validate_ir.go
+      Note: Glazed command implementation for structured validation output
+    - Path: dmeta/pkg/dmeta/validator
+      Note: Validator package with YAML models
     - Path: dmeta/sources/dmeta-ir
       Note: DMETA v0 YAML IR package that the validator must load and validate
     - Path: glazed
@@ -27,6 +33,7 @@ LastUpdated: 2026-05-19T19:22:00.640682029-04:00
 WhatFor: ""
 WhenToUse: ""
 ---
+
 
 
 # Build Glazed CLI Validator for DMETA v0 IR
