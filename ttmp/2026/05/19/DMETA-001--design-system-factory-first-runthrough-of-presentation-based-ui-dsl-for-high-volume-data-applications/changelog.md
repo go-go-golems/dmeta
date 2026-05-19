@@ -34,3 +34,8 @@ Promoted long-term DMETA documents out of the ticket workspace. Updated the coll
 
 Added concrete v0 tasks after deciding to consolidate DMETA YAML. Planned three concrete Markdown specs and four minimal YAML source artifacts under dmeta/sources/dmeta-ir/. Updated diary with the HAIR-041 organization comparison and rationale for keeping only tooling-consumed facts in YAML.
 
+
+## 2026-05-19
+
+Created dmeta/design-docs/04-concrete-dmeta-system-spec.md. The spec defines the v0 artifact layout, Markdown-vs-YAML policy, the four minimal YAML source artifacts, system lifecycle, runtime boundary, first widget families, domain pressure tests, HAIR-041 relationship, and implementation order. Updated dmeta/README.md.
+

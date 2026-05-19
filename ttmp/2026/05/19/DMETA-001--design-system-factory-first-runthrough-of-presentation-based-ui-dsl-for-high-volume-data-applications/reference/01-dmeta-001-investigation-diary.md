@@ -213,3 +213,22 @@ YAML is only justified when tooling will consume it: generators, validators, run
 
 ### Task update
 Added ticket tasks for the three concrete docs, the four minimal YAML artifacts, and the ongoing diary/changelog/commit hygiene work.
+
+## 2026-05-19 — Concrete system spec written
+
+### What happened
+Created `dmeta/design-docs/04-concrete-dmeta-system-spec.md` as the top-level concrete v0 system architecture document.
+
+### What the document covers
+- The reduced v0 artifact layout.
+- Markdown vs YAML policy.
+- The four source YAML files and their responsibilities.
+- System lifecycle from Markdown specs to YAML IR, validation, generation, manual promotion, Storybook, lint, and audit.
+- Runtime adapter boundary and `PresentationRef` shape.
+- First generic widget families.
+- Domain pressure tests for AI agent workflows and retail logistics/order pipelines.
+- Relationship to HAIR-041 and how DMETA extends it.
+- Recommended implementation order and open questions.
+
+### Validation
+Marked task 12 complete. Updated `dmeta/README.md` to include the new document.

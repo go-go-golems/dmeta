@@ -12,6 +12,7 @@ This directory contains durable design-system factory documents promoted out of 
 - `design-docs/01-design-system-factory-vision-and-scope.md` — overall factory vision and scope.
 - `design-docs/02-semantic-archetype-and-capability-model.md` — reusable semantic archetypes, capabilities, projections, presentations, and action model.
 - `design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md` — sober dense operational UI graphic design and UX archetype.
+- `design-docs/04-concrete-dmeta-system-spec.md` — concrete v0 system architecture, Markdown/YAML split, artifact layout, lifecycle, and implementation order.
 
 ## Ticket history
 
