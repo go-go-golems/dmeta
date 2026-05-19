@@ -16,6 +16,13 @@ This directory contains durable design-system factory documents promoted out of 
 - `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` — concrete v0 specification for `01-core-model.yaml` and `03-widgets.yaml`.
 - `design-docs/06-dmeta-design-language-and-tooling-spec.md` — concrete v0 specification for `02-design-language.yaml`, generated helpers, validators, generators, lint, and promotion tooling.
 
+## Source IR
+
+- `sources/dmeta-ir/00-index.yaml` — v0 IR package manifest.
+- `sources/dmeta-ir/01-core-model.yaml` — consolidated archetypes, capabilities, presentations, actions, and pressure-test domain examples.
+- `sources/dmeta-ir/02-design-language.yaml` — sober dense operational UI design-language ranges, recipes, states, and lint rules.
+- `sources/dmeta-ir/03-widgets.yaml` — generic dense-operational widget classes and contracts.
+
 ## Ticket history
 
 The originating docmgr ticket remains under:

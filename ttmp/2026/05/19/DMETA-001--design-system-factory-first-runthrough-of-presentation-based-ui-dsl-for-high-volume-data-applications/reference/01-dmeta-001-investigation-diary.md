@@ -274,3 +274,52 @@ Created `dmeta/design-docs/06-dmeta-design-language-and-tooling-spec.md`.
 
 ### Validation
 Marked task 14 complete. Updated `dmeta/README.md` to include the new document.
+
+## 2026-05-19 — Minimal v0 YAML IR drafted
+
+### What happened
+Created the minimal consolidated YAML source artifacts under `dmeta/sources/dmeta-ir/`:
+
+- `00-index.yaml`
+- `01-core-model.yaml`
+- `02-design-language.yaml`
+- `03-widgets.yaml`
+
+### Contents
+`00-index.yaml` declares the IR package and points to the three source artifacts.
+
+`01-core-model.yaml` consolidates:
+- archetypes;
+- capabilities and projections;
+- presentation definitions;
+- action definitions;
+- agent workflow and retail logistics domain pressure-test examples;
+- validation intent.
+
+`02-design-language.yaml` captures:
+- theme axes;
+- typography ranges;
+- density and spacing ranges;
+- color semantics;
+- border/elevation constraints;
+- layout primitives;
+- presentation recipes;
+- interaction states;
+- data attributes;
+- lint rules.
+
+`03-widgets.yaml` defines the first generic dense-operational widgets:
+- `PresentationToken`;
+- `StatusBadge`;
+- `CompactReference`;
+- `MetricCell`;
+- `RecordStream`;
+- `DenseTable`;
+- `DetailDrawer`;
+- `ActionPalette`.
+
+### Validation
+Ran a small PyYAML parse check over all four YAML files. It initially failed on `03-widgets.yaml` because the TypeScript-style union string `"left" | "right"` used `|`, which YAML interpreted as a block scalar marker. Fixed this by quoting the full union string as a single scalar. After the fix, all four YAML files parsed successfully.
+
+### Task update
+Marked tasks 15, 16, 17, and 18 complete.

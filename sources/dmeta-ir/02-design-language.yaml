@@ -1,0 +1,257 @@
+schema_version: 0
+artifact_type: dmeta_design_language
+summary: Range-based design-language rules for sober dense operational UIs.
+status: draft
+mode: archetype_range
+
+theme_axes:
+  density:
+    values: [compact, regular, spacious]
+    default: regular
+  neutral_tone:
+    values: [warm_paper, cool_gray, white_panel, dark_console]
+    default: warm_paper
+  type_mode:
+    values: [mono_only, sans_with_mono, sans_only_with_tabular]
+    default: sans_with_mono
+  radius:
+    values: [square, slight]
+    default: slight
+  row_treatment:
+    values: [plain, striped, ruled, banded]
+    default: ruled
+  surface_separation:
+    values: [spacing, keyline, tint, subtle_shadow]
+    default: keyline
+  accent_strategy:
+    values: [single_primary, semantic_status_only, category_palette]
+    default: semantic_status_only
+
+typography:
+  families:
+    ui_sans:
+      role: interface
+      examples: [Inter, IBM Plex Sans, system-ui]
+    ui_mono:
+      role: identifiers_numbers_code
+      examples: [Berkeley Mono, IBM Plex Mono, JetBrains Mono, SF Mono]
+  roles:
+    body:
+      family: ui_sans
+      size_range: [12, 14]
+      weight_range: [400, 500]
+      line_height_range: [1.35, 1.5]
+      purpose: Main dense reading text.
+    metadata:
+      family: ui_mono
+      size_range: [11, 12]
+      weight_range: [400, 500]
+      line_height_range: [1.25, 1.4]
+      purpose: Timestamps, ids, keyboard hints, secondary facts.
+    label:
+      family: ui_sans
+      size_range: [11, 12]
+      weight_range: [500, 600]
+      transform: uppercase
+      tracking_range: [0.04em, 0.08em]
+      purpose: Table headers, rails, badges, section micro-labels.
+    title:
+      family: ui_sans
+      size_range: [16, 20]
+      weight_range: [500, 600]
+      line_height_range: [1.15, 1.25]
+      purpose: Page or panel titles; use sparingly.
+    code:
+      family: ui_mono
+      size_range: [11, 13]
+      weight_range: [400, 500]
+      numeric: tabular
+      purpose: Codes, identifiers, exact values.
+
+density:
+  modes:
+    compact:
+      row_height_range: [22, 28]
+      cell_padding_x_range: [4, 8]
+      cell_padding_y_range: [2, 4]
+      font_body_range: [12, 13]
+    regular:
+      row_height_range: [28, 36]
+      cell_padding_x_range: [6, 10]
+      cell_padding_y_range: [4, 6]
+      font_body_range: [13, 14]
+    spacious:
+      row_height_range: [36, 44]
+      cell_padding_x_range: [10, 14]
+      cell_padding_y_range: [6, 10]
+      font_body_range: [14, 15]
+
+spacing:
+  base_grid: 2
+  tokens: [2, 4, 8, 12, 16, 24, 32]
+  rules:
+    - Use spacing to group before adding boxes.
+    - Detail panels may use more spacing than streams/tables.
+    - Avoid per-widget local spacing constants once helpers exist.
+
+color:
+  neutral_roles:
+    background:
+      range: [warm_off_white, cool_gray, white]
+      purpose: Main application surface.
+    surface:
+      purpose: Panels, drawers, cards, floating surfaces.
+    text_primary:
+      contrast: body_text
+    text_secondary:
+      contrast: secondary_text
+    text_muted:
+      contrast: metadata
+    divider:
+      opacity_range: [0.08, 0.16]
+  semantic_roles:
+    neutral:
+      purpose: Default non-emphatic state.
+    info:
+      purpose: Informational state or category.
+    success:
+      purpose: Completed/healthy/positive state.
+    warning:
+      purpose: Delayed/risky/degraded state.
+    danger:
+      purpose: Failed/destructive/error state.
+    pending:
+      purpose: Waiting/scheduled/unknown-progress state.
+    selected:
+      purpose: User-selected semantic representation or row.
+    active:
+      purpose: Current running/focused operational context.
+  rules:
+    - Color is semantic, not decorative.
+    - Status color must be paired with text/icon labels.
+    - Broad backgrounds should remain neutral unless the surface itself is a semantic alert.
+    - Dense rows should not become colorful unless the task is specifically heatmap/category scanning.
+
+borders:
+  width_range: [1, 1]
+  high_dpi_width_optional: 0.5
+  divider_style: hairline
+  radius_range: [0, 4]
+  rules:
+    - Persistent panels use keylines, spacing, or tint before shadows.
+    - Avoid large radii for dense operational UI.
+
+elevation:
+  static_surfaces: none
+  floating_surfaces:
+    allowed: [menu, popover, command_palette, tooltip]
+    shadow: subtle
+
+layout:
+  primitives:
+    app_frame:
+      regions: [nav, toolbar, main, detail_drawer, status_footer]
+    master_detail:
+      main_ratio_range: [0.6, 0.75]
+      detail_ratio_range: [0.25, 0.4]
+    dense_stream:
+      required_affordances: [virtualization_ready, keyboard_navigation, hover_actions]
+    dense_table:
+      required_affordances: [sortable, filterable, resizable_columns]
+    process_panel:
+      required_affordances: [collapsed_summary, expanded_steps]
+    command_palette:
+      required_affordances: [keyboard_first, filtering, argument_collection]
+
+presentation_recipes:
+  compact_ref:
+    typography: code
+    density: compact
+    affordances: [hover_underline, copy_on_menu, context_menu]
+    states: [rest, hover, focus, selected, candidate, disabled]
+  status_badge:
+    typography: label
+    color_source: state_tone
+    shape: slight_radius
+    affordances: [context_menu_optional]
+    states: [rest, hover, focus, selected]
+  dense_row:
+    typography: body
+    density: compact_or_regular
+    row_treatment: ruled
+    affordances: [selection, hover_actions, context_menu, keyboard_focus]
+    states: [rest, hover, focus, selected, candidate, active]
+  metric_cell:
+    typography: code
+    alignment: right
+    numeric: tabular
+    affordances: [copy_optional, compare_optional]
+    states: [rest, hover, focus, selected]
+
+interaction_states:
+  states:
+    rest:
+      purpose: Default non-interacting state.
+    hover:
+      purpose: Pointer hover; may reveal utilities.
+    focus:
+      purpose: Keyboard focus; must be visible.
+    selected:
+      purpose: User-selected item or presentation.
+    candidate:
+      purpose: Valid action argument candidate during argument collection.
+    active:
+      purpose: Currently running/current context.
+    disabled:
+      purpose: Unavailable action/presentation.
+    error:
+      purpose: Invalid/destructive/failed state.
+  rules:
+    - Focus must be visible.
+    - Hover-only utilities must also be keyboard reachable.
+    - Critical state cannot be hover-only.
+    - Candidate state must be distinguishable from ordinary selection.
+
+data_attributes:
+  prefix: data-dmeta
+  required_for_presentations:
+    - semantic-id
+    - domain-type
+    - archetypes
+    - capabilities
+    - presentation-id
+  required_for_widgets:
+    - widget-id
+    - widget-level
+  required_for_actions:
+    - action-id
+    - action-category
+
+lint_rules:
+  no_raw_colors:
+    severity: warning
+    description: Promoted widgets should use generated color helpers/tokens.
+  no_unauthorized_type_roles:
+    severity: warning
+    description: Widgets should use named typography roles.
+  no_local_status_badges:
+    severity: warning
+    description: Status badges should use registered presentation/design recipe.
+  no_local_density_constants:
+    severity: warning
+    description: Row heights and cell padding should use density helpers.
+  no_heavy_static_shadows:
+    severity: warning
+    description: Static surfaces should not use heavy elevation.
+  no_manual_dmeta_data_attributes:
+    severity: warning
+    description: Widgets should use generated data attribute helpers.
+  hover_controls_keyboard_accessible:
+    severity: error
+    description: Hover-revealed controls must be reachable by keyboard.
+
+validation:
+  require_axis_defaults_in_values: true
+  require_typography_role_references: true
+  require_presentation_recipe_state_references: true
+  require_lint_rule_severities: [info, warning, error]

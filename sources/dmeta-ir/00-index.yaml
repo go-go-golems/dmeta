@@ -1,0 +1,42 @@
+schema_version: 0
+artifact_type: dmeta_ir_index
+summary: Minimal DMETA v0 IR package for dense operational presentation-based UI design systems.
+status: draft
+
+artifacts:
+  core_model:
+    path: ./01-core-model.yaml
+    artifact_type: dmeta_core_model
+    description: Consolidated archetypes, capabilities, presentations, actions, and pressure-test domain examples.
+    consumers:
+      - validate-dmeta-ir
+      - generate-presentation-registry
+      - generate-action-registry
+      - scaffold-dmeta-widgets
+  design_language:
+    path: ./02-design-language.yaml
+    artifact_type: dmeta_design_language
+    description: Sober dense operational UI design-language ranges, recipes, states, and lint rules.
+    consumers:
+      - validate-dmeta-ir
+      - generate-design-language
+      - lint-dmeta-design-system
+      - scaffold-dmeta-widgets
+  widgets:
+    path: ./03-widgets.yaml
+    artifact_type: dmeta_widget_ir
+    description: Generic dense-operational widget classes and contracts.
+    consumers:
+      - validate-dmeta-ir
+      - scaffold-dmeta-widgets
+      - validate-widget-promotion
+
+references:
+  system_spec: ../../design-docs/04-concrete-dmeta-system-spec.md
+  core_widget_spec: ../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
+  design_tooling_spec: ../../design-docs/06-dmeta-design-language-and-tooling-spec.md
+
+validation:
+  require_artifact_type_match: true
+  require_schema_version_match: true
+  require_paths_exist: true

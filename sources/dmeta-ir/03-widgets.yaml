@@ -1,0 +1,333 @@
+schema_version: 0
+artifact_type: dmeta_widget_ir
+summary: Generic dense-operational widget classes for DMETA v0.
+status: draft
+
+widgets:
+  - id: dmeta.presentation_token
+    name: PresentationToken
+    status: draft
+    classification:
+      level: atom
+      role: semantic_presentation
+    intent:
+      purpose: Render a single presentation ref as inline selectable text/token/chip.
+      adapter_boundary: Receives typed PresentationRef; does not parse runtime JSON.
+    consumes:
+      presentations: [compact_id, display_label, status_badge, timestamp_inline, compact_ref, inline_token]
+    contract:
+      props:
+        PresentationTokenProps:
+          fields:
+            subject:
+              type: PresentationRef
+              required: true
+            variant:
+              type: PresentationId
+              required: true
+            selected:
+              type: boolean
+              required: false
+            candidate:
+              type: boolean
+              required: false
+      action_slots:
+        onOpenContextMenu:
+          accepts: PresentationRef
+        onSelectPresentation:
+          accepts: PresentationRef
+    stories: [default, selected, action_candidate, with_status]
+    outputs:
+      component: src/dmeta/widgets/PresentationToken/PresentationToken.tsx
+      types: src/dmeta/widgets/PresentationToken/PresentationToken.types.ts
+      metadata: src/dmeta/widgets/PresentationToken/PresentationToken.metadata.ts
+      stories: src/dmeta/widgets/PresentationToken/PresentationToken.stories.tsx
+      barrel: src/dmeta/widgets/PresentationToken/index.ts
+
+  - id: dmeta.status_badge
+    name: StatusBadge
+    status: draft
+    classification:
+      level: atom
+      role: state_presentation
+    intent:
+      purpose: Render the stateful capability as a compact semantic badge.
+      adapter_boundary: Receives normalized state presentation data and emits typed presentation callbacks.
+    consumes:
+      presentations: [status_badge, state_cell]
+      capabilities: [stateful]
+    contract:
+      props:
+        StatusBadgeProps:
+          fields:
+            subject:
+              type: PresentationRef
+              required: true
+            state:
+              type: string
+              required: true
+            tone:
+              type: SemanticTone
+              required: false
+      action_slots:
+        onOpenContextMenu:
+          accepts: PresentationRef
+    stories: [neutral, success, warning, danger, pending, selected]
+    outputs:
+      component: src/dmeta/widgets/StatusBadge/StatusBadge.tsx
+      types: src/dmeta/widgets/StatusBadge/StatusBadge.types.ts
+      metadata: src/dmeta/widgets/StatusBadge/StatusBadge.metadata.ts
+      stories: src/dmeta/widgets/StatusBadge/StatusBadge.stories.tsx
+      barrel: src/dmeta/widgets/StatusBadge/index.ts
+
+  - id: dmeta.compact_reference
+    name: CompactReference
+    status: draft
+    classification:
+      level: atom
+      role: reference_presentation
+    intent:
+      purpose: Render compact references for identifiable/labelable semantic objects.
+      adapter_boundary: Receives PresentationRef and optional resolved label/state data.
+    consumes:
+      presentations: [compact_id, compact_ref, relation_link]
+      capabilities: [identifiable, labelable, relatable]
+    contract:
+      props:
+        CompactReferenceProps:
+          fields:
+            subject:
+              type: PresentationRef
+              required: true
+            showState:
+              type: boolean
+              required: false
+            truncate:
+              type: boolean
+              required: false
+      action_slots:
+        onCopy:
+          accepts: PresentationRef
+        onInspect:
+          accepts: PresentationRef
+        onOpenContextMenu:
+          accepts: PresentationRef
+    stories: [id_only, label_and_id, with_state, truncated, selected]
+    outputs:
+      component: src/dmeta/widgets/CompactReference/CompactReference.tsx
+      types: src/dmeta/widgets/CompactReference/CompactReference.types.ts
+      metadata: src/dmeta/widgets/CompactReference/CompactReference.metadata.ts
+      stories: src/dmeta/widgets/CompactReference/CompactReference.stories.tsx
+      barrel: src/dmeta/widgets/CompactReference/index.ts
+
+  - id: dmeta.metric_cell
+    name: MetricCell
+    status: draft
+    classification:
+      level: atom
+      role: metric_presentation
+    intent:
+      purpose: Render comparable numeric values with units and tabular alignment.
+      adapter_boundary: Receives normalized metric value and optional PresentationRef.
+    consumes:
+      presentations: [metric_cell, duration_cell]
+      capabilities: [measurable, temporal]
+    contract:
+      props:
+        MetricCellProps:
+          fields:
+            subject:
+              type: PresentationRef
+              required: false
+            value:
+              type: number
+              required: true
+            unit:
+              type: string
+              required: false
+            align:
+              type: '"left" | "right"'
+              required: false
+      action_slots:
+        onCompare:
+          accepts: PresentationRef
+        onCopy:
+          accepts: PresentationRef
+    stories: [number, duration, unit, selected, comparison_candidate]
+    outputs:
+      component: src/dmeta/widgets/MetricCell/MetricCell.tsx
+      types: src/dmeta/widgets/MetricCell/MetricCell.types.ts
+      metadata: src/dmeta/widgets/MetricCell/MetricCell.metadata.ts
+      stories: src/dmeta/widgets/MetricCell/MetricCell.stories.tsx
+      barrel: src/dmeta/widgets/MetricCell/index.ts
+
+  - id: dmeta.record_stream
+    name: RecordStream
+    status: draft
+    classification:
+      level: organism
+      role: dense_record_stream
+    intent:
+      purpose: Render virtualizable ordered records/events/work items with selectable semantic presentations.
+      adapter_boundary: Receives normalized row models and typed callbacks; does not own backend dispatch.
+    consumes:
+      archetypes: [Event, WorkItem, ActionInvocation]
+      presentations: [dense_row, inline_token, status_badge, timestamp_inline, compact_ref]
+    contract:
+      props:
+        RecordStreamProps:
+          fields:
+            records:
+              type: DenseRecordViewModel[]
+              required: true
+            density:
+              type: DensityMode
+              required: false
+            selectedId:
+              type: string
+              required: false
+      action_slots:
+        onSelectRecord:
+          accepts: PresentationRef
+        onOpenContextMenu:
+          accepts: PresentationRef
+        onInspectRecord:
+          accepts: PresentationRef
+    stories: [log_events, tool_runs, logistics_scans, selected_record, argument_candidates]
+    outputs:
+      component: src/dmeta/widgets/RecordStream/RecordStream.tsx
+      types: src/dmeta/widgets/RecordStream/RecordStream.types.ts
+      metadata: src/dmeta/widgets/RecordStream/RecordStream.metadata.ts
+      stories: src/dmeta/widgets/RecordStream/RecordStream.stories.tsx
+      barrel: src/dmeta/widgets/RecordStream/index.ts
+
+  - id: dmeta.dense_table
+    name: DenseTable
+    status: draft
+    classification:
+      level: organism
+      role: dense_table
+    intent:
+      purpose: Render sortable/filterable dense records with presentation-aware cells.
+      adapter_boundary: Receives normalized columns/rows and emits typed row/cell callbacks.
+    consumes:
+      archetypes: [WorkItem, Resource, Actor, Metric]
+      presentations: [dense_row, compact_ref, status_badge, state_cell, metric_cell, timestamp_inline]
+    contract:
+      props:
+        DenseTableProps:
+          fields:
+            columns:
+              type: DenseTableColumn[]
+              required: true
+            rows:
+              type: DenseTableRow[]
+              required: true
+            density:
+              type: DensityMode
+              required: false
+      action_slots:
+        onCellAction:
+          accepts: PresentationRef
+        onRowAction:
+          accepts: PresentationRef
+        onSort:
+          accepts: DenseTableSort
+    stories: [work_items, shipments, metrics, selected_rows, filtered_state]
+    outputs:
+      component: src/dmeta/widgets/DenseTable/DenseTable.tsx
+      types: src/dmeta/widgets/DenseTable/DenseTable.types.ts
+      metadata: src/dmeta/widgets/DenseTable/DenseTable.metadata.ts
+      stories: src/dmeta/widgets/DenseTable/DenseTable.stories.tsx
+      barrel: src/dmeta/widgets/DenseTable/index.ts
+
+  - id: dmeta.detail_drawer
+    name: DetailDrawer
+    status: draft
+    classification:
+      level: organism
+      role: semantic_detail_surface
+    intent:
+      purpose: Inspect selected semantic subject while preserving list/table context.
+      adapter_boundary: Receives normalized detail sections, related presentations, and action callbacks.
+    consumes:
+      presentations: [detail_panel, compact_ref, relation_link, status_badge, metric_cell]
+      capabilities: [inspectable, relatable]
+    contract:
+      props:
+        DetailDrawerProps:
+          fields:
+            subject:
+              type: PresentationRef
+              required: true
+            sections:
+              type: DetailSection[]
+              required: true
+            open:
+              type: boolean
+              required: true
+      action_slots:
+        onClose:
+          accepts: void
+        onAction:
+          accepts: PresentationActionRequest
+        onOpenRelated:
+          accepts: PresentationRef
+    stories: [tool_run_detail, shipment_detail, related_objects, collapsed_payloads]
+    outputs:
+      component: src/dmeta/widgets/DetailDrawer/DetailDrawer.tsx
+      types: src/dmeta/widgets/DetailDrawer/DetailDrawer.types.ts
+      metadata: src/dmeta/widgets/DetailDrawer/DetailDrawer.metadata.ts
+      stories: src/dmeta/widgets/DetailDrawer/DetailDrawer.stories.tsx
+      barrel: src/dmeta/widgets/DetailDrawer/index.ts
+
+  - id: dmeta.action_palette
+    name: ActionPalette
+    status: draft
+    classification:
+      level: organism
+      role: typed_action_discovery
+    intent:
+      purpose: Discover actions globally or for a selected PresentationRef and collect typed arguments.
+      adapter_boundary: Receives generated action metadata, current selection, and candidate presentations.
+    consumes:
+      presentations: [compact_ref, inline_token, status_badge, metric_cell]
+    contract:
+      props:
+        ActionPaletteProps:
+          fields:
+            open:
+              type: boolean
+              required: true
+            source:
+              type: PresentationRef
+              required: false
+            actions:
+              type: ActionDefinition[]
+              required: true
+            candidates:
+              type: PresentationRef[]
+              required: false
+      action_slots:
+        onChooseAction:
+          accepts: ActionDefinition
+        onChooseArgument:
+          accepts: PresentationRef
+        onExecute:
+          accepts: PresentationActionRequest
+    stories: [global, source_context, awaiting_argument, candidates, empty]
+    outputs:
+      component: src/dmeta/widgets/ActionPalette/ActionPalette.tsx
+      types: src/dmeta/widgets/ActionPalette/ActionPalette.types.ts
+      metadata: src/dmeta/widgets/ActionPalette/ActionPalette.metadata.ts
+      stories: src/dmeta/widgets/ActionPalette/ActionPalette.stories.tsx
+      barrel: src/dmeta/widgets/ActionPalette/index.ts
+
+validation:
+  require_unique_widget_ids: true
+  require_unique_output_paths: true
+  require_known_presentations: true
+  require_known_archetypes: true
+  require_known_capabilities: true
+  require_story_names: true
+  require_metadata_output: true

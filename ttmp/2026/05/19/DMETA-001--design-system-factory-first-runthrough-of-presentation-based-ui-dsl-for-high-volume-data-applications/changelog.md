@@ -49,3 +49,8 @@ Created dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md. The spec de
 
 Created dmeta/design-docs/06-dmeta-design-language-and-tooling-spec.md. The spec defines 02-design-language.yaml structure, theme axes, typography/density/color/border/layout/presentation recipes, data attributes, lint rules, and the planned validator/generator/lint/promotion tooling sequence. Updated dmeta/README.md.
 
+
+## 2026-05-19
+
+Created minimal v0 DMETA IR YAML sources under dmeta/sources/dmeta-ir/: 00-index.yaml, 01-core-model.yaml, 02-design-language.yaml, and 03-widgets.yaml. Validated all four YAML files parse with PyYAML and fixed an initial union-type quoting issue in 03-widgets.yaml. Updated dmeta/README.md.
+
