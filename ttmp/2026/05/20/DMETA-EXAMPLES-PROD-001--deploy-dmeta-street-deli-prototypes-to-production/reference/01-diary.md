@@ -579,3 +579,133 @@ kubectl kustomize gitops/kustomize/dmeta-examples
 - Vault secret path: `kv/apps/dmeta-examples/prod/image-pull`.
 - VSO destination secret: `dmeta-examples-ghcr-pull` in namespace `static-sites`.
 - Publisher ServiceAccount: `dmeta-examples` in namespace `static-sites`.
+
+## Step 6: Merge, bootstrap, fix immutable Job drift, and smoke test production
+
+I merged the GitOps and source PRs, bootstrapped the new Argo CD Application, and verified the production host. The first deployment succeeded on the branch image, then the source main workflow successfully published a main image and opened the expected GitOps bump PR through Vault OIDC.
+
+That automated bump exposed an important static publisher edge case: the generic `open-gitops-pr` action only updates the container image field, while the publisher Job name and release token also need to move for Kubernetes immutable Job specs. I fixed the deployed state with a follow-up K3s PR that aligned all release tokens to `sha-a291e27` and added Argo `Replace=true` for the publisher Job.
+
+### Prompt Context
+
+**User prompt (verbatim):** "go ahead."
+
+**Assistant interpretation:** Proceed with the merge, deployment bootstrap, and validation work now that the image-pull strategy matches the obsidian publish pattern.
+
+**Inferred user intent:** The user wants the production rollout completed end-to-end rather than stopping at open PRs.
+
+**Commit (code):** b3a21465f5bc92a5fe76dacc6f650726949cd3df — K3s PR #87 merge; a291e27e7379bf9bacf92d69fa40343b0fbaa8ae — DMETA PR #1 merge; d5ac7b1c10adc8411ddef8a26ca4e17af8492828 — K3s PR #88 merge; e629e132bf9468d9a7ca652be06861cd86f5f4f8 — K3s PR #89 merge.
+
+### What I did
+
+- Merged K3s PR #87: `https://github.com/wesen/2026-03-27--hetzner-k3s/pull/87`.
+- Bootstrapped the Argo CD Application:
+
+```bash
+cd /home/manuel/code/wesen/2026-03-27--hetzner-k3s
+export KUBECONFIG=$PWD/.cache/kubeconfig-tailnet.yaml
+kubectl apply -f gitops/applications/dmeta-examples.yaml
+kubectl -n argocd annotate application dmeta-examples argocd.argoproj.io/refresh=hard --overwrite
+```
+
+- Watched Argo create the VSO resources, image-pull secret, Ingress, TLS certificate, and publisher Job.
+- Verified initial app status reached `Synced Healthy` on revision `b3a21465f5bc92a5fe76dacc6f650726949cd3df`.
+- Verified initial publisher Job `publish-dmeta-examples-sha-3697432` completed successfully.
+- Smoke-tested:
+
+```bash
+curl -fsSI https://dmeta-examples.yolo.scapegoat.dev/
+curl -fsSI https://dmeta-examples.yolo.scapegoat.dev/mobile/
+curl -fsSI https://dmeta-examples.yolo.scapegoat.dev/clim/
+```
+
+- Merged DMETA source PR #1: `https://github.com/go-go-golems/dmeta/pull/1`.
+- Watched main workflow run `https://github.com/go-go-golems/dmeta/actions/runs/26182040875` publish `sha-a291e27` and open K3s PR #88.
+- Merged K3s PR #88, then observed Argo fail to apply because the Job name/release token remained `sha-3697432` while only the image changed.
+- Opened and merged K3s PR #89 to align the Job name/release token with `sha-a291e27` and add `argocd.argoproj.io/sync-options: Replace=true`.
+- Watched Argo converge to `Synced Healthy` on revision `e629e132bf9468d9a7ca652be06861cd86f5f4f8`.
+- Verified final publisher Job `publish-dmeta-examples-sha-a291e27` completed successfully.
+- Re-ran HTTP smoke tests for root, mobile, CLIM, JS assets, and the CLIM font.
+
+### Why
+
+- The K3s Application object must be created once before Argo can reconcile the new GitOps package.
+- The source PR needed to merge so the official `main` image exists and the Vault OIDC GitOps PR automation is proven.
+- The follow-up K3s fix was necessary because Kubernetes Job pod templates are immutable and the generic GitOps PR automation did not change the Job name/release token.
+
+### What worked
+
+- Vault/VSO image-pull wiring worked: `dmeta-examples-ghcr-pull` was rendered as a `kubernetes.io/dockerconfigjson` secret in `static-sites`.
+- The private GHCR image pulled successfully in-cluster.
+- cert-manager issued `dmeta-examples-tls`.
+- Argo CD reports final state:
+
+```text
+Synced Healthy e629e132bf9468d9a7ca652be06861cd86f5f4f8
+```
+
+- Final smoke tests returned HTTP 200 for:
+  - `https://dmeta-examples.yolo.scapegoat.dev/`
+  - `https://dmeta-examples.yolo.scapegoat.dev/mobile/`
+  - `https://dmeta-examples.yolo.scapegoat.dev/clim/`
+  - `https://dmeta-examples.yolo.scapegoat.dev/mobile/app.js`
+  - `https://dmeta-examples.yolo.scapegoat.dev/clim/app.js`
+  - `https://dmeta-examples.yolo.scapegoat.dev/clim/fonts/BerkeleyMono-Regular.woff2`
+
+### What didn't work
+
+- K3s PR #88, opened by the generic image-bump automation, changed the image to `sha-a291e27` but left the Job name/release token at `sha-3697432`. Argo then failed with:
+
+```text
+Job.batch "publish-dmeta-examples-sha-3697432" is invalid: spec.template: Invalid value ... field is immutable
+```
+
+- I fixed this by merging K3s PR #89, which changed the Job name and release token to `sha-a291e27` and added `argocd.argoproj.io/sync-options: Replace=true`.
+
+### What I learned
+
+- The shared `open-gitops-pr` image patcher is sufficient for Deployments, but static publisher Jobs have extra release-token invariants.
+- `Replace=true` avoids future immutable Job patch failures, but future generic image bumps may still leave the release directory token stale unless the bump automation learns to replace every `sha-*` token in `publish-job.yaml`.
+- The end-user site can be healthy even when the GitOps release token is stale, but the operator trail is cleaner when Job name, image tag, label, and shell `release` variable all match.
+
+### What was tricky to build
+
+- The first deployment and the official main release are two distinct rollouts. The first used `sha-3697432` from the branch workflow; the official source merge published `sha-a291e27`.
+- Argo retried the immutable Job patch several times before surfacing the failure clearly in `.status.operationState.message`. The failure was not an image pull or VSO issue; it was Kubernetes rejecting mutation of an existing Job pod template.
+
+### What warrants a second pair of eyes
+
+- Decide whether to extend `infra-tooling` with a static-publisher release bump mode, or add a dmeta-specific bump script/workflow, so future automation updates every `sha-*` token instead of just `image:`.
+- Review whether `Replace=true` is enough for future dmeta-examples bumps or whether matching release directories are a hard operational requirement.
+
+### What should be done in the future
+
+- Optionally update the source workflow/GitOps automation so future dmeta-examples releases bump Job name, image tag, release label, and shell release variable together.
+- Optionally delete old completed publisher Jobs after sufficient retention time if they clutter `static-sites`.
+
+### Code review instructions
+
+- Review K3s PR #89 for the immutable Job fix.
+- Validate live state with:
+
+```bash
+cd /home/manuel/code/wesen/2026-03-27--hetzner-k3s
+export KUBECONFIG=$PWD/.cache/kubeconfig-tailnet.yaml
+kubectl -n argocd get application dmeta-examples
+kubectl -n static-sites get vaultauth dmeta-examples
+kubectl -n static-sites get vaultstaticsecret dmeta-examples-ghcr-pull
+kubectl -n static-sites get job publish-dmeta-examples-sha-a291e27
+curl -fsSI https://dmeta-examples.yolo.scapegoat.dev/
+curl -fsSI https://dmeta-examples.yolo.scapegoat.dev/mobile/
+curl -fsSI https://dmeta-examples.yolo.scapegoat.dev/clim/
+```
+
+### Technical details
+
+- Final Argo revision: `e629e132bf9468d9a7ca652be06861cd86f5f4f8`.
+- Final image: `ghcr.io/go-go-golems/dmeta-examples-static:sha-a291e27`.
+- Final publisher Job: `publish-dmeta-examples-sha-a291e27`.
+- Public URLs:
+  - `https://dmeta-examples.yolo.scapegoat.dev/`
+  - `https://dmeta-examples.yolo.scapegoat.dev/mobile/`
+  - `https://dmeta-examples.yolo.scapegoat.dev/clim/`
