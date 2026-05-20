@@ -84,3 +84,15 @@ Matched the retro-obsidian-publish private GHCR pattern for dmeta-examples: adde
 - /home/manuel/code/wesen/2026-03-27--hetzner-k3s/vault/policies/kubernetes/dmeta-examples.hcl — Kubernetes Vault policy for image-pull secret
 - /home/manuel/code/wesen/2026-03-27--hetzner-k3s/vault/roles/kubernetes/dmeta-examples.json — Kubernetes Vault role bound to static-sites/dmeta-examples
 
+
+## 2026-05-20
+
+Completed production rollout: merged source PR #1, merged K3s PRs #87/#88/#89, bootstrapped Argo CD Application, verified dmeta-examples is Synced/Healthy, and smoke-tested root/mobile/CLIM URLs with HTTP 200.
+
+### Related Files
+
+- /home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/applications/dmeta-examples.yaml — Bootstrapped Argo CD Application
+- /home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/dmeta-examples/publish-job.yaml — Final publisher Job synced as sha-a291e27
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/.github/workflows/publish-examples-static.yaml — Source workflow merged and published main image sha-a291e27
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/20/DMETA-EXAMPLES-PROD-001--deploy-dmeta-street-deli-prototypes-to-production/tasks.md — All rollout tasks checked
+
