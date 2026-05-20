@@ -43,3 +43,17 @@ Step 4: Built CLIM-style monochrome prototype (3 files + fonts). 24-action regis
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/index.html — CLIM prototype HTML
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/styles.css — Monochrome CLIM styles
 
+
+## 2026-05-20
+
+Step 6: Fixed CLIM action/select-mode semantics, split CLIM app.js into module entrypoint + js/data.js + js/app-main.js, added white action-result area above Command, changed select mode to red foreground without persistent underline, synced www/clim, and served both prototypes from tmux session street-deli-prototypes on port 8770.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/app.js — Module entrypoint
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/index.html — Module script and result area
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/js/app-main.js — CLIM state machine
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/js/data.js — Menu and substitution data module
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/styles.css — Select-mode and result-area styles
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/www/clim/js/app-main.js — Served CLIM app module
+

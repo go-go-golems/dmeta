@@ -108,11 +108,11 @@ body {
 .pres.selectable {
   color: #ff4444;
   cursor: crosshair;
-  border-bottom: 1px solid #ff4444;
+  border-bottom-color: transparent;
 }
 .pres.selectable:hover {
-  background: #2a1111;
-  border-bottom: 2px solid #ff4444;
+  background: transparent;
+  border-bottom: 1px solid var(--fg);
 }
 .pres.select-disabled {
   color: #333333;
@@ -271,6 +271,14 @@ body {
   padding: 4px 8px;
   background: var(--bg);
   flex-shrink: 0;
+}
+.action-result {
+  color: var(--fg-bright);
+  border-bottom: 1px solid var(--border);
+  padding: 0 0 4px;
+  margin: 0 0 4px;
+  min-height: 1.5em;
+  white-space: pre-wrap;
 }
 .cmd-input-area {
   display: flex;

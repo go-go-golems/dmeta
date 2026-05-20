@@ -374,3 +374,72 @@ The previous CLIM prototype had the right visual style but still behaved too muc
   - Click Classic BLTA, action bar shows `DESCRIBE`, click `DESCRIBE`, result appears.
   - Type `REMOVE-INGREDIENT` in detail view, ingredients turn red, click Cheddar, it is removed and substitutions appear.
 - Check `prototype-clim/styles.css` for `.pres.selectable` and `.pres.select-disabled` behavior.
+
+## Step 6: Fix CLIM Command Selection Semantics and Split Modules
+
+Cleaned up the CLIM prototype interaction model after the user clarified the intended behavior. The resulting model is: typing an action name such as `DESCRIBE` enters select mode and colors compatible presentations red; clicking a red presentation executes the pending action. In normal mode, clicking a presentation only selects it and shows compatible actions; clicking an action executes it with the selected presentation. I also moved CLIM data and app logic into modules and added a white action-result area above the command prompt.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Ok, I don't think the actions get executed now. Also, no underline when in select mode, just change color, and the underlin hover is the same as normal model. 
+
+Split app.js into smaller subcomponents. also show the results of an action in white visible, instead of the grey, and show it above the line above Command:"
+
+**Assistant interpretation:** Fix the CLIM dispatch paths, refine select-mode styling, modularize the JavaScript, and make action output visibly distinct from low-priority command hints.
+
+**Inferred user intent:** Make the CLIM prototype usable and closer to OpenGenera/CLIM conventions: command-first argument selection should be explicit and visually obvious, while action results should be prominent and not confused with help text.
+
+### What I did
+- Split `prototype-clim/app.js` into a 3-line module entrypoint plus:
+  - `prototype-clim/js/data.js` for menu data, substitution rules, and `resolveSubKey()`.
+  - `prototype-clim/js/app-main.js` for state, action dispatch, rendering, command line, context menu, and action implementations.
+- Updated `prototype-clim/index.html` to load `app.js` as `type="module"`.
+- Added `#action-result` above the command input in the footer.
+- Added `setResult()` and moved action outputs such as `DESCRIBE`, `REMOVE-INGREDIENT`, `APPLY`, `ADD-TO-ORDER`, `INSPECT`, and `PLACE-ORDER` into the white result area.
+- Kept `setHint()` as grey guidance/status text below the command prompt.
+- Fixed `ADD-TO-ORDER <MenuItem>` so it can add a default menu item from menu view, not only the current customizer state.
+- Changed select-mode styling so compatible presentations turn red without an always-on underline; hover uses the normal underline behavior.
+- Synchronized the updated CLIM prototype into `www/clim/` for the single-server view.
+- Served both prototypes from one tmux session named `street-deli-prototypes` rooted at `examples/street-deli-ordering/www` on port 8770.
+
+### Why
+The previous select-mode iteration had the right concepts but weak execution feedback. Results were hard to see because they appeared in grey hint text, and the action execution paths needed to be consolidated around the two intended flows:
+
+1. Action first: type `DESCRIBE`, compatible presentations turn red, click a red presentation, execute `DESCRIBE`.
+2. Presentation first: click a presentation, see actions, click `DESCRIBE`, execute `DESCRIBE`.
+
+### What worked
+- The module split is small but useful: data is now separate from behavior, and `app.js` is only an entrypoint.
+- `node --check` passed for `app.js`, `js/data.js`, and `js/app-main.js`.
+- The static server responds for `/`, `/mobile/index.html`, `/clim/index.html`, and `/clim/js/app-main.js`.
+- The tmux session `street-deli-prototypes` is running the shared server.
+
+### What didn't work
+- I did not run Playwright because the user explicitly asked not to; validation was limited to syntax checks and HTTP HEAD checks.
+- The module split is pragmatic rather than fully componentized: renderers, command dispatch, and action implementations still live together in `js/app-main.js`. A deeper split can follow if needed.
+
+### What I learned
+- Action results need their own presentation area in CLIM-style UIs. A grey hint line is good for guidance but not for command output.
+- Select mode should visually mark target compatibility without changing the basic text interaction language too much; red foreground is enough.
+
+### What was tricky to build
+- `ADD-TO-ORDER` needed two meanings depending on context: add the current customizer state when editing, or add a default menu item when invoked on a `<MenuItem>` from menu view. The function now accepts an optional `menuItemId` and falls back to current customization only when present.
+- Maintaining both source (`prototype-clim/`) and served copy (`www/clim/`) requires explicit synchronization after edits.
+
+### What warrants a second pair of eyes
+- Whether `www/` should remain checked in or be replaced by a script that assembles the served tree.
+- Whether `js/app-main.js` should be split further into renderers, action implementations, command-line controller, and context menu controller.
+- Manual browser testing of the exact action-first and presentation-first flows.
+
+### What should be done in the future
+- If the prototype grows, split `js/app-main.js` further.
+- Add command composition history and visible transcript lines.
+- Add tests or a small smoke script that exercises command dispatch without Playwright.
+
+### Code review instructions
+- Start at `prototype-clim/app.js` and follow imports into `js/data.js` and `js/app-main.js`.
+- Check the state machine: `state.mode`, `enterSelectMode()`, `exitSelectMode()`, `executeCommand()`, `handlePresentationClick()`, and `executeActionFromBar()`.
+- Review `styles.css` for `.pres.selectable` and `.action-result` behavior.
+- Validate manually at `http://localhost:8770/clim/`:
+  - Type `DESCRIBE`, press Enter, menu items turn red, click a menu item, result appears above Command.
+  - Click a menu item, click `DESCRIBE`, result appears above Command.

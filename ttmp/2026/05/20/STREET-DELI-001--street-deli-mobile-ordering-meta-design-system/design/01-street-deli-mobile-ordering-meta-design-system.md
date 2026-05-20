@@ -45,6 +45,10 @@ RelatedFiles:
       Note: CLIM JS with action registry
     - Path: examples/street-deli-ordering/prototype-clim/index.html
       Note: CLIM prototype HTML
+    - Path: examples/street-deli-ordering/prototype-clim/js/app-main.js
+      Note: CLIM interaction module
+    - Path: examples/street-deli-ordering/prototype-clim/js/data.js
+      Note: CLIM data module
     - Path: examples/street-deli-ordering/prototype-clim/styles.css
       Note: Monochrome CLIM CSS
     - Path: examples/street-deli-ordering/prototype/app.js
@@ -53,6 +57,10 @@ RelatedFiles:
       Note: Prototype HTML
     - Path: examples/street-deli-ordering/prototype/styles.css
       Note: Prototype CSS
+    - Path: examples/street-deli-ordering/www/clim/js/app-main.js
+      Note: Served CLIM interaction module
+    - Path: examples/street-deli-ordering/www/clim/js/data.js
+      Note: Served data module
     - Path: ttmp/2026/05/20/STREET-DELI-001--street-deli-mobile-ordering-meta-design-system/examples/street-deli-ordering/02-design-language.yaml
       Note: Mobile deli ordering design language
     - Path: ttmp/2026/05/20/STREET-DELI-001--street-deli-mobile-ordering-meta-design-system/examples/street-deli-ordering/03-widgets.yaml
@@ -63,6 +71,7 @@ LastUpdated: 2026-05-20T08:00:00-04:00
 WhatFor: Use as the top-level design document for understanding and implementing the street deli ordering meta design system.
 WhenToUse: Read before implementing the deli ordering UI, extending the replacement engine, or adding new menu items and substitution rules.
 ---
+
 
 
 
