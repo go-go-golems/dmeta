@@ -1,0 +1,86 @@
+schema_version: 0
+artifact_type: dmeta_domain_example
+id: agent_workflow
+summary: AI agent workflow dashboard pressure test.
+long_summary: This domain example pressure-tests the generic DMETA archetype and capability vocabulary. It is not a production
+  domain schema; it shows how concrete domain objects map to the reusable core model so validators, generators, and reviewers
+  can detect whether the abstractions are too narrow or too vague.
+references:
+  core_model_design_doc: ../../../../design-docs/02-semantic-archetype-and-capability-model.md
+  core_model_widget_ir_spec: ../../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
+domain_example:
+  description: AI agent workflow dashboard pressure test.
+  domain_types:
+    Agent:
+      description: Agent or model-backed worker.
+      archetypes:
+      - Actor
+      capabilities:
+        identifiable:
+          id: agent_id
+        labelable:
+          label: display_name
+          subtitle: model_name
+        stateful:
+          state: status
+        temporal:
+          timestamp: last_seen_at
+    ToolSpec:
+      description: Tool definition/signature.
+      archetypes:
+      - ActionSpec
+      capabilities:
+        identifiable:
+          id: tool_name
+        labelable:
+          label: title
+          subtitle: description
+        parameterized:
+          parameters: input_schema
+    ToolRun:
+      description: Concrete tool execution.
+      archetypes:
+      - ActionInvocation
+      - WorkItem
+      capabilities:
+        identifiable:
+          id: call_id
+        labelable:
+          label: tool_name
+        stateful:
+          state: status
+        temporal:
+          start_time: started_at
+          end_time: finished_at
+          duration_ms: duration_ms
+        relatable:
+          actor_ref: agent_id
+        executable:
+          execution_state: status
+    ToolEvent:
+      description: Append-only observation emitted by a tool run.
+      archetypes:
+      - Event
+      capabilities:
+        identifiable:
+          id: event_id
+        temporal:
+          timestamp: timestamp
+        append_only:
+          sequence: sequence
+        relatable:
+          work_item_ref: call_id
+    Session:
+      description: Agent workflow session.
+      archetypes:
+      - TimelineSpan
+      capabilities:
+        identifiable:
+          id: session_id
+        labelable:
+          label: title
+        temporal:
+          start_time: started_at
+          end_time: ended_at
+        stateful:
+          state: status

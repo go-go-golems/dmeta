@@ -81,3 +81,26 @@ OK: uploaded DMETA 003 TypeScript Core Registry Generator Guide.pdf -> /ai/2026/
 
 ### Current status
 Tasks for writing and uploading the guide are complete. Implementation tasks remain intentionally open pending review.
+
+## 2026-05-19 — Guide updated for split core-model package
+
+### What changed
+The core model IR was split into a package index plus subfiles:
+
+```text
+sources/dmeta-ir/01-core-model.yaml
+sources/dmeta-ir/core-model/core-model.yaml
+sources/dmeta-ir/core-model/archetypes.yaml
+sources/dmeta-ir/core-model/capabilities.yaml
+sources/dmeta-ir/core-model/presentations.yaml
+sources/dmeta-ir/core-model/examples/*.yaml
+```
+
+Updated the DMETA-003 guide so the future `generate-core` implementation knows not to assume a monolithic `01-core-model.yaml`. The guide now says to call the existing validator loader, which merges the split package into a single `validator.CoreModelFile` for consumers.
+
+### Re-upload
+Re-uploaded the updated guide to reMarkable using `--force`:
+
+```text
+OK: uploaded DMETA 003 TypeScript Core Registry Generator Guide.pdf -> /ai/2026/05/19/DMETA-003
+```

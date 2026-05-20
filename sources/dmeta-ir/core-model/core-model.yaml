@@ -1,0 +1,32 @@
+schema_version: 0
+artifact_type: dmeta_core_model_metadata
+summary: Shared metadata, logical types, and editing guidance for the split DMETA core model.
+long_summary: 'This file contains metadata that applies to the split core model package as a whole. The semantic content lives
+  in sibling files: archetypes.yaml, capabilities.yaml, presentations.yaml, and examples/*.yaml. Keep this file focused on
+  concepts shared by all parts of the package: logical type names, validation policy, editing guidance, and references to
+  the design documents that explain why the model exists.'
+references:
+  semantic_model_design_doc: ../../../design-docs/02-semantic-archetype-and-capability-model.md
+  core_model_widget_ir_spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
+  system_spec: ../../../design-docs/04-concrete-dmeta-system-spec.md
+  authoring_playbook: ../../../playbooks/02-dmeta-design-system-factory-runthrough-playbook.md
+logical_types:
+  primitives:
+  - string
+  - number
+  - integer
+  - boolean
+  - datetime
+  - duration_ms
+  - tone
+  - json
+  collections:
+  - list
+  - map
+authoring_guidelines:
+- Every archetype and capability must include both a short description and a longer prose long_description.
+- Use description for compact generated docs and tables; use long_description for intern guides, review documents, generated
+  reference pages, and LLM context.
+- Do not add a YAML field unless a generator, validator, runtime registry, lint rule, or review workflow is expected to consume
+  it.
+- Read the referenced design docs before changing archetype/capability semantics.

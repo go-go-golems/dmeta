@@ -29,7 +29,10 @@ type CoreModelFile struct {
 	SchemaVersion  int                      `yaml:"schema_version"`
 	ArtifactType   string                   `yaml:"artifact_type"`
 	Summary        string                   `yaml:"summary"`
+	LongSummary    string                   `yaml:"long_summary"`
 	Status         string                   `yaml:"status"`
+	References     map[string]string        `yaml:"references"`
+	Files          CoreModelFiles           `yaml:"files"`
 	LogicalTypes   LogicalTypes             `yaml:"logical_types"`
 	Archetypes     map[string]Archetype     `yaml:"archetypes"`
 	Capabilities   map[string]Capability    `yaml:"capabilities"`
@@ -39,6 +42,63 @@ type CoreModelFile struct {
 	Validation     map[string]any           `yaml:"validation"`
 }
 
+type CoreModelFiles struct {
+	CoreModel     string   `yaml:"core_model"`
+	Archetypes    string   `yaml:"archetypes"`
+	Capabilities  string   `yaml:"capabilities"`
+	Presentations string   `yaml:"presentations"`
+	ExamplesDir   string   `yaml:"examples_dir"`
+	Examples      []string `yaml:"examples"`
+}
+
+type CoreModelMetadataFile struct {
+	SchemaVersion       int               `yaml:"schema_version"`
+	ArtifactType        string            `yaml:"artifact_type"`
+	Summary             string            `yaml:"summary"`
+	LongSummary         string            `yaml:"long_summary"`
+	References          map[string]string `yaml:"references"`
+	LogicalTypes        LogicalTypes      `yaml:"logical_types"`
+	AuthoringGuidelines []string          `yaml:"authoring_guidelines"`
+}
+
+type ArchetypesFile struct {
+	SchemaVersion int                  `yaml:"schema_version"`
+	ArtifactType  string               `yaml:"artifact_type"`
+	Summary       string               `yaml:"summary"`
+	LongSummary   string               `yaml:"long_summary"`
+	References    map[string]string    `yaml:"references"`
+	Archetypes    map[string]Archetype `yaml:"archetypes"`
+}
+
+type CapabilitiesFile struct {
+	SchemaVersion int                   `yaml:"schema_version"`
+	ArtifactType  string                `yaml:"artifact_type"`
+	Summary       string                `yaml:"summary"`
+	LongSummary   string                `yaml:"long_summary"`
+	References    map[string]string     `yaml:"references"`
+	Capabilities  map[string]Capability `yaml:"capabilities"`
+}
+
+type PresentationsFile struct {
+	SchemaVersion int                     `yaml:"schema_version"`
+	ArtifactType  string                  `yaml:"artifact_type"`
+	Summary       string                  `yaml:"summary"`
+	LongSummary   string                  `yaml:"long_summary"`
+	References    map[string]string       `yaml:"references"`
+	Presentations map[string]Presentation `yaml:"presentations"`
+	Actions       map[string]Action       `yaml:"actions"`
+}
+
+type DomainExampleFile struct {
+	SchemaVersion int               `yaml:"schema_version"`
+	ArtifactType  string            `yaml:"artifact_type"`
+	ID            string            `yaml:"id"`
+	Summary       string            `yaml:"summary"`
+	LongSummary   string            `yaml:"long_summary"`
+	References    map[string]string `yaml:"references"`
+	DomainExample DomainExample     `yaml:"domain_example"`
+}
+
 type LogicalTypes struct {
 	Primitives  []string `yaml:"primitives"`
 	Collections []string `yaml:"collections"`
@@ -46,6 +106,7 @@ type LogicalTypes struct {
 
 type Archetype struct {
 	Description              string   `yaml:"description"`
+	LongDescription          string   `yaml:"long_description"`
 	DefaultCapabilities      []string `yaml:"default_capabilities"`
 	RecommendedPresentations []string `yaml:"recommended_presentations"`
 	Examples                 []string `yaml:"examples"`
@@ -53,12 +114,13 @@ type Archetype struct {
 }
 
 type Capability struct {
-	Description   string                `yaml:"description"`
-	Projections   map[string]Projection `yaml:"projections"`
-	Presentations []string              `yaml:"presentations"`
-	Actions       []string              `yaml:"actions"`
-	Filters       []string              `yaml:"filters"`
-	Notes         string                `yaml:"notes"`
+	Description     string                `yaml:"description"`
+	LongDescription string                `yaml:"long_description"`
+	Projections     map[string]Projection `yaml:"projections"`
+	Presentations   []string              `yaml:"presentations"`
+	Actions         []string              `yaml:"actions"`
+	Filters         []string              `yaml:"filters"`
+	Notes           string                `yaml:"notes"`
 }
 
 type Projection struct {

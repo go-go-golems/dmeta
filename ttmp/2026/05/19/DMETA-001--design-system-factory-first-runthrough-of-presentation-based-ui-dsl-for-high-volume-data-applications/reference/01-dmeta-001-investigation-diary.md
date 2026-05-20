@@ -361,3 +361,58 @@ GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-in
 ```
 
 The validator emitted `validation_ok` with no error-severity findings.
+
+## 2026-05-19 — Core model split and enriched prose context
+
+### What changed
+The user clarified that the core-model YAML needs significantly more written context. Short labels are not enough: the documents, archetypes, and capabilities should carry enough prose for interns, reviewers, generated documentation, and LLM-assisted workflows to understand the semantics.
+
+Because adding long descriptions to the existing monolithic `01-core-model.yaml` would make it too large, we split the core model into subfiles.
+
+### New structure
+
+```text
+dmeta/sources/dmeta-ir/
+  01-core-model.yaml
+  core-model/
+    core-model.yaml
+    archetypes.yaml
+    capabilities.yaml
+    presentations.yaml
+    examples/
+      agent-workflow.yaml
+      retail-logistics.yaml
+```
+
+`01-core-model.yaml` is now a package/index file with summary, long_summary, design-doc references, validation policy, and paths to subfiles.
+
+### Enrichment added
+- Added package-level `long_summary`.
+- Added file-level `long_summary` sections for core-model subfiles.
+- Added `references` pointing to relevant design docs.
+- Added `long_description` for every archetype.
+- Added `long_description` for every capability.
+- Moved domain examples into one file per domain under `core-model/examples/`.
+
+### Documentation updated
+Updated the relevant playbooks and concrete specs to document the split structure and the requirement that core-model YAML carry both short and long prose context.
+
+### Validator update
+Updated the Go validator loader so `01-core-model.yaml` can act as a split package index. The loader now merges:
+
+- core-model metadata;
+- archetypes;
+- capabilities;
+- presentations/actions;
+- domain examples.
+
+### Validation
+Ran:
+
+```bash
+GOWORK=off gofmt -w pkg/dmeta/validator/*.go
+GOWORK=off go test ./...
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+```
+
+All tests passed and the validator emitted `validation_ok`.

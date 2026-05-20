@@ -156,34 +156,49 @@ Turn the two intermediate documents into concrete DSL artifacts.
 
 ### Candidate artifacts
 
+For DMETA v0, keep the core model split into focused files rather than one very large YAML document:
+
 ```text
-archetypes.yaml
-capabilities.yaml
-domain-mapping.yaml
-presentations.yaml
-actions.yaml
-widgets.yaml
-design-language.yaml
-storybook-coverage.yaml
+sources/dmeta-ir/
+  00-index.yaml
+  01-core-model.yaml                  # package/index: summary, long_summary, references, file list
+  core-model/
+    core-model.yaml                   # shared metadata, logical types, authoring guidance
+    archetypes.yaml                   # archetypes with description + long_description
+    capabilities.yaml                 # capabilities with description + long_description
+    presentations.yaml                # presentations + actions
+    examples/
+      agent-workflow.yaml             # one pressure-test domain per file
+      retail-logistics.yaml
+  02-design-language.yaml
+  03-widgets.yaml
 ```
+
+The split is intentional. `01-core-model.yaml` is a package index. The semantic sections live in `core-model/*.yaml`, and each domain example gets its own file under `core-model/examples/`.
 
 ### Work
 
 1. Draft schemas with examples before finalizing fields.
-2. For every field ask:
+2. Add both short and long prose context:
+   - every core-model package/index file needs `summary` and `long_summary`;
+   - every archetype needs `description` and `long_description`;
+   - every capability needs `description` and `long_description`;
+   - subfiles should include `references` pointing to the design docs needed to understand them.
+3. For every field ask:
    - What consumes this?
    - Is it for generation, validation, runtime interpretation, or review?
    - Can it be derived from another layer?
    - What invariant can validate it?
-3. Pressure-test against at least two domains.
-4. Remove fields that have no consumer.
+4. Pressure-test against at least two domains, one example file per domain.
+5. Remove fields that have no consumer.
 
 ### Exit criteria
 
-- Example YAML exists for at least two domains.
+- Example YAML exists for at least two domains, each in its own `core-model/examples/*.yaml` file.
 - Invariants are clear.
 - Generation targets are clear.
-- The schema separates archetypes, capabilities, presentations, widgets, actions, and design language.
+- The schema separates archetypes, capabilities, presentations/actions, domain examples, widgets, and design language.
+- The YAML files carry enough prose context for interns, reviewers, generated docs, and LLM-assisted workflows to understand the semantics without relying only on terse identifiers.
 
 ## Phase 4 — Hard design rules
 

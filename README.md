@@ -19,7 +19,7 @@ This directory contains durable design-system factory documents promoted out of 
 ## Source IR
 
 - `sources/dmeta-ir/00-index.yaml` — v0 IR package manifest.
-- `sources/dmeta-ir/01-core-model.yaml` — consolidated archetypes, capabilities, presentations, actions, and pressure-test domain examples.
+- `sources/dmeta-ir/01-core-model.yaml` — split core-model package index with references to `core-model/archetypes.yaml`, `core-model/capabilities.yaml`, `core-model/presentations.yaml`, and `core-model/examples/*.yaml`.
 - `sources/dmeta-ir/02-design-language.yaml` — sober dense operational UI design-language ranges, recipes, states, and lint rules.
 - `sources/dmeta-ir/03-widgets.yaml` — generic dense-operational widget classes and contracts.
 

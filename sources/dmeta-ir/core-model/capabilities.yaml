@@ -1,0 +1,271 @@
+schema_version: 0
+artifact_type: dmeta_capabilities
+summary: Reusable semantic capabilities, projections, filters, presentations, and action affordances for DMETA.
+long_summary: 'Capabilities are reusable affordances that cut across archetypes and domains. They are the level where many
+  presentation and action rules belong: status badges attach to stateful, timestamp renderers attach to temporal, compact
+  id renderers attach to identifiable, and relation links attach to relatable. A capability should define the projections
+  that tools and widgets can rely on. If a capability has no projections, presentations, actions, filters, validation rules,
+  or planned generator consumer, it is probably too vague for the formal IR.'
+references:
+  design_doc: ../../../design-docs/02-semantic-archetype-and-capability-model.md
+  spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
+capabilities:
+  identifiable:
+    description: Subject has stable identity.
+    projections:
+      id:
+        type: string
+        required: true
+        description: Canonical stable id.
+    presentations:
+    - compact_id
+    actions:
+    - copy_reference
+    filters:
+    - equals
+    - not_equals
+    - in
+    long_description: 'Identifiable means a subject has a stable identity that can be referenced across surfaces, copied,
+      used in URLs or actions, and matched against related records. The `id` projection is intentionally required because
+      many downstream behaviors depend on it: compact references, copy actions, detail routing, relation matching, and stable
+      selection state.'
+  labelable:
+    description: Subject has human-readable label text.
+    projections:
+      label:
+        type: string
+        required: true
+        description: Primary display label.
+      subtitle:
+        type: string
+        required: false
+        description: Optional secondary label.
+    presentations:
+    - display_label
+    filters:
+    - contains
+    - equals
+    long_description: 'Labelable means a subject has human-readable text suitable for display. Labels are not identities:
+      they may change, collide, or be localized. The UI should generally show labels for readability while preserving access
+      to stable ids for precision. Optional subtitles provide secondary context such as model name, destination, owner, or
+      short description.'
+  stateful:
+    description: Subject has state/status that can be shown, filtered, and acted on.
+    projections:
+      state:
+        type: string
+        required: true
+        description: Canonical state value.
+      state_label:
+        type: string
+        required: false
+        description: Human-readable state label.
+      state_tone:
+        type: tone
+        required: false
+        description: Optional semantic tone override.
+    presentations:
+    - status_badge
+    - state_cell
+    actions:
+    - filter_by_state
+    filters:
+    - equals
+    - not_equals
+    - in
+    long_description: Stateful means a subject has lifecycle, status, or condition semantics that users need to scan, filter,
+      and act on. The state may represent execution state, shipment status, health, availability, alert condition, or workflow
+      phase. Stateful presentations such as status badges must pair text with tone; color reinforces meaning but does not
+      replace it.
+  temporal:
+    description: Subject has instant, interval, or duration time semantics.
+    projections:
+      timestamp:
+        type: datetime
+        required: false
+        description: Instant timestamp.
+      start_time:
+        type: datetime
+        required: false
+        description: Interval start.
+      end_time:
+        type: datetime
+        required: false
+        description: Interval end.
+      duration_ms:
+        type: duration_ms
+        required: false
+        description: Duration in milliseconds.
+    presentations:
+    - timestamp_inline
+    - duration_cell
+    filters:
+    - before
+    - after
+    - between
+    long_description: 'Temporal means a subject has time semantics: an instant, interval, duration, or some combination of
+      those. Dense operational systems depend heavily on temporal ordering, recency, latency, and duration comparison. Temporal
+      projections enable stream ordering, timeline markers, duration cells, time filters, and detail views.'
+  inspectable:
+    description: Subject can open a detail/inspection surface.
+    projections:
+      detail_ref:
+        type: string
+        required: false
+        description: Optional detail routing reference.
+    presentations:
+    - detail_panel
+    actions:
+    - inspect
+    long_description: 'Inspectable means a subject can open a deeper detail surface. This capability separates compact dense
+      presentations from richer inspection panels. A subject may be inspectable even if it has no special action behavior.
+      Inspection should preserve context: users should be able to open details from a table, stream, relation, or token without
+      losing their place.'
+  relatable:
+    description: Subject can reference or be referenced by other semantic subjects.
+    projections:
+      relation_refs:
+        type: list
+        required: false
+        description: Related semantic references.
+      actor_ref:
+        type: string
+        required: false
+        description: Related actor id.
+      work_item_ref:
+        type: string
+        required: false
+        description: Related work item id.
+      resource_ref:
+        type: string
+        required: false
+        description: Related resource id.
+    presentations:
+    - relation_link
+    actions:
+    - open_related
+    filters:
+    - has_relation
+    - relation_equals
+    long_description: 'Relatable means a subject participates in semantic links to other subjects. Dense operational work
+      is graph-shaped: events point to work items, work items point to actors, resources belong to orders, and annotations
+      attach to incidents. Relatable projections enable relation links, related-object lists, navigation actions, and filtering
+      by association.'
+  actionable:
+    description: Subject can be used as an action source or target.
+    projections:
+      available_actions:
+        type: list
+        required: false
+        description: Optional action ids available for this subject.
+    actions:
+    - inspect
+    long_description: Actionable means a subject can be the source or target of user/system operations. This does not mean
+      the widget executes the operation directly; widgets emit typed action requests and the adapter/backend handles trusted
+      side effects. Actionable subjects participate in context menus, command palettes, and typed argument collection.
+  streamable:
+    description: Subject can appear in an ordered stream.
+    projections:
+      sequence:
+        type: integer
+        required: false
+        description: Optional stream sequence number.
+    long_description: Streamable means a subject can appear in an ordered feed, log, event stream, or incrementally updating
+      list. Streamable subjects need stable sequence/order behavior and compact row or token presentations. This capability
+      is important for realtime logs, scan feeds, tool output, agent traces, and monitoring streams.
+  append_only:
+    description: Subject is an immutable or append-only observation.
+    projections:
+      sequence:
+        type: integer
+        required: false
+        description: Optional append-only sequence.
+    long_description: Append-only means a subject is treated as an immutable observation or historical record. Append-only
+      records should not be visually conflated with mutable WorkItems. This capability helps tooling and UI distinguish event
+      streams and audit trails from stateful objects whose current value changes over time.
+  measurable:
+    description: Subject has numeric value semantics.
+    projections:
+      value:
+        type: number
+        required: true
+        description: Numeric value.
+      unit:
+        type: string
+        required: false
+        description: Unit label.
+    presentations:
+    - metric_cell
+    filters:
+    - lt
+    - lte
+    - gt
+    - gte
+    - between
+    long_description: Measurable means a subject exposes numeric value semantics. The value may be duration, count, cost,
+      throughput, latency, error rate, or capacity. Measurable values need units, alignment, comparison actions, and range
+      filters. They should be rendered with tabular numeric treatment in dense tables.
+  aggregatable:
+    description: Subject can be summarized or aggregated.
+    projections:
+      aggregate_key:
+        type: string
+        required: false
+        description: Grouping key.
+    long_description: Aggregatable means a subject can participate in summaries, grouping, rollups, charts, or aggregate indicators.
+      It often appears with Metric, TimelineSpan, WorkItem, or Event collections. The capability does not prescribe a chart;
+      it says that the subject has stable grouping/summarization semantics.
+  schedulable:
+    description: Subject can be scheduled for execution.
+    projections:
+      scheduled_at:
+        type: datetime
+        required: false
+        description: Scheduled time.
+    actions:
+    - schedule_action
+    long_description: Schedulable means a subject can be planned for future execution or activation. It is common on ActionInvocation-like
+      objects, jobs, maintenance windows, and workflow tasks. Scheduling semantics should be explicit because scheduled work
+      differs from immediate commands and from already-running work.
+  executable:
+    description: Subject represents executable work.
+    projections:
+      execution_state:
+        type: string
+        required: false
+        description: Execution-specific state.
+    actions:
+    - retry_work_item
+    - cancel_work_item
+    long_description: 'Executable means a subject represents work that can run, complete, fail, retry, or be cancelled. This
+      capability is narrower than actionable: many things are actionable, but executable things have execution-specific lifecycle
+      and control semantics. It enables retry/cancel actions and execution-state detail.'
+  spatial:
+    description: Subject has location, route, or spatial semantics.
+    projections:
+      location:
+        type: string
+        required: false
+        description: Location reference.
+      origin:
+        type: string
+        required: false
+        description: Origin reference.
+      destination:
+        type: string
+        required: false
+        description: Destination reference.
+    long_description: Spatial means a subject has location, route, origin, destination, or facility semantics. It is needed
+      for logistics, physical operations, agricultural sensors, warehouses, field devices, and infrastructure views. Spatial
+      does not require map rendering; it first provides structured projections for location-aware filtering, relation, and
+      display.
+  parameterized:
+    description: Subject has parameters or schema-defined inputs.
+    projections:
+      parameters:
+        type: json
+        required: false
+        description: Parameter schema or current parameter values.
+    long_description: 'Parameterized means a subject has schema-defined inputs or configurable values. ActionSpec is the primary
+      example: a tool definition or command definition has parameters before it is invoked. Parameterized projections drive
+      forms, validation, previews, and action scheduling.'

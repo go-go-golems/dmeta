@@ -20,9 +20,9 @@ RelatedFiles:
     - Path: ../sources/dmeta-ir/03-widgets.yaml
       Note: Future widget IR source artifact described by this spec
 ExternalSources: []
-Summary: "Concrete v0 specification for the consolidated DMETA core model YAML and widget IR YAML."
-LastUpdated: 2026-05-19T18:35:00-04:00
-WhatFor: "Use to draft or validate dmeta/sources/dmeta-ir/01-core-model.yaml and 03-widgets.yaml."
+Summary: "Concrete v0 specification for the split DMETA core model package and widget IR YAML."
+LastUpdated: 2026-05-19T21:00:00-04:00
+WhatFor: "Use to draft or validate dmeta/sources/dmeta-ir/01-core-model.yaml, core-model/*.yaml, and 03-widgets.yaml."
 WhenToUse: "Read before editing the semantic model, presentation/action definitions, domain mappings, or generic dense-operational widget inventory."
 ---
 
@@ -34,14 +34,27 @@ This document specifies two concrete DMETA v0 source artifacts:
 
 ```text
 dmeta/sources/dmeta-ir/01-core-model.yaml
+dmeta/sources/dmeta-ir/core-model/core-model.yaml
+dmeta/sources/dmeta-ir/core-model/archetypes.yaml
+dmeta/sources/dmeta-ir/core-model/capabilities.yaml
+dmeta/sources/dmeta-ir/core-model/presentations.yaml
+dmeta/sources/dmeta-ir/core-model/examples/*.yaml
 dmeta/sources/dmeta-ir/03-widgets.yaml
 ```
 
-`01-core-model.yaml` is the semantic and interaction source of truth. It consolidates, for v0, the concepts that might later be split into separate files: archetypes, capabilities, presentations, actions, and domain examples.
+`01-core-model.yaml` is the semantic package index. It carries the package summary, long-form summary, references to the design docs, validation policy, and paths to split subfiles.
+
+The `core-model/` subdirectory contains the semantic source of truth:
+
+- `core-model.yaml` — shared logical types and package authoring guidance;
+- `archetypes.yaml` — archetypes with short and long prose descriptions;
+- `capabilities.yaml` — capabilities with short and long prose descriptions;
+- `presentations.yaml` — presentation contracts and actions;
+- `examples/*.yaml` — one pressure-test domain per file.
 
 `03-widgets.yaml` is the component-class source of truth. It defines generic dense-operational widgets that consume the core model's presentations and emit typed actions/callbacks.
 
-The purpose of this consolidation is deliberate: v0 should keep cross-layer relationships visible while the model is still stabilizing. Splitting too early would make the system look more formal than it is.
+The purpose of this split is deliberate: archetypes and capabilities need enough prose context to be useful for interns, reviewers, generated documentation, and LLM-assisted workflows. Keeping them in one monolithic YAML file would make the model too hard to review.
 
 ## Design Principles
 
@@ -53,22 +66,33 @@ The purpose of this consolidation is deliberate: v0 should keep cross-layer rela
 6. **Widgets consume presentations.** Widgets should not need to know arbitrary raw domain structures.
 7. **The adapter boundary remains explicit.** Runtime wire data becomes typed props and `PresentationRef`s before reaching widgets.
 
-## `01-core-model.yaml`
+## `01-core-model.yaml` and split `core-model/` package
 
-### Top-level shape
+### Top-level package index shape
 
 ```yaml
 schema_version: 0
 artifact_type: dmeta_core_model
 summary: Consolidated semantic archetype, capability, presentation, action, and domain example model for DMETA v0.
-
-archetypes: {}
-capabilities: {}
-presentations: {}
-actions: {}
-domain_examples: {}
+long_summary: >
+  Longer prose explanation of what the core model package is, who should read it,
+  and which design docs explain the concepts.
+references:
+  semantic_model_design_doc: ../../design-docs/02-semantic-archetype-and-capability-model.md
+  core_model_widget_ir_spec: ../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
+files:
+  core_model: ./core-model/core-model.yaml
+  archetypes: ./core-model/archetypes.yaml
+  capabilities: ./core-model/capabilities.yaml
+  presentations: ./core-model/presentations.yaml
+  examples_dir: ./core-model/examples
+  examples:
+    - ./core-model/examples/agent-workflow.yaml
+    - ./core-model/examples/retail-logistics.yaml
 validation: {}
 ```
+
+The package index does not contain the full semantic model. It points to focused subfiles.
 
 ### `schema_version`
 
@@ -86,14 +110,25 @@ Validators should reject any other artifact type for this file.
 
 ## Archetypes
 
-Archetypes are reusable operational roles.
+Archetypes are reusable operational roles. They live in `core-model/archetypes.yaml`.
 
 ### Shape
 
 ```yaml
+schema_version: 0
+artifact_type: dmeta_archetypes
+summary: Reusable operational archetypes for the DMETA core model.
+long_summary: >
+  File-level prose explaining how to understand archetypes and when to edit them.
+references:
+  design_doc: ../../../design-docs/02-semantic-archetype-and-capability-model.md
+  spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
 archetypes:
   WorkItem:
     description: A unit of work that can be tracked, progressed, completed, failed, retried, or inspected.
+    long_description: >
+      Longer prose paragraph explaining what WorkItem means, what it is not,
+      examples across domains, and UI implications for dense operational apps.
     default_capabilities:
       - identifiable
       - labelable
@@ -118,7 +153,8 @@ archetypes:
 
 | Field | Type | Purpose |
 | --- | --- | --- |
-| `description` | string | Human-readable semantic definition. |
+| `description` | string | Short human-readable semantic definition. |
+| `long_description` | string | Longer prose context for interns, generated docs, review, and LLM-assisted workflows. |
 | `default_capabilities` | string[] | Capabilities normally expected for this archetype. |
 
 ### Optional fields
@@ -152,14 +188,26 @@ DMETA v0 should start with:
 
 ## Capabilities
 
-Capabilities define reusable affordances and projections.
+Capabilities define reusable affordances and projections. They live in `core-model/capabilities.yaml`.
 
 ### Shape
 
 ```yaml
+schema_version: 0
+artifact_type: dmeta_capabilities
+summary: Reusable semantic capabilities, projections, filters, presentations, and action affordances for DMETA.
+long_summary: >
+  File-level prose explaining why capabilities are the reusable layer for many
+  presentation and action rules.
+references:
+  design_doc: ../../../design-docs/02-semantic-archetype-and-capability-model.md
+  spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
 capabilities:
   stateful:
     description: Object has a state/status that can be displayed, filtered, and used for actions.
+    long_description: >
+      Longer prose paragraph explaining what stateful means, examples across
+      domains, how state differs from a State archetype, and UI implications.
     projections:
       state:
         type: string
@@ -188,7 +236,8 @@ capabilities:
 
 | Field | Type | Purpose |
 | --- | --- | --- |
-| `description` | string | Human-readable meaning. |
+| `description` | string | Short human-readable meaning. |
+| `long_description` | string | Longer prose context for interns, generated docs, review, and LLM-assisted workflows. |
 | `projections` | map | Named values contributed or expected by the capability. |
 
 ### Projection fields
@@ -394,15 +443,20 @@ Initial modes:
 
 ## Domain Examples
 
-`domain_examples` is intentionally in the core model for v0. It pressure-tests the generic vocabulary without yet becoming a production domain mapping system.
+Domain examples live under `core-model/examples/`, one file per domain. They pressure-test the generic vocabulary without yet becoming a production domain mapping system.
 
 ### Shape
 
 ```yaml
-domain_examples:
-  agent_workflow:
-    description: AI agent workflow dashboard.
-    domain_types:
+schema_version: 0
+artifact_type: dmeta_domain_example
+id: agent_workflow
+summary: AI agent workflow dashboard.
+long_summary: >
+  Prose explanation of what this example pressure-tests and why it exists.
+domain_example:
+  description: AI agent workflow dashboard.
+  domain_types:
       ToolRun:
         description: Concrete execution of a tool call.
         archetypes: [ActionInvocation, WorkItem]
@@ -697,7 +751,7 @@ If both flows use the same generic presentations and widgets, the model is on tr
 
 ## Open Questions
 
-1. Should `domain_examples` stay in `01-core-model.yaml`, or move to `examples/*.yaml` after v0?
+1. Should `core-model/examples/*.yaml` become a separate examples package once domain adapters exist?
 2. Should `PresentationRef` use `semanticId` as globally unique, or include a separate `sourcePath` for local selection identity?
 3. Should widget `consumes` reference presentations only, or also capabilities/archetypes for validation clarity?
 4. How much Storybook coverage should live in `03-widgets.yaml` vs a later `storybook-coverage.yaml`?

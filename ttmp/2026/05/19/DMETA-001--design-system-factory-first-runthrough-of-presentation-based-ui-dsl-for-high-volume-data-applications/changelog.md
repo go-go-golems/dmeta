@@ -64,3 +64,8 @@ Completed the concrete v0 documentation/YAML pass with logical commits. Ran docm
 
 Updated the design-system visual direction to remove paper/grain/texture references. The target is now explicitly sober, subtle cool-grey/neutral, low-chrome, and texture-free. Updated long-term design docs and dmeta/sources/dmeta-ir/02-design-language.yaml; validator still passes.
 
+
+## 2026-05-19
+
+Split dmeta/sources/dmeta-ir/01-core-model.yaml into a core-model package with subfiles: core-model/core-model.yaml, archetypes.yaml, capabilities.yaml, presentations.yaml, and examples/*.yaml. Added long_summary and long_description prose context for the package, every archetype, and every capability, plus references to relevant design docs. Updated playbooks and specs to document the split structure. Updated validator loader to merge the split package; validation and tests pass.
+

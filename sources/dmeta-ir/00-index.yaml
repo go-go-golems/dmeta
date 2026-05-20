@@ -7,7 +7,7 @@ artifacts:
   core_model:
     path: ./01-core-model.yaml
     artifact_type: dmeta_core_model
-    description: Consolidated archetypes, capabilities, presentations, actions, and pressure-test domain examples.
+    description: Split core-model package index with references to archetypes, capabilities, presentations/actions, and per-domain examples.
     consumers:
       - validate-dmeta-ir
       - generate-presentation-registry

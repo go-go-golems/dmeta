@@ -43,13 +43,22 @@ Markdown specs:
 YAML source artifacts:
   dmeta/sources/dmeta-ir/00-index.yaml
   dmeta/sources/dmeta-ir/01-core-model.yaml
+  dmeta/sources/dmeta-ir/core-model/core-model.yaml
+  dmeta/sources/dmeta-ir/core-model/archetypes.yaml
+  dmeta/sources/dmeta-ir/core-model/capabilities.yaml
+  dmeta/sources/dmeta-ir/core-model/presentations.yaml
+  dmeta/sources/dmeta-ir/core-model/examples/*.yaml
   dmeta/sources/dmeta-ir/02-design-language.yaml
   dmeta/sources/dmeta-ir/03-widgets.yaml
 ```
 
 This is the minimum useful split:
 
-- `01-core-model.yaml` covers archetypes, capabilities, presentations, actions, and domain examples.
+- `01-core-model.yaml` is a package/index file with `summary`, `long_summary`, design-doc references, validation policy, and pointers to split core-model subfiles.
+- `core-model/archetypes.yaml` covers archetypes and includes both short descriptions and longer prose `long_description` context for each archetype.
+- `core-model/capabilities.yaml` covers capabilities and includes both short descriptions and longer prose `long_description` context for each capability.
+- `core-model/presentations.yaml` covers presentations and actions.
+- `core-model/examples/*.yaml` contains one pressure-test domain per file.
 - `02-design-language.yaml` covers concrete/range-based design rules for typography, density, color, borders, interaction states, and semantic presentation styling.
 - `03-widgets.yaml` covers generic dense-operational widget classes and contracts.
 - Markdown explains why the schemas exist, how to evolve them, what is formal vs informal, and how to implement the toolchain.
@@ -117,6 +126,14 @@ dmeta/
 dmeta/sources/dmeta-ir/
   00-index.yaml
   01-core-model.yaml
+  core-model/
+    core-model.yaml
+    archetypes.yaml
+    capabilities.yaml
+    presentations.yaml
+    examples/
+      agent-workflow.yaml
+      retail-logistics.yaml
   02-design-language.yaml
   03-widgets.yaml
 ```
@@ -187,25 +204,29 @@ Purpose:
 
 This is a manifest, not a full package manager.
 
-### `01-core-model.yaml`
+### `01-core-model.yaml` and `core-model/`
 
 Purpose:
 
-- define semantic archetypes;
-- define capabilities and their projections;
-- define reusable presentations;
-- define typed actions;
-- include pressure-test domain examples.
+- define the split core-model package;
+- point to semantic archetypes;
+- point to capabilities and their projections;
+- point to reusable presentations and typed actions;
+- point to one pressure-test domain example per file;
+- carry enough prose context and design-doc references for interns, reviewers, generated docs, and LLM-assisted workflows.
 
-This consolidates what could later be split into:
+`01-core-model.yaml` is the package index. The semantic content is split because the core model needs longer written descriptions and per-domain examples. The current structure is:
 
-- `archetypes.yaml`;
-- `capabilities.yaml`;
-- `presentations.yaml`;
-- `actions.yaml`;
-- `domain-mapping.yaml`.
+```text
+core-model/
+  core-model.yaml        # logical types and package-wide authoring guidance
+  archetypes.yaml        # archetypes with description + long_description
+  capabilities.yaml      # capabilities with description + long_description
+  presentations.yaml     # presentations + actions
+  examples/              # one pressure-test domain per file
+```
 
-For v0, consolidation is better because it keeps cross-layer relationships visible.
+Every archetype and capability must include both a short `description` and a longer `long_description`.
 
 ### `02-design-language.yaml`
 
@@ -448,7 +469,7 @@ Recommended order:
 2. Write the core model and widget IR spec.
 3. Write the design-language and tooling spec.
 4. Draft `00-index.yaml`.
-5. Draft `01-core-model.yaml`.
+5. Draft `01-core-model.yaml` and the `core-model/` subfiles.
 6. Draft `02-design-language.yaml`.
 7. Draft `03-widgets.yaml`.
 8. Validate examples manually.
@@ -459,8 +480,8 @@ Recommended order:
 
 ## Open Questions
 
-1. Should `01-core-model.yaml` remain consolidated after v0, or split once tooling stabilizes?
+1. Should the current split core-model package remain stable, or should additional sections move into their own files as tooling matures?
 2. Should range-based design-language values live in the same file as hard concrete values, or should concrete instances override them?
 3. How much runtime wire format should be specified now vs after widget/presentation examples exist?
 4. Should initial tooling be TypeScript (closer to React) or Python (closer to HAIR-041 scripts)?
-5. Should domain examples remain embedded in `01-core-model.yaml`, or move to a separate examples folder after validation exists?
+5. Should domain examples remain in `core-model/examples/`, or later move into a separate examples package once domain adapters exist?

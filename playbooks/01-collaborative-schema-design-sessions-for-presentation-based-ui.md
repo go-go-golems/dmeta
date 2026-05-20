@@ -422,18 +422,31 @@ For every field ask:
 4. What invariant can be checked?
 5. Is it generic, concrete-domain-specific, or theme-instance-specific?
 
-Expected schema artifacts:
+Expected schema artifacts for DMETA v0:
 
 ```text
-archetypes.yaml
-capabilities.yaml
-domain-mapping.yaml
-presentations.yaml
-actions.yaml
-widgets.yaml
-design-language.yaml
-storybook-coverage.yaml
+sources/dmeta-ir/
+  00-index.yaml
+  01-core-model.yaml                  # core-model package/index
+  core-model/
+    core-model.yaml                   # metadata, logical types, authoring guidance
+    archetypes.yaml                   # archetypes with description + long_description
+    capabilities.yaml                 # capabilities with description + long_description
+    presentations.yaml                # presentations and actions
+    examples/
+      <domain-example>.yaml           # one pressure-test domain per file
+  02-design-language.yaml
+  03-widgets.yaml
 ```
+
+Authoring context requirements:
+
+- `01-core-model.yaml` and each core-model subfile must include enough prose context for a new reader to understand what the file is for.
+- Use `summary` for short tables and generated manifests.
+- Use `long_summary` for intern guides, generated documentation, review context, and LLM-assisted workflows.
+- Every archetype and capability must include both `description` and `long_description`.
+- Every core-model subfile should include `references` to the relevant design docs, especially `dmeta/design-docs/02-semantic-archetype-and-capability-model.md` and `dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md`.
+- Domain examples belong under `core-model/examples/`, one file per domain, so pressure tests do not make the core package index unreadably large.
 
 Expected invariants:
 
@@ -455,14 +468,13 @@ Connect schemas to generated outputs.
 
 | Input | Output |
 | --- | --- |
-| `archetypes.yaml` | TypeScript archetype metadata, validators |
-| `capabilities.yaml` | Projection interfaces, capability guards, presentation hooks |
-| `domain-mapping.yaml` | Domain adapters, typed mapping helpers |
-| `presentations.yaml` | Presentation registry and presentation prop types |
-| `actions.yaml` | Action registry, argument collection helpers |
-| `widgets.yaml` | Component scaffolds, metadata sidecars, stories |
-| `design-language.yaml` | Tokens, typography, density, action/presentation styles |
-| `storybook-coverage.yaml` | Coverage reports and audit targets |
+| `01-core-model.yaml` + `core-model/archetypes.yaml` | TypeScript archetype metadata, validators, generated docs |
+| `core-model/capabilities.yaml` | Projection interfaces, capability guards, presentation hooks, generated docs |
+| `core-model/presentations.yaml` | Presentation registry, action registry, argument collection helpers |
+| `core-model/examples/*.yaml` | Domain pressure tests, future domain adapter examples |
+| `03-widgets.yaml` | Component scaffolds, metadata sidecars, stories |
+| `02-design-language.yaml` | Tokens, typography, density, action/presentation styles |
+| Future Storybook manifest | Coverage reports and audit targets |
 
 ### Exit criteria
 

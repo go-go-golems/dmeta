@@ -110,7 +110,14 @@ func validateCoreModel(pkg *Package) []Finding {
 	var findings []Finding
 	core := pkg.CoreModel
 
+	if core.LongSummary == "" {
+		findings = append(findings, Warning("core_model", "long_summary", "missing_long_summary", "core model package has no long_summary", "Add prose context explaining how to understand and edit the split core model."))
+	}
+
 	for id, arch := range core.Archetypes {
+		if arch.LongDescription == "" {
+			findings = append(findings, Warning("core_model", fmt.Sprintf("archetypes.%s.long_description", id), "missing_long_description", fmt.Sprintf("archetype %q has no long_description", id), "Add a prose explanation with examples, boundaries, and UI implications."))
+		}
 		for _, capID := range arch.DefaultCapabilities {
 			if _, ok := core.Capabilities[capID]; !ok {
 				findings = append(findings, Error("core_model", fmt.Sprintf("archetypes.%s.default_capabilities.%s", id, capID), "unknown_capability", fmt.Sprintf("archetype %q references unknown capability %q", id, capID), "Define the capability or remove the reference."))
@@ -128,6 +135,9 @@ func validateCoreModel(pkg *Package) []Finding {
 		logicalTypes[t] = true
 	}
 	for capID, cap := range core.Capabilities {
+		if cap.LongDescription == "" {
+			findings = append(findings, Warning("core_model", fmt.Sprintf("capabilities.%s.long_description", capID), "missing_long_description", fmt.Sprintf("capability %q has no long_description", capID), "Add a prose explanation with examples, consumers, and UI implications."))
+		}
 		if len(cap.Projections) == 0 {
 			findings = append(findings, Warning("core_model", fmt.Sprintf("capabilities.%s.projections", capID), "capability_without_projections", fmt.Sprintf("capability %q has no projections", capID), "Capabilities should contribute projections or a documented consumer."))
 		}
