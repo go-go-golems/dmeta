@@ -829,7 +829,24 @@ function executeCommand(cmd) {
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────
+function exposeInlineHandlers() {
+  Object.assign(window, {
+    addToCart,
+    closeContextMenu,
+    executeActionFromBar,
+    filterCategory,
+    filterDietary,
+    handlePresentationClick,
+    handlePresentationContext,
+    placeOrder,
+    renderCart,
+    renderHelp,
+    renderMenu,
+  });
+}
+
 export function init() {
+  exposeInlineHandlers();
   renderMenu();
   setHint('Click presentation → select → click action. Type action name for select mode. HELP for all commands.');
 }

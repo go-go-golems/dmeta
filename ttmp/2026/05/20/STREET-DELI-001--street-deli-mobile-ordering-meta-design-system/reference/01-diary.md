@@ -443,3 +443,63 @@ The previous select-mode iteration had the right concepts but weak execution fee
 - Validate manually at `http://localhost:8770/clim/`:
   - Type `DESCRIBE`, press Enter, menu items turn red, click a menu item, result appears above Command.
   - Click a menu item, click `DESCRIBE`, result appears above Command.
+
+## Step 7: Fix ES Module Inline Handler Regression
+
+Fixed the immediate browser regression reported by the user after the CLIM module split. The issue was caused by changing `app.js` to `type="module"` while keeping inline HTML event attributes (`onclick="handlePresentationClick(...)"`). ES module top-level functions are not globals, so inline handlers could not resolve them.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Uncaught ReferenceError: handlePresentationClick is not defined
+    onclick http://localhost:8770/clim/index.html:1
+index.html:1:1
+
+is this  normal? did you test it?"
+
+**Assistant interpretation:** The served CLIM prototype throws a real browser runtime error on click because module-scoped functions are not available to inline handlers.
+
+**Inferred user intent:** Fix the regression immediately and be transparent about what testing was and was not done.
+
+### What I did
+- Added `exposeInlineHandlers()` in `prototype-clim/js/app-main.js`.
+- Exposed the functions referenced from inline handlers onto `window`:
+  - `handlePresentationClick`
+  - `handlePresentationContext`
+  - `executeActionFromBar`
+  - `closeContextMenu`
+  - `renderMenu`
+  - `renderCart`
+  - `renderHelp`
+  - `filterDietary`
+  - `filterCategory`
+  - `addToCart`
+  - `placeOrder`
+- Called `exposeInlineHandlers()` from `init()` before `renderMenu()`.
+- Synced the fix to `www/clim/js/app-main.js`.
+- Re-ran `node --check` on source and served CLIM modules.
+
+### Why
+Inline event attributes are evaluated against the global object. ES modules do not publish top-level function declarations to `window`. This mismatch caused `handlePresentationClick is not defined`.
+
+### What worked
+- Syntax checks pass for both source and served module copies.
+- The fix is small and keeps the current inline-handler rendering approach intact.
+
+### What didn't work
+- I had not browser-tested after the module split; I only did syntax and HTTP availability checks. That missed the runtime/global-scope issue.
+
+### What I learned
+- If the prototype keeps inline event handlers, module code must explicitly export handlers to `window`, or the renderer must move to `addEventListener` delegation.
+
+### What was tricky to build
+- The fastest safe fix was to expose only the functions that are already used by inline handlers, rather than reverting the module split or rewriting all rendering to delegated events.
+
+### What warrants a second pair of eyes
+- A future cleanup should replace inline `onclick` strings with delegated event listeners to avoid this module/global mismatch entirely.
+
+### What should be done in the future
+- Add a tiny browser smoke check or migrate off inline handlers.
+
+### Code review instructions
+- Review `prototype-clim/js/app-main.js` at `exposeInlineHandlers()` and `init()`.
+- Confirm the same change exists in `www/clim/js/app-main.js`.

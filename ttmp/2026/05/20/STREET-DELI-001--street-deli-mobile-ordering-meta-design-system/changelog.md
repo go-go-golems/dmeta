@@ -57,3 +57,13 @@ Step 6: Fixed CLIM action/select-mode semantics, split CLIM app.js into module e
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/styles.css — Select-mode and result-area styles
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/www/clim/js/app-main.js — Served CLIM app module
 
+
+## 2026-05-20
+
+Step 7: Fixed CLIM ES module inline-handler regression by exposing inline handler functions on window before renderMenu; synced served www/clim copy.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/js/app-main.js — Exposes inline handlers for module-loaded CLIM app
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/www/clim/js/app-main.js — Served copy of inline handler fix
+
