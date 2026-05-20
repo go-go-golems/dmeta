@@ -11,13 +11,18 @@ Topics:
 DocType: reference
 Intent: long-term
 Owners: []
-RelatedFiles: []
+RelatedFiles:
+    - Path: dmeta/design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md
+      Note: Source design archetype used to identify missing YAML guidance
+    - Path: dmeta/sources/dmeta-ir/02-design-language.yaml
+      Note: Enriched design-language IR with source guidance and rules from the graphic design archetype
 ExternalSources: []
-Summary: "Chronological investigation diary for DMETA-001."
+Summary: Chronological investigation diary for DMETA-001.
 LastUpdated: 2026-05-19T17:36:00-04:00
-WhatFor: "Use to resume the ticket with context about source imports, scope corrections, design decisions, and open questions."
-WhenToUse: "Read before continuing DMETA-001 work or writing follow-up specs/playbooks."
+WhatFor: Use to resume the ticket with context about source imports, scope corrections, design decisions, and open questions.
+WhenToUse: Read before continuing DMETA-001 work or writing follow-up specs/playbooks.
 ---
+
 
 # DMETA-001 Investigation Diary
 
@@ -547,3 +552,66 @@ Uploaded the new design document to reMarkable:
 ```text
 OK: uploaded DMETA_001_Generic_Widget_Baseline.pdf -> /ai/2026/05/19/DMETA-001
 ```
+
+## Step 8: Enrich Design-Language YAML from the Graphic Design Archetype
+
+This step revisited `02-design-language.yaml` in light of the dense operational UI graphic design and UX archetype document. The YAML already had some machine-oriented ranges, but it did not put the backlink and human-language design intent in a visible enough place, and it was missing several rules from the Markdown source.
+
+The update makes the design-language IR more useful as a source of truth for humans as well as future generators: it now names the archetype, lists aliases/core qualities/anti-goals, encodes layout/component archetypes, adds missing interaction rules, expands lint guidance, and explicitly links to the Markdown design document near the top of the file.
+
+### Prompt Context
+
+**User prompt (verbatim):** "the @dmeta/sources/dmeta-ir/02-design-language.yaml is missing a link back to @dmeta/design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md and i think we can ecode more of the rules and other guidance to the yaml itself. Can you examine the yaml in light of the md document, and amend with all you feel is missing. It doesn't need to be in formal form, often the human language part is very helpful."
+
+**Assistant interpretation:** Compare the design-language YAML against the Markdown graphic-design archetype, add a clear source-document reference, and enrich the YAML with human-readable rules/guidance from the doc even where not yet formalized.
+
+**Inferred user intent:** Make the YAML a richer shared design-language source that can guide interns, generated docs, LLM workflows, validators, and future tooling rather than acting only as a sparse machine token file.
+
+**Commit (code):** N/A — pending commit at diary-writing time.
+
+### What I did
+- Read `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/02-design-language.yaml`.
+- Read `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md`.
+- Moved/expanded the design-document reference into a prominent top-level `references` block.
+- Added `source_guidance` with archetype name, aliases, authoring note, core qualities, and anti-goals.
+- Added missing typography, density, spacing, color, border/elevation, layout, component, presentation recipe, interaction, data-attribute, lint, and hardening guidance.
+- Ran `GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table`.
+
+### Why
+- The Markdown doc contains important design constraints that future authors should not have to rediscover manually.
+- The YAML is both generator input and human review material; prose belongs there when it explains intent and prevents visual drift.
+- Making the backlink prominent reduces the chance that `02-design-language.yaml` becomes detached from its source rationale.
+
+### What worked
+- The enriched YAML still validates successfully with `validation_ok`.
+- Added concrete missing guidance around core qualities, anti-goals, typography hard rules, per-surface density recommendations, app frame/master-detail/table/stream/process/command-palette layout rules, component archetypes, keyboard-first behavior, typed action guidance, runtime presentation attributes, and expanded lint rules.
+
+### What didn't work
+- N/A.
+
+### What I learned
+- The existing YAML already had a link at the bottom, but it was easy to miss and used a less explicit key. Moving the reference near the top and naming it after the dense operational UI document makes the provenance much clearer.
+- Several important design rules were present only in prose Markdown: no marketing/product-page visual language, no texture/noise, no chip-for-every-token behavior, context-menu and keyboard parity, progressive disclosure for long payloads, and richer layout/component archetype rules.
+
+### What was tricky to build
+- The tricky part was deciding what belongs in formal typed sections versus what should remain human-language guidance. The solution was to add prose-rich sections such as `source_guidance`, `component_archetypes`, `hardening_guidance`, and `concrete_outputs` while keeping existing validated sections intact.
+- Another subtle point was adding new presentation recipes and typography roles without breaking validator checks. I added a `section_heading` typography role before referencing it from the `section_heading` recipe.
+
+### What warrants a second pair of eyes
+- Whether the new top-level prose sections should eventually become part of the formal Go validator model or remain ignored-by-validator authoring guidance for now.
+- Whether `data_attributes.required_for_presentations` should distinguish always-required runtime attributes from optional/recommended attributes such as `source-path`.
+- Whether the new lint rules should remain warnings/errors as written once generated helpers exist.
+
+### What should be done in the future
+- Consider updating the validator model to preserve/validate selected prose sections like `source_guidance`, `component_archetypes`, and `hardening_guidance`.
+- If a design-language generator is added, emit docs/helpers from the enriched human-language sections, not only token values.
+- Add tests around design-language style recipe references if the file continues to grow.
+
+### Code review instructions
+- Start with `sources/dmeta-ir/02-design-language.yaml` and compare it against `design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md`.
+- Confirm the prominent `references.dense_operational_ui_graphic_design_and_ux_archetype` path is correct from `sources/dmeta-ir`.
+- Validate with `GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table`.
+
+### Technical details
+- Validation output included `validation_ok` and no error-severity findings.
+- Also ran `GOWORK=off go test ./...`; all packages passed.

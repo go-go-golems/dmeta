@@ -93,3 +93,23 @@ Uploaded DMETA 001 Generic Widget Baseline design doc to reMarkable at /ai/2026/
 
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/02-generic-widget-baseline-for-dense-operational-design-systems.md — Uploaded source design document
 
+
+## 2026-05-19
+
+Enriched sources/dmeta-ir/02-design-language.yaml from the dense operational UI graphic design archetype: added prominent source reference, source guidance, core qualities, anti-goals, layout/component archetype rules, expanded interaction/data-attribute/lint/hardening guidance, and revalidated the IR.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md — Source Markdown design archetype used for YAML enrichment
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/02-design-language.yaml — Design-language YAML enriched from the graphic design archetype
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/reference/01-dmeta-001-investigation-diary.md — Diary updated for design-language enrichment
+
+
+## 2026-05-19
+
+Validated the enriched design-language YAML with validate-ir and go test ./...; both passed.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/02-design-language.yaml — Validated enriched design-language IR
+

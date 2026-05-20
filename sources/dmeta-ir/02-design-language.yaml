@@ -1,8 +1,43 @@
 schema_version: 0
 artifact_type: dmeta_design_language
-summary: Range-based design-language rules for sober dense operational UIs.
+summary: Range-based design-language rules for sober dense operational UIs, derived from the Dense Operational UI
+  Graphic Design and UX Archetype.
 status: draft
 mode: archetype_range
+references:
+  dense_operational_ui_graphic_design_and_ux_archetype: ../../design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md
+  design_language_tooling_spec: ../../design-docs/06-dmeta-design-language-and-tooling-spec.md
+  core_presentations: ./core-model/presentations.yaml
+source_guidance:
+  archetype_name: Sober Dense Operational UI
+  aliases:
+  - Calm Operational Typography
+  - Typographic Control Surface
+  - Dense Information Workbench
+  - Low-Chrome Operational Console
+  source_document_note: This YAML is the concrete, machine-readable and human-readable companion to the dense operational
+    UI graphic design archetype. Keep prose here intentionally rich enough that interns, reviewers, generated docs,
+    and LLM workflows can understand the design intent without opening every Markdown source first.
+  human_authoring_note: 'Do not reduce this file to token facts only. Human-language constraints are part of the
+    IR: they explain why generated widgets should be quiet, typographic, dense, keyboard-friendly, and semantic
+    rather than decorative.'
+  core_qualities:
+  - 'Information first: data and actions are the content; chrome recedes.'
+  - 'Typographic hierarchy: hierarchy comes from size, weight, case, tracking, alignment, and rhythm.'
+  - 'Low visual taxation: neutral surfaces, modest contrast, few accents, and no gratuitous motion.'
+  - 'Dense but breathable: compact spacing without collapsed line-height or unreadable rows.'
+  - 'Semantic color: color means state, category, selection, or risk; it is not decoration.'
+  - 'Operational affordance: copy, inspect, filter, open, compare, and act are consistently available but often
+    progressively revealed.'
+  - 'Keyboard and context fluency: command palette, table navigation, context menus, and typed argument filling
+    are first-class.'
+  anti_goals:
+  - Do not use marketing/product-page visual language for dense operational surfaces.
+  - Do not use high-radius cards, heavy shadows, glossy badges, broad bright backgrounds, decorative gradients,
+    paper grain, texture, or background noise.
+  - Do not make dense rows look like a heatmap unless heatmap/category scanning is the explicit task.
+  - Do not hide identity, state, or critical actions exclusively behind hover.
+  - Do not turn every semantic token into a colorful pill; inline text can still be a presentation.
 theme_axes:
   density:
     values:
@@ -10,8 +45,12 @@ theme_axes:
     - regular
     - spacious
     default: regular
-    description: Controls how much information fits vertically and horizontally. Density affects row height, cell padding,
-      typography choices, and interaction target treatment across widgets.
+    description: Controls how much information fits vertically and horizontally. Density affects row height, cell
+      padding, typography choices, and interaction target treatment across widgets.
+    hard_boundaries:
+    - Compact mode may reduce row height and padding, but must not make focus, selection, or action targets impossible
+      to use.
+    - Density is a coordinated system axis, not a per-widget local constant.
   neutral_tone:
     values:
     - subtle_cool_gray
@@ -19,23 +58,27 @@ theme_axes:
     - white_panel
     - dark_console
     default: subtle_cool_gray
-    description: 'Controls the baseline surface temperature. The preferred default is subtle cool grey: quiet, modern, and
-      low fatigue. No texture or background noise is allowed.'
+    description: 'Controls the baseline surface temperature. The preferred default is subtle cool grey: quiet, modern,
+      and low fatigue. No texture or background noise is allowed.'
+    hard_boundaries:
+    - Backgrounds must remain texture-free and low-noise.
+    - Neutral temperature may vary from cool grey to white panel or dark console, but the resting UI should not
+      compete with dense text.
   type_mode:
     values:
     - mono_only
     - sans_with_mono
     - sans_only_with_tabular
     default: sans_with_mono
-    description: Controls whether the interface uses a mono-only console/workbench feel or a sans-with-mono pairing where
-      identifiers and metrics remain monospaced.
+    description: Controls whether the interface uses a mono-only console/workbench feel or a sans-with-mono pairing
+      where identifiers and metrics remain monospaced.
   radius:
     values:
     - square
     - slight
     default: slight
-    description: Controls corner treatment. The range is intentionally narrow because large rounded surfaces undermine the
-      precise operational tone.
+    description: Controls corner treatment. The range is intentionally narrow because large rounded surfaces undermine
+      the precise operational tone.
   row_treatment:
     values:
     - plain
@@ -43,8 +86,8 @@ theme_axes:
     - ruled
     - banded
     default: ruled
-    description: 'Controls how dense repeated records separate from one another: plain, striped, ruled, or banded. The choice
-      should improve scanning, not add decoration.'
+    description: 'Controls how dense repeated records separate from one another: plain, striped, ruled, or banded.
+      The choice should improve scanning, not add decoration.'
   surface_separation:
     values:
     - spacing
@@ -52,16 +95,20 @@ theme_axes:
     - tint
     - subtle_shadow
     default: keyline
-    description: Controls whether panels separate through spacing, hairlines, subtle tint, or rare shadows. Static operational
-      surfaces should usually prefer keylines and spacing.
+    description: Controls whether panels separate through spacing, hairlines, subtle tint, or rare shadows. Static
+      operational surfaces should usually prefer keylines and spacing.
   accent_strategy:
     values:
     - single_primary
     - semantic_status_only
     - category_palette
     default: semantic_status_only
-    description: Controls how color enters the system. Semantic status color is preferred; category palettes should be used
-      only when the task requires category scanning.
+    description: Controls how color enters the system. Semantic status color is preferred; category palettes should
+      be used only when the task requires category scanning.
+    hard_boundaries:
+    - Semantic status color is preferred for baseline systems.
+    - Category palettes are allowed only when category scanning is a primary task.
+    - Decorative accent color is not a valid reason to add color.
 typography:
   families:
     ui_sans:
@@ -90,8 +137,8 @@ typography:
       - 1.35
       - 1.5
       purpose: Main dense reading text.
-      long_purpose: Default readable text for rows, cells, panels, and operational prose. It should be small enough for density
-        but large enough for sustained use.
+      long_purpose: Default readable text for rows, cells, panels, and operational prose. It should be small enough
+        for density but large enough for sustained use.
     metadata:
       family: ui_mono
       size_range:
@@ -104,8 +151,8 @@ typography:
       - 1.25
       - 1.4
       purpose: Timestamps, ids, keyboard hints, secondary facts.
-      long_purpose: Compact monospaced text for secondary facts that require precision, including timestamps, ids, keyboard
-        hints, and source labels.
+      long_purpose: Compact monospaced text for secondary facts that require precision, including timestamps, ids,
+        keyboard hints, and source labels.
     label:
       family: ui_sans
       size_range:
@@ -119,8 +166,8 @@ typography:
       - 0.04em
       - 0.08em
       purpose: Table headers, rails, badges, section micro-labels.
-      long_purpose: Short structured labels such as table headers, badge text, rail labels, and section micro-labels. Uppercase/tracking
-        is allowed but should remain subtle.
+      long_purpose: Short structured labels such as table headers, badge text, rail labels, and section micro-labels.
+        Uppercase/tracking is allowed but should remain subtle.
     title:
       family: ui_sans
       size_range:
@@ -133,7 +180,8 @@ typography:
       - 1.15
       - 1.25
       purpose: Page or panel titles; use sparingly.
-      long_purpose: Sparse hierarchy marker for page, panel, or section titles. It should not dominate dense work surfaces.
+      long_purpose: Sparse hierarchy marker for page, panel, or section titles. It should not dominate dense work
+        surfaces.
     code:
       family: ui_mono
       size_range:
@@ -145,9 +193,33 @@ typography:
       numeric: tabular
       purpose: Codes, identifiers, exact values.
       long_purpose: Exact monospaced representation for identifiers, codes, numeric values, and machine-facing strings.
-  long_summary: Typography is the primary visual hierarchy mechanism. Dense operational UI should use few roles with clear
-    responsibilities. Body text carries records and labels; metadata/code roles carry exact identifiers, timestamps, and values;
-    label roles carry headers and badges; title roles are used sparingly. The aim is sustained readability, not dramatic scale.
+    section_heading:
+      family: ui_sans
+      size_range:
+      - 13
+      - 16
+      weight_range:
+      - 500
+      - 600
+      line_height_range:
+      - 1.2
+      - 1.35
+      purpose: Section headings, row primary labels, panel subtitles, and compact emphasis.
+      long_purpose: A restrained emphasis role for local hierarchy inside dense surfaces. It is larger or heavier
+        than body text, but it should not become a marketing headline. Use it for panel section titles, important
+        row labels, grouped detail headings, and other short text that needs hierarchy without breaking scan rhythm.
+  long_summary: 'Typography is the primary visual hierarchy mechanism. Dense operational UI should use few roles
+    with clear responsibilities. Body text carries records and labels; metadata/code roles carry exact identifiers,
+    timestamps, and values; label roles carry headers and badges; title roles are used sparingly. The aim is sustained
+    readability, not dramatic scale. The source archetype also calls out an emphasis/section role: a modest 13-16px
+    medium-weight label for section headings and row primary labels. Do not introduce large dashboard display type
+    into dense work surfaces unless the surface is explicitly a sparse overview.'
+  hard_rules:
+  - A concrete design system should use no more than 5-7 named typography roles.
+  - Every typography role must have a named semantic purpose.
+  - Identifiers, timestamps, code, and numeric columns use tabular figures and usually a mono role.
+  - Body text should use normal tracking; uppercase tracking is reserved for compact labels and headers.
+  - Avoid oversized page titles inside dense work surfaces; titles should orient, not dominate.
 density:
   modes:
     compact:
@@ -163,8 +235,8 @@ density:
       font_body_range:
       - 12
       - 13
-      description: Use for streams, dense tables, inline tokens, and high-volume monitoring surfaces where many items must
-        be visible at once.
+      description: Use for streams, dense tables, inline tokens, and high-volume monitoring surfaces where many
+        items must be visible at once.
     regular:
       row_height_range:
       - 28
@@ -192,10 +264,49 @@ density:
       font_body_range:
       - 14
       - 15
-      description: Use for detail drawers, forms, or inspection panels where users need more room to parse structured fields.
-  long_summary: Density modes coordinate row height, padding, and typography across widgets. They prevent every widget from
-    inventing its own compactness. Compact mode is for high-volume streams and tables; regular mode is the default; spacious
-    mode is for inspection surfaces where comprehension beats throughput.
+      description: Use for detail drawers, forms, or inspection panels where users need more room to parse structured
+        fields.
+  long_summary: Density modes coordinate row height, padding, and typography across widgets. They prevent every
+    widget from inventing its own compactness. Compact mode is for high-volume streams and tables; regular mode
+    is the default; spacious mode is for inspection surfaces where comprehension beats throughput.
+  surface_recommendations:
+    log_event_row:
+      dense_range:
+      - 22
+      - 26
+      regular_range:
+      - 28
+      - 32
+      guidance: Use for logs, event streams, lifecycle updates, scans, and tool output rows.
+    table_row:
+      dense_range:
+      - 24
+      - 30
+      regular_range:
+      - 32
+      - 40
+      guidance: Use for sortable/filterable tables where column alignment matters.
+    command_item:
+      dense_range:
+      - 28
+      - 34
+      regular_range:
+      - 36
+      - 44
+      guidance: Command items need enough height for keyboard scanning, shortcut hints, and optional descriptions.
+    detail_field_row:
+      dense_range:
+      - 22
+      - 28
+      regular_range:
+      - 30
+      - 36
+      guidance: Detail panels may be compact, but should preserve enough space for labels, values, copy affordances,
+        and wrapping.
+  rules:
+  - Density should not be ad hoc per widget; it is consumed by rows, tables, tokens, menus, panels, and forms.
+  - Compact mode is for throughput surfaces; spacious mode is for comprehension surfaces.
+  - Do not collapse line-height to fit more records if identifiers or timestamps become hard to read.
 spacing:
   base_grid: 2
   tokens:
@@ -210,8 +321,12 @@ spacing:
   - Use spacing to group before adding boxes.
   - Detail panels may use more spacing than streams/tables.
   - Avoid per-widget local spacing constants once helpers exist.
-  long_summary: Spacing expresses grouping and rhythm. The system should prefer consistent small spacing tokens and hairline
-    structure over decorative boxes. Local ad hoc spacing should migrate into density helpers once tooling exists.
+  - Prefer hairline dividers and alignment over filled cards when separating repeated records.
+  - Allow occasional compact grouping in streams, but use more breathing room in detail panels and forms.
+  - Spacing should communicate grouping before borders, shadows, or backgrounds are added.
+  long_summary: Spacing expresses grouping and rhythm. The system should prefer consistent small spacing tokens
+    and hairline structure over decorative boxes. Local ad hoc spacing should migrate into density helpers once
+    tooling exists.
 color:
   neutral_roles:
     background:
@@ -268,9 +383,17 @@ color:
   - Status color must be paired with text/icon labels.
   - Broad backgrounds should remain neutral unless the surface itself is a semantic alert.
   - Dense rows should not become colorful unless the task is specifically heatmap/category scanning.
-  long_summary: Color is semantic and restrained. The default interface should be mostly subtle neutral/cool-grey surfaces
-    and dark readable text. Status/category color should be used only when it helps users understand state, risk, selection,
-    or operational category.
+  - Resting UI should be mostly neutral.
+  - Status color belongs inside badges, small markers, left borders, or token text, not broad backgrounds.
+  - Selection may use a low-chroma fill plus text/icon change; it should be calmer than danger or warning.
+  - Pair color with text labels or icons; never rely on color alone.
+  long_summary: Color is semantic and restrained. The default interface should be mostly subtle neutral/cool-grey
+    surfaces and dark readable text. Status/category color should be used only when it helps users understand state,
+    risk, selection, or operational category.
+  hard_boundaries:
+  - No decorative background noise, paper grain, texture, or ornamental patterning.
+  - No broad saturated panels for ordinary status.
+  - No raw status colors outside semantic state, category, risk, selection, or attention contexts.
 borders:
   width_range:
   - 1
@@ -283,8 +406,12 @@ borders:
   rules:
   - Persistent panels use keylines, spacing, or tint before shadows.
   - Avoid large radii for dense operational UI.
-  long_summary: Borders and keylines provide most structural separation. Use thin lines and slight radius at most. Static
-    surfaces should avoid heavy elevation; floating surfaces can use subtle shadow only when needed for layering.
+  - No decorative border gradients.
+  - Floating surfaces may use shadow; persistent content surfaces usually should not.
+  - Large pill/card radii are outside the baseline archetype unless a specific theme explicitly narrows and documents
+    the exception.
+  long_summary: Borders and keylines provide most structural separation. Use thin lines and slight radius at most.
+    Static surfaces should avoid heavy elevation; floating surfaces can use subtle shadow only when needed for layering.
 elevation:
   static_surfaces: none
   floating_surfaces:
@@ -294,8 +421,12 @@ elevation:
     - command_palette
     - tooltip
     shadow: subtle
-  long_summary: Elevation is rare. Menus, popovers, command palettes, and tooltips may float, but persistent operational panels
-    should rely on spacing, keylines, and subtle surface contrast.
+  long_summary: Elevation is rare. Menus, popovers, command palettes, and tooltips may float, but persistent operational
+    panels should rely on spacing, keylines, and subtle surface contrast.
+  rules:
+  - No heavy drop shadows on static panels.
+  - Use subtle elevation only to clarify z-order for transient/floating surfaces.
+  - A menu, popover, tooltip, or command palette may float; a data table, stream, or panel should generally not.
 layout:
   primitives:
     app_frame:
@@ -305,8 +436,14 @@ layout:
       - main
       - detail_drawer
       - status_footer
-      description: Overall application shell with narrow navigation, work area, optional detail drawer, and compact status
-        footer.
+      description: Overall application shell with narrow navigation, work area, optional detail drawer, and compact
+        status footer.
+      default_structure: left rail / top toolbar / main work area / optional right detail drawer / status footer
+      rules:
+      - Navigation chrome should be narrow and quiet.
+      - Primary work area receives most horizontal space.
+      - Right detail drawer can pin, resize, or collapse.
+      - Global status, connection, or activity indicators belong in a compact footer or top utility strip.
     master_detail:
       main_ratio_range:
       - 0.6
@@ -314,32 +451,74 @@ layout:
       detail_ratio_range:
       - 0.25
       - 0.4
-      description: Default operational layout where dense list/table context stays visible while details open beside it.
+      description: Default operational layout where dense list/table context stays visible while details open beside
+        it.
+      rules:
+      - Selecting a row or presentation can open details without losing list/table/stream context.
+      - Detail panels use more spacing than streams.
+      - Details preserve copyable identifiers, state history, related links, and action surfaces.
     dense_stream:
       required_affordances:
       - virtualization_ready
       - keyboard_navigation
       - hover_actions
       description: High-volume ordered record surface for logs, scans, lifecycle updates, events, and traces.
+      stable_columns:
+      - timestamp
+      - type_level_or_state
+      - source_or_actor
+      - message_or_summary
+      - optional_details
+      rules:
+      - Inline semantic tokens must be selectable and action-aware.
+      - Rows should be virtualizable.
+      - Hover reveals row-local actions.
+      - Selection and focus must be distinct but not loud.
     dense_table:
       required_affordances:
       - sortable
       - filterable
       - resizable_columns
       description: Structured grid for sorting, filtering, scanning, and comparing records.
+      rules:
+      - Headers are compact, often uppercase micro-labels.
+      - Numeric/time/code columns use monospace and tabular alignment.
+      - Status uses badges or compact state cells.
+      - Inline references use compact reference presentations.
+      advanced_affordances:
+      - column_resize
+      - column_reorder
+      - sort
+      - filter
     process_panel:
       required_affordances:
       - collapsed_summary
       - expanded_steps
       description: Compact view of workflow/process/route/execution progress with expandable step detail.
+      visual_grammar:
+      - line
+      - dot
+      - tick
+      - badge
+      - timestamp
+      rules:
+      - Show ordered state or step progression.
+      - Avoid illustrative timeline art; keep it operational.
+      - Support collapsed summary and expanded step detail.
     command_palette:
       required_affordances:
       - keyboard_first
       - filtering
       - argument_collection
       description: Keyboard-first action discovery and argument collection surface.
-  long_summary: Layout primitives name the recurring spatial patterns of dense operational applications. These are not necessarily
-    generated components; they are shared vocabulary for widgets, stories, and audits.
+      rules:
+      - Text-heavy and fast-filtering.
+      - Keyboard hints are right-aligned.
+      - Show action name, accepted type or archetype, and short description.
+      - Can begin globally or with the current selected presentation as context.
+      - Supports argument collection by selecting matching on-screen presentations.
+  long_summary: Layout primitives name the recurring spatial patterns of dense operational applications. These are
+    not necessarily generated components; they are shared vocabulary for widgets, stories, and audits.
 presentation_recipes:
   compact_ref:
     typography: code
@@ -355,8 +534,8 @@ presentation_recipes:
     - selected
     - candidate
     - disabled
-    description: Visual treatment for compact, selectable references. It should look like precise text with affordances rather
-      than a heavy pill.
+    description: Visual treatment for compact, selectable references. It should look like precise text with affordances
+      rather than a heavy pill.
   status_badge:
     typography: label
     color_source: state_tone
@@ -385,8 +564,8 @@ presentation_recipes:
     - selected
     - candidate
     - active
-    description: Visual treatment for dense repeated records. It coordinates row density, selection, hover actions, and focus
-      treatment.
+    description: Visual treatment for dense repeated records. It coordinates row density, selection, hover actions,
+      and focus treatment.
   metric_cell:
     typography: code
     alignment: right
@@ -400,6 +579,79 @@ presentation_recipes:
     - focus
     - selected
     description: Visual treatment for numeric values. It emphasizes alignment, units, and comparability.
+  presentation_token:
+    typography: body
+    density: compact
+    affordances:
+    - hover_underline
+    - copy_on_menu
+    - context_menu
+    - selection
+    - argument_candidate
+    states:
+    - rest
+    - hover
+    - focus
+    - selected
+    - candidate
+    - disabled
+    description: Generic inline semantic presentation. It may look like plain text at rest, but still carries presentation
+      identity, data attributes, and typed-action affordances.
+  detail_panel:
+    typography: body
+    density: regular_or_spacious
+    affordances:
+    - copy_fields
+    - open_related
+    - section_collapse
+    - toolbar_actions
+    states:
+    - rest
+    - focus
+    - active
+    description: Inspection surface for a selected subject. It should preserve context, use more spacing than streams,
+      and expose copy/related/action affordances predictably.
+  filter_chip:
+    typography: metadata
+    density: compact
+    affordances:
+    - remove
+    - focus
+    - context_menu_optional
+    states:
+    - rest
+    - hover
+    - focus
+    - selected
+    - disabled
+    description: Compact representation of active query state. It includes field/operator/value and should render
+      semantic values through the presentation registry where possible.
+  command_item:
+    typography: body
+    density: regular
+    affordances:
+    - keyboard_shortcut_hint
+    - filter_match
+    - argument_collection
+    states:
+    - rest
+    - hover
+    - focus
+    - selected
+    - disabled
+    description: Command palette row. It is text-heavy, filterable, keyboard-first, and may show accepted semantic
+      types/archetypes plus shortcut hints.
+  section_heading:
+    typography: section_heading
+    density: regular
+    affordances:
+    - collapse_optional
+    - toolbar_optional
+    states:
+    - rest
+    - focus
+    description: Restrained local hierarchy for panel sections and detail groups. It should orient the user without
+      disrupting dense scan rhythm.
 interaction_states:
   states:
     rest:
@@ -416,7 +668,8 @@ interaction_states:
       description: User-selected subject or presentation. Used for ordinary selection and detail context.
     candidate:
       purpose: Valid action argument candidate during argument collection.
-      description: Valid argument candidate during typed action collection. Must be distinguishable from normal selection.
+      description: Valid argument candidate during typed action collection. Must be distinguishable from normal
+        selection.
     active:
       purpose: Currently running/current context.
       description: Currently running/current/live context. Should be calmer than danger and distinct from selection.
@@ -431,8 +684,38 @@ interaction_states:
   - Hover-only utilities must also be keyboard reachable.
   - Critical state cannot be hover-only.
   - Candidate state must be distinguishable from ordinary selection.
-  long_summary: Interaction states must be consistent across widgets so presentation-based actions feel predictable. Focus,
-    selection, candidate, and active states are semantically different and should not collapse into one generic highlight.
+  - Global command palette should use Ctrl/Cmd+K unless host application conventions require another binding.
+  - Dense list/table navigation should support arrow keys, PageUp/PageDown, Home/End where feasible.
+  - Enter opens or activates the current row/presentation when that behavior is safe and predictable.
+  - Escape closes transient surfaces in a predictable inside-out order.
+  - Right-click and keyboard context menus should expose actions valid for the selected presentation domain type,
+    archetypes, and capabilities.
+  - Action labels should start with verbs.
+  - If an action requires arguments, prefer selecting matching on-screen presentations before free-form input.
+  - Dense rows show summaries; detail panels show complete content.
+  - Payloads, JSON, stack traces, long notes, and histories default collapsed with size/count indicators.
+  long_summary: Interaction states must be consistent across widgets so presentation-based actions feel predictable.
+    Focus, selection, candidate, and active states are semantically different and should not collapse into one generic
+    highlight.
+  keyboard_first_behavior:
+    global_command_palette: Ctrl/Cmd+K
+    table_list_navigation:
+    - ArrowUp
+    - ArrowDown
+    - PageUp
+    - PageDown
+    - Home
+    - End
+    copy_current_token_or_row_id: single shortcut where possible
+    open_detail:
+    - Enter
+    - dedicated shortcut where appropriate
+    context_action_menu: keyboard accessible equivalent to right-click
+    close_transient_surfaces: Escape closes in predictable order
+  typed_action_guidance:
+  - The current source selection should be visually marked while collecting arguments.
+  - Candidate presentations should be distinguishable from ordinary selection.
+  - Context actions are filtered by domain type, archetypes, capabilities, and presentation id.
 data_attributes:
   prefix: data-dmeta
   required_for_presentations:
@@ -441,20 +724,27 @@ data_attributes:
   - archetypes
   - capabilities
   - presentation-id
+  - label
+  - copy-value
+  - source-surface
+  - source-path
   required_for_widgets:
   - widget-id
   - widget-level
   required_for_actions:
   - action-id
   - action-category
-  long_summary: Data attributes provide a stable bridge for testing, inspection, and presentation-based action routing. Widgets
-    should use generated helpers rather than hand-writing data-dmeta attributes, so naming remains consistent.
+  long_summary: Data attributes provide a stable bridge for testing, inspection, and presentation-based action routing.
+    Widgets should use generated helpers rather than hand-writing data-dmeta attributes, so naming remains consistent.
+  runtime_contract_note: Every selectable presentation should carry enough runtime attributes for testing, inspection,
+    copy, context-menu routing, and typed action argument collection. Not every presentation needs a visible border
+    or chip; the runtime identity may be richer than the visual treatment.
 lint_rules:
   no_raw_colors:
     severity: warning
     description: Promoted widgets should use generated color helpers/tokens.
-    long_description: Promoted widgets should use generated color helpers/tokens. This rule exists to keep dense operational
-      UI consistent as generated scaffolds are manually promoted into real widgets.
+    long_description: Promoted widgets should use generated color helpers/tokens. This rule exists to keep dense
+      operational UI consistent as generated scaffolds are manually promoted into real widgets.
   no_unauthorized_type_roles:
     severity: warning
     description: Widgets should use named typography roles.
@@ -463,8 +753,8 @@ lint_rules:
   no_local_status_badges:
     severity: warning
     description: Status badges should use registered presentation/design recipe.
-    long_description: Status badges should use registered presentation/design recipe. This rule exists to keep dense operational
-      UI consistent as generated scaffolds are manually promoted into real widgets.
+    long_description: Status badges should use registered presentation/design recipe. This rule exists to keep dense
+      operational UI consistent as generated scaffolds are manually promoted into real widgets.
   no_local_density_constants:
     severity: warning
     description: Row heights and cell padding should use density helpers.
@@ -473,18 +763,52 @@ lint_rules:
   no_heavy_static_shadows:
     severity: warning
     description: Static surfaces should not use heavy elevation.
-    long_description: Static surfaces should not use heavy elevation. This rule exists to keep dense operational UI consistent
-      as generated scaffolds are manually promoted into real widgets.
+    long_description: Static surfaces should not use heavy elevation. This rule exists to keep dense operational
+      UI consistent as generated scaffolds are manually promoted into real widgets.
   no_manual_dmeta_data_attributes:
     severity: warning
     description: Widgets should use generated data attribute helpers.
-    long_description: Widgets should use generated data attribute helpers. This rule exists to keep dense operational UI consistent
-      as generated scaffolds are manually promoted into real widgets.
+    long_description: Widgets should use generated data attribute helpers. This rule exists to keep dense operational
+      UI consistent as generated scaffolds are manually promoted into real widgets.
   hover_controls_keyboard_accessible:
     severity: error
     description: Hover-revealed controls must be reachable by keyboard.
-    long_description: Hover-revealed controls must be reachable by keyboard. This rule exists to keep dense operational UI
-      consistent as generated scaffolds are manually promoted into real widgets.
+    long_description: Hover-revealed controls must be reachable by keyboard. This rule exists to keep dense operational
+      UI consistent as generated scaffolds are manually promoted into real widgets.
+  no_decorative_background_noise:
+    severity: error
+    description: Dense operational surfaces must not use decorative texture, grain, patterning, or background noise.
+    long_description: The archetype is texture-free and low-noise. Background decoration competes with dense text
+      and makes sustained operational scanning harder.
+  no_oversized_static_titles:
+    severity: warning
+    description: Dense work surfaces should avoid oversized title/display typography.
+    long_description: Titles orient users, but should not dominate high-information work areas. Use the title role
+      sparingly and prefer section_heading for local hierarchy.
+  status_color_semantic_only:
+    severity: warning
+    description: Status colors must be tied to semantic state, category, risk, selection, or attention.
+    long_description: Color is not decoration. Review broad or saturated color use unless it is explicitly tied
+      to a semantic status/category task.
+  no_pill_every_token:
+    severity: warning
+    description: Do not render every semantic presentation as a colorful chip or pill.
+    long_description: Inline text can still be a semantic presentation. Use chip/badge treatments only when they
+      improve scanning, state recognition, selection, or action affordance.
+  focus_visible_all_interactive:
+    severity: error
+    description: Every interactive widget and semantic presentation must have visible keyboard focus.
+    long_description: Keyboard and context fluency are first-class. Focus cannot disappear in dense mode.
+  no_unapproved_radii_or_shadows:
+    severity: warning
+    description: Widgets should not introduce radii or shadows outside design-language ranges.
+    long_description: Large radii and heavy static shadows undermine the precise operational tone and make generated
+      systems drift toward generic product-card UI.
+  collapse_long_payloads_by_default:
+    severity: warning
+    description: Long payloads, JSON, stack traces, notes, and histories should default collapsed with size/count
+      context.
+    long_description: Progressive disclosure preserves dense scanability while keeping rich detail reachable.
 validation:
   require_axis_defaults_in_values: true
   require_typography_role_references: true
@@ -493,20 +817,121 @@ validation:
   - info
   - warning
   - error
-long_summary: This design-language IR describes the visual and interaction constraints for sober dense operational user interfaces.
-  It is intentionally written as a human-readable source of truth as well as a future generator input. The design language
-  favors subtle cool-grey/neutral surfaces, tight but readable density, semantic color, hairline structure, minimal elevation,
-  and explicit keyboard/context affordances. It should give implementers enough rationale to avoid decorative or noisy choices
-  while still allowing concrete applications to choose exact tokens later.
-references:
-  graphic_design_archetype: ../../design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md
-  design_language_tooling_spec: ../../design-docs/06-dmeta-design-language-and-tooling-spec.md
-  core_presentations: ./core-model/presentations.yaml
-theme_axes_summary: 'Theme axes define the controlled variation that a concrete design-system instance may choose from. They
-  are not arbitrary theme knobs: each axis is constrained so generated widgets remain recognizably part of the sober dense
-  operational UI family. A concrete app can choose compact vs regular density or mono-only vs sans-with-mono, but it should
-  not introduce decorative surfaces, loud gradients, or inconsistent interaction states through theme configuration.'
-presentation_recipes_summary: 'Presentation recipes connect semantic presentations to visual behavior. They should stay generic:
-  a status badge recipe can render shipment status, tool run status, or sensor health without becoming domain-specific.'
-lint_rules_summary: Lint rules turn design-language intent into enforceable review checks. They should start as warnings where
-  the implementation is immature and become stricter once generated helpers and promoted widgets stabilize.
+long_summary: 'This design-language IR describes the visual and interaction constraints for sober dense operational
+  user interfaces. It is intentionally written as a human-readable source of truth as well as a future generator
+  input. It links back to the dense operational UI graphic design archetype and encodes the major rules from that
+  document: typography and alignment carry hierarchy; neutral cool-grey surfaces and hairlines carry structure;
+  color is semantic and restrained; hover utilities must remain keyboard reachable; selection, focus, active, and
+  action-candidate states are distinct; and generated widgets should avoid decorative chrome, texture, broad status
+  backgrounds, and ad hoc spacing/type/color choices. Concrete systems may choose exact tokens later, but they should
+  remain inside these ranges and explanations.'
+theme_axes_summary: 'Theme axes define the controlled variation that a concrete design-system instance may choose
+  from. They are not arbitrary theme knobs: each axis is constrained so generated widgets remain recognizably part
+  of the sober dense operational UI family. A concrete app can choose compact vs regular density or mono-only vs
+  sans-with-mono, but it should not introduce decorative surfaces, loud gradients, or inconsistent interaction states
+  through theme configuration.'
+presentation_recipes_summary: 'Presentation recipes connect semantic presentations to visual behavior. They should
+  stay generic: a status badge recipe can render shipment status, tool run status, or sensor health without becoming
+  domain-specific.'
+lint_rules_summary: Lint rules turn design-language intent into enforceable review checks. They should start as
+  warnings where the implementation is immature and become stricter once generated helpers and promoted widgets
+  stabilize.
+component_archetypes:
+  presentation_token:
+    summary: Compact inline rendering of a semantic object, projection, relation, state, or metric.
+    rules:
+    - Small, text-first, low padding.
+    - Can be clickable/selectable when semantic type/capability supports actions.
+    - Carries data attributes for archetype/capability/domain type.
+    - Supports hover, copy, and context-menu affordances.
+    - Inline text can still be a presentation; do not force every token into a chip.
+  compact_reference:
+    summary: Compact rendering of Actor, WorkItem, Resource, Relation endpoints, trace ids, run ids, and similar
+      references.
+    rules:
+    - Shows label and/or id.
+    - Uses middle truncation for long identifiers.
+    - Exposes copy and inspect actions.
+    - May include a tiny state marker when the subject is stateful.
+  status_badge:
+    summary: Compact state presentation for stateful subjects.
+    rules:
+    - Text label is mandatory.
+    - Color reinforces the label.
+    - Shape is compact and low-radius.
+    - No glossy styling.
+    - Tone is derived from state mapping.
+  dense_row:
+    summary: Presentation of Event, WorkItem, Resource, or domain-specific records in a repeated dense surface.
+    rules:
+    - Expose stable identity and inspect action.
+    - Tokenize row content where possible.
+    - Support hover actions without displaying every action at rest.
+    - Support focus and keyboard activation.
+  detail_panel:
+    summary: Expanded inspection surface that keeps context visible.
+    rules:
+    - Use sections separated by spacing and keylines.
+    - Present key-value fields with copy affordances.
+    - Show related objects as compact references.
+    - Show actions in a predictable toolbar or footer.
+    - Do not become a modal unless a blocking decision is required.
+  filter_chip:
+    summary: Persistent representation of query/filter state.
+    rules:
+    - Includes field, operator, and value.
+    - Compact, removable, and keyboard focusable.
+    - Values should use the same presentation registry when possible.
+  metric_cell:
+    summary: Comparable measurable/aggregatable values.
+    rules:
+    - Right-align comparable numbers.
+    - Use units explicitly.
+    - Align decimals.
+    - Use tiny trend/sparkline only when useful, not decorative.
+hardening_guidance:
+  summary: This file intentionally keeps ranges. A concrete design system must choose hard values and then lint
+    against them.
+  hard_values_to_choose:
+  - font sizes and weights per typography role
+  - row heights and padding per density mode
+  - background/surface/text/divider tokens
+  - status tones
+  - radius and border widths
+  - shadow tokens for floating surfaces only
+  lint_targets:
+  - unauthorized font sizes
+  - unauthorized font weights
+  - raw colors not mapped to design tokens
+  - status colors outside semantic contexts
+  - unapproved border radii or shadows
+  - widgets using local spacing instead of density tokens
+  - hidden hover-only critical actions
+concrete_outputs:
+  design_language_yaml:
+  - typography roles
+  - density modes
+  - color semantics
+  - spacing scale
+  - border/radius/elevation rules
+  - presentation-state styles
+  - interaction-state styles
+  generated_helpers:
+  - typography.ts
+  - density.ts
+  - tokens.ts
+  - presentationStyles.ts
+  - actionStyles.ts
+  - dataAttributes.ts
+  lint_rules:
+  - no raw color literals
+  - no unauthorized type roles
+  - no ad hoc status badges
+  - no local density constants
+  - no heavy shadows on static surfaces
+  - no hidden hover-only critical actions
+  playbook_rules:
+  - how to instantiate the design archetype for a concrete domain
+  - how to choose hard tokens from ranges
+  - how to promote generated widget scaffolds without violating the archetype
+  - how to audit visual drift
