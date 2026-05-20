@@ -151,7 +151,7 @@ This step turns the local static prototypes into a reviewable release artifact. 
 
 **Inferred user intent:** The user wants me to move beyond documentation into concrete packaging and GitOps changes for production rollout.
 
-**Commit (code):** pending — this step will be committed after the packaging files and diary are written.
+**Commit (code):** 8d47cc723f9d7a787f1e9ca32044378675f9d92a — "Package DMETA examples static site"
 
 ### What I did
 

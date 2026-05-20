@@ -37,3 +37,13 @@ Added static examples image packaging and GHCR workflow for the DMETA street del
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/Dockerfile.examples-static — Builds /site artifact image
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/20/DMETA-EXAMPLES-PROD-001--deploy-dmeta-street-deli-prototypes-to-production/tasks.md — Marked inventory
 
+
+## 2026-05-20
+
+Recorded packaging commit hash for the static examples image (commit 8d47cc723f9d7a787f1e9ca32044378675f9d92a).
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/20/DMETA-EXAMPLES-PROD-001--deploy-dmeta-street-deli-prototypes-to-production/changelog.md — Changelog entry with Step 2 commit
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/20/DMETA-EXAMPLES-PROD-001--deploy-dmeta-street-deli-prototypes-to-production/reference/01-diary.md — Step 2 commit hash
+
