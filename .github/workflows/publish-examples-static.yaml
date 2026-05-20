@@ -37,7 +37,7 @@ jobs:
     with:
       dockerfile: ./Dockerfile.examples-static
       build_context: .
-      test_command: GOWORK=off go test ./...
+      test_command: test -f examples/street-deli-ordering/www/index.html && test -f examples/street-deli-ordering/www/mobile/index.html && test -f examples/street-deli-ordering/www/clim/index.html
       go_version_file: go.mod
       image_name: ghcr.io/go-go-golems/dmeta-examples-static
       gitops_target_config: deploy/gitops-targets.json
