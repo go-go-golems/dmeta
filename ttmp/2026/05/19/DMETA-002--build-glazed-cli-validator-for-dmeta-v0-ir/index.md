@@ -1,7 +1,7 @@
 ---
 Title: Build Glazed CLI Validator for DMETA v0 IR
 Ticket: DMETA-002
-Status: active
+Status: complete
 Topics:
     - design-system
     - dsl
@@ -29,10 +29,11 @@ RelatedFiles:
       Note: Local Glazed framework module used by the CLI
 ExternalSources: []
 Summary: ""
-LastUpdated: 2026-05-19T19:22:00.640682029-04:00
+LastUpdated: 2026-05-19T20:01:48.830214302-04:00
 WhatFor: ""
 WhenToUse: ""
 ---
+
 
 
 

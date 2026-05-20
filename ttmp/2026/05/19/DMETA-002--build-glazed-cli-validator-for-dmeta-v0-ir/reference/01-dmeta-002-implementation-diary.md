@@ -201,3 +201,23 @@ GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-in
 ### Current result
 
 The command reports an info `validation_ok` row and exits successfully. The current DMETA v0 IR has no error-severity validation findings.
+
+## 2026-05-19 — Ticket closed
+
+### What happened
+Removed the default placeholder task, closed DMETA-002 with `docmgr ticket close`, and ran `docmgr doctor`.
+
+### Closure summary
+DMETA-002 delivered:
+
+- intern-facing design and implementation guide;
+- reMarkable upload;
+- Go/Glazed `dmeta validate-ir` CLI;
+- YAML loading for all four DMETA v0 IR files;
+- cross-reference validation for core model, design language, and widgets;
+- structured Glazed row output;
+- successful `go test ./...`;
+- successful validation of current IR.
+
+### Next work
+Return to DMETA-001 and continue the factory pipeline. The next logical step is no longer another prose doc; it is to decide whether to harden the validator with tests or begin the first generator. Since DMETA-002 completed the validator, DMETA-001 can proceed to generated outputs.

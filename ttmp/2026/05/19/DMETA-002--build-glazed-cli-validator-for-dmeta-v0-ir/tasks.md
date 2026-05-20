@@ -2,8 +2,6 @@
 
 ## TODO
 
-- [ ] Add tasks here
-
 - [x] Write intern-facing design and implementation guide for the DMETA IR validator
 - [x] Upload the intern guide to reMarkable
 - [x] Create Go module/CLI skeleton for dmeta using Glazed and Cobra
