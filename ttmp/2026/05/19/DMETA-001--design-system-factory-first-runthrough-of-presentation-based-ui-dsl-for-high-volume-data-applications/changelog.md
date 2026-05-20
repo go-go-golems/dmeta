@@ -113,3 +113,14 @@ Validated the enriched design-language YAML with validate-ir and go test ./...; 
 
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/02-design-language.yaml — Validated enriched design-language IR
 
+
+## 2026-05-20
+
+Step 9: Added filter semantics design guide for high-density event-oriented DMETA applications and uploaded it to reMarkable.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/archetypes.yaml — Current archetypes reflected on for filtering gaps
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/capabilities.yaml — Current capabilities reflected on for filterable/filter_source additions
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/03-filter-semantics-for-high-density-event-oriented-dmeta-applications.md — New filter semantics analysis/design/implementation guide
+

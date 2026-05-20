@@ -615,3 +615,106 @@ The update makes the design-language IR more useful as a source of truth for hum
 ### Technical details
 - Validation output included `validation_ok` and no error-severity findings.
 - Also ran `GOWORK=off go test ./...`; all packages passed.
+
+## Step 9: Filter Semantics Reflection for Event-Oriented DMETA Applications
+
+This step returned to the core DMETA semantic model and examined a missing axis: filtering. The existing archetypes and capabilities already mention filter operators, but they do not yet distinguish the surface being filtered, the object used as a filter value, and pure filter objects such as active criteria, facets, and presets.
+
+The output is a new DMETA-001 design document intended for an intern or future implementer. It explains the current model, identifies the gap, proposes new archetypes and capabilities, sketches runtime APIs, and gives implementation steps for adding filtering to high-density event-oriented DMETA applications.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Ok, let's go back to @dmeta/design-docs/ and @dmeta/sources/dmeta-ir/core-model/archetypes.yaml and @dmeta/sources/dmeta-ir/core-model/capabilities.yaml . Let's reflect, within the context of DMETA-001 (docmgr ticket) what our archetypes are, and how things could potentially be improved or dapted. I think one big thing we forgot is filtering. Some things are pure filters. Some objects can be used as filter (for example, filtering by agent session by client on a session id), some objects can be filtered (event streams). 
+
+Create a document where we reflect on that and how this impacts our current meta design system for high density / event oriented applications.
+
+Create  a detailed analysis / design / implementation guide that is for a new intern, explaining all the parts of the system needed to understand what it is, with prose paragraphs and bullet point sand pseudocode and diagrams and api references and file references. It should be very clear and technical. Store in the ticket and the nupload to remarkable.
+
+Keep a diary as you work."
+
+**Assistant interpretation:** Re-examine the current DMETA archetype/capability model through the lens of filtering, write a detailed intern-facing DMETA-001 design guide, relate it to the relevant source files, upload it to reMarkable, and record the work in the ticket diary.
+
+**Inferred user intent:** Make filtering a first-class part of the meta design system before implementation work hardens the current model around only objects, presentations, and actions.
+
+**Commit (code):** N/A — documentation-only step at diary-writing time.
+
+### What I did
+- Read the current semantic/model files:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/02-semantic-archetype-and-capability-model.md`
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/04-concrete-dmeta-system-spec.md`
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md`
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/archetypes.yaml`
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/capabilities.yaml`
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/presentations.yaml`
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/03-widgets.yaml`
+- Created a new DMETA-001 design document:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/03-filter-semantics-for-high-density-event-oriented-dmeta-applications.md`
+- Proposed a filtering model that distinguishes filter targets, filter dimensions, filter value sources, filter expressions, filter criteria, and filter presets.
+- Proposed possible additions: `ResultSet`, `FilterCriterion`, optional `FilterSpec`/`FilterPreset`, `filterable`, `filter_source`, `searchable`, `facetable`, `sortable`, and `windowable`.
+- Added pseudocode, Mermaid diagrams, TypeScript-style API references, YAML sketches, implementation phases, and concrete examples for agent sessions and event streams.
+- Related the new document to the relevant source and design files via `docmgr doc relate`.
+- Validated frontmatter and ran `docmgr doctor` for DMETA-001.
+- Uploaded the document to reMarkable:
+  - `OK: uploaded DMETA 001 Filter Semantics.pdf -> /ai/2026/05/20/DMETA-001`
+
+### Why
+- Filtering is central to dense operational and event-oriented applications; users navigate these systems by narrowing streams, tables, queues, and result sets.
+- The existing model listed filter operators on capabilities, but did not model the filter target/source/criterion distinction.
+- Without a formal filter model, filtering would likely become ad hoc widget state instead of a semantic presentation/action capability.
+
+### What worked
+- The existing capability model already had useful filter operator hints, which made it easy to show continuity rather than redesigning from scratch.
+- The distinction between `filterable` and `filter_source` cleanly captured the user's examples: event streams can be filtered, while sessions/clients/statuses can be used as filters.
+- The previous generic widget baseline document provided a good bridge to `FilterBar`, `SearchBox`, and `ResultWindowControls`.
+- `docmgr validate frontmatter` and `docmgr doctor` passed after using the correct doc path.
+- reMarkable upload succeeded in one command.
+
+### What didn't work
+- I first ran `docmgr validate frontmatter` with a `ttmp/...` path from the repo root, which docmgr interpreted as `ttmp/ttmp/...` and failed:
+
+```text
+Error: open /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/03-filter-semantics-for-high-density-event-oriented-dmeta-applications.md: no such file or directory
+```
+
+- Re-running with the path relative to the docs root fixed it:
+
+```text
+docmgr validate frontmatter --doc 2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/03-filter-semantics-for-high-density-event-oriented-dmeta-applications.md --suggest-fixes
+```
+
+### What I learned
+- The current DMETA model is strong for individual semantic subjects but needs a collection/query layer for event streams, tables, queues, and result windows.
+- `streamable` currently means a subject can appear in an ordered stream; it does not mean the stream itself is a semantic filter target.
+- Active filters should be treated as semantic presentations, not just UI decoration.
+
+### What was tricky to build
+- The main tricky point was avoiding an overlarge taxonomy. Filtering could justify many new concepts, but the practical starting point is smaller: `ResultSet`, `FilterCriterion`, `filterable`, and `filter_source`.
+- Another subtle point was naming. `filter_source` describes a semantic object that can derive a filter expression better than `filter_value`, because many sources are full objects or relation refs rather than scalar values.
+
+### What warrants a second pair of eyes
+- Whether `ResultSet` should become a formal archetype or remain widget/adapter state.
+- Whether `FilterCriterion` should be an archetype or a presentation-only runtime object.
+- Whether `filter_source` is the right capability name.
+- Whether `EventStream` should remain represented as `ResultSet + stream/window capabilities` or become a first-class archetype.
+
+### What should be done in the future
+- Implement the minimal IR additions in `archetypes.yaml`, `capabilities.yaml`, and `presentations.yaml` if the proposed direction is accepted.
+- Update the widget IR with `FilterBar`, `SearchBox`, and `ResultWindowControls` contracts.
+- Add validator rules for filter dimensions/operators once those are formalized.
+- Pressure-test the model in `agent-workflow.yaml` and `retail-logistics.yaml`.
+
+### Code review instructions
+- Start with the new design doc listed above.
+- Compare the proposed additions against:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/archetypes.yaml`
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/capabilities.yaml`
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/presentations.yaml`
+- Validate ticket hygiene with:
+
+```bash
+docmgr doctor --ticket DMETA-001 --stale-after 30
+```
+
+### Technical details
+- New document path: `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/03-filter-semantics-for-high-density-event-oriented-dmeta-applications.md`
+- reMarkable destination: `/ai/2026/05/20/DMETA-001`
