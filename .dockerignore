@@ -1,0 +1,10 @@
+.git
+.gitignore
+.github
+.idea
+.pi
+ttmp
+**/.DS_Store
+**/node_modules
+**/dist
+**/build

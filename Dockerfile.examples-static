@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:1
+
+FROM alpine:3.20
+
+LABEL org.opencontainers.image.title="dmeta-examples-static"
+LABEL org.opencontainers.image.description="Static DMETA example prototypes for dmeta-examples.yolo.scapegoat.dev"
+LABEL org.opencontainers.image.source="https://github.com/go-go-golems/dmeta"
+
+WORKDIR /
+COPY examples/street-deli-ordering/www/ /site/
+
+RUN find /site -type f | sort > /site-manifest.txt \
+  && test -f /site/index.html \
+  && test -f /site/mobile/index.html \
+  && test -f /site/mobile/app.js \
+  && test -f /site/mobile/styles.css \
+  && test -f /site/clim/index.html \
+  && test -f /site/clim/app.js \
+  && test -f /site/clim/styles.css \
+  && test -f /site/clim/fonts/BerkeleyMono-Regular.woff2

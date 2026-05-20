@@ -12,6 +12,18 @@ DocType: reference
 Intent: long-term
 Owners: []
 RelatedFiles:
+    - Path: .dockerignore
+      Note: Docker build context hygiene for examples static image
+    - Path: .github/workflows/publish-examples-static.yaml
+      Note: GHCR publish workflow for immutable dmeta examples image
+    - Path: Dockerfile.examples-static
+      Note: Static artifact image packaging added in Step 2
+    - Path: examples/street-deli-ordering/www/clim/index.html
+      Note: CLIM prototype packaged under /site/clim
+    - Path: examples/street-deli-ordering/www/index.html
+      Note: Landing page packaged as /site root
+    - Path: examples/street-deli-ordering/www/mobile/index.html
+      Note: Mobile prototype packaged under /site/mobile
     - Path: ttmp/2026/05/20/DMETA-EXAMPLES-PROD-001--deploy-dmeta-street-deli-prototypes-to-production/design-doc/01-production-deployment-plan.md
       Note: Initial deployment architecture plan created in Step 1
     - Path: ttmp/2026/05/20/DMETA-EXAMPLES-PROD-001--deploy-dmeta-street-deli-prototypes-to-production/index.md
@@ -26,6 +38,7 @@ LastUpdated: 2026-05-20T13:55:52.980617444-04:00
 WhatFor: Record decisions, commands, failures, commits, and validation evidence while productionizing dmeta-examples.yolo.scapegoat.dev.
 WhenToUse: Read before resuming the ticket, changing deployment manifests, or validating a rollout.
 ---
+
 
 
 # Diary
@@ -123,3 +136,99 @@ docmgr doctor --ticket DMETA-EXAMPLES-PROD-001
 - Existing static-site GitOps pattern: `/home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/go-go-os-examples/`.
 - Source mobile prototype: `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype/`.
 - Source CLIM prototype: `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/`.
+
+## Step 2: Package the prototypes as a static artifact image
+
+I found that the street deli example already had a production-shaped `www/` directory with a landing page and both prototypes laid out under `mobile/` and `clim/`. I added a small Alpine-based artifact image that copies that directory to `/site`, plus a GitHub Actions workflow that can publish immutable GHCR tags for the K3s publisher Job to consume.
+
+This step turns the local static prototypes into a reviewable release artifact. It does not deploy the site yet; it creates the artifact contract that GitOps can later pin as `ghcr.io/go-go-golems/dmeta-examples-static:sha-<commit>`.
+
+### Prompt Context
+
+**User prompt (verbatim):** "go ahead"
+
+**Assistant interpretation:** Continue from the ticket planning work and start implementing the deployment path, committing focused increments.
+
+**Inferred user intent:** The user wants me to move beyond documentation into concrete packaging and GitOps changes for production rollout.
+
+**Commit (code):** pending — this step will be committed after the packaging files and diary are written.
+
+### What I did
+
+- Inventoried the static assets under `examples/street-deli-ordering/`.
+- Confirmed `examples/street-deli-ordering/www/` already contains:
+  - `index.html`
+  - `mobile/index.html`, `mobile/app.js`, `mobile/styles.css`
+  - `clim/index.html`, `clim/app.js`, `clim/styles.css`
+  - CLIM Berkeley Mono fonts under `clim/fonts/`
+- Confirmed `diff -qr` shows `www/mobile` matches `prototype` and `www/clim` matches `prototype-clim`.
+- Added `Dockerfile.examples-static` to package `examples/street-deli-ordering/www/` as `/site` in an Alpine image.
+- Added `.dockerignore` to keep the image build context small and avoid docs/worktree noise.
+- Added `.github/workflows/publish-examples-static.yaml` to build PRs and publish pushes/workflow-dispatch runs to `ghcr.io/go-go-golems/dmeta-examples-static`.
+- Ran a local Docker build and inspected the image contents:
+
+```bash
+cd /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta
+docker build -f Dockerfile.examples-static -t dmeta-examples-static:test .
+docker run --rm dmeta-examples-static:test sh -c 'find /site -maxdepth 3 -type f | sort && echo --- && cat /site-manifest.txt'
+```
+
+### Why
+
+- The K3s `static-sites-host` publisher pattern expects an image with static files under `/site` and basic Unix tools available for the copy/symlink command.
+- Using Alpine keeps `sh`, `cp`, `find`, and `ln` available inside the image while avoiding a dedicated web server process.
+- CI publishing is needed so GitOps can pin immutable release tags instead of depending on local Docker images.
+
+### What worked
+
+- The local image built successfully.
+- The `RUN test -f ...` checks in the Dockerfile verified all required entrypoints and assets are present.
+- The image contains the expected `/site` tree and `/site-manifest.txt`.
+- The existing `www/` directory already provided the exact public URL layout planned in Step 1.
+
+### What didn't work
+
+- N/A for this step. No build failures occurred.
+
+### What I learned
+
+- The source tree had already promoted the prototypes into a deployable `www/` layout, including a root landing page and CLIM fonts.
+- The packaging task could therefore stay small: copy the known-good static tree instead of generating or rewriting it.
+
+### What was tricky to build
+
+- The artifact image cannot be `scratch` or a pure static web image if the K3s publisher Job overrides the command and expects shell utilities. Alpine is intentional because it satisfies the publisher contract.
+- The image tag in GitOps must be chosen after this commit exists and the image is published; until then, the workflow file defines the tag shape but no remote image is guaranteed to exist.
+
+### What warrants a second pair of eyes
+
+- Confirm that `ghcr.io/go-go-golems/dmeta-examples-static` is the desired package namespace and that package visibility will be public or otherwise pullable by the cluster.
+- Confirm whether pushes from `task/dmeta-dsl` should publish, or whether the workflow should publish only from `main` plus manual dispatch.
+
+### What should be done in the future
+
+- Push the packaging commit so GitHub Actions can publish a `sha-<commit>` image tag.
+- Use that exact tag in the K3s `publish-job.yaml`.
+- If GHCR visibility is private by default, make the package public or wire an imagePullSecret before bootstrapping Argo CD.
+
+### Code review instructions
+
+- Review `Dockerfile.examples-static` first; it defines the `/site` artifact contract consumed by K3s.
+- Review `.github/workflows/publish-examples-static.yaml` for image name, trigger policy, tags, and permissions.
+- Validate locally with:
+
+```bash
+cd /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta
+docker build -f Dockerfile.examples-static -t dmeta-examples-static:test .
+docker run --rm dmeta-examples-static:test test -f /site/mobile/index.html
+docker run --rm dmeta-examples-static:test test -f /site/clim/index.html
+```
+
+### Technical details
+
+- Image name: `ghcr.io/go-go-golems/dmeta-examples-static`.
+- Required in-image content root: `/site`.
+- Expected public paths after publishing through static-sites-host:
+  - `/`
+  - `/mobile/`
+  - `/clim/`
