@@ -48,7 +48,7 @@ The main decision captured here is to treat the prototypes as static release art
 
 **Inferred user intent:** The user wants a durable ticket and work trail so the prototype deployment can be continued, reviewed, and eventually rolled out through the existing Hetzner K3s GitOps process.
 
-**Commit (code):** pending — initial docs have not been committed yet at the time this step is first written.
+**Commit (code):** 497058a50033bdb9135622c5b552eb5967350059 — "Docs: plan DMETA examples production rollout"
 
 ### What I did
 
