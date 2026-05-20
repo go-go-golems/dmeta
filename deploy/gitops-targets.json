@@ -5,7 +5,8 @@
       "gitops_repo": "wesen/2026-03-27--hetzner-k3s",
       "gitops_branch": "main",
       "manifest_path": "gitops/kustomize/dmeta-examples/publish-job.yaml",
-      "container_name": "publish"
+      "container_name": "publish",
+      "patch_strategy": "static-publisher-job"
     }
   ]
 }
