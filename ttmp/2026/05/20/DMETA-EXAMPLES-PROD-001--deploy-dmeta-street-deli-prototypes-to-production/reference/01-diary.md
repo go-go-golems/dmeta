@@ -12,6 +12,14 @@ DocType: reference
 Intent: long-term
 Owners: []
 RelatedFiles:
+    - Path: ../../../../../../../../../../code/wesen/2026-03-27--hetzner-k3s/gitops/applications/dmeta-examples.yaml
+      Note: Argo CD Application declaration for dmeta examples
+    - Path: ../../../../../../../../../../code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/dmeta-examples/ingress.yaml
+      Note: Ingress for dmeta-examples.yolo.scapegoat.dev
+    - Path: ../../../../../../../../../../code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/dmeta-examples/kustomization.yaml
+      Note: Kustomize package added in Step 3
+    - Path: ../../../../../../../../../../code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/dmeta-examples/publish-job.yaml
+      Note: Publisher Job pins dmeta examples static artifact tag
     - Path: .dockerignore
       Note: Docker build context hygiene for examples static image
     - Path: .github/workflows/publish-examples-static.yaml
@@ -38,6 +46,7 @@ LastUpdated: 2026-05-20T13:55:52.980617444-04:00
 WhatFor: Record decisions, commands, failures, commits, and validation evidence while productionizing dmeta-examples.yolo.scapegoat.dev.
 WhenToUse: Read before resuming the ticket, changing deployment manifests, or validating a rollout.
 ---
+
 
 
 
@@ -232,3 +241,91 @@ docker run --rm dmeta-examples-static:test test -f /site/clim/index.html
   - `/`
   - `/mobile/`
   - `/clim/`
+
+## Step 3: Add the K3s GitOps package for dmeta-examples
+
+I added the production-side manifests in the Hetzner K3s repository, following the existing `go-go-os-examples` static-sites pattern. The new Kustomize package declares a publisher Job that copies the static artifact image into the shared static-sites PVC and an Ingress that serves the host through `static-sites-host`.
+
+The GitOps commit intentionally pins `ghcr.io/go-go-golems/dmeta-examples-static:sha-0f19990`, which corresponds to the current DMETA source HEAD after the packaging and diary commits. The remaining rollout dependency is that this image tag must actually be published to GHCR before Argo syncs the publisher Job.
+
+### Prompt Context
+
+**User prompt (verbatim):** (same as Step 2)
+
+**Assistant interpretation:** Continue implementing the planned production rollout and commit the next focused increment in the GitOps repository.
+
+**Inferred user intent:** The user wants the K3s repository prepared to serve the prototypes under the requested hostname.
+
+**Commit (code):** 0c381e099b8fa9b6640c579ffcfac1c911aaf0a7 — "Deploy DMETA examples static site" in `/home/manuel/code/wesen/2026-03-27--hetzner-k3s`
+
+### What I did
+
+- Added `/home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/dmeta-examples/kustomization.yaml`.
+- Added `/home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/dmeta-examples/publish-job.yaml`.
+- Added `/home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/dmeta-examples/ingress.yaml`.
+- Added `/home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/applications/dmeta-examples.yaml`.
+- Rendered the package locally with:
+
+```bash
+cd /home/manuel/code/wesen/2026-03-27--hetzner-k3s
+kubectl kustomize gitops/kustomize/dmeta-examples
+```
+
+- Committed the GitOps manifests in the K3s repo.
+
+### Why
+
+- The production host must be represented in the GitOps repo so Argo CD can reconcile it.
+- Reusing the static-sites package shape keeps this deployment consistent with an existing, working static-site deployment.
+- Pinning the image tag in Git makes the rollout reviewable and rollback-friendly.
+
+### What worked
+
+- `kubectl kustomize gitops/kustomize/dmeta-examples` rendered the Job and Ingress successfully.
+- The rendered resources use namespace `static-sites`, backend service `static-sites-host`, and host `dmeta-examples.yolo.scapegoat.dev`.
+- The K3s commit succeeded as `0c381e099b8fa9b6640c579ffcfac1c911aaf0a7`.
+
+### What didn't work
+
+- I did not bootstrap or sync the Argo CD Application yet, because the pinned GHCR image tag must exist before the publisher Job can succeed.
+- I did not validate the live URL yet for the same reason.
+
+### What I learned
+
+- The static-sites pattern is very small for new hosts: a publisher Job, an Ingress, a Kustomization, and a one-time Argo CD Application declaration.
+- The main ordering constraint is now external to Kustomize: publish the DMETA image tag, push the K3s commit, then bootstrap/sync.
+
+### What was tricky to build
+
+- The image tag is derived from the DMETA repository, not the K3s repository. I pinned `sha-0f19990` because that is the current DMETA HEAD after packaging docs were committed; if the workflow publishes a different SHA due to a different push strategy, `publish-job.yaml` must be bumped before bootstrap.
+- The Argo Application file being present in Git is necessary but insufficient; this repo still requires a one-time `kubectl apply -f gitops/applications/dmeta-examples.yaml` for new Applications.
+
+### What warrants a second pair of eyes
+
+- Verify the pinned `sha-0f19990` tag exists in GHCR before syncing Argo.
+- Verify the image package visibility is public or that cluster image pull credentials exist.
+- Review whether the publisher Job name should include a longer SHA if multiple rapid releases are expected.
+
+### What should be done in the future
+
+- Push the DMETA branch and confirm the GHCR workflow publishes `sha-0f19990`.
+- Push the K3s commit to `origin/main`.
+- Bootstrap the Argo CD Application and smoke test the public URL.
+
+### Code review instructions
+
+- Start in the K3s repo at `gitops/kustomize/dmeta-examples/publish-job.yaml` and verify image, release, host, and PVC mount.
+- Then review `gitops/kustomize/dmeta-examples/ingress.yaml` for host, TLS secret, ingress class, and backend service.
+- Validate locally with:
+
+```bash
+cd /home/manuel/code/wesen/2026-03-27--hetzner-k3s
+kubectl kustomize gitops/kustomize/dmeta-examples
+```
+
+### Technical details
+
+- K3s GitOps commit: `0c381e099b8fa9b6640c579ffcfac1c911aaf0a7`.
+- Pinned artifact image: `ghcr.io/go-go-golems/dmeta-examples-static:sha-0f19990`.
+- Public host: `dmeta-examples.yolo.scapegoat.dev`.
+- Static-sites release directory: `/srv/sites/dmeta-examples.yolo.scapegoat.dev/releases/sha-0f19990`.

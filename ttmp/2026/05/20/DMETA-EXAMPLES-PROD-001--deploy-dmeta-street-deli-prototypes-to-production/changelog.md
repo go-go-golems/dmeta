@@ -47,3 +47,14 @@ Recorded packaging commit hash for the static examples image (commit 8d47cc723f9
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/20/DMETA-EXAMPLES-PROD-001--deploy-dmeta-street-deli-prototypes-to-production/changelog.md — Changelog entry with Step 2 commit
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/20/DMETA-EXAMPLES-PROD-001--deploy-dmeta-street-deli-prototypes-to-production/reference/01-diary.md — Step 2 commit hash
 
+
+## 2026-05-20
+
+Added K3s GitOps manifests for dmeta-examples.yolo.scapegoat.dev (commit 0c381e099b8fa9b6640c579ffcfac1c911aaf0a7 in hetzner-k3s).
+
+### Related Files
+
+- /home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/applications/dmeta-examples.yaml — Argo CD Application
+- /home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/dmeta-examples/ingress.yaml — Public Ingress
+- /home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/dmeta-examples/publish-job.yaml — Static-site publisher Job
+
