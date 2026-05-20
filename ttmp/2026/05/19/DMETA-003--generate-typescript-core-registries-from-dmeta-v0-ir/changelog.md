@@ -19,3 +19,8 @@ Uploaded the DMETA-003 intern-facing TypeScript core registry generator guide to
 
 Updated the generator guide to reflect the split core-model package structure and re-uploaded the guide to reMarkable. The future generate-core implementation should rely on validator.LoadPackage to merge 01-core-model.yaml plus core-model/*.yaml rather than manually reading a monolithic core model.
 
+
+## 2026-05-19
+
+Implemented dmeta generate-core as a Glazed command. Added pkg/dmeta/generator/core with deterministic TypeScript renderers, --dry-run/--force writing, smoke/determinism tests, and generated dmeta/generated/dmeta-core/*.ts from the validated split core model. Ran gofmt, go test ./..., validate-ir, generate-core dry-run, and generate-core --force successfully.
+

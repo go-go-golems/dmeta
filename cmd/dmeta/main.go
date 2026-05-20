@@ -6,6 +6,7 @@ import (
 
 	dmetacmds "github.com/go-go-golems/dmeta/pkg/dmeta/cmds"
 	"github.com/go-go-golems/glazed/pkg/cli"
+	glazedcmds "github.com/go-go-golems/glazed/pkg/cmds"
 	"github.com/go-go-golems/glazed/pkg/cmds/schema"
 	"github.com/spf13/cobra"
 )
@@ -21,20 +22,30 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error creating validate-ir command: %v\n", err)
 		os.Exit(1)
 	}
+	addGlazedCommand(rootCmd, "validate-ir", validateIR)
 
-	cobraValidateIR, err := cli.BuildCobraCommandFromCommand(validateIR,
+	generateCore, err := dmetacmds.NewGenerateCoreCommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating generate-core command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "generate-core", generateCore)
+
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(1)
+	}
+}
+
+func addGlazedCommand(rootCmd *cobra.Command, name string, command glazedcmds.Command) {
+	cobraCmd, err := cli.BuildCobraCommandFromCommand(command,
 		cli.WithParserConfig(cli.CobraParserConfig{
 			ShortHelpSections: []string{schema.DefaultSlug},
 			MiddlewaresFunc:   cli.CobraCommandDefaultMiddlewares,
 		}),
 	)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error building validate-ir command: %v\n", err)
+		fmt.Fprintf(os.Stderr, "error building %s command: %v\n", name, err)
 		os.Exit(1)
 	}
-	rootCmd.AddCommand(cobraValidateIR)
-
-	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
-	}
+	rootCmd.AddCommand(cobraCmd)
 }
