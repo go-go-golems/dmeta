@@ -848,3 +848,99 @@ GOWORK=off go test ./...
 ### Technical details
 - No Go source changed in this step.
 - Validation currently ensures references resolve and known argument modes are used; deeper filter semantics are future validator work.
+
+## Step 11: Reframe Widgets as Selectable Templates for Concrete DMETA Instances
+
+This step corrected the widget direction for DMETA as a meta design-system factory. The earlier "baseline widgets" framing was useful as an inventory, but too strong as a commitment: concrete systems should select and adapt widget templates rather than receive one fixed catalog of generated components.
+
+The output is a new intern-facing design document that explains how `03-widgets.yaml` should evolve into a `widget-templates/` package, how concrete instance manifests should select/adapt templates, and how code generation changes from "scaffold everything" to "resolve and scaffold selected templates only."
+
+### Prompt Context
+
+**User prompt (verbatim):** "So we actually want to work on the widgets. I think because we are building a meta design-system, we shouldn't nail down widgets all too quickly. Instead we should provide a set of widget templates, and a concrete instantiation of the meta design system can then chose a selection of those widgets and modify them to fit. 
+
+For example, if we decide to create a book OCR application at scale, and want a dashboard for that, but only need one big dashboard display, we don't need to have Tabs / Drawers / Splitpanes, for example, and the search bar would need to be adjusted to autocomplete different types of information and display that, or some other stuff. Similarly KeyValue and ComparisonTable really are rare items to use. etc...
+
+See @dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/02-generic-widget-baseline-for-dense-operational-design-systems.md which imo are all widgets that need to be selected and also adapted to concrete cases. The same is true already (although to a lesser degree, since they are all relevant to event/dense applications in general) to @dmeta/sources/dmeta-ir/03-widgets.yaml .
+
+We should, next to core-model/, have a folder widget-templates/ with a whole set of files for different types of widgets "templates" (we can keep the current format).
+
+How would that influence our code generation, and analyze the situation in detail. 
+
+Create  a detailed analysis / design / implementation guide that is for a new intern, explaining all the parts of the system needed to understand what it is, with prose paragraphs and bullet point sand pseudocode and diagrams and api references and file references. It should be very clear and technical. Store in the ticket and the nupload to remarkable."
+
+**Assistant interpretation:** Write a DMETA-001 design guide that reframes widgets as selectable/adaptable templates, proposes a `widget-templates/` package beside `core-model/`, and explains the resulting changes to code generation, validation, instance manifests, and promotion workflow.
+
+**Inferred user intent:** Prevent DMETA from hardening too early into one fixed dense UI kit, and keep it flexible enough to generate specialized concrete design systems such as book OCR dashboards, agent consoles, and logistics workbenches.
+
+**Commit (code):** N/A — documentation-only step at diary-writing time.
+
+### What I did
+- Created a new DMETA-001 design document:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/04-widget-templates-and-instance-selection-for-dmeta-meta-design-systems.md`
+- Reinterpreted the previous generic-widget baseline as a candidate template inventory rather than a mandatory baseline.
+- Proposed a new `sources/dmeta-ir/widget-templates/` structure with files for presentations, streams, tables, filters, actions, surfaces, layout, dashboards, forms, states, and optional data-display packs.
+- Proposed instance manifests with `selected_templates`, `excluded_templates`, aliases, variants, adaptations, and selection reasons.
+- Explained how code generation changes from scaffolding every widget in `03-widgets.yaml` to resolving selected templates from an instance manifest.
+- Added diagrams, YAML sketches, TypeScript-style APIs, pseudocode, validation rules, generator commands, implementation phases, and an intern checklist.
+- Related the new document to `03-widgets.yaml`, the previous widget baseline doc, the filter semantics doc, core system specs, and presentation/action contracts.
+- Validated frontmatter and ticket hygiene.
+- Uploaded the document to reMarkable:
+  - `OK: uploaded DMETA 001 Widget Templates.pdf -> /ai/2026/05/20/DMETA-001`
+
+### Why
+- DMETA is a meta design-system factory; widgets should be available starting points rather than mandatory product commitments.
+- Concrete applications vary strongly. A book OCR dashboard, event debugging console, and logistics queue need different selections and adaptations.
+- Code generation must avoid unused scaffolds, irrelevant Storybook stories, and premature design commitments.
+
+### What worked
+- The existing `03-widgets.yaml` shape remains reusable as a template format; the design only adds selection/adaptation/variant metadata.
+- The previous widget baseline document remains valuable after reinterpretation as template inventory.
+- The filter semantics document provided a concrete example of why templates like `FilterBar`, `SearchBox`, and `ResultWindowControls` need instance-specific adaptation.
+- `docmgr validate frontmatter` and `docmgr doctor` passed.
+- reMarkable upload succeeded in one command.
+
+### What didn't work
+- My first `docmgr doc relate --doc` used a docs-root-relative path that did not resolve for this subcommand:
+
+```text
+Error: expected exactly 1 doc for --doc "2026/05/19/DMETA-001--.../design-doc/04-widget-templates-and-instance-selection-for-dmeta-meta-design-systems.md", got 0
+```
+
+- Re-running with the absolute document path fixed the relation update.
+
+### What I learned
+- The current widget problem is not only file organization; it is semantic status. A widget entry should mean "template available to be selected," not "component every instance must contain."
+- Code generation needs an instance-planning phase before scaffolding. The generator should produce a plan/report that lists selected templates, excluded templates, missing adaptations, dependencies, warnings, and output files.
+- Exclusions are useful artifacts. Saying "no Tabs because the OCR dashboard is one fixed display" is part of design intent.
+
+### What was tricky to build
+- The tricky part was preserving the value of the prior widget baseline without invalidating it. The solution is to reinterpret its widgets as selectable/adaptable templates, with selection guidance and avoid-when metadata.
+- Another tricky point was code-generation scope. The document proposes generator architecture and APIs but deliberately does not implement the split yet, because the next step should be a reviewed IR/package change.
+
+### What warrants a second pair of eyes
+- Whether `03-widgets.yaml` should immediately become a pure package index or temporarily remain monolithic for compatibility.
+- Which concrete instance should be the first pressure test: book OCR dashboard, agent event console, logistics queue, or another app.
+- How formal adaptation-point schemas should be in v0: prose, loose maps, or validator-enforced types.
+
+### What should be done in the future
+- Create `sources/dmeta-ir/widget-templates/00-index.yaml` and split the existing widget entries into template files.
+- Add selection/adaptation/variant metadata to the initial templates.
+- Add an example instance manifest.
+- Update the validator and generator to load templates and plan selected instances.
+
+### Code review instructions
+- Start with the new design doc listed above.
+- Compare its proposal against:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/03-widgets.yaml`
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/02-generic-widget-baseline-for-dense-operational-design-systems.md`
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/03-filter-semantics-for-high-density-event-oriented-dmeta-applications.md`
+- Validate ticket hygiene with:
+
+```bash
+docmgr doctor --ticket DMETA-001 --stale-after 30
+```
+
+### Technical details
+- reMarkable destination: `/ai/2026/05/20/DMETA-001`
+- This step changed only ticket documentation, diary, and changelog.
