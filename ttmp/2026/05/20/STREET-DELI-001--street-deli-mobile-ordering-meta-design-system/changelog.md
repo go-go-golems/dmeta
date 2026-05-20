@@ -88,3 +88,13 @@ Step 9: Added CLIM article screenshots and fixed substitution candidates so they
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/js/app-main.js — Substitution candidates now carry pres class
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/www/clim/js/app-main.js — Served copy of substitution selectable fix
 
+
+## 2026-05-20
+
+Step 9: Wrote textbook-style Obsidian report on presentation-based UIs, AITR-794, and how the concept shaped DMETA and the CLIM prototype implementation.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/20/ARTICLE - Presentation Based User Interfaces - AITR-794 and DMETA Implementation Guide.md — Textbook report
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/js/app-main.js — Concrete implementation used as case study
+

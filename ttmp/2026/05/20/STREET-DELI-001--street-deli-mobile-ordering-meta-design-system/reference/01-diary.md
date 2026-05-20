@@ -635,3 +635,53 @@ The article explains a UI interaction model, so screenshots are part of the tech
 - Verify `prototype-clim/js/app-main.js` around `renderSubstitutionSuggestion()` includes `class="pres sub-candidate..."`.
 - Review the Obsidian article screenshot placements and captions.
 - Manually test `REMOVE-INGREDIENT` followed by `APPLY` in command-first mode.
+
+## Step 9: Write Textbook Report on Presentation-Based UIs, AITR-794, and DMETA
+
+Wrote a new Obsidian textbook-style report explaining presentation-based user interfaces from first principles, grounded in MIT AI Lab AITR-794 and the DMETA street-deli CLIM prototype. The report is not only a project summary; it is intended as a factual implementation guide for designing presentation-based systems.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Create a detailed project report that is a real factual textbook on presentation based UIs and how they work and how to implement them, and how to derive the concrete implementation from the core model derivation, and how the concept of a presentation based UI influenced the dmeta design system. Basically it should introduce and give a really in depth understanding of what presentation based UIs are (AITR-794 from MIT) and how to implement and design them. Use a textbook writing style (no analogies)"
+
+**Assistant interpretation:** Create a durable Obsidian article that explains the theory and practice of presentation-based UIs, using AITR-794 as the historical/factual reference and the DMETA street-deli prototypes as the concrete implementation case.
+
+**Inferred user intent:** Preserve the presentation-based UI concept as reusable engineering knowledge, not just as a record of the Hudson Street Deli prototype.
+
+### What I did
+- Retrieved MIT DSpace metadata for AITR-794 (`Presentation Based User Interface`, Eugene C. Ciccarelli IV, MIT AI Lab, issued 1984-08-01, handle `http://hdl.handle.net/1721.1/6946`).
+- Used the report abstract facts: presentations as visible text/graphics for conveying information; application database; presentation database; presenter; presentation editor; recognizer; domain/style independence; examples in icon, menu, and graphical annotation styles.
+- Wrote a new Obsidian article:
+  - `/home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/20/ARTICLE - Presentation Based User Interfaces - AITR-794 and DMETA Implementation Guide.md`.
+- Structured it as a textbook: concept foundation, primitive loop, presentation records, command table, recognizer/translator, model-to-implementation derivation, case study, failure modes, checklist, and DMETA influence.
+
+### Why
+The previous CLIM article explained the implemented prototype. This new report teaches the general pattern: what presentation-based UIs are, why the architecture separates application data from presentation data, how commands accept typed presentations, and how to derive an implementation from a semantic core model.
+
+### What worked
+- AITR-794 metadata and abstract gave a precise factual basis without needing to overclaim unsupported implementation details.
+- The DMETA street-deli prototype provided concrete code-level examples for the abstract model.
+- The textbook structure made it possible to explain both historical architecture and modern browser implementation.
+
+### What didn't work
+- The available PDF appears scanned; `pdftotext` produced no useful text. I relied on MIT DSpace metadata and abstract rather than quoting the full report body.
+- Kagi search via local surf failed because the surf socket was unavailable.
+
+### What I learned
+- AITR-794's application database / presentation database / presenter / recognizer structure maps cleanly to DMETA's domain model / presentation contracts / renderers / action dispatch layers.
+- The CLIM prototype is a concise modern demonstration of the AITR-794 loop even though it is a small browser app.
+
+### What was tricky to build
+- The report needed to be factual about AITR-794 while not inventing details from the scanned PDF. I kept the AITR section constrained to metadata and abstract facts, then used the local DMETA implementation for concrete code and design details.
+
+### What warrants a second pair of eyes
+- The AITR-794 section should be expanded if someone OCRs the full report or reads the original PDF manually.
+- The report could later include more CLIM/Common Lisp Interface Manager details if a primary source is gathered.
+
+### What should be done in the future
+- OCR AITR-794 and add a deeper section on its internal implementation details.
+- Add a generated-action-registry section if DMETA later generates CLIM-style action tables from YAML.
+
+### Code review instructions
+- Read the report for factual claims about AITR-794; those claims should remain limited to the MIT metadata/abstract unless additional primary text is added.
+- Compare the implementation guidance against `prototype-clim/js/app-main.js` to ensure the pseudocode matches the actual interaction model.
