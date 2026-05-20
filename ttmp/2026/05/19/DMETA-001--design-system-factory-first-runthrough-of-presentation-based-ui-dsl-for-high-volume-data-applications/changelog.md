@@ -137,3 +137,14 @@ Step 10: Accepted filter semantics and updated the formal dmeta-ir core model wi
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/examples/retail-logistics.yaml — Added filter source and result-set example mappings
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/presentations.yaml — Added filter presentations and actions
 
+
+## 2026-05-20
+
+Step 11: Added widget-template design guide explaining selectable/adaptable widget templates, instance manifests, and selective code generation for concrete DMETA design-system instances.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/03-widgets.yaml — Current monolithic widget IR to evolve into template package
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/02-generic-widget-baseline-for-dense-operational-design-systems.md — Prior baseline inventory reinterpreted as template catalog
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/04-widget-templates-and-instance-selection-for-dmeta-meta-design-systems.md — New widget-template analysis/design/implementation guide
+
