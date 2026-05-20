@@ -71,3 +71,16 @@ Switched examples publishing to infra-tooling reusable workflow with Vault OIDC 
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/.github/workflows/publish-examples-static.yaml — Reusable GHCR publish workflow with future GitOps PR automation
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/deploy/gitops-targets.json — GitOps target config for infra-tooling
 
+
+## 2026-05-20
+
+Matched the retro-obsidian-publish private GHCR pattern for dmeta-examples: added VaultStaticSecret image-pull wiring, Kubernetes Vault role/policy, and seeded kv/apps/dmeta-examples/prod/image-pull; pushed K3s PR update commit 4475da7.
+
+### Related Files
+
+- /home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/dmeta-examples/publish-job.yaml — Publisher Job uses serviceAccountName and imagePullSecrets
+- /home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/dmeta-examples/serviceaccount.yaml — ServiceAccount references VSO-created GHCR pull secret
+- /home/manuel/code/wesen/2026-03-27--hetzner-k3s/gitops/kustomize/dmeta-examples/vault-static-secret-image-pull.yaml — Creates kubernetes.io/dockerconfigjson from Vault
+- /home/manuel/code/wesen/2026-03-27--hetzner-k3s/vault/policies/kubernetes/dmeta-examples.hcl — Kubernetes Vault policy for image-pull secret
+- /home/manuel/code/wesen/2026-03-27--hetzner-k3s/vault/roles/kubernetes/dmeta-examples.json — Kubernetes Vault role bound to static-sites/dmeta-examples
+

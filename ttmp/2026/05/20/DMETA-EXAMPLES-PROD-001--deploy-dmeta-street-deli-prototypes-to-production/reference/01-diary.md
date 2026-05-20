@@ -454,3 +454,128 @@ DOCKER_CONFIG=/tmp/empty-docker-config docker pull ghcr.io/go-go-golems/dmeta-ex
 - Successful source workflow: `https://github.com/go-go-golems/dmeta/actions/runs/26181314656`.
 - Published image: `ghcr.io/go-go-golems/dmeta-examples-static:sha-3697432`.
 - Current blocker: package visibility or image pull secret.
+
+## Step 5: Match the retro-obsidian-publish private GHCR pull-secret pattern
+
+I checked the retro-obsidian-publish deployment and confirmed that it does not rely on public GHCR visibility. It uses Vault Secrets Operator to render a `kubernetes.io/dockerconfigjson` image pull secret from Vault, then references that secret from the pod spec via a ServiceAccount and/or `imagePullSecrets`.
+
+I applied that same pattern to the `dmeta-examples` publisher Job in the K3s PR. This removes the need to make the GHCR package public: the static-sites publisher pod will authenticate to GHCR using a VSO-created secret in the `static-sites` namespace.
+
+### Prompt Context
+
+**User prompt (verbatim):** "did you see how it's done for the obsidian publish app?"
+
+**Assistant interpretation:** Inspect the retro-obsidian-publish private image pull setup and adapt dmeta-examples to that established pattern.
+
+**Inferred user intent:** The user is pointing out that the right answer to the private GHCR blocker is probably the existing Vault/VSO image-pull-secret workflow, not changing package visibility.
+
+**Commit (code):** 4475da7 — "Add DMETA examples GHCR pull secret" in `/home/manuel/code/wesen/2026-03-27--hetzner-k3s` PR branch.
+
+### What I did
+
+- Inspected the retro-obsidian-publish files:
+  - `gitops/kustomize/retro-obsidian-publish/serviceaccount.yaml`
+  - `gitops/kustomize/retro-obsidian-publish/vault-auth.yaml`
+  - `gitops/kustomize/retro-obsidian-publish/vault-static-secret-image-pull.yaml`
+  - `gitops/kustomize/retro-obsidian-publish/deployment.yaml`
+  - `vault/policies/kubernetes/retro-obsidian-publish.hcl`
+  - `vault/roles/kubernetes/retro-obsidian-publish.json`
+- Added dmeta-examples equivalents in the K3s PR branch:
+  - `gitops/kustomize/dmeta-examples/serviceaccount.yaml`
+  - `gitops/kustomize/dmeta-examples/vault-connection.yaml`
+  - `gitops/kustomize/dmeta-examples/vault-auth.yaml`
+  - `gitops/kustomize/dmeta-examples/vault-static-secret-image-pull.yaml`
+  - `vault/policies/kubernetes/dmeta-examples.hcl`
+  - `vault/roles/kubernetes/dmeta-examples.json`
+- Updated `gitops/kustomize/dmeta-examples/kustomization.yaml` to include the new VSO resources.
+- Updated `gitops/kustomize/dmeta-examples/publish-job.yaml` to set:
+
+```yaml
+serviceAccountName: dmeta-examples
+imagePullSecrets:
+  - name: dmeta-examples-ghcr-pull
+```
+
+- Rendered the package with:
+
+```bash
+kubectl kustomize gitops/kustomize/dmeta-examples
+```
+
+- Bootstrapped the live Kubernetes Vault auth role/policy with:
+
+```bash
+export VAULT_TOKEN="$(vault print token 2>/dev/null || cat ~/.vault-token)"
+./scripts/bootstrap-vault-kubernetes-auth.sh
+```
+
+- Seeded the image pull secret material at:
+
+```text
+kv/apps/dmeta-examples/prod/image-pull
+```
+
+with keys `server`, `username`, `password`, and `auth`.
+- Pushed the K3s PR update to `feature/dmeta-examples-prod`.
+
+### Why
+
+- The GHCR package is private, and anonymous pull tests correctly failed.
+- The existing platform pattern for private GHCR images is Vault-backed image pull secrets, not necessarily public package visibility.
+- The dmeta-examples publisher Job runs in `static-sites`, so it needs its own ServiceAccount, VaultAuth, VaultStaticSecret, and Kubernetes Vault role bound to `static-sites/dmeta-examples`.
+
+### What worked
+
+- The retro-obsidian-publish pattern was directly reusable.
+- `kubectl kustomize gitops/kustomize/dmeta-examples` rendered ServiceAccount, Job, Ingress, VaultAuth, and VaultStaticSecret successfully.
+- `scripts/bootstrap-vault-kubernetes-auth.sh` wrote the new `dmeta-examples` role/policy to live Vault.
+- The Vault KV path was seeded and verified to contain the expected fields without printing the token value.
+- The K3s PR branch now includes the image pull strategy needed for private GHCR packages.
+
+### What didn't work
+
+- N/A for this step. The earlier anonymous GHCR pull failure is now addressed by using authenticated image pulls instead of public package visibility.
+
+### What I learned
+
+- retro-obsidian-publish stores private-image pull credentials at `kv/apps/retro-obsidian-publish/prod/image-pull`; dmeta-examples now mirrors that as `kv/apps/dmeta-examples/prod/image-pull`.
+- The publisher Job can use the same image pull secret mechanism as a Deployment; the important part is adding the secret reference under the Job template pod spec.
+
+### What was tricky to build
+
+- dmeta-examples lives in the shared `static-sites` namespace rather than an app-specific namespace, so the Vault Kubernetes role must bind `bound_service_account_namespaces` to `static-sites`, not `dmeta-examples`.
+- The static-sites host already exists, but the publisher Job is a separate pod and still needs its own pull credentials before it can start.
+
+### What warrants a second pair of eyes
+
+- Confirm whether storing the current `gh auth token` as the image-pull credential is acceptable, or whether this should be replaced by a narrower package-read token.
+- Confirm that `static-sites` is the correct namespace for the dmeta-examples ServiceAccount and VSO resources.
+
+### What should be done in the future
+
+- Merge K3s PR #87 after review.
+- After the Application is bootstrapped, verify the VSO-created secret exists:
+
+```bash
+kubectl -n static-sites get vaultauth dmeta-examples
+kubectl -n static-sites get vaultstaticsecret dmeta-examples-ghcr-pull
+kubectl -n static-sites get secret dmeta-examples-ghcr-pull
+```
+
+### Code review instructions
+
+- Compare the dmeta-examples VSO files to the retro-obsidian-publish equivalents.
+- Pay special attention to `vault/roles/kubernetes/dmeta-examples.json`; its namespace should be `static-sites`.
+- Validate with:
+
+```bash
+cd /home/manuel/code/wesen/2026-03-27--hetzner-k3s
+kubectl kustomize gitops/kustomize/dmeta-examples
+```
+
+### Technical details
+
+- K3s PR update commit: `4475da7`.
+- Vault secret path: `kv/apps/dmeta-examples/prod/image-pull`.
+- VSO destination secret: `dmeta-examples-ghcr-pull` in namespace `static-sites`.
+- Publisher ServiceAccount: `dmeta-examples` in namespace `static-sites`.
