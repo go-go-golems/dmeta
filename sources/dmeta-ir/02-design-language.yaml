@@ -3,255 +3,510 @@ artifact_type: dmeta_design_language
 summary: Range-based design-language rules for sober dense operational UIs.
 status: draft
 mode: archetype_range
-
 theme_axes:
   density:
-    values: [compact, regular, spacious]
+    values:
+    - compact
+    - regular
+    - spacious
     default: regular
+    description: Controls how much information fits vertically and horizontally. Density affects row height, cell padding,
+      typography choices, and interaction target treatment across widgets.
   neutral_tone:
-    values: [subtle_cool_gray, neutral_gray, white_panel, dark_console]
+    values:
+    - subtle_cool_gray
+    - neutral_gray
+    - white_panel
+    - dark_console
     default: subtle_cool_gray
+    description: 'Controls the baseline surface temperature. The preferred default is subtle cool grey: quiet, modern, and
+      low fatigue. No texture or background noise is allowed.'
   type_mode:
-    values: [mono_only, sans_with_mono, sans_only_with_tabular]
+    values:
+    - mono_only
+    - sans_with_mono
+    - sans_only_with_tabular
     default: sans_with_mono
+    description: Controls whether the interface uses a mono-only console/workbench feel or a sans-with-mono pairing where
+      identifiers and metrics remain monospaced.
   radius:
-    values: [square, slight]
+    values:
+    - square
+    - slight
     default: slight
+    description: Controls corner treatment. The range is intentionally narrow because large rounded surfaces undermine the
+      precise operational tone.
   row_treatment:
-    values: [plain, striped, ruled, banded]
+    values:
+    - plain
+    - striped
+    - ruled
+    - banded
     default: ruled
+    description: 'Controls how dense repeated records separate from one another: plain, striped, ruled, or banded. The choice
+      should improve scanning, not add decoration.'
   surface_separation:
-    values: [spacing, keyline, tint, subtle_shadow]
+    values:
+    - spacing
+    - keyline
+    - tint
+    - subtle_shadow
     default: keyline
+    description: Controls whether panels separate through spacing, hairlines, subtle tint, or rare shadows. Static operational
+      surfaces should usually prefer keylines and spacing.
   accent_strategy:
-    values: [single_primary, semantic_status_only, category_palette]
+    values:
+    - single_primary
+    - semantic_status_only
+    - category_palette
     default: semantic_status_only
-
+    description: Controls how color enters the system. Semantic status color is preferred; category palettes should be used
+      only when the task requires category scanning.
 typography:
   families:
     ui_sans:
       role: interface
-      examples: [Inter, IBM Plex Sans, system-ui]
+      examples:
+      - Inter
+      - IBM Plex Sans
+      - system-ui
     ui_mono:
       role: identifiers_numbers_code
-      examples: [Berkeley Mono, IBM Plex Mono, JetBrains Mono, SF Mono]
+      examples:
+      - Berkeley Mono
+      - IBM Plex Mono
+      - JetBrains Mono
+      - SF Mono
   roles:
     body:
       family: ui_sans
-      size_range: [12, 14]
-      weight_range: [400, 500]
-      line_height_range: [1.35, 1.5]
+      size_range:
+      - 12
+      - 14
+      weight_range:
+      - 400
+      - 500
+      line_height_range:
+      - 1.35
+      - 1.5
       purpose: Main dense reading text.
+      long_purpose: Default readable text for rows, cells, panels, and operational prose. It should be small enough for density
+        but large enough for sustained use.
     metadata:
       family: ui_mono
-      size_range: [11, 12]
-      weight_range: [400, 500]
-      line_height_range: [1.25, 1.4]
+      size_range:
+      - 11
+      - 12
+      weight_range:
+      - 400
+      - 500
+      line_height_range:
+      - 1.25
+      - 1.4
       purpose: Timestamps, ids, keyboard hints, secondary facts.
+      long_purpose: Compact monospaced text for secondary facts that require precision, including timestamps, ids, keyboard
+        hints, and source labels.
     label:
       family: ui_sans
-      size_range: [11, 12]
-      weight_range: [500, 600]
+      size_range:
+      - 11
+      - 12
+      weight_range:
+      - 500
+      - 600
       transform: uppercase
-      tracking_range: [0.04em, 0.08em]
+      tracking_range:
+      - 0.04em
+      - 0.08em
       purpose: Table headers, rails, badges, section micro-labels.
+      long_purpose: Short structured labels such as table headers, badge text, rail labels, and section micro-labels. Uppercase/tracking
+        is allowed but should remain subtle.
     title:
       family: ui_sans
-      size_range: [16, 20]
-      weight_range: [500, 600]
-      line_height_range: [1.15, 1.25]
+      size_range:
+      - 16
+      - 20
+      weight_range:
+      - 500
+      - 600
+      line_height_range:
+      - 1.15
+      - 1.25
       purpose: Page or panel titles; use sparingly.
+      long_purpose: Sparse hierarchy marker for page, panel, or section titles. It should not dominate dense work surfaces.
     code:
       family: ui_mono
-      size_range: [11, 13]
-      weight_range: [400, 500]
+      size_range:
+      - 11
+      - 13
+      weight_range:
+      - 400
+      - 500
       numeric: tabular
       purpose: Codes, identifiers, exact values.
-
+      long_purpose: Exact monospaced representation for identifiers, codes, numeric values, and machine-facing strings.
+  long_summary: Typography is the primary visual hierarchy mechanism. Dense operational UI should use few roles with clear
+    responsibilities. Body text carries records and labels; metadata/code roles carry exact identifiers, timestamps, and values;
+    label roles carry headers and badges; title roles are used sparingly. The aim is sustained readability, not dramatic scale.
 density:
   modes:
     compact:
-      row_height_range: [22, 28]
-      cell_padding_x_range: [4, 8]
-      cell_padding_y_range: [2, 4]
-      font_body_range: [12, 13]
+      row_height_range:
+      - 22
+      - 28
+      cell_padding_x_range:
+      - 4
+      - 8
+      cell_padding_y_range:
+      - 2
+      - 4
+      font_body_range:
+      - 12
+      - 13
+      description: Use for streams, dense tables, inline tokens, and high-volume monitoring surfaces where many items must
+        be visible at once.
     regular:
-      row_height_range: [28, 36]
-      cell_padding_x_range: [6, 10]
-      cell_padding_y_range: [4, 6]
-      font_body_range: [13, 14]
+      row_height_range:
+      - 28
+      - 36
+      cell_padding_x_range:
+      - 6
+      - 10
+      cell_padding_y_range:
+      - 4
+      - 6
+      font_body_range:
+      - 13
+      - 14
+      description: Use as the default balanced mode for most operational pages.
     spacious:
-      row_height_range: [36, 44]
-      cell_padding_x_range: [10, 14]
-      cell_padding_y_range: [6, 10]
-      font_body_range: [14, 15]
-
+      row_height_range:
+      - 36
+      - 44
+      cell_padding_x_range:
+      - 10
+      - 14
+      cell_padding_y_range:
+      - 6
+      - 10
+      font_body_range:
+      - 14
+      - 15
+      description: Use for detail drawers, forms, or inspection panels where users need more room to parse structured fields.
+  long_summary: Density modes coordinate row height, padding, and typography across widgets. They prevent every widget from
+    inventing its own compactness. Compact mode is for high-volume streams and tables; regular mode is the default; spacious
+    mode is for inspection surfaces where comprehension beats throughput.
 spacing:
   base_grid: 2
-  tokens: [2, 4, 8, 12, 16, 24, 32]
+  tokens:
+  - 2
+  - 4
+  - 8
+  - 12
+  - 16
+  - 24
+  - 32
   rules:
-    - Use spacing to group before adding boxes.
-    - Detail panels may use more spacing than streams/tables.
-    - Avoid per-widget local spacing constants once helpers exist.
-
+  - Use spacing to group before adding boxes.
+  - Detail panels may use more spacing than streams/tables.
+  - Avoid per-widget local spacing constants once helpers exist.
+  long_summary: Spacing expresses grouping and rhythm. The system should prefer consistent small spacing tokens and hairline
+    structure over decorative boxes. Local ad hoc spacing should migrate into density helpers once tooling exists.
 color:
   neutral_roles:
     background:
-      range: [subtle_cool_gray, neutral_gray, white]
+      range:
+      - subtle_cool_gray
+      - neutral_gray
+      - white
       purpose: Main application surface. Must remain texture-free and visually quiet.
+      description: Base application background. It should be quiet and texture-free so dense text remains the focus.
     surface:
       purpose: Panels, drawers, cards, floating surfaces.
+      description: Panels, drawers, cards, and floating surfaces. Surface contrast should be subtle and functional.
     text_primary:
       contrast: body_text
+      description: Primary readable text for important content.
     text_secondary:
       contrast: secondary_text
+      description: Secondary text for supporting facts.
     text_muted:
       contrast: metadata
+      description: Muted metadata, helper text, and low-priority details.
     divider:
-      opacity_range: [0.08, 0.16]
+      opacity_range:
+      - 0.08
+      - 0.16
+      description: Hairline/keyline separators used to create structure without heavy boxes.
   semantic_roles:
     neutral:
       purpose: Default non-emphatic state.
+      description: Default state when no semantic status should be emphasized.
     info:
       purpose: Informational state or category.
+      description: Informational state or category that is neither success nor warning.
     success:
       purpose: Completed/healthy/positive state.
+      description: Completed, healthy, or positive state.
     warning:
       purpose: Delayed/risky/degraded state.
+      description: Delayed, risky, degraded, or attention-needed state.
     danger:
       purpose: Failed/destructive/error state.
+      description: Failed, destructive, invalid, or high-risk state.
     pending:
       purpose: Waiting/scheduled/unknown-progress state.
+      description: Waiting, scheduled, queued, or not-yet-resolved state.
     selected:
       purpose: User-selected semantic representation or row.
+      description: User-selected presentation, row, or object.
     active:
       purpose: Current running/focused operational context.
+      description: Currently running, focused, or live operational context.
   rules:
-    - Color is semantic, not decorative.
-    - Status color must be paired with text/icon labels.
-    - Broad backgrounds should remain neutral unless the surface itself is a semantic alert.
-    - Dense rows should not become colorful unless the task is specifically heatmap/category scanning.
-
+  - Color is semantic, not decorative.
+  - Status color must be paired with text/icon labels.
+  - Broad backgrounds should remain neutral unless the surface itself is a semantic alert.
+  - Dense rows should not become colorful unless the task is specifically heatmap/category scanning.
+  long_summary: Color is semantic and restrained. The default interface should be mostly subtle neutral/cool-grey surfaces
+    and dark readable text. Status/category color should be used only when it helps users understand state, risk, selection,
+    or operational category.
 borders:
-  width_range: [1, 1]
+  width_range:
+  - 1
+  - 1
   high_dpi_width_optional: 0.5
   divider_style: hairline
-  radius_range: [0, 4]
+  radius_range:
+  - 0
+  - 4
   rules:
-    - Persistent panels use keylines, spacing, or tint before shadows.
-    - Avoid large radii for dense operational UI.
-
+  - Persistent panels use keylines, spacing, or tint before shadows.
+  - Avoid large radii for dense operational UI.
+  long_summary: Borders and keylines provide most structural separation. Use thin lines and slight radius at most. Static
+    surfaces should avoid heavy elevation; floating surfaces can use subtle shadow only when needed for layering.
 elevation:
   static_surfaces: none
   floating_surfaces:
-    allowed: [menu, popover, command_palette, tooltip]
+    allowed:
+    - menu
+    - popover
+    - command_palette
+    - tooltip
     shadow: subtle
-
+  long_summary: Elevation is rare. Menus, popovers, command palettes, and tooltips may float, but persistent operational panels
+    should rely on spacing, keylines, and subtle surface contrast.
 layout:
   primitives:
     app_frame:
-      regions: [nav, toolbar, main, detail_drawer, status_footer]
+      regions:
+      - nav
+      - toolbar
+      - main
+      - detail_drawer
+      - status_footer
+      description: Overall application shell with narrow navigation, work area, optional detail drawer, and compact status
+        footer.
     master_detail:
-      main_ratio_range: [0.6, 0.75]
-      detail_ratio_range: [0.25, 0.4]
+      main_ratio_range:
+      - 0.6
+      - 0.75
+      detail_ratio_range:
+      - 0.25
+      - 0.4
+      description: Default operational layout where dense list/table context stays visible while details open beside it.
     dense_stream:
-      required_affordances: [virtualization_ready, keyboard_navigation, hover_actions]
+      required_affordances:
+      - virtualization_ready
+      - keyboard_navigation
+      - hover_actions
+      description: High-volume ordered record surface for logs, scans, lifecycle updates, events, and traces.
     dense_table:
-      required_affordances: [sortable, filterable, resizable_columns]
+      required_affordances:
+      - sortable
+      - filterable
+      - resizable_columns
+      description: Structured grid for sorting, filtering, scanning, and comparing records.
     process_panel:
-      required_affordances: [collapsed_summary, expanded_steps]
+      required_affordances:
+      - collapsed_summary
+      - expanded_steps
+      description: Compact view of workflow/process/route/execution progress with expandable step detail.
     command_palette:
-      required_affordances: [keyboard_first, filtering, argument_collection]
-
+      required_affordances:
+      - keyboard_first
+      - filtering
+      - argument_collection
+      description: Keyboard-first action discovery and argument collection surface.
+  long_summary: Layout primitives name the recurring spatial patterns of dense operational applications. These are not necessarily
+    generated components; they are shared vocabulary for widgets, stories, and audits.
 presentation_recipes:
   compact_ref:
     typography: code
     density: compact
-    affordances: [hover_underline, copy_on_menu, context_menu]
-    states: [rest, hover, focus, selected, candidate, disabled]
+    affordances:
+    - hover_underline
+    - copy_on_menu
+    - context_menu
+    states:
+    - rest
+    - hover
+    - focus
+    - selected
+    - candidate
+    - disabled
+    description: Visual treatment for compact, selectable references. It should look like precise text with affordances rather
+      than a heavy pill.
   status_badge:
     typography: label
     color_source: state_tone
     shape: slight_radius
-    affordances: [context_menu_optional]
-    states: [rest, hover, focus, selected]
+    affordances:
+    - context_menu_optional
+    states:
+    - rest
+    - hover
+    - focus
+    - selected
+    description: Visual treatment for stateful badges/cells. Text is mandatory; tone is semantic reinforcement.
   dense_row:
     typography: body
     density: compact_or_regular
     row_treatment: ruled
-    affordances: [selection, hover_actions, context_menu, keyboard_focus]
-    states: [rest, hover, focus, selected, candidate, active]
+    affordances:
+    - selection
+    - hover_actions
+    - context_menu
+    - keyboard_focus
+    states:
+    - rest
+    - hover
+    - focus
+    - selected
+    - candidate
+    - active
+    description: Visual treatment for dense repeated records. It coordinates row density, selection, hover actions, and focus
+      treatment.
   metric_cell:
     typography: code
     alignment: right
     numeric: tabular
-    affordances: [copy_optional, compare_optional]
-    states: [rest, hover, focus, selected]
-
+    affordances:
+    - copy_optional
+    - compare_optional
+    states:
+    - rest
+    - hover
+    - focus
+    - selected
+    description: Visual treatment for numeric values. It emphasizes alignment, units, and comparability.
 interaction_states:
   states:
     rest:
       purpose: Default non-interacting state.
+      description: Default state when nothing is hovered, focused, selected, active, or disabled.
     hover:
       purpose: Pointer hover; may reveal utilities.
+      description: Pointer hover. May reveal utilities but cannot be the only way to access important controls.
     focus:
       purpose: Keyboard focus; must be visible.
+      description: Keyboard focus. Must be visible and accessible in every interactive component.
     selected:
       purpose: User-selected item or presentation.
+      description: User-selected subject or presentation. Used for ordinary selection and detail context.
     candidate:
       purpose: Valid action argument candidate during argument collection.
+      description: Valid argument candidate during typed action collection. Must be distinguishable from normal selection.
     active:
       purpose: Currently running/current context.
+      description: Currently running/current/live context. Should be calmer than danger and distinct from selection.
     disabled:
       purpose: Unavailable action/presentation.
+      description: Unavailable interaction. Should preserve readability while clearly reducing affordance.
     error:
       purpose: Invalid/destructive/failed state.
+      description: Invalid/failed/destructive state. Use carefully and pair with text.
   rules:
-    - Focus must be visible.
-    - Hover-only utilities must also be keyboard reachable.
-    - Critical state cannot be hover-only.
-    - Candidate state must be distinguishable from ordinary selection.
-
+  - Focus must be visible.
+  - Hover-only utilities must also be keyboard reachable.
+  - Critical state cannot be hover-only.
+  - Candidate state must be distinguishable from ordinary selection.
+  long_summary: Interaction states must be consistent across widgets so presentation-based actions feel predictable. Focus,
+    selection, candidate, and active states are semantically different and should not collapse into one generic highlight.
 data_attributes:
   prefix: data-dmeta
   required_for_presentations:
-    - semantic-id
-    - domain-type
-    - archetypes
-    - capabilities
-    - presentation-id
+  - semantic-id
+  - domain-type
+  - archetypes
+  - capabilities
+  - presentation-id
   required_for_widgets:
-    - widget-id
-    - widget-level
+  - widget-id
+  - widget-level
   required_for_actions:
-    - action-id
-    - action-category
-
+  - action-id
+  - action-category
+  long_summary: Data attributes provide a stable bridge for testing, inspection, and presentation-based action routing. Widgets
+    should use generated helpers rather than hand-writing data-dmeta attributes, so naming remains consistent.
 lint_rules:
   no_raw_colors:
     severity: warning
     description: Promoted widgets should use generated color helpers/tokens.
+    long_description: Promoted widgets should use generated color helpers/tokens. This rule exists to keep dense operational
+      UI consistent as generated scaffolds are manually promoted into real widgets.
   no_unauthorized_type_roles:
     severity: warning
     description: Widgets should use named typography roles.
+    long_description: Widgets should use named typography roles. This rule exists to keep dense operational UI consistent
+      as generated scaffolds are manually promoted into real widgets.
   no_local_status_badges:
     severity: warning
     description: Status badges should use registered presentation/design recipe.
+    long_description: Status badges should use registered presentation/design recipe. This rule exists to keep dense operational
+      UI consistent as generated scaffolds are manually promoted into real widgets.
   no_local_density_constants:
     severity: warning
     description: Row heights and cell padding should use density helpers.
+    long_description: Row heights and cell padding should use density helpers. This rule exists to keep dense operational
+      UI consistent as generated scaffolds are manually promoted into real widgets.
   no_heavy_static_shadows:
     severity: warning
     description: Static surfaces should not use heavy elevation.
+    long_description: Static surfaces should not use heavy elevation. This rule exists to keep dense operational UI consistent
+      as generated scaffolds are manually promoted into real widgets.
   no_manual_dmeta_data_attributes:
     severity: warning
     description: Widgets should use generated data attribute helpers.
+    long_description: Widgets should use generated data attribute helpers. This rule exists to keep dense operational UI consistent
+      as generated scaffolds are manually promoted into real widgets.
   hover_controls_keyboard_accessible:
     severity: error
     description: Hover-revealed controls must be reachable by keyboard.
-
+    long_description: Hover-revealed controls must be reachable by keyboard. This rule exists to keep dense operational UI
+      consistent as generated scaffolds are manually promoted into real widgets.
 validation:
   require_axis_defaults_in_values: true
   require_typography_role_references: true
   require_presentation_recipe_state_references: true
-  require_lint_rule_severities: [info, warning, error]
+  require_lint_rule_severities:
+  - info
+  - warning
+  - error
+long_summary: This design-language IR describes the visual and interaction constraints for sober dense operational user interfaces.
+  It is intentionally written as a human-readable source of truth as well as a future generator input. The design language
+  favors subtle cool-grey/neutral surfaces, tight but readable density, semantic color, hairline structure, minimal elevation,
+  and explicit keyboard/context affordances. It should give implementers enough rationale to avoid decorative or noisy choices
+  while still allowing concrete applications to choose exact tokens later.
+references:
+  graphic_design_archetype: ../../design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md
+  design_language_tooling_spec: ../../design-docs/06-dmeta-design-language-and-tooling-spec.md
+  core_presentations: ./core-model/presentations.yaml
+theme_axes_summary: 'Theme axes define the controlled variation that a concrete design-system instance may choose from. They
+  are not arbitrary theme knobs: each axis is constrained so generated widgets remain recognizably part of the sober dense
+  operational UI family. A concrete app can choose compact vs regular density or mono-only vs sans-with-mono, but it should
+  not introduce decorative surfaces, loud gradients, or inconsistent interaction states through theme configuration.'
+presentation_recipes_summary: 'Presentation recipes connect semantic presentations to visual behavior. They should stay generic:
+  a status badge recipe can render shipment status, tool run status, or sensor health without becoming domain-specific.'
+lint_rules_summary: Lint rules turn design-language intent into enforceable review checks. They should start as warnings where
+  the implementation is immature and become stricter once generated helpers and promoted widgets stabilize.

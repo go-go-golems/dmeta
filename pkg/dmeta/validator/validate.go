@@ -161,6 +161,9 @@ func validateCoreModel(pkg *Package) []Finding {
 	}
 
 	for presID, pres := range core.Presentations {
+		if pres.LongDescription == "" {
+			findings = append(findings, Warning("core_model", fmt.Sprintf("presentations.%s.long_description", presID), "missing_long_description", fmt.Sprintf("presentation %q has no long_description", presID), "Add a prose explanation with usage guidance, boundaries, and UI implications."))
+		}
 		if !knownPresentationLayer(pres.Layer) {
 			findings = append(findings, Error("core_model", fmt.Sprintf("presentations.%s.layer", presID), "unknown_presentation_layer", fmt.Sprintf("presentation %q has invalid layer %q", presID, pres.Layer), "Use capability, archetype, or domain."))
 		}
@@ -187,6 +190,9 @@ func validateCoreModel(pkg *Package) []Finding {
 	}
 
 	for actionID, action := range core.Actions {
+		if action.LongDescription == "" {
+			findings = append(findings, Warning("core_model", fmt.Sprintf("actions.%s.long_description", actionID), "missing_long_description", fmt.Sprintf("action %q has no long_description", actionID), "Add a prose explanation with behavior, boundaries, and side-effect implications."))
+		}
 		findings = append(findings, validateSelectors("core_model", fmt.Sprintf("actions.%s.accepts", actionID), action.Accepts, core)...)
 		for argID, arg := range action.Arguments {
 			if !knownArgumentModes[arg.Mode] {

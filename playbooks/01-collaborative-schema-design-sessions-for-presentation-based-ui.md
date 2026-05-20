@@ -445,6 +445,8 @@ Authoring context requirements:
 - Use `summary` for short tables and generated manifests.
 - Use `long_summary` for intern guides, generated documentation, review context, and LLM-assisted workflows.
 - Every archetype and capability must include both `description` and `long_description`.
+- Every formal presentation and action should include both `description` and `long_description` once it is promoted beyond a sketch.
+- Design-language YAML should avoid opaque token lists: sections should include `long_summary`, and roles/recipes/states/rules should include `description`, `long_purpose`, or `long_description` where useful.
 - Every core-model subfile should include `references` to the relevant design docs, especially `dmeta/design-docs/02-semantic-archetype-and-capability-model.md` and `dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md`.
 - Domain examples belong under `core-model/examples/`, one file per domain, so pressure tests do not make the core package index unreadably large.
 

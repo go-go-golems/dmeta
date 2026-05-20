@@ -416,3 +416,58 @@ GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-in
 ```
 
 All tests passed and the validator emitted `validation_ok`.
+
+## 2026-05-19 — Presentations and design-language prose expansion
+
+### What changed
+The user pointed out that presentations and the design-language YAML were still too terse for human readers. They need the same contextual treatment as archetypes and capabilities so interns, reviewers, generated documentation, and LLM-assisted workflows have enough semantic and design rationale.
+
+### Files updated
+- `dmeta/sources/dmeta-ir/core-model/presentations.yaml`
+- `dmeta/sources/dmeta-ir/02-design-language.yaml`
+- `dmeta/playbooks/01-collaborative-schema-design-sessions-for-presentation-based-ui.md`
+- `dmeta/playbooks/02-dmeta-design-system-factory-runthrough-playbook.md`
+- `dmeta/pkg/dmeta/validator/model.go`
+- `dmeta/pkg/dmeta/validator/validate.go`
+
+### Presentation/action expansion
+Added `long_description` to every presentation and every action. The descriptions explain:
+
+- when to use the presentation/action;
+- what it means semantically;
+- what UI behavior it implies;
+- what boundaries it should respect;
+- how it should behave across domains.
+
+### Design-language expansion
+Added explanatory context throughout `02-design-language.yaml`, including:
+
+- document-level `long_summary`;
+- `references` to design docs and core presentations;
+- theme-axis descriptions;
+- typography `long_summary` and role-level `long_purpose`;
+- density descriptions;
+- spacing/color/border/elevation/layout explanatory summaries;
+- presentation recipe descriptions;
+- interaction-state descriptions;
+- data-attribute and lint-rule explanatory context.
+
+### Playbook update
+Updated the playbooks to require richer prose in formal YAML:
+
+- formal presentations and actions should include `description` and `long_description`;
+- design-language sections should include human-facing `long_summary`, `description`, `long_purpose`, or `long_description` where useful.
+
+### Validator update
+Updated validator model structs to load the new fields and added warnings for missing `long_description` on presentations and actions.
+
+### Validation
+Ran:
+
+```bash
+GOWORK=off gofmt -w pkg/dmeta/validator/*.go
+GOWORK=off go test ./...
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+```
+
+All tests passed and the validator emitted `validation_ok`.

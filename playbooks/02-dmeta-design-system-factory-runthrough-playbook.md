@@ -183,6 +183,8 @@ The split is intentional. `01-core-model.yaml` is a package index. The semantic 
    - every core-model package/index file needs `summary` and `long_summary`;
    - every archetype needs `description` and `long_description`;
    - every capability needs `description` and `long_description`;
+   - every presentation and action should include `description` and `long_description` once it becomes part of the formal IR;
+   - design-language sections should include explanatory `long_summary`, `description`, or `long_purpose` fields so humans understand how to apply the terse tokens;
    - subfiles should include `references` pointing to the design docs needed to understand them.
 3. For every field ask:
    - What consumes this?

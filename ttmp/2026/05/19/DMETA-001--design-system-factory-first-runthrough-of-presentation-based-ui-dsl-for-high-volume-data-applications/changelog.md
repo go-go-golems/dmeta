@@ -69,3 +69,8 @@ Updated the design-system visual direction to remove paper/grain/texture referen
 
 Split dmeta/sources/dmeta-ir/01-core-model.yaml into a core-model package with subfiles: core-model/core-model.yaml, archetypes.yaml, capabilities.yaml, presentations.yaml, and examples/*.yaml. Added long_summary and long_description prose context for the package, every archetype, and every capability, plus references to relevant design docs. Updated playbooks and specs to document the split structure. Updated validator loader to merge the split package; validation and tests pass.
 
+
+## 2026-05-19
+
+Expanded dmeta/sources/dmeta-ir/core-model/presentations.yaml with long_description prose for every presentation and action. Expanded dmeta/sources/dmeta-ir/02-design-language.yaml with long_summary/description/long_purpose/long_description context across theme axes, typography, density, spacing, color, layout, recipes, interaction states, data attributes, and lint rules. Updated playbooks to require richer prose sections for presentations/actions and design-language YAML. Validator now warns on missing presentation/action long_description; tests and validate-ir pass.
+

@@ -130,18 +130,19 @@ type Projection struct {
 }
 
 type Presentation struct {
-	Description string          `yaml:"description"`
-	Layer       string          `yaml:"layer"`
-	AppliesTo   AppliesTo       `yaml:"applies_to"`
-	Requires    []string        `yaml:"requires"`
-	RequiresAny []string        `yaml:"requires_any"`
-	Optional    []string        `yaml:"optional"`
-	Role        string          `yaml:"role"`
-	Density     string          `yaml:"density"`
-	Interaction map[string]bool `yaml:"interaction"`
-	StyleRecipe string          `yaml:"style_recipe"`
-	Fallbacks   []string        `yaml:"fallbacks"`
-	Extra       map[string]any  `yaml:",inline"`
+	Description     string          `yaml:"description"`
+	LongDescription string          `yaml:"long_description"`
+	Layer           string          `yaml:"layer"`
+	AppliesTo       AppliesTo       `yaml:"applies_to"`
+	Requires        []string        `yaml:"requires"`
+	RequiresAny     []string        `yaml:"requires_any"`
+	Optional        []string        `yaml:"optional"`
+	Role            string          `yaml:"role"`
+	Density         string          `yaml:"density"`
+	Interaction     map[string]bool `yaml:"interaction"`
+	StyleRecipe     string          `yaml:"style_recipe"`
+	Fallbacks       []string        `yaml:"fallbacks"`
+	Extra           map[string]any  `yaml:",inline"`
 }
 
 type AppliesTo struct {
@@ -151,11 +152,12 @@ type AppliesTo struct {
 }
 
 type Action struct {
-	Description string              `yaml:"description"`
-	Category    string              `yaml:"category"`
-	Accepts     []Selector          `yaml:"accepts"`
-	Arguments   map[string]Argument `yaml:"arguments"`
-	Result      ActionResult        `yaml:"result"`
+	Description     string              `yaml:"description"`
+	LongDescription string              `yaml:"long_description"`
+	Category        string              `yaml:"category"`
+	Accepts         []Selector          `yaml:"accepts"`
+	Arguments       map[string]Argument `yaml:"arguments"`
+	Result          ActionResult        `yaml:"result"`
 }
 
 type Selector struct {
@@ -188,34 +190,41 @@ type DomainType struct {
 }
 
 type DesignLanguageFile struct {
-	SchemaVersion       int                           `yaml:"schema_version"`
-	ArtifactType        string                        `yaml:"artifact_type"`
-	Summary             string                        `yaml:"summary"`
-	Status              string                        `yaml:"status"`
-	Mode                string                        `yaml:"mode"`
-	ThemeAxes           map[string]ThemeAxis          `yaml:"theme_axes"`
-	Typography          Typography                    `yaml:"typography"`
-	Density             Density                       `yaml:"density"`
-	Spacing             Spacing                       `yaml:"spacing"`
-	Color               map[string]any                `yaml:"color"`
-	Borders             map[string]any                `yaml:"borders"`
-	Elevation           map[string]any                `yaml:"elevation"`
-	Layout              map[string]any                `yaml:"layout"`
-	PresentationRecipes map[string]PresentationRecipe `yaml:"presentation_recipes"`
-	InteractionStates   InteractionStates             `yaml:"interaction_states"`
-	DataAttributes      map[string]any                `yaml:"data_attributes"`
-	LintRules           map[string]LintRule           `yaml:"lint_rules"`
-	Validation          map[string]any                `yaml:"validation"`
+	SchemaVersion              int                           `yaml:"schema_version"`
+	ArtifactType               string                        `yaml:"artifact_type"`
+	Summary                    string                        `yaml:"summary"`
+	LongSummary                string                        `yaml:"long_summary"`
+	References                 map[string]string             `yaml:"references"`
+	Status                     string                        `yaml:"status"`
+	Mode                       string                        `yaml:"mode"`
+	ThemeAxesSummary           string                        `yaml:"theme_axes_summary"`
+	ThemeAxes                  map[string]ThemeAxis          `yaml:"theme_axes"`
+	Typography                 Typography                    `yaml:"typography"`
+	Density                    Density                       `yaml:"density"`
+	Spacing                    Spacing                       `yaml:"spacing"`
+	Color                      map[string]any                `yaml:"color"`
+	Borders                    map[string]any                `yaml:"borders"`
+	Elevation                  map[string]any                `yaml:"elevation"`
+	Layout                     map[string]any                `yaml:"layout"`
+	PresentationRecipesSummary string                        `yaml:"presentation_recipes_summary"`
+	PresentationRecipes        map[string]PresentationRecipe `yaml:"presentation_recipes"`
+	InteractionStates          InteractionStates             `yaml:"interaction_states"`
+	DataAttributes             map[string]any                `yaml:"data_attributes"`
+	LintRulesSummary           string                        `yaml:"lint_rules_summary"`
+	LintRules                  map[string]LintRule           `yaml:"lint_rules"`
+	Validation                 map[string]any                `yaml:"validation"`
 }
 
 type ThemeAxis struct {
-	Values  []string `yaml:"values"`
-	Default string   `yaml:"default"`
+	Values      []string `yaml:"values"`
+	Default     string   `yaml:"default"`
+	Description string   `yaml:"description"`
 }
 
 type Typography struct {
-	Families map[string]TypographyFamily `yaml:"families"`
-	Roles    map[string]TypographyRole   `yaml:"roles"`
+	LongSummary string                      `yaml:"long_summary"`
+	Families    map[string]TypographyFamily `yaml:"families"`
+	Roles       map[string]TypographyRole   `yaml:"roles"`
 }
 
 type TypographyFamily struct {
@@ -232,13 +241,16 @@ type TypographyRole struct {
 	TrackingRange   []string  `yaml:"tracking_range"`
 	Numeric         string    `yaml:"numeric"`
 	Purpose         string    `yaml:"purpose"`
+	LongPurpose     string    `yaml:"long_purpose"`
 }
 
 type Density struct {
-	Modes map[string]DensityMode `yaml:"modes"`
+	LongSummary string                 `yaml:"long_summary"`
+	Modes       map[string]DensityMode `yaml:"modes"`
 }
 
 type DensityMode struct {
+	Description       string    `yaml:"description"`
 	RowHeightRange    []float64 `yaml:"row_height_range"`
 	CellPaddingXRange []float64 `yaml:"cell_padding_x_range"`
 	CellPaddingYRange []float64 `yaml:"cell_padding_y_range"`
@@ -246,12 +258,14 @@ type DensityMode struct {
 }
 
 type Spacing struct {
-	BaseGrid int      `yaml:"base_grid"`
-	Tokens   []int    `yaml:"tokens"`
-	Rules    []string `yaml:"rules"`
+	LongSummary string   `yaml:"long_summary"`
+	BaseGrid    int      `yaml:"base_grid"`
+	Tokens      []int    `yaml:"tokens"`
+	Rules       []string `yaml:"rules"`
 }
 
 type PresentationRecipe struct {
+	Description  string   `yaml:"description"`
 	Typography   string   `yaml:"typography"`
 	Density      string   `yaml:"density"`
 	Affordances  []string `yaml:"affordances"`
@@ -264,17 +278,20 @@ type PresentationRecipe struct {
 }
 
 type InteractionStates struct {
-	States map[string]InteractionState `yaml:"states"`
-	Rules  []string                    `yaml:"rules"`
+	LongSummary string                      `yaml:"long_summary"`
+	States      map[string]InteractionState `yaml:"states"`
+	Rules       []string                    `yaml:"rules"`
 }
 
 type InteractionState struct {
-	Purpose string `yaml:"purpose"`
+	Purpose     string `yaml:"purpose"`
+	Description string `yaml:"description"`
 }
 
 type LintRule struct {
-	Severity    string `yaml:"severity"`
-	Description string `yaml:"description"`
+	Severity        string `yaml:"severity"`
+	Description     string `yaml:"description"`
+	LongDescription string `yaml:"long_description"`
 }
 
 type WidgetIRFile struct {
