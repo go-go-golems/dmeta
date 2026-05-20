@@ -329,3 +329,128 @@ kubectl kustomize gitops/kustomize/dmeta-examples
 - Pinned artifact image: `ghcr.io/go-go-golems/dmeta-examples-static:sha-0f19990`.
 - Public host: `dmeta-examples.yolo.scapegoat.dev`.
 - Static-sites release directory: `/srv/sites/dmeta-examples.yolo.scapegoat.dev/releases/sha-0f19990`.
+
+## Step 4: Move deployment handoff to GitHub PRs and Vault-backed GitOps automation
+
+I changed direction from trying to force a local push to `main` in the K3s repo. The safer path is now Git-based: the DMETA source branch has a PR, the K3s manifests have a separate PR, and the source workflow is wired to use the shared `infra-tooling` reusable workflow with Vault OIDC for future GitOps image-bump PRs.
+
+The remaining blocker is not image publication: the latest branch workflow successfully published `ghcr.io/go-go-golems/dmeta-examples-static:sha-3697432`. The blocker is package visibility. Anonymous pulls from GHCR still return `unauthorized`, so either the package must be made public in GitHub's package settings or the static-sites publisher Job must receive an image pull secret.
+
+### Prompt Context
+
+**User prompt (verbatim):** "so wht is the issue right now? can we trigger the deploy through git instead of trying to do it locally?"
+
+**Assistant interpretation:** Explain the current blocker and switch from local direct deployment/push attempts to the existing GitHub Actions + Vault OIDC + GitOps PR workflow.
+
+**Inferred user intent:** The user wants the rollout to follow the established source-repo-to-GitOps PR model instead of ad hoc local deployment work.
+
+**Commit (code):** 36974327900a976043bb4ac475931cf118c8bec0 — "Fix examples static workflow validation" in `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta`; 9b23f2d — "Bump DMETA examples initial image tag" in `/home/manuel/code/wesen/2026-03-27--hetzner-k3s` PR branch.
+
+### What I did
+
+- Pushed the DMETA source branch `task/dmeta-dsl` to GitHub.
+- Observed the initial branch workflow succeeded for the simple local workflow and published a branch image.
+- Tried to push local K3s `main` and hit a non-fast-forward rejection because `origin/main` had advanced.
+- Started a rebase, hit an unrelated conflict in `gitops/kustomize/retro-obsidian-publish/deployment.yaml`, and aborted the rebase.
+- Reworked `.github/workflows/publish-examples-static.yaml` to call `go-go-golems/infra-tooling/.github/workflows/publish-ghcr-image.yml@main`.
+- Added `deploy/gitops-targets.json` targeting `gitops/kustomize/dmeta-examples/publish-job.yaml`, container `publish`.
+- Added K3s Vault OIDC files for future DMETA main-branch GitOps PR automation:
+  - `vault/policies/github-actions/dmeta-gitops-pr.hcl`
+  - `vault/roles/github-actions/dmeta-gitops-pr.json`
+- Bootstrapped the live Vault GitHub Actions OIDC config with `scripts/bootstrap-vault-github-actions-oidc.sh` after exporting `VAULT_TOKEN`.
+- Seeded `kv/ci/github/dmeta/gitops-pr-token` with a GitOps-capable GitHub token.
+- Opened source PR: `https://github.com/go-go-golems/dmeta/pull/1`.
+- Opened K3s GitOps PR: `https://github.com/wesen/2026-03-27--hetzner-k3s/pull/87`.
+- Fixed the reusable workflow validation after it failed on `go test ./...` due to the local `replace github.com/go-go-golems/glazed => ../glazed` directive not existing on the GitHub runner.
+- Confirmed workflow run `https://github.com/go-go-golems/dmeta/actions/runs/26181314656` succeeded and published `sha-3697432`.
+
+### Why
+
+- Direct local pushes to the GitOps `main` branch are brittle when remote automation is also writing to `main`.
+- The established release contract is source repo publishes an immutable image, source repo opens a GitOps PR, and Argo deploys only after reviewed GitOps changes land.
+- Adding the Vault role and policy now makes future `main` pushes from `go-go-golems/dmeta` able to open GitOps PRs without storing a long-lived token in GitHub secrets.
+
+### What worked
+
+- The source branch is pushed and has PR #1.
+- The K3s deployment changes are isolated in PR #87 instead of being forced onto local `main`.
+- The latest reusable workflow run succeeded on branch `task/dmeta-dsl`.
+- The image tag `ghcr.io/go-go-golems/dmeta-examples-static:sha-3697432` exists in GHCR.
+- Vault OIDC bootstrap accepted the new `dmeta-gitops-pr` role/policy files.
+- The Vault token path `kv/ci/github/dmeta/gitops-pr-token` exists and contains the `token` key.
+
+### What didn't work
+
+- Local direct push to K3s `main` failed:
+
+```text
+! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'github.com:wesen/2026-03-27--hetzner-k3s.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally.
+```
+
+- Rebasing local K3s `main` onto `origin/main` conflicted in unrelated retro-obsidian-publish work:
+
+```text
+CONFLICT (content): Merge conflict in gitops/kustomize/retro-obsidian-publish/deployment.yaml
+error: could not apply b49260e... Add --vault-name flag and bump image to sha-c4051c7
+```
+
+- The first reusable workflow attempt failed because `go test ./...` cannot run in a clean GitHub clone while `go.mod` has a local replace to `../glazed`:
+
+```text
+github.com/go-go-golems/glazed@v0.0.0: replacement directory ../glazed does not exist
+```
+
+I fixed that by making the static-site workflow validation check the packaged static files instead of running Go tests.
+
+- Anonymous GHCR pull still fails because the package is private:
+
+```text
+Error response from daemon: Head "https://ghcr.io/v2/go-go-golems/dmeta-examples-static/manifests/sha-3697432": unauthorized
+```
+
+### What I learned
+
+- Branch publishing works fine for the static artifact image, but the reusable workflow only opens GitOps PRs on `refs/heads/main`, matching the Vault role's bound claims.
+- GitHub does not appear to expose a straightforward REST or GraphQL mutation for flipping GHCR package visibility; the documented path is the package settings UI.
+- The first deployment still needs the K3s PR to land because the generic image-bump automation can only patch an existing manifest.
+
+### What was tricky to build
+
+- The source repo has local monorepo-style Go replacements, so a generic `go test ./...` release workflow is not safe on GitHub runners. For this static artifact, the correct validation boundary is the `/site` content contract, not the Go module.
+- There are two independent Git flows now: DMETA source PR #1 and K3s GitOps PR #87. The first future main merge can publish a new image and create a bump PR, but the initial K3s package must exist first.
+- The current image exists but may not be pullable by the cluster until GHCR visibility or imagePullSecrets are addressed.
+
+### What warrants a second pair of eyes
+
+- Decide whether to make `ghcr.io/go-go-golems/dmeta-examples-static` public in GitHub Package settings or add a Vault/VSO-backed image pull secret to the `static-sites` namespace.
+- Review whether the source workflow should publish only from `main` after PR #1 merges, or whether branch publishing should remain enabled.
+- Review the K3s PR for whether the initial `Application` should be applied manually after merge or whether another bootstrap mechanism should be added.
+
+### What should be done in the future
+
+- Merge `go-go-golems/dmeta` PR #1.
+- Merge `wesen/2026-03-27--hetzner-k3s` PR #87 after resolving the image pull strategy.
+- If the package is made public, verify anonymous pull succeeds:
+
+```bash
+DOCKER_CONFIG=/tmp/empty-docker-config docker pull ghcr.io/go-go-golems/dmeta-examples-static:sha-3697432
+```
+
+- Bootstrap the Argo CD Application once after PR #87 lands.
+
+### Code review instructions
+
+- Source PR #1: review `.github/workflows/publish-examples-static.yaml`, `deploy/gitops-targets.json`, and `Dockerfile.examples-static`.
+- K3s PR #87: review `gitops/kustomize/dmeta-examples/`, `gitops/applications/dmeta-examples.yaml`, and the new Vault policy/role files.
+- Check workflow evidence at `https://github.com/go-go-golems/dmeta/actions/runs/26181314656`.
+
+### Technical details
+
+- Source PR: `https://github.com/go-go-golems/dmeta/pull/1`.
+- K3s PR: `https://github.com/wesen/2026-03-27--hetzner-k3s/pull/87`.
+- Successful source workflow: `https://github.com/go-go-golems/dmeta/actions/runs/26181314656`.
+- Published image: `ghcr.io/go-go-golems/dmeta-examples-static:sha-3697432`.
+- Current blocker: package visibility or image pull secret.
