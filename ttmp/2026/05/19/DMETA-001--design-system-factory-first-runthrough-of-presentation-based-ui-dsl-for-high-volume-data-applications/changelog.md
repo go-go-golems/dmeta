@@ -124,3 +124,16 @@ Step 9: Added filter semantics design guide for high-density event-oriented DMET
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/capabilities.yaml — Current capabilities reflected on for filterable/filter_source additions
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/03-filter-semantics-for-high-density-event-oriented-dmeta-applications.md — New filter semantics analysis/design/implementation guide
 
+
+## 2026-05-20
+
+Step 10: Accepted filter semantics and updated the formal dmeta-ir core model with ResultSet/FilterCriterion/FilterSpec/FilterPreset, filter capabilities, filter presentations/actions, and pressure-test examples.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/archetypes.yaml — Added filter/result archetypes
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/capabilities.yaml — Added filterable/filter_source/searchable/facetable/sortable/windowable capabilities
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/examples/agent-workflow.yaml — Added filter source and result-set example mappings
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/examples/retail-logistics.yaml — Added filter source and result-set example mappings
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/presentations.yaml — Added filter presentations and actions
+

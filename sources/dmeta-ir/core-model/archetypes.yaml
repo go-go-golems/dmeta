@@ -240,3 +240,91 @@ archetypes:
       artifact attached to another semantic object. Annotations are useful in dense operational systems because users need
       to mark, explain, triage, suppress, or escalate items without changing the underlying object. Annotation presentations
       should show authorship, timestamp, label, and relation to the annotated subject.
+  ResultSet:
+    description: Collection or query result surface containing records that can be filtered, searched, sorted, windowed, or inspected.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - filterable
+    - searchable
+    - aggregatable
+    - inspectable
+    recommended_presentations:
+    - filter_summary
+    - summary_card
+    - detail_panel
+    examples:
+    - EventStreamWindow
+    - SessionSearchResults
+    - ShipmentQueue
+    - TraceResultWindow
+    long_description: ResultSet represents a collection-oriented semantic surface rather than an individual domain record.
+      It covers filtered tables, event stream windows, search result pages, workflow queues, trace windows, and other result
+      surfaces whose contents are controlled by filters, search text, sort order, and result-window state. ResultSet gives
+      DMETA a place to attach filterable/searchable semantics without pretending that an event stream is itself an Event.
+      Widgets such as RecordStream, DenseTable, FilterBar, SearchBox, and ResultWindowControls should receive or derive ResultSet
+      context when they need to coordinate active constraints and backend query state.
+  FilterCriterion:
+    description: Active predicate constraining a filter target.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - actionable
+    - inspectable
+    recommended_presentations:
+    - filter_chip
+    - inline_token
+    - detail_panel
+    examples:
+    - ClientEqualsWeb
+    - SessionEqualsSess123
+    - FailedStateOnly
+    - LastHourWindow
+    long_description: FilterCriterion represents an active query constraint, usually rendered as a compact filter chip in
+      a FilterBar or result header. It is distinct from the domain object that supplied the value and distinct from the ResultSet
+      being constrained. A Session compact reference may create a criterion such as session_id equals sess_123; after creation,
+      the criterion itself becomes a semantic object that can be selected, removed, inverted, explained, pinned, copied, or
+      saved as part of a preset. Treating active filters as semantic presentations keeps filtering inside the same presentation/action
+      model as inspection and relation traversal.
+  FilterSpec:
+    description: Definition of a filter dimension or filter operation that can constrain compatible targets.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - parameterized
+    - inspectable
+    recommended_presentations:
+    - filter_dimension_label
+    - compact_ref
+    - detail_panel
+    examples:
+    - SessionIdFilter
+    - ClientFilter
+    - StateFilter
+    - TimeWindowFilter
+    long_description: FilterSpec represents filter definitions rather than active filter state. It describes dimensions such
+      as client_id, session_id, state, timestamp, event_type, carrier_id, or facility_id; the operators each dimension supports;
+      and the target ResultSets that can accept the dimension. DMETA may initially store filter specs inside filterable capability
+      projections, but this archetype reserves a first-class semantic role for generated documentation, filter builders, facet
+      panels, and adapters that need to expose query capabilities explicitly.
+  FilterPreset:
+    description: Saved or reusable collection of filter criteria.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - actionable
+    - inspectable
+    - parameterized
+    recommended_presentations:
+    - compact_ref
+    - summary_card
+    - detail_panel
+    examples:
+    - FailedToolCallsLastHour
+    - CurrentClientSessions
+    - DelayedShipmentsByCarrier
+    long_description: FilterPreset represents a named, reusable query state composed of one or more filter criteria, search
+      terms, sort choices, or result-window preferences. Presets are useful when operators repeatedly return to common slices
+      such as failed actions in the last hour, delayed shipments by carrier, or current client sessions. A preset is actionable
+      because applying it changes the target ResultSet, but it should still flow through adapter-owned query lowering rather
+      than embedding backend syntax in widgets.

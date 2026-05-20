@@ -25,6 +25,23 @@ domain_example:
           state: status
         temporal:
           timestamp: last_seen_at
+        filter_source:
+          filter_keys: [agent_id]
+          filter_value: agent_id
+          filter_label: display_name
+    Client:
+      description: Client application, user interface, or external caller that owns or initiates agent sessions.
+      archetypes:
+      - Actor
+      capabilities:
+        identifiable:
+          id: client_id
+        labelable:
+          label: client_name
+        filter_source:
+          filter_keys: [client_id]
+          filter_value: client_id
+          filter_label: client_name
     ToolSpec:
       description: Tool definition/signature.
       archetypes:
@@ -84,3 +101,31 @@ domain_example:
           end_time: ended_at
         stateful:
           state: status
+        relatable:
+          actor_ref: client_id
+        filter_source:
+          filter_keys: [session_id, client_id]
+          filter_value: session_id
+          filter_label: title
+    AgentEventResultSet:
+      description: Filterable/searchable event stream window for agent workflow events.
+      archetypes:
+      - ResultSet
+      capabilities:
+        identifiable:
+          id: result_set_id
+        labelable:
+          label: result_label
+        filterable:
+          filter_target_id: agent_event_stream
+          filter_dimensions: [agent_id, client_id, session_id, state, timestamp]
+          active_filters: active_filters
+        searchable:
+          search_scope: event_message
+          active_search: query
+        facetable:
+          facets: facets
+        windowable:
+          cursor: next_cursor
+          limit: page_size
+          live_tail: live_tail
