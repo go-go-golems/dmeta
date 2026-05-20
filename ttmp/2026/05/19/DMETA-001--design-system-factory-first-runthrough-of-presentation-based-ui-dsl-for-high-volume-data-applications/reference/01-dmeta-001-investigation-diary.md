@@ -718,3 +718,133 @@ docmgr doctor --ticket DMETA-001 --stale-after 30
 ### Technical details
 - New document path: `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/03-filter-semantics-for-high-density-event-oriented-dmeta-applications.md`
 - reMarkable destination: `/ai/2026/05/20/DMETA-001`
+
+## Step 10: Accept and Implement Filter Semantics in the Core Model IR
+
+This step accepted the filter-semantics proposal from Step 9 and moved the minimum useful parts into the formal DMETA core-model YAML. The update keeps the model conservative: it adds first-class filter/result concepts and examples, but does not yet change generator output, widget IR, or backend adapter code.
+
+The core semantic distinction is now present in the IR: `ResultSet` is the filter target, `filter_source` subjects can derive constraints, and `FilterCriterion` represents active filters as semantic objects. This gives future widgets and generators a stable vocabulary for FilterBar, SearchBox, RecordStream, DenseTable, and ResultWindowControls work.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Yes, accept, update the core-model in the dmeta-ir.
+
+Keep a diary, and commit at appropriate intervals.
+
+After updating the YAML, what will you do? Stop and answer."
+
+**Assistant interpretation:** Implement the accepted filtering model in the formal DMETA core-model YAML files, record the work, commit it, and then stop to report what was done and what would come next instead of continuing into widget/tooling implementation.
+
+**Inferred user intent:** Promote the filter design from analysis into the IR source of truth while keeping the work bounded to YAML and documentation bookkeeping for this turn.
+
+**Commit (code):** N/A — pending commit at diary-writing time.
+
+### What I did
+- Updated `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/archetypes.yaml` with:
+  - `ResultSet`
+  - `FilterCriterion`
+  - `FilterSpec`
+  - `FilterPreset`
+- Updated `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/capabilities.yaml` with:
+  - `filterable`
+  - `filter_source`
+  - `searchable`
+  - `facetable`
+  - `sortable`
+  - `windowable`
+- Updated `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/core-model/presentations.yaml` with filter presentations:
+  - `filter_chip`
+  - `filter_dimension_label`
+  - `filter_value_token`
+  - `filter_summary`
+  - `search_summary`
+  - `facet_bucket`
+- Added filter actions in `presentations.yaml`:
+  - `apply_filter`
+  - `remove_filter`
+  - `clear_filters`
+  - `replace_filter`
+  - `filter_by_relation`
+  - `apply_search`
+  - `clear_search`
+  - `apply_facet_filter`
+- Updated domain examples:
+  - `agent-workflow.yaml` now includes `Client`, filter-source mappings for `Agent`/`Session`, and `AgentEventResultSet`.
+  - `retail-logistics.yaml` now includes filter-source mappings for `Carrier`/`ScanEvent` and `ScanEventResultSet`.
+- Ran YAML parse validation and the DMETA IR validator.
+- Ran Go tests.
+
+### Why
+- The accepted design needs to be represented in the tool-consumed IR before widgets, generators, or adapters can depend on it.
+- Formalizing the terms prevents filtering from becoming local widget state in `FilterBar`, `DenseTable`, or `RecordStream`.
+- The domain examples make the model concrete for agent/session/client filtering and logistics scan-event filtering.
+
+### What worked
+- The new archetypes/capabilities/presentations fit into the split core-model package without changing the loader.
+- The existing validator successfully checked references after the new entries were added.
+- Validation passed:
+
+```bash
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+```
+
+Output included:
+
+```text
+validation_ok | package | DMETA IR package has no error-severity findings
+```
+
+- Tests passed:
+
+```bash
+GOWORK=off go test ./...
+```
+
+### What didn't work
+- The first YAML parse/validation run failed because two newly added prose `long_description` values contained an unquoted colon in a wrapped plain scalar:
+
+```text
+yaml.scanner.ScannerError: mapping values are not allowed here
+  in "sources/dmeta-ir/core-model/presentations.yaml", line 440, column 24
+Error: load split core model: load capabilities: yaml: line 368: mapping values are not allowed in this context
+```
+
+- I fixed this by converting the affected descriptions to folded block scalars (`long_description: >`).
+
+### What I learned
+- The current split YAML model can absorb new semantic vocabulary cleanly when every cross-reference is added together: archetypes first, capabilities second, presentations/actions third, examples last.
+- Long human-readable YAML descriptions should use folded scalars whenever they contain colons, semicolons, or punctuation-heavy prose.
+- The existing validator checks references but does not yet validate filter operator compatibility, filter dimensions, or action argument semantics beyond known modes and selectors.
+
+### What was tricky to build
+- The main tricky part was keeping the implementation bounded. The accepted design includes runtime APIs, widget contracts, validator rules, and generator targets, but this step intentionally only updated core-model YAML. That prevents a large cross-cutting implementation from happening before the vocabulary is reviewed.
+- Another tricky point was avoiding unknown style recipes. New filter presentations were added without style recipes for now, so the core model remains valid until the design-language YAML gains formal filter recipes.
+
+### What warrants a second pair of eyes
+- Whether `FilterSpec` and `FilterPreset` should remain formal archetypes now, or whether they should be deferred until generators use them.
+- Whether `sortable` and `windowable` belong in core capabilities now or should wait for ResultWindowControls implementation.
+- Whether the new actions should eventually introduce validator-supported modes such as `current_filter_target` and `inferred_or_choice` instead of using current generic modes like `choice`.
+
+### What should be done in the future
+- Add filter-specific style recipes to `02-design-language.yaml`.
+- Add FilterBar/SearchBox/ResultWindowControls widget IR entries.
+- Add generator/runtime types such as `FilterTargetRef`, `FilterDimension`, and `FilterExpression`.
+- Add validator checks for filter dimensions, operator compatibility, and filter-source/target matching.
+
+### Code review instructions
+- Start with the diff in:
+  - `sources/dmeta-ir/core-model/archetypes.yaml`
+  - `sources/dmeta-ir/core-model/capabilities.yaml`
+  - `sources/dmeta-ir/core-model/presentations.yaml`
+  - `sources/dmeta-ir/core-model/examples/agent-workflow.yaml`
+  - `sources/dmeta-ir/core-model/examples/retail-logistics.yaml`
+- Validate with:
+
+```bash
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+GOWORK=off go test ./...
+```
+
+### Technical details
+- No Go source changed in this step.
+- Validation currently ensures references resolve and known argument modes are used; deeper filter semantics are future validator work.

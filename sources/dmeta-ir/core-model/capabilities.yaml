@@ -269,3 +269,136 @@ capabilities:
     long_description: 'Parameterized means a subject has schema-defined inputs or configurable values. ActionSpec is the primary
       example: a tool definition or command definition has parameters before it is invoked. Parameterized projections drive
       forms, validation, previews, and action scheduling.'
+  filterable:
+    description: Subject or surface can be constrained by typed filter expressions.
+    projections:
+      filter_target_id:
+        type: string
+        required: true
+        description: Stable id for the filter target or result surface.
+      filter_dimensions:
+        type: list
+        required: false
+        description: Available dimensions that can constrain this target.
+      active_filters:
+        type: list
+        required: false
+        description: Active filter expressions or criteria currently constraining the target.
+    presentations:
+    - filter_summary
+    actions:
+    - apply_filter
+    - clear_filters
+    filters: []
+    long_description: Filterable means the subject is the thing being filtered, not merely a value that can appear in a filter.
+      Event stream windows, dense table result sets, search results, workflow queues, shipment queues, and trace windows are
+      filterable surfaces. The adapter owns backend query lowering, but widgets and generated registries need this capability
+      to know where filter expressions can be applied and which dimensions are valid for the current surface.
+  filter_source:
+    description: Subject presentation can derive one or more filter expressions for compatible targets.
+    projections:
+      filter_keys:
+        type: list
+        required: false
+        description: Candidate filter dimensions this subject can populate.
+      filter_value:
+        type: json
+        required: false
+        description: Default scalar or structured value to use in a filter expression.
+      filter_label:
+        type: string
+        required: false
+        description: Human-readable label for active filter chips derived from this subject.
+    presentations:
+    - filter_value_token
+    actions:
+    - filter_by_value
+    - filter_by_relation
+    filters:
+    - equals
+    - in
+    - relation_equals
+    long_description: Filter_source means a visible semantic presentation can be turned into a constraint for a compatible
+      filterable target. It is deliberately separate from filterable. An Agent, Session, Client, StatusBadge, timestamp,
+      relation link, or metric cell may supply a filter value, while an EventStream ResultSet or DenseTable ResultSet receives
+      the resulting expression. The runtime matches sources to targets through filter keys, dimensions, relation paths, or
+      adapter-provided mappings.
+  searchable:
+    description: Subject or collection can be narrowed by a text query.
+    projections:
+      search_text:
+        type: string
+        required: false
+        description: Text indexed for search on a single record.
+      search_scope:
+        type: string
+        required: false
+        description: Named search scope for a collection or result surface.
+      active_search:
+        type: string
+        required: false
+        description: Current text query applied to a searchable target.
+    presentations:
+    - search_summary
+    actions:
+    - apply_search
+    - clear_search
+    filters:
+    - contains
+    long_description: Searchable means the subject or result surface can be narrowed by text query. Search is related to
+      filtering but should remain distinct because it involves tokenization, indexing, highlighting, query scope, and sometimes
+      backend-specific search syntax. Many ResultSets will be both filterable and searchable, but structured filter chips
+      and free-text search should remain separate pieces of UI and runtime state.
+  facetable:
+    description: Subject or result set can expose grouped filter buckets with counts.
+    projections:
+      facets:
+        type: list
+        required: false
+        description: Available facet dimensions, values, and counts for the current result set.
+    presentations:
+    - facet_bucket
+    actions:
+    - apply_facet_filter
+    filters:
+    - equals
+    - in
+    long_description: >
+      Facetable means a filterable result surface can expose grouped buckets such as state counts, client counts, agent counts,
+      severity counts, facility counts, or event-type counts. Facets are both summary data and filter sources: selecting a
+      bucket usually applies a corresponding filter expression to the same target. Facetable should be modeled separately
+      from aggregatable because the buckets are specifically tied to query narrowing.
+  sortable:
+    description: Subject or result set can be ordered by one or more sort keys.
+    projections:
+      sort_keys:
+        type: list
+        required: false
+        description: Available sort dimensions or fields.
+      active_sort:
+        type: list
+        required: false
+        description: Current sort expressions for the result surface.
+    long_description: Sortable means a result surface exposes stable order semantics, such as newest first, duration descending,
+      severity descending, state then timestamp, or carrier then delivery ETA. Sorting is not a filter, but high-density tables
+      and streams need it in the same result-state model so adapters, URL state, Storybook examples, and ResultWindowControls
+      stay consistent.
+  windowable:
+    description: Subject or result set can be read through page, cursor, or live-tail windows.
+    projections:
+      cursor:
+        type: string
+        required: false
+        description: Backend or adapter cursor for the current result window.
+      limit:
+        type: integer
+        required: false
+        description: Maximum number of records in the current result window.
+      live_tail:
+        type: boolean
+        required: false
+        description: Whether the result surface follows newly appended records.
+    long_description: Windowable means a result surface is not assumed to hold all matching records at once. Event streams,
+      traces, logs, and large operational tables are usually cursor-backed, paginated, virtualized, or live-tailed. Windowable
+      complements filterable and searchable by making result navigation explicit for widgets such as RecordStream, DenseTable,
+      and ResultWindowControls.

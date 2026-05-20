@@ -22,6 +22,10 @@ domain_example:
           label: carrier_name
         stateful:
           state: availability
+        filter_source:
+          filter_keys: [carrier_id]
+          filter_value: carrier_id
+          filter_label: carrier_name
     Warehouse:
       description: Warehouse/facility participating in fulfillment.
       archetypes:
@@ -98,3 +102,28 @@ domain_example:
           location: facility_id
         relatable:
           work_item_ref: shipment_id
+        filter_source:
+          filter_keys: [scan_type, facility_id, shipment_id]
+          filter_value: scan_id
+          filter_label: scan_type
+    ScanEventResultSet:
+      description: Filterable/searchable scan-event stream or table for logistics operations.
+      archetypes:
+      - ResultSet
+      capabilities:
+        identifiable:
+          id: result_set_id
+        labelable:
+          label: result_label
+        filterable:
+          filter_target_id: logistics_scan_events
+          filter_dimensions: [shipment_id, carrier_id, facility_id, scan_type, scanned_at]
+          active_filters: active_filters
+        searchable:
+          search_scope: scan_notes
+          active_search: query
+        facetable:
+          facets: facets
+        windowable:
+          cursor: next_cursor
+          limit: page_size
