@@ -77,3 +77,14 @@ Step 8: Re-ran CLIM prototype in browser, verified presentation-first and comman
 - /home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/20/ARTICLE - DMETA Presentation UI - CLIM Street Deli Prototype.md — Obsidian technical report
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/js/app-main.js — CLIM app behavior tested
 
+
+## 2026-05-20
+
+Step 9: Added CLIM article screenshots and fixed substitution candidates so they are real .pres presentations selectable by APPLY mode.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/20/ARTICLE - DMETA Presentation UI - CLIM Street Deli Prototype.md — Article now embeds CLIM screenshots
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/js/app-main.js — Substitution candidates now carry pres class
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/www/clim/js/app-main.js — Served copy of substitution selectable fix
+

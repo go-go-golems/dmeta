@@ -468,7 +468,7 @@ function renderSubstitutionSuggestion(ing) {
     const autoTag = cand.auto ? ' ★auto' : '';
     const allergenStr = cand.allergens.length ? ` <span class="sub-allergen">⚠ ${cand.allergens.join(', ')}</span>` : '';
 
-    html += `<span class="sub-candidate${cand.auto ? ' auto' : ''}" data-type="Substitution" data-id="${ing.id}" data-idx="${ci}" onclick="handlePresentationClick('Substitution','${ing.id}',${ci},event)" oncontextmenu="handlePresentationContext('Substitution','${ing.id}',${ci},event)">`;
+    html += `<span class="pres sub-candidate${cand.auto ? ' auto' : ''}" data-type="Substitution" data-id="${ing.id}" data-idx="${ci}" onclick="handlePresentationClick('Substitution','${ing.id}',${ci},event)" oncontextmenu="handlePresentationContext('Substitution','${ing.id}',${ci},event)">`;
     html += `<span class="sub-arrow">→</span>`;
     html += `<span class="pres-type">&lt;Substitution${autoTag}&gt;</span> `;
     html += `${esc(cand.name)}`;

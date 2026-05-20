@@ -573,3 +573,65 @@ The previous module-handler regression showed that syntax and HTTP checks were n
 - Read the new Obsidian article next to the existing mobile article.
 - Validate the two tested CLIM flows at `http://localhost:8770/clim/`.
 - Confirm that the article does not overwrite the existing mobile article and lives as a separate durable report.
+
+## Step 9: Add CLIM Article Screenshots and Fix Substitution Selectability
+
+Added screenshots to the Obsidian CLIM article and fixed a select-mode bug discovered while preparing those screenshots. The bug was that substitution candidate rows were rendered as `.sub-candidate` but not as `.pres`, so `enterSelectMode()` did not mark them red for the `APPLY` action. The fix makes substitution candidates real presentations in the DOM by adding the `pres` class.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Add screenshots as well"
+
+**Assistant interpretation:** Capture representative screenshots of the CLIM prototype, place them next to the Obsidian article, and embed them into the article at the relevant explanatory sections.
+
+**Inferred user intent:** Make the technical report more readable and evidence-based by showing the actual CLIM interface states described in the prose.
+
+### What I did
+- Captured 10 CLIM screenshots covering:
+  - the menu view;
+  - presentation-first selection;
+  - presentation-first `DESCRIBE` result;
+  - command-first `DESCRIBE` select mode;
+  - command-first `DESCRIBE` result;
+  - the Grilled Cheese customizer;
+  - `REMOVE-INGREDIENT` select mode;
+  - substitution candidates after removing Cheddar Cheese;
+  - `APPLY` select mode;
+  - the applied Avocado substitution.
+- Copied the images into `/home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/20/` as `clim-01-menu.png` through `clim-10-applied-substitution.png`.
+- Embedded the screenshots into `ARTICLE - DMETA Presentation UI - CLIM Street Deli Prototype.md` near the sections they illustrate.
+- Fixed `prototype-clim/js/app-main.js` and `www/clim/js/app-main.js` so substitution candidates render with `class="pres sub-candidate..."`.
+- Re-ran the `APPLY` select-mode path and verified that 3 substitution candidates turn red, then clicking Avocado applies the substitution.
+
+### Why
+The article explains a UI interaction model, so screenshots are part of the technical evidence. They show concrete mode labels, red selectable presentations, selected presentations, command results, and substitution state transitions.
+
+### What worked
+- The screenshots make the two-mode model visible:
+  - normal mode selection shows an action bar;
+  - command-first select mode turns compatible presentations red;
+  - action output appears in the white result area.
+- The screenshot pass exposed a real bug in the `APPLY` flow before the article was finalized.
+
+### What didn't work
+- Initial `APPLY` select-mode screenshots showed substitution candidates that did not execute when clicked. This was not a screenshot problem; it was an implementation bug caused by missing `.pres` class on `.sub-candidate` nodes.
+
+### What I learned
+- Screenshot-driven documentation is useful as a QA pass: it forced the replacement flow through the command-first path and caught a presentation classification error.
+- In this prototype, every command-selectable rendered semantic object must carry the `pres` class, not only `data-type`.
+
+### What was tricky to build
+- The article screenshots need to show the actual state after execution, not just the intended state. The invalid `APPLY` screenshot initially looked plausible, but the result line revealed the candidate was not a valid target. Capturing the applied substitution screenshot after the fix proved the full path.
+
+### What warrants a second pair of eyes
+- The article now includes 10 screenshots. Review whether this is the right density or whether some should be collapsed/removed later.
+- The `pres` class requirement should be encoded as a rendering invariant if this prototype evolves.
+
+### What should be done in the future
+- Add a small DOM smoke test asserting that every element with `data-type` intended for command dispatch also has `.pres`.
+- Replace inline handlers with delegated listeners so the renderer can enforce presentation invariants in one place.
+
+### Code review instructions
+- Verify `prototype-clim/js/app-main.js` around `renderSubstitutionSuggestion()` includes `class="pres sub-candidate..."`.
+- Review the Obsidian article screenshot placements and captions.
+- Manually test `REMOVE-INGREDIENT` followed by `APPLY` in command-first mode.
