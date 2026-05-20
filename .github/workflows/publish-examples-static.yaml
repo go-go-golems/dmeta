@@ -1,0 +1,50 @@
+name: publish-examples-static
+
+on:
+  pull_request:
+    paths:
+      - Dockerfile.examples-static
+      - .dockerignore
+      - .github/workflows/publish-examples-static.yaml
+      - deploy/gitops-targets.json
+      - examples/street-deli-ordering/www/**
+  push:
+    branches:
+      - main
+      - task/dmeta-dsl
+    paths:
+      - Dockerfile.examples-static
+      - .dockerignore
+      - .github/workflows/publish-examples-static.yaml
+      - deploy/gitops-targets.json
+      - examples/street-deli-ordering/www/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: publish-examples-static-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    uses: go-go-golems/infra-tooling/.github/workflows/publish-ghcr-image.yml@main
+    secrets: inherit
+    with:
+      dockerfile: ./Dockerfile.examples-static
+      build_context: .
+      test_command: test -f examples/street-deli-ordering/www/index.html && test -f examples/street-deli-ordering/www/mobile/index.html && test -f examples/street-deli-ordering/www/clim/index.html
+      go_version_file: go.mod
+      image_name: ghcr.io/go-go-golems/dmeta-examples-static
+      gitops_target_config: deploy/gitops-targets.json
+      push_image: ${{ github.event_name != 'pull_request' }}
+      open_gitops_pr: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+      gitops_pr_token_source: vault
+      vault_role: dmeta-gitops-pr
+      vault_secret_path: kv/data/ci/github/dmeta/gitops-pr-token
+      tooling_repository: go-go-golems/infra-tooling
+      tooling_ref: main

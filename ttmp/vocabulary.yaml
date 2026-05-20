@@ -15,6 +15,14 @@ topics:
       description: Code generation and deterministic tooling
     - slug: react
       description: React frontend implementation
+    - slug: deployment
+      description: Application deployment, release packaging, and production rollout work
+    - slug: kubernetes
+      description: Kubernetes and GitOps runtime infrastructure
+    - slug: static-sites
+      description: Static site packaging, hosting, and publishing workflows
+    - slug: dmeta
+      description: DMETA design-system factory and example artifacts
 docTypes:
     - slug: design-doc
       description: Structured rationale and architecture notes
