@@ -67,3 +67,13 @@ Step 7: Fixed CLIM ES module inline-handler regression by exposing inline handle
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/js/app-main.js — Exposes inline handlers for module-loaded CLIM app
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/www/clim/js/app-main.js — Served copy of inline handler fix
 
+
+## 2026-05-20
+
+Step 8: Re-ran CLIM prototype in browser, verified presentation-first and command-first DESCRIBE flows with no console errors, and wrote Obsidian technical report for go-go-parc.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/20/ARTICLE - DMETA Presentation UI - CLIM Street Deli Prototype.md — Obsidian technical report
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/prototype-clim/js/app-main.js — CLIM app behavior tested
+

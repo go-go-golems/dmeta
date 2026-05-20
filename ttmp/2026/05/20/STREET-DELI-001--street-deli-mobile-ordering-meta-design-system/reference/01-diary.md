@@ -503,3 +503,73 @@ Inline event attributes are evaluated against the global object. ES modules do n
 ### Code review instructions
 - Review `prototype-clim/js/app-main.js` at `exposeInlineHandlers()` and `init()`.
 - Confirm the same change exists in `www/clim/js/app-main.js`.
+
+## Step 8: Re-run CLIM Prototype and Write Obsidian Technical Report
+
+Re-ran the served CLIM prototype after the module-handler fix and verified the two defining presentation-based interaction flows: presentation-first action dispatch and command-first select mode. Then wrote a durable Obsidian article in the `go-go-parc` vault that explains how the CLIM prototype derives from the same DMETA street-deli core model as the mobile prototype, with emphasis on typed presentations, the command table, action arguments, select mode, and implementation errors encountered during development.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Run it again. Then, write a detailed project report for our obsidian vault go-go-parc, see an article a colleague has been writing about the mobile version: /home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/20/ARTICLE - DMETA Meta Design System - Street Deli Core Model and Mobile Ordering App.md
+
+Write it up as a deep technical dive blog post into the implementation of the presentation UI based CLIM based version, again with how the core model was derived and then the actual app was derived, focusing on the presentation based UI aspect, and also the early errings and the development process.
+
+Use a textbook writing style (no analogies, see skill). Commit and push when done"
+
+**Assistant interpretation:** Browser-test the CLIM app again, then create a new Obsidian article in the same dated folder/style as the existing mobile article. The article should teach the CLIM/presentation-based implementation, connect it back to the core model, and document the development path including mistakes.
+
+**Inferred user intent:** Preserve the CLIM prototype work as durable technical knowledge in the project vault, not only as code and ticket notes.
+
+### What I did
+- Restarted/confirmed the static server for `examples/street-deli-ordering/www` on port 8770.
+- Browser-tested `http://127.0.0.1:8770/clim/`.
+- Verified presentation-first flow:
+  - click `<MenuItem Classic BLTA>`;
+  - action bar shows `CUSTOMIZE`, `ADD-TO-ORDER`, `DESCRIBE`, etc.;
+  - click `DESCRIBE`;
+  - white action-result line shows the Classic BLTA description;
+  - console reports no errors.
+- Verified command-first flow:
+  - type `DESCRIBE` and press Enter;
+  - mode label changes to `MENU ▸ DESCRIBE`;
+  - 11 menu items become `.selectable`;
+  - click `<MenuItem Grilled Cheese>`;
+  - select mode exits;
+  - white action-result line shows the Grilled Cheese description;
+  - console reports no errors.
+- Read the existing mobile-version Obsidian article to match frontmatter shape, tone, and section style.
+- Wrote a new Obsidian article:
+  - `/home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/20/ARTICLE - DMETA Presentation UI - CLIM Street Deli Prototype.md`.
+
+### Why
+The previous module-handler regression showed that syntax and HTTP checks were not enough. A browser run was necessary because the failure was caused by browser module scoping and inline event handlers. The Obsidian report captures that class of failure and the broader presentation-based UI model for future readers.
+
+### What worked
+- The CLIM app now runs without console errors in the tested flows.
+- Both interaction modes work as intended:
+  - object first, then action;
+  - action first, then red compatible object selection.
+- The new article connects the implementation to the core model rather than treating the CLIM app as an isolated prototype.
+
+### What didn't work
+- There remain unrelated untracked/stale files in the repo (`ttmp/2026/05/19/DMETA-VIEWER-001--...`) that were intentionally left untouched.
+
+### What I learned
+- The `action-result` vs `cmd-hint` separation makes the interface much easier to explain in writing. It also mirrors the implementation distinction between command output and guidance text.
+- The CLIM prototype is the clearest demonstration that DMETA presentations are not widgets: the same semantic subject can be rendered as a mobile card or as typed monochrome text.
+
+### What was tricky to build
+- The Obsidian article needed to explain both the model derivation and the implementation derivation without repeating the mobile article. The chosen structure treats the mobile article as the core-model/background companion and focuses this article on presentation-based command dispatch.
+
+### What warrants a second pair of eyes
+- Whether the article should include screenshots later. It currently focuses on code, diagrams, and prose rather than embedded images.
+- Whether the CLIM report should be linked from the existing mobile article.
+
+### What should be done in the future
+- Consider adding a small browser smoke test script so the module-inline-handler regression cannot recur.
+- Consider replacing inline `onclick` strings with delegated listeners, then update the report if the architecture changes.
+
+### Code review instructions
+- Read the new Obsidian article next to the existing mobile article.
+- Validate the two tested CLIM flows at `http://localhost:8770/clim/`.
+- Confirm that the article does not overwrite the existing mobile article and lives as a separate durable report.
