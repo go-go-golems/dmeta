@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Hudson Street Deli</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- === DIETARY FILTER BAR === -->
+  <div id="dietary-bar">
+    <div class="dietary-filters">
+      <button class="dietary-chip" data-tag="vegan">V</button>
+      <button class="dietary-chip" data-tag="vegetarian">VG</button>
+      <button class="dietary-chip" data-tag="gluten_free">GF</button>
+      <button class="dietary-chip" data-tag="dairy_free">DF</button>
+      <button class="dietary-chip" data-tag="nut_free">NF</button>
+    </div>
+  </div>
+
+  <!-- === MENU SCREEN === -->
+  <div id="menu-screen" class="screen active">
+    <header class="menu-header">
+      <h1 class="logo">HUDSON<br>STREET<br><span>DELI</span></h1>
+      <p class="tagline">Bagels · Sandwiches · Breakfast</p>
+    </header>
+
+    <nav class="category-tabs" id="category-tabs">
+      <button class="cat-tab active" data-cat="all">All</button>
+      <button class="cat-tab" data-cat="bagels">Bagels</button>
+      <button class="cat-tab" data-cat="sandwiches">Sandwiches</button>
+      <button class="cat-tab" data-cat="breakfast">Breakfast</button>
+    </nav>
+
+    <div class="menu-list" id="menu-list">
+      <!-- JS renders menu cards here -->
+    </div>
+  </div>
+
+  <!-- === CUSTOMIZER SHEET === -->
+  <div id="customizer-overlay" class="overlay hidden"></div>
+  <div id="customizer-sheet" class="bottom-sheet hidden">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <h2 id="cust-item-name"></h2>
+      <span class="cust-price" id="cust-price"></span>
+    </div>
+
+    <div class="cust-section">
+      <h3 class="cust-section-title">Ingredients</h3>
+      <div id="ingredient-list" class="ingredient-list">
+        <!-- JS renders ingredient rows here -->
+      </div>
+    </div>
+
+    <div id="substitution-zone" class="cust-section substitution-zone hidden">
+      <h3 class="cust-section-title">Smart Substitutions</h3>
+      <p class="substitution-hint" id="substitution-hint"></p>
+      <div id="substitution-cards" class="substitution-cards">
+        <!-- JS renders substitution options here -->
+      </div>
+    </div>
+
+    <div class="cust-section" id="config-section">
+      <h3 class="cust-section-title">Options</h3>
+      <div id="config-controls" class="config-controls">
+        <!-- JS renders config selectors here -->
+      </div>
+    </div>
+
+    <div class="cust-section" id="dietary-summary-section">
+      <h3 class="cust-section-title">Dietary Info</h3>
+      <div id="dietary-summary" class="dietary-summary">
+        <!-- JS renders dietary badges here -->
+      </div>
+    </div>
+
+    <div class="allergen-warning hidden" id="allergen-warning">
+      <span class="allergen-icon">⚠</span>
+      <span id="allergen-warning-text"></span>
+    </div>
+
+    <button class="add-to-order-btn" id="add-to-order-btn">
+      Add to Order — <span id="add-to-order-total">$0.00</span>
+    </button>
+  </div>
+
+  <!-- === SUBSTITUTION DETAIL SHEET === -->
+  <div id="sub-detail-overlay" class="overlay hidden"></div>
+  <div id="sub-detail-sheet" class="bottom-sheet substitution-detail hidden">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <h2 id="sub-detail-title">Replacement Options</h2>
+      <p class="sub-detail-removed" id="sub-detail-removed"></p>
+    </div>
+    <div id="sub-detail-roles" class="unfilled-roles"></div>
+    <div id="sub-detail-candidates" class="candidate-list">
+      <!-- JS renders full candidate list here -->
+    </div>
+  </div>
+
+  <!-- === CART BUTTON === -->
+  <button class="cart-fab hidden" id="cart-fab">
+    <span class="cart-fab-count" id="cart-fab-count">0</span>
+    <span class="cart-fab-label">View Order</span>
+    <span class="cart-fab-total" id="cart-fab-total">$0.00</span>
+  </button>
+
+  <!-- === CART SCREEN === -->
+  <div id="cart-screen" class="screen hidden">
+    <header class="screen-header">
+      <button class="back-btn" id="cart-back">← Menu</button>
+      <h2>Your Order</h2>
+    </header>
+    <div id="cart-items" class="cart-items">
+      <!-- JS renders cart items here -->
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total-row">
+        <span>Total</span>
+        <span id="cart-total-price">$0.00</span>
+      </div>
+      <button class="place-order-btn" id="place-order-btn">Place Order</button>
+    </div>
+  </div>
+
+  <!-- === TRACKER SCREEN === -->
+  <div id="tracker-screen" class="screen hidden">
+    <header class="screen-header">
+      <h2>Order <span id="tracker-order-num">#000</span></h2>
+    </header>
+    <div id="tracker-content" class="tracker-content">
+      <div class="tracker-status" id="tracker-status">
+        <div class="tracker-step" data-step="received">
+          <div class="step-dot"></div>
+          <span class="step-label">Received</span>
+        </div>
+        <div class="tracker-step" data-step="preparing">
+          <div class="step-dot"></div>
+          <span class="step-label">Preparing</span>
+        </div>
+        <div class="tracker-step" data-step="ready">
+          <div class="step-dot"></div>
+          <span class="step-label">Ready</span>
+        </div>
+        <div class="tracker-step" data-step="picked-up">
+          <div class="step-dot"></div>
+          <span class="step-label">Picked Up</span>
+        </div>
+      </div>
+      <div class="tracker-detail" id="tracker-detail">
+        <p>We're making your order now. We'll call your number when it's ready.</p>
+      </div>
+      <button class="back-to-menu-btn" id="tracker-back">Back to Menu</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

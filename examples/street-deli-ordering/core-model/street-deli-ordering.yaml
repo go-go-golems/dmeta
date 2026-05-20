@@ -1,0 +1,327 @@
+schema_version: 0
+artifact_type: dmeta_domain_example
+id: street_deli_ordering
+summary: Street deli mobile ordering app pressure test for the DMETA meta design system with intelligent replacement.
+long_summary: >
+  This domain example pressure-tests the extended DMETA archetype and capability vocabulary
+  for a street deli mobile ordering application. It maps concrete deli domain objects—MenuItem,
+  Order, OrderItem, Ingredient, SubstitutionRule, Customer, Station, PrepEvent—onto the base and
+  extended archetype/capability vocabulary. The primary focus is on the intelligent ingredient
+  replacement system: how "no cheese → avocado" flows through the archetype/capability model,
+  how dietary constraints filter substitutions, and how the replacement engine preserves
+  composition integrity.
+references:
+  base_core_model_design_doc: ../../../design-docs/02-semantic-archetype-and-capability-model.md
+  base_core_model_widget_ir_spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
+  core_model_metadata: ./core-model.yaml
+
+domain_example:
+  description: Street deli mobile ordering app with intelligent ingredient replacement.
+  domain_types:
+    Customer:
+      description: Person placing an order, with dietary profile and order history.
+      archetypes:
+        - Actor
+      capabilities:
+        identifiable:
+          id: customer_id
+        labelable:
+          label: display_name
+          subtitle: phone_number
+        dietary:
+          dietary_tags: dietary_preferences
+          allergen_contains: personal_allergens
+
+    Station:
+      description: Preparation station in the deli (grill, cold prep, fry, assembly, pickup).
+      archetypes:
+        - Actor
+        - Resource
+      capabilities:
+        identifiable:
+          id: station_id
+        labelable:
+          label: station_name
+        stateful:
+          state: station_status
+        spatial:
+          location: station_location
+
+    MenuItem:
+      description: Composable food item on the menu (sandwich, bowl, platter, combo).
+      archetypes:
+        - Composition
+        - ActionSpec
+      capabilities:
+        identifiable:
+          id: menu_item_id
+        labelable:
+          label: item_name
+          subtitle: description
+        composable:
+          parts: ingredients
+          part_count: ingredient_count
+          required_roles:
+            - structural
+            - protein
+          optional_roles:
+            - richness
+            - moisture
+            - acidity
+            - crunch
+            - garnish
+        configurable:
+          config_options:
+            - name: size
+              values: [half, whole]
+              default: whole
+            - name: spice_level
+              values: [mild, medium, hot, extra_hot]
+              default: medium
+            - name: temperature
+              values: [hot, cold]
+              default: hot
+        dietary:
+          dietary_tags: item_dietary_tags
+          allergen_contains: item_allergens
+          allergen_may_contain: cross_contamination_risks
+
+    Ingredient:
+      description: Individual ingredient that participates in compositions, with role, dietary, and substitution metadata.
+      archetypes:
+        - Resource
+      capabilities:
+        identifiable:
+          id: ingredient_id
+        labelable:
+          label: ingredient_name
+        dietary:
+          dietary_tags: ingredient_dietary_tags
+          allergen_contains: ingredient_allergens
+      # Note: substitution metadata lives on the SubstitutionRule, not on the Ingredient itself.
+      # Ingredients carry dietary/allergen metadata so the replacement engine can filter.
+
+    SubstitutionRule:
+      description: Declared replacement rule mapping a removed ingredient to ranked alternatives based on role, dietary, and flavor constraints.
+      archetypes:
+        - Substitution
+        - Relation
+      capabilities:
+        identifiable:
+          id: rule_id
+        labelable:
+          label: rule_name
+          subtitle: rule_description
+        substitutable:
+          replaces: original_ingredient_id
+          replacement_candidates: ranked_alternatives
+          role_preservation: preserved_roles
+          dietary_compatibility: compatible_dietary_tags
+          allergen_flags: allergen_deltas
+          flavor_fit: flavor_compatibility
+          price_delta_cents: price_change
+          auto_suggest: is_auto_suggest
+        relatable:
+          relation_refs:
+            - original_ingredient_id
+            - composition_id
+
+    Order:
+      description: Customer order moving through preparation and pickup lifecycle.
+      archetypes:
+        - WorkItem
+        - TimelineSpan
+      capabilities:
+        identifiable:
+          id: order_id
+        labelable:
+          label: order_number
+          subtitle: customer_name
+        stateful:
+          state: order_status
+        temporal:
+          start_time: placed_at
+          end_time: completed_at
+          duration_ms: prep_duration_ms
+        relatable:
+          actor_ref: customer_id
+        actionable: {}
+
+    OrderItem:
+      description: Line item within an order, referencing a MenuItem with applied customizations and substitutions.
+      archetypes:
+        - WorkItem
+        - Composition
+      capabilities:
+        identifiable:
+          id: order_item_id
+        labelable:
+          label: item_name
+          subtitle: config_summary
+        stateful:
+          state: prep_status
+        composable:
+          parts: current_ingredients
+          part_count: ingredient_count
+          required_roles: required_roles
+        configurable:
+          current_config: selected_options
+        relatable:
+          work_item_ref: order_id
+          actor_ref: station_id
+
+    PrepEvent:
+      description: Append-only status update as an order moves through preparation stations.
+      archetypes:
+        - Event
+      capabilities:
+        identifiable:
+          id: event_id
+        temporal:
+          timestamp: event_timestamp
+        append_only:
+          sequence: sequence_number
+        stateful:
+          state: event_type
+        relatable:
+          work_item_ref: order_id
+          actor_ref: station_id
+
+  # --- Concrete replacement examples ---
+  # These illustrate how the intelligent replacement system works end-to-end.
+
+  replacement_examples:
+    no_cheese_to_avocado:
+      description: Classic dairy-free substitution where avocado replaces cheese.
+      original_ingredient: cheese
+      removal_reason: dietary (dairy_free) or preference
+      unfilled_roles:
+        - richness
+        - creaminess
+        - umami
+      replacement_candidates:
+        - candidate: avocado
+          roles_filled: [richness, creaminess, freshness]
+          flavor_fit: similar
+          dietary_tags: [dairy_free, vegan, gluten_free]
+          allergen_flags: []
+          price_delta_cents: 150
+          auto_suggest: true
+          reasoning: Avocado provides similar richness and creaminess to cheese. It is dairy-free, vegan-compatible, and adds freshness as a bonus role.
+        - candidate: nutritional_yeast
+          roles_filled: [umami, sharpness]
+          flavor_fit: complementary
+          dietary_tags: [dairy_free, vegan, gluten_free]
+          allergen_flags: []
+          price_delta_cents: 0
+          auto_suggest: false
+          reasoning: Nutritional yeast provides umami and a cheesy sharpness but lacks creaminess. Best when richness is not the priority.
+        - candidate: hummus
+          roles_filled: [richness, moisture]
+          flavor_fit: complementary
+          dietary_tags: [dairy_free, vegan, gluten_free]
+          allergen_flags: [may_contain_sesame]
+          price_delta_cents: 100
+          auto_suggest: false
+          reasoning: Hummus adds richness and moisture but changes the flavor profile toward Middle Eastern. Good for customers who want creaminess with a different taste direction.
+
+    no_bacon_to_smoked_tofu:
+      description: Meat-free substitution where smoked tofu replaces bacon.
+      original_ingredient: bacon
+      removal_reason: dietary (vegan, vegetarian) or preference
+      unfilled_roles:
+        - protein
+        - umami
+        - smokiness
+        - crunch
+      replacement_candidates:
+        - candidate: smoked_tofu
+          roles_filled: [protein, umami, smokiness]
+          flavor_fit: similar
+          dietary_tags: [vegan, vegetarian, dairy_free]
+          allergen_flags: [contains_soy]
+          price_delta_cents: 0
+          auto_suggest: true
+          reasoning: Smoked tofu provides protein, umami, and smokiness. It lacks crunch but is the closest role-match for a bacon substitute in a deli context.
+        - candidate: tempeh_bacon
+          roles_filled: [protein, umami, smokiness, crunch]
+          flavor_fit: similar
+          dietary_tags: [vegan, vegetarian, dairy_free]
+          allergen_flags: [contains_soy]
+          price_delta_cents: 200
+          auto_suggest: true
+          reasoning: Tempeh bacon is designed to mimic bacon's role profile including crunch. It is the most complete substitute but costs more.
+        - candidate: grilled_portobello
+          roles_filled: [protein, umami, earthiness]
+          flavor_fit: complementary
+          dietary_tags: [vegan, vegetarian, gluten_free, dairy_free]
+          allergen_flags: []
+          price_delta_cents: 100
+          auto_suggest: false
+          reasoning: Grilled portobello provides umami and a meaty texture but lacks smokiness and crunch. Best for customers who want earthy rather than smoky.
+
+    no_bread_to_lettuce_wrap:
+      description: Gluten-free substitution where a lettuce wrap replaces bread.
+      original_ingredient: bread
+      removal_reason: dietary (gluten_free, low_carb, keto) or preference
+      unfilled_roles:
+        - structural
+      replacement_candidates:
+        - candidate: lettuce_wrap
+          roles_filled: [structural, freshness]
+          flavor_fit: complementary
+          dietary_tags: [gluten_free, low_carb, keto, vegan]
+          allergen_flags: []
+          price_delta_cents: 0
+          auto_suggest: true
+          reasoning: Lettuce wrap provides structural integrity while adding freshness. It changes the eating experience (no crisp crust) but preserves the composition's integrity.
+        - candidate: collard_green_wrap
+          roles_filled: [structural, freshness]
+          flavor_fit: complementary
+          dietary_tags: [gluten_free, low_carb, vegan]
+          allergen_flags: []
+          price_delta_cents: 100
+          auto_suggest: true
+          reasoning: Collard green wraps are sturdier than lettuce and hold up to wet fillings. They add an earthy flavor note.
+        - candidate: rice_paper_wrap
+          roles_filled: [structural]
+          flavor_fit: neutral
+          dietary_tags: [gluten_free, vegan]
+          allergen_flags: []
+          price_delta_cents: 50
+          auto_suggest: false
+          reasoning: Rice paper provides a neutral structural wrapper. It is gluten-free but not low-carb. Best for Vietnamese-bánh-mì-style compositions.
+
+    no_mayo_to_hummus:
+      description: Egg-free substitution where hummus replaces mayonnaise.
+      original_ingredient: mayonnaise
+      removal_reason: dietary (egg_free, vegan) or preference
+      unfilled_roles:
+        - moisture
+        - richness
+        - binding
+      replacement_candidates:
+        - candidate: hummus
+          roles_filled: [moisture, richness, binding, umami]
+          flavor_fit: complementary
+          dietary_tags: [dairy_free, egg_free, vegan]
+          allergen_flags: [may_contain_sesame]
+          price_delta_cents: 0
+          auto_suggest: true
+          reasoning: Hummus is the top mayo substitute because it provides moisture, richness, and binding while adding umami. It shifts the flavor profile toward Mediterranean.
+        - candidate: avocado_mash
+          roles_filled: [moisture, richness, binding]
+          flavor_fit: similar
+          dietary_tags: [dairy_free, egg_free, vegan, gluten_free]
+          allergen_flags: []
+          price_delta_cents: 150
+          auto_suggest: true
+          reasoning: Avocado mash provides similar creaminess to mayo with a milder flavor shift. Good when the customer wants a neutral moisture replacement.
+        - candidate: vegan_aioli
+          roles_filled: [moisture, richness, binding]
+          flavor_fit: similar
+          dietary_tags: [dairy_free, egg_free, vegan]
+          allergen_flags: [contains_soy]
+          price_delta_cents: 100
+          auto_suggest: false
+          reasoning: Vegan aioli mimics mayo most closely but may contain soy. Good for customers who want the closest taste match.

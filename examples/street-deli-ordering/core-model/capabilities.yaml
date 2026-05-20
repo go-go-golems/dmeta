@@ -1,0 +1,193 @@
+schema_version: 0
+artifact_type: dmeta_capabilities
+summary: Deli-extended semantic capabilities including composable, substitutable, configurable, and dietary for the intelligent replacement system.
+long_summary: >
+  This file extends the base DMETA v0 capabilities with four new capabilities needed for the
+  street deli ordering domain. The most important additions are `composable` (a thing is made of
+  parts with roles) and `substitutable` (a part can be replaced by alternatives that preserve
+  role-based composition integrity). The `configurable` capability captures the ordering UX
+  concept of menu item customization (size, temperature, spice level). The `dietary` capability
+  tracks dietary constraint tags that filter which substitutions are valid for a given customer
+  or menu item. All base capabilities are inherited without modification.
+references:
+  base_capabilities: ../../../sources/dmeta-ir/core-model/capabilities.yaml
+  design_doc: ../../../design-docs/02-semantic-archetype-and-capability-model.md
+  spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
+  core_model_metadata: ./core-model.yaml
+
+inherited_from_base:
+  summary: All base DMETA v0 capabilities are inherited. This file only defines additions.
+  capabilities:
+    - identifiable
+    - labelable
+    - stateful
+    - temporal
+    - inspectable
+    - relatable
+    - actionable
+    - streamable
+    - append_only
+    - measurable
+    - aggregatable
+    - schedulable
+    - executable
+    - spatial
+    - parameterized
+
+capabilities:
+  composable:
+    description: Subject is assembled from parts that have functional roles within the whole.
+    projections:
+      parts:
+        type: list
+        required: true
+        description: List of ingredient/part references with role assignments.
+      part_count:
+        type: integer
+        required: false
+        description: Number of distinct parts in the composition.
+      required_roles:
+        type: list
+        required: false
+        description: Roles that must be filled for the composition to be structurally valid (e.g., structural, protein).
+      optional_roles:
+        type: list
+        required: false
+        description: Roles that enhance but are not required for composition validity (e.g., garnish, crunch).
+    presentations:
+      - ingredient_list
+      - composition_card
+      - composition_detail
+    actions:
+      - remove_part
+      - add_part
+      - substitute_part
+    filters:
+      - has_ingredient
+      - has_role_filled
+    long_description: >
+      Composable means a subject is an assembly of parts, where each part plays a functional
+      role. In the deli domain, a sandwich is composable: it has a structural role (bread),
+      richness roles (cheese, avocado), moisture roles (sauce, mayo), protein roles (meat, tofu),
+      acidity roles (pickle, mustard), crunch roles (lettuce, onion), and garnish roles. The
+      composable capability is the foundation of the intelligent replacement system: when a part
+      is removed, the system knows which roles are now unfilled and can search for replacements
+      that fill those roles. A composition with no protein part is incomplete; the replacement
+      engine should flag this and suggest protein-role substitutes. A composition with no structural
+      part is broken; the system should warn the customer.
+
+  substitutable:
+    description: Subject can be replaced by alternatives that preserve composition role integrity and dietary constraints.
+    projections:
+      replaces:
+        type: string
+        required: true
+        description: The ingredient or part id being replaced.
+      replacement_candidates:
+        type: list
+        required: true
+        description: Ordered list of replacement ingredient ids, ranked by compatibility score.
+      role_preservation:
+        type: list
+        required: false
+        description: Roles that the replacement must preserve for the substitution to be valid.
+      dietary_compatibility:
+        type: list
+        required: false
+        description: Dietary tags that the replacement satisfies (e.g., dairy_free, vegan).
+      allergen_flags:
+        type: list
+        required: false
+        description: Allergens present in the replacement but not in the original (or vice versa).
+      flavor_fit:
+        type: string
+        required: false
+        description: Qualitative flavor compatibility assessment (exact, similar, complementary, creative).
+      price_delta_cents:
+        type: integer
+        required: false
+        description: Price difference in cents between original and replacement (positive = upcharge).
+      auto_suggest:
+        type: boolean
+        required: false
+        description: Whether the system should auto-suggest this substitution vs requiring explicit customer request.
+    presentations:
+      - substitution_badge
+      - substitution_pair
+      - substitution_detail
+    actions:
+      - apply_substitution
+      - reject_substitution
+      - see_alternatives
+    long_description: >
+      Substitutable is the core capability of the intelligent replacement system. It encodes
+      the knowledge that when a customer removes or replaces an ingredient, the system can
+      find compatible alternatives based on role overlap, dietary constraints, allergen safety,
+      flavor profile fit, and price impact. The key insight is that "no cheese" is not just
+      a removal—it creates unfilled roles (richness, creaminess, umami) that the replacement
+      engine should fill. Avocado replaces cheese well because it provides richness and
+      creaminess; nutritional yeast is an alternative because it provides umami and sharpness;
+      extra hummus is another because it provides moisture and richness. Each substitution
+      candidate carries a compatibility assessment: role_preservation says which roles it fills,
+      dietary_compatibility says which dietary constraints it satisfies, allergen_flags warns
+      about allergen differences, flavor_fit provides a qualitative assessment, and price_delta_cents
+      makes the cost impact transparent. The auto_suggest flag controls whether the system
+      proactively offers the substitution or waits for the customer to ask.
+
+  configurable:
+    description: Subject has customer-configurable options beyond ingredient composition, such as size, temperature, spice level, or doneness.
+    projections:
+      config_options:
+        type: list
+        required: true
+        description: Available configuration options (e.g., size, spice_level, temperature).
+      current_config:
+        type: map
+        required: false
+        description: Current selected configuration values.
+    presentations:
+      - config_selector
+      - config_summary
+    actions:
+      - change_config
+    long_description: >
+      Configurable captures the ordering UX concept of menu item customization that goes beyond
+      ingredient substitution. A sandwich can be configured for size (half, whole), spice level
+      (mild, medium, hot), temperature (hot, cold), toast level (untoasted, light, well-done), and
+      other axes. These are not ingredient substitutions—they are scalar or categorical options
+      that modify the item without changing its role composition. The configurable capability
+      keeps these distinct from composable/substitutable so the UI can present config options
+      separately from ingredient modification.
+
+  dietary:
+    description: Subject carries dietary constraint tags that filter valid substitutions and display options.
+    projections:
+      dietary_tags:
+        type: list
+        required: true
+        description: Dietary constraint tags (e.g., dairy_free, vegan, gluten_free).
+      allergen_contains:
+        type: list
+        required: false
+        description: Allergens present in this subject.
+      allergen_may_contain:
+        type: list
+        required: false
+        description: Allergens that may be present due to shared preparation.
+    presentations:
+      - dietary_badge
+      - allergen_warning
+    actions:
+      - filter_by_dietary
+    filters:
+      - has_dietary_tag
+      - allergen_free
+    long_description: >
+      Dietary means a subject carries dietary constraint metadata. In the deli domain, dietary
+      tags are central to the ordering experience: customers with dairy-free, gluten-free, nut-free,
+      vegan, or other constraints need to see which menu items and substitutions are safe. The
+      dietary capability is used by the replacement engine to filter substitutions (a dairy-free
+      customer removing cheese should not be offered more cheese as a replacement) and by the
+      UI to display dietary badges and allergen warnings. Allergen tracking is split into
+      "contains" (definite) and "may_contain" (possible cross-contamination) because street
+      delis often share preparation surfaces and the distinction matters for severe allergies.

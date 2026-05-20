@@ -1,0 +1,523 @@
+schema_version: 0
+artifact_type: dmeta_presentations
+summary: Deli-extended presentation contracts including composition, substitution, dietary, and ordering presentations.
+long_summary: >
+  This file extends the base DMETA v0 presentation contracts with presentations needed for the
+  street deli mobile ordering domain. The key additions are composition presentations (showing
+  ingredient lists with role indicators), substitution presentations (showing replacement suggestions
+  with compatibility indicators), dietary presentations (badges and warnings), and ordering presentations
+  (menu browsing, cart, order status). All base presentations are inherited without modification.
+references:
+  base_presentations: ../../../sources/dmeta-ir/core-model/presentations.yaml
+  core_model_widget_ir_spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
+  design_language_spec: ../../../design-docs/06-dmeta-design-language-and-tooling-spec.md
+  core_model_metadata: ./core-model.yaml
+
+inherited_from_base:
+  summary: All base DMETA v0 presentations and actions are inherited. This file only defines additions.
+  presentations:
+    - compact_id
+    - display_label
+    - status_badge
+    - state_cell
+    - timestamp_inline
+    - duration_cell
+    - metric_cell
+    - relation_link
+    - compact_ref
+    - inline_token
+    - dense_row
+    - summary_card
+    - detail_panel
+    - timeline_marker
+  actions:
+    - inspect
+    - copy_reference
+    - filter_by_value
+    - filter_by_state
+    - open_related
+    - retry_work_item
+    - cancel_work_item
+    - schedule_action
+    - compare_metrics
+
+presentations:
+  # --- Composition presentations ---
+
+  ingredient_list:
+    description: Ordered list of ingredients with role badges and dietary indicators.
+    layer: capability
+    applies_to:
+      capabilities:
+        - composable
+    requires:
+      - parts
+    optional:
+      - part_count
+      - required_roles
+    role: composition_list
+    density: regular
+    interaction:
+      selectable: false
+      context_menu: false
+      copy: false
+    style_recipe: ingredient_list
+    long_description: >
+      Use ingredient_list to render the full composition of a menu item. Each ingredient should
+      show its name, role badge (structural, protein, richness, etc.), and dietary flags. Ingredients
+      should be swipeable on mobile to reveal quick-remove and substitution actions. The list should
+      visually distinguish required vs optional parts so the customer understands which removals
+      will compromise the composition.
+
+  composition_card:
+    description: Compact menu item card showing name, price, key ingredients, and dietary tags.
+    layer: archetype
+    applies_to:
+      archetypes:
+        - Composition
+    requires_any:
+      - id
+      - label
+    optional:
+      - parts
+      - dietary_tags
+      - price
+    role: summary_card
+    density: regular
+    interaction:
+      selectable: true
+      context_menu: true
+      copy: false
+    style_recipe: composition_card
+    long_description: >
+      Use composition_card as the primary browsing surface for menu items. It should show the item
+      name, a compact ingredient summary (not the full list), price, and dietary badges. Tapping
+      the card opens the composition_detail for full customization. The card should be thumb-friendly
+      on mobile and visually distinct from the dense-row style used for order items.
+
+  composition_detail:
+    description: Full menu item detail with ingredient list, substitution suggestions, config options, and add-to-order action.
+    layer: archetype
+    applies_to:
+      archetypes:
+        - Composition
+      capabilities:
+        - composable
+        - configurable
+    requires_any:
+      - id
+      - label
+      - parts
+    role: detail_panel
+    density: spacious
+    interaction:
+      selectable: false
+      context_menu: false
+      copy: false
+    style_recipe: composition_detail
+    long_description: >
+      Use composition_detail as the full-screen or bottom-sheet view for customizing a menu item
+      before adding it to the order. It combines the ingredient_list (with per-ingredient swipe
+      actions), substitution suggestions (inline suggestion chips), config selectors (size, spice,
+      temperature), dietary information, price, and the add-to-order action. This is the primary
+      interaction surface where the intelligent replacement engine's suggestions become visible.
+
+  # --- Substitution presentations ---
+
+  substitution_badge:
+    description: Inline badge indicating an active or suggested substitution on an ingredient.
+    layer: capability
+    applies_to:
+      capabilities:
+        - substitutable
+    requires:
+      - replaces
+    optional:
+      - role_preservation
+      - dietary_compatibility
+      - auto_suggest
+    role: badge
+    density: compact
+    interaction:
+      selectable: true
+      context_menu: true
+      copy: false
+    style_recipe: substitution_badge
+    long_description: >
+      Use substitution_badge as a compact inline indicator that an ingredient has been or can
+      be substituted. It should show what was removed (e.g., "No cheese") and optionally what
+      replaces it (e.g., "→ avocado"). The badge should use semantic tone to indicate whether
+      the substitution is active (success), suggested (info), or conflicting (warning). Tapping
+      the badge opens the substitution_detail for full alternatives.
+
+  substitution_pair:
+    description: Side-by-side or before/after presentation of an original ingredient and its replacement.
+    layer: capability
+    applies_to:
+      capabilities:
+        - substitutable
+    requires:
+      - replaces
+      - replacement_candidates
+    optional:
+      - role_preservation
+      - flavor_fit
+      - price_delta_cents
+    role: substitution_pair
+    density: compact
+    interaction:
+      selectable: true
+      context_menu: true
+      copy: false
+    style_recipe: substitution_pair
+    long_description: >
+      Use substitution_pair to show the original ingredient and its top replacement candidate
+      side by side. This is the primary way the intelligent replacement engine communicates
+      its reasoning to the customer: "You removed cheese → We suggest avocado (richness, creaminess)".
+      The pair should show role overlap, flavor fit, dietary compatibility, and price delta so
+      the customer can make an informed choice.
+
+  substitution_detail:
+    description: Full detail surface for a substitution, showing all replacement candidates ranked by compatibility.
+    layer: archetype
+    applies_to:
+      archetypes:
+        - Substitution
+      capabilities:
+        - substitutable
+    requires:
+      - replaces
+      - replacement_candidates
+    optional:
+      - role_preservation
+      - dietary_compatibility
+      - allergen_flags
+      - flavor_fit
+      - price_delta_cents
+    role: detail_panel
+    density: spacious
+    interaction:
+      selectable: false
+      context_menu: false
+      copy: false
+    style_recipe: substitution_detail
+    long_description: >
+      Use substitution_detail as the full bottom-sheet or screen for exploring all replacement
+      candidates for a removed ingredient. It should rank candidates by compatibility score,
+      show which roles each candidate fills, display dietary and allergen flags, indicate flavor
+      fit, and show price deltas. The customer can swipe through candidates and tap to apply
+      a substitution.
+
+  # --- Dietary presentations ---
+
+  dietary_badge:
+    description: Compact badge showing dietary constraint tag (vegan, GF, etc.).
+    layer: capability
+    applies_to:
+      capabilities:
+        - dietary
+    requires:
+      - dietary_tags
+    role: badge
+    density: compact
+    interaction:
+      selectable: true
+      context_menu: true
+      copy: false
+    style_recipe: dietary_badge
+    long_description: >
+      Use dietary_badge to display dietary constraint tags on menu items, ingredients, and
+      substitutions. Badges should be compact, use consistent abbreviations (V for vegan,
+      GF for gluten-free, DF for dairy-free, NF for nut-free), and use semantic tones to
+      indicate safety (green for matches customer profile, yellow for compatible with caveats,
+      red for contains allergen). Tapping a badge filters the menu by that dietary tag.
+
+  allergen_warning:
+    description: Warning indicator for allergen presence or cross-contamination risk.
+    layer: capability
+    applies_to:
+      capabilities:
+        - dietary
+    requires_any:
+      - allergen_contains
+      - allergen_may_contain
+    role: warning
+    density: compact
+    interaction:
+      selectable: true
+      context_menu: false
+      copy: false
+    style_recipe: allergen_warning
+    long_description: >
+      Use allergen_warning when a menu item or ingredient contains or may contain an allergen
+      that conflicts with the customer's dietary profile. The warning should be visually prominent
+      (danger tone, icon) but not modal—it should inform, not block. Tapping the warning shows
+      the full allergen detail including cross-contamination notes.
+
+  # --- Configurable presentations ---
+
+  config_selector:
+    description: Selector control for configurable menu item options (size, spice, temperature).
+    layer: capability
+    applies_to:
+      capabilities:
+        - configurable
+    requires:
+      - config_options
+    optional:
+      - current_config
+    role: selector
+    density: regular
+    interaction:
+      selectable: true
+      context_menu: false
+      copy: false
+    style_recipe: config_selector
+    long_description: >
+      Use config_selector to render the configuration options for a menu item. On mobile, these
+      should be segmented controls, radio groups, or slider-style selectors depending on the
+      option type. Each option should show the current value and any price impact. Config
+      selectors should be visually distinct from ingredient/substitution controls so customers
+      understand the difference between "change the spice level" and "substitute an ingredient".
+
+  config_summary:
+    description: Compact inline summary of current configuration choices.
+    layer: capability
+    applies_to:
+      capabilities:
+        - configurable
+    requires:
+      - current_config
+    role: inline_text
+    density: compact
+    interaction:
+      selectable: false
+      context_menu: false
+      copy: false
+    long_description: >
+      Use config_summary as a compact inline representation of current configuration choices
+      in cart items and order summaries. For example, "Whole · Hot · Medium Spice" below the
+      item name.
+
+  # --- Ordering presentations ---
+
+  order_item_row:
+    description: Dense row for an item in the current order, showing name, config, substitutions, quantity, and price.
+    layer: archetype
+    applies_to:
+      archetypes:
+        - WorkItem
+      capabilities:
+        - composable
+    requires_any:
+      - id
+      - label
+    optional:
+      - current_config
+      - parts
+    role: dense_row
+    density: compact
+    interaction:
+      selectable: true
+      context_menu: true
+      copy: false
+    style_recipe: order_item_row
+    long_description: >
+      Use order_item_row for each line item in the order cart. It should show the item name,
+      config summary, active substitution badges, quantity control, and line price. Swipe left
+      to remove; swipe right to edit. The row should be compact enough for a mobile cart but
+      detailed enough to confirm the customer's customization choices.
+
+  menu_category_header:
+    description: Section header for menu categories (Sandwiches, Sides, Drinks, etc.).
+    layer: archetype
+    applies_to:
+      archetypes:
+        - Composition
+    requires_any:
+      - label
+    role: section_heading
+    density: compact
+    interaction:
+      selectable: false
+      context_menu: false
+      copy: false
+    style_recipe: section_heading
+    long_description: >
+      Use menu_category_header to group menu items by category in the browsing surface.
+      Headers should be compact and use the section_heading typography role. They may optionally
+      show item counts or dietary filter indicators.
+
+  prep_status_indicator:
+    description: Visual indicator of order preparation status and station assignment.
+    layer: capability
+    applies_to:
+      capabilities:
+        - stateful
+    requires:
+      - state
+    optional:
+      - state_label
+      - state_tone
+    role: badge
+    density: compact
+    interaction:
+      selectable: true
+      context_menu: true
+      copy: false
+    style_recipe: prep_status_badge
+    long_description: >
+      Use prep_status_indicator to show the preparation status of an order or order item.
+      States include received, in_prep, at_station, ready, picked_up, cancelled. The indicator
+      should use semantic tones (pending=neutral, in_prep=active, ready=success, cancelled=danger)
+      and should show station assignment when relevant.
+
+actions:
+  remove_part:
+    description: Remove an ingredient from a composition, triggering the replacement engine.
+    category: modify
+    accepts:
+      - capability: composable
+    arguments:
+      composition:
+        mode: selected_presentation
+        required: true
+        accepts:
+          - capability: composable
+      part_id:
+        mode: choice
+        required: true
+        description: The ingredient to remove from the composition.
+    result:
+      kind: trigger_replacement
+    long_description: >
+      Remove_part removes an ingredient from a composition and triggers the intelligent replacement
+      engine to find substitutes. The action does not just delete; it creates unfilled roles that
+      the replacement engine fills. The result includes the substitution candidates for the removed
+      part so the UI can immediately present alternatives.
+
+  add_part:
+    description: Add an extra ingredient to a composition.
+    category: modify
+    accepts:
+      - capability: composable
+    arguments:
+      composition:
+        mode: selected_presentation
+        required: true
+      part_id:
+        mode: choice
+        required: true
+        description: The ingredient to add.
+    result:
+      kind: update_composition
+    long_description: >
+      Add_part adds an extra ingredient to a composition. Unlike substitution, this is additive—no
+      ingredient is removed. The system should still check for dietary conflicts and allergen warnings
+      when adding an ingredient.
+
+  substitute_part:
+    description: Replace one ingredient with a compatible alternative.
+    category: modify
+    accepts:
+      - capability: composable
+      - capability: substitutable
+    arguments:
+      composition:
+        mode: selected_presentation
+        required: true
+      original_part:
+        mode: choice
+        required: true
+      replacement_part:
+        mode: choice
+        required: true
+    result:
+      kind: update_composition
+    long_description: >
+      Substitute_part applies a specific substitution to a composition. It replaces the original
+      ingredient with the selected alternative, updates the role profile, and recalculates dietary
+      tags and allergen flags. The system should confirm if the substitution introduces allergens
+      not present in the original.
+
+  apply_substitution:
+    description: Accept a suggested substitution.
+    category: modify
+    accepts:
+      - capability: substitutable
+    arguments:
+      substitution:
+        mode: selected_presentation
+        required: true
+        accepts:
+          - capability: substitutable
+    result:
+      kind: update_composition
+    long_description: >
+      Apply_substitution accepts a replacement engine suggestion. It is the action that confirms
+      a substitution badge or substitution pair, updating the composition accordingly.
+
+  reject_substitution:
+    description: Dismiss a suggested substitution, leaving the ingredient removed without replacement.
+    category: modify
+    accepts:
+      - capability: substitutable
+    arguments:
+      substitution:
+        mode: selected_presentation
+        required: true
+    result:
+      kind: dismiss_suggestion
+    long_description: >
+      Reject_substitution dismisses a suggestion without applying it. The ingredient remains removed
+      and the role is left unfilled. The UI should note that a required role is now empty.
+
+  see_alternatives:
+    description: Browse all replacement candidates for a substitution, not just the top suggestion.
+    category: inspect
+    accepts:
+      - capability: substitutable
+    arguments:
+      substitution:
+        mode: selected_presentation
+        required: true
+    result:
+      kind: open_detail
+    long_description: >
+      See_alternatives opens the full substitution_detail surface showing all ranked replacement
+      candidates, not just the top auto-suggestion. This lets the customer explore creative or
+      less obvious substitutions.
+
+  change_config:
+    description: Change a configurable option on a menu item (size, spice, temperature, etc.).
+    category: modify
+    accepts:
+      - capability: configurable
+    arguments:
+      option:
+        mode: choice
+        required: true
+      value:
+        mode: choice
+        required: true
+    result:
+      kind: update_config
+    long_description: >
+      Change_config modifies a scalar or categorical option on a configurable item. It is distinct
+      from ingredient substitution and should be presented separately in the UI.
+
+  filter_by_dietary:
+    description: Filter menu items or substitutions by dietary constraint.
+    category: filter
+    accepts:
+      - capability: dietary
+      - presentation: dietary_badge
+    arguments:
+      dietary_tag:
+        mode: choice
+        required: true
+    result:
+      kind: apply_filter
+    long_description: >
+      Filter_by_dietary narrows the visible menu or substitution candidates to those matching a
+      dietary constraint. Tapping a dietary badge on any surface should offer this action.

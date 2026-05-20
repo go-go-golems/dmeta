@@ -1,0 +1,107 @@
+schema_version: 0
+artifact_type: dmeta_core_model_metadata
+summary: Shared metadata, logical types, and editing guidance for the Street Deli mobile ordering core model.
+long_summary: >
+  This file contains metadata that applies to the split street deli core model package as a whole.
+  The semantic content lives in sibling files: archetypes.yaml, capabilities.yaml, presentations.yaml,
+  and street-deli-ordering.yaml. This model extends the base DMETA v0 core model with deli-specific
+  archetypes (Composition, Substitution) and capabilities (composable, substitutable, configurable,
+  dietary) that support the intelligent ingredient replacement system.
+references:
+  base_core_model_metadata: ../../../sources/dmeta-ir/core-model/core-model.yaml
+  base_semantic_model: ../../../design-docs/02-semantic-archetype-and-capability-model.md
+  base_core_model_spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
+  base_playbook: ../../../playbooks/02-dmeta-design-system-factory-runthrough-playbook.md
+
+base_model_inheritance:
+  summary: This model inherits all archetypes, capabilities, presentations, and actions from the base DMETA v0 core model and extends them with deli-specific additions.
+  base_archetypes_file: ../../../sources/dmeta-ir/core-model/archetypes.yaml
+  base_capabilities_file: ../../../sources/dmeta-ir/core-model/capabilities.yaml
+  base_presentations_file: ../../../sources/dmeta-ir/core-model/presentations.yaml
+  extension_policy: >
+    Deli-specific archetypes and capabilities are additive. They should not redefine or contradict
+    the base model. Where a deli concept maps cleanly to an existing archetype (e.g., Order → WorkItem),
+    the domain example should use the base archetype. New archetypes are added only when the concept
+    does not fit any existing role.
+
+logical_types:
+  primitives:
+    - string
+    - number
+    - integer
+    - boolean
+    - datetime
+    - duration_ms
+    - tone
+    - json
+  collections:
+    - list
+    - map
+  deli_extensions:
+    - dietary_tag
+    - ingredient_role
+    - flavor_profile
+    - allergen_flag
+
+dietary_tags:
+  summary: Controlled vocabulary of dietary constraint tags used by the substitutable capability and intelligent replacement engine.
+  values:
+    - dairy_free
+    - gluten_free
+    - nut_free
+    - vegan
+    - vegetarian
+    - halal
+    - kosher
+    - low_carb
+    - keto
+    - sugar_free
+    - soy_free
+    - egg_free
+
+ingredient_roles:
+  summary: Functional role that an ingredient plays within a menu item composition. The replacement engine uses roles to find compatible substitutes.
+  description: >
+    Ingredient roles classify why an ingredient exists in a dish, not what it is. Cheese provides
+    "richness" and "texture"; avocado can replace it because it provides similar richness and creaminess.
+    A pickle provides "acidity" and "crunch"; roasted peppers might substitute because they provide
+    similar acidity. The replacement engine matches on role overlap, not on food category.
+  values:
+    - structural
+    - richness
+    - moisture
+    - acidity
+    - heat
+    - crunch
+    - umami
+    - sweetness
+    - bitterness
+    - freshness
+    - binding
+    - garnish
+    - protein
+    - base
+
+flavor_profiles:
+  summary: Simplified flavor compatibility descriptors used by the replacement engine.
+  values:
+    - creamy
+    - sharp
+    - smoky
+    - tangy
+    - fresh
+    - earthy
+    - spicy
+    - sweet
+    - savory
+    - briny
+    - nutty
+    - mild
+
+authoring_guidelines:
+  - Every archetype and capability must include both a short description and a longer prose long_description.
+  - Use description for compact generated docs and tables; use long_description for intern guides, review documents, generated reference pages, and LLM context.
+  - Do not add a YAML field unless a generator, validator, runtime registry, lint rule, or review workflow is expected to consume it.
+  - Read the referenced design docs and base model files before changing archetype/capability semantics.
+  - When mapping a deli concept to an existing base archetype, prefer the base archetype over creating a new one.
+  - The intelligent replacement system is the core differentiator of this design system; its archetypes and capabilities should be designed for extension, not just for one fixed menu.

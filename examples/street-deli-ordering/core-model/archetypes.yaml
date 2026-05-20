@@ -1,0 +1,88 @@
+schema_version: 0
+artifact_type: dmeta_archetypes
+summary: Deli-extended operational archetypes for the Street Deli mobile ordering meta design system.
+long_summary: >
+  This file extends the base DMETA v0 archetypes with two new archetypes needed for the intelligent
+  replacement system: Composition and Substitution. All base archetypes (Actor, WorkItem, Event,
+  Resource, Relation, Metric, TimelineSpan, ActionSpec, ActionInvocation, Annotation) are inherited
+  and reused without modification. The new archetypes are additive.
+references:
+  base_archetypes: ../../../sources/dmeta-ir/core-model/archetypes.yaml
+  design_doc: ../../../design-docs/02-semantic-archetype-and-capability-model.md
+  spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
+  core_model_metadata: ./core-model.yaml
+
+inherited_from_base:
+  summary: All base DMETA v0 archetypes are inherited. This file only defines additions.
+  archetypes:
+    - Actor
+    - WorkItem
+    - Event
+    - Resource
+    - Relation
+    - Metric
+    - TimelineSpan
+    - ActionSpec
+    - ActionInvocation
+    - Annotation
+
+archetypes:
+  Composition:
+    description: A composite thing made of replaceable parts, where parts have functional roles and the whole has integrity constraints.
+    default_capabilities:
+      - identifiable
+      - labelable
+      - composable
+      - inspectable
+    recommended_presentations:
+      - composition_card
+      - composition_detail
+      - ingredient_list
+    examples:
+      - Sandwich
+      - SaladBowl
+      - Platter
+      - ComboMeal
+      - Burger
+      - Wrap
+    long_description: >
+      Composition represents a whole that is assembled from parts with defined functional roles.
+      In the deli domain, a sandwich is a Composition: it has structural parts (bread), richness
+      parts (cheese, avocado), moisture parts (sauce, dressing), acidity parts (pickle, mustard),
+      crunch parts (lettuce, onion), protein parts (meat, tofu), and garnish parts. The intelligent
+      replacement system operates on Compositions: when a customer removes a part, the system finds
+      replacements that preserve the composition's functional integrity by matching on role overlap.
+      A Composition is not merely a list of ingredients—it is an assemblage with role-based constraints.
+      A BLT without bacon is not just "a BLT minus bacon"; it is a composition that has lost its primary
+      protein and smoky umami role, and the replacement engine should suggest something that fills those
+      roles (e.g., smoked tofu, tempeh bacon, or grilled portobello).
+
+  Substitution:
+    description: A declared or inferred replacement rule mapping one ingredient to a compatible alternative based on role, dietary, and flavor constraints.
+    default_capabilities:
+      - identifiable
+      - labelable
+      - substitutable
+      - inspectable
+      - relatable
+    recommended_presentations:
+      - substitution_badge
+      - substitution_pair
+      - substitution_detail
+    examples:
+      - NoCheeseToAvocado
+      - NoBaconToSmokedTofu
+      - NoGlutenBreadToLettuceWrap
+      - NoMayoToHummus
+      - ExtraProteinDoubleMeat
+    long_description: >
+      Substitution represents the core intelligence of the replacement engine. Each substitution
+      declares what is being removed (or reduced), what can replace it, under what constraints the
+      replacement is valid, and what the replacement contributes to the composition's role profile.
+      Substitutions are not simple 1:1 swaps: "no cheese" can map to avocado (richness, creaminess),
+      or to nutritional yeast (umami, sharpness), or to extra sauce (moisture), depending on what the
+      customer wants to optimize for. The Substitution archetype carries enough metadata for the
+      replacement engine to reason about role preservation, dietary compatibility, allergen safety,
+      and flavor profile fit. Substitutions may be automatic (suggested by the system) or manual
+      (explicitly chosen by the customer). They may also cascade: removing bread (gluten-free) triggers
+      a lettuce wrap substitution, which itself changes the composition's structural properties.

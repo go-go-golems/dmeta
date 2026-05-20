@@ -1,0 +1,44 @@
+schema_version: 0
+artifact_type: dmeta_core_model
+summary: Split semantic archetype, capability, presentation, action, and domain example package for the Street Deli mobile ordering meta design system.
+long_summary: >
+  This core model extends the base DMETA v0 vocabulary with domain-specific archetypes and capabilities
+  needed for a street deli mobile ordering application. The most important addition is the intelligent
+  ingredient replacement system: when a customer removes an ingredient (e.g., "no cheese"), the system
+  suggests compatible replacements (e.g., avocado) based on ingredient role, dietary constraints, flavor
+  profile compatibility, and station availability. The model maps deli concepts—menu items, orders,
+  ingredients, substitutions, stations, customers, and prep events—onto the DMETA archetype/capability
+  vocabulary so that the same presentation and action machinery used for agent workflows and retail
+  logistics can produce a concrete deli ordering UI.
+status: draft
+references:
+  base_semantic_model: ../../design-docs/02-semantic-archetype-and-capability-model.md
+  base_core_model_spec: ../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
+  base_system_spec: ../../design-docs/04-concrete-dmeta-system-spec.md
+  base_playbook: ../../playbooks/02-dmeta-design-system-factory-runthrough-playbook.md
+  base_archetypes: ../../sources/dmeta-ir/core-model/archetypes.yaml
+  base_capabilities: ../../sources/dmeta-ir/core-model/capabilities.yaml
+files:
+  core_model: ./core-model/core-model.yaml
+  archetypes: ./core-model/archetypes.yaml
+  capabilities: ./core-model/capabilities.yaml
+  presentations: ./core-model/presentations.yaml
+  domain_example: ./core-model/street-deli-ordering.yaml
+validation:
+  require_unique_ids:
+    - archetypes
+    - capabilities
+    - presentations
+    - actions
+  require_known_references:
+    archetype_capabilities: true
+    archetype_presentations: true
+    capability_presentations: true
+    capability_actions: true
+    presentation_capabilities: true
+    presentation_archetypes: true
+    action_accepts: true
+    domain_example_archetypes: true
+    domain_example_capabilities: true
+  require_domain_examples:
+    - street_deli_ordering

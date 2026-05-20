@@ -1,0 +1,465 @@
+schema_version: 0
+artifact_type: dmeta_design_language
+summary: Mobile-friendly deli ordering design-language ranges, recipes, states, and lint rules.
+status: draft
+mode: archetype_range
+references:
+  base_design_language: ../../sources/dmeta-ir/02-design-language.yaml
+  dense_operational_ui: ../../design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md
+  design_tooling_spec: ../../design-docs/06-dmeta-design-language-and-tooling-spec.md
+  core_presentations: ./core-model/presentations.yaml
+
+source_guidance:
+  archetype_name: Mobile Deli Ordering UI
+  aliases:
+    - Thumb-Friendly Deli Console
+    - Pocket Sandwich Builder
+    - Street Counter Touch Interface
+  source_document_note: >
+    This design language adapts the sober dense operational UI archetype for a mobile-first
+    street deli ordering application. The key differences from the base archetype: touch-first
+    interaction replaces keyboard-first, thumb zones replace mouse targets, and the composition
+    customization flow (ingredient list → swipe → substitution suggestion → confirm) replaces
+    dense-stream table scanning. The intelligent replacement system requires visual affordances
+    for substitution badges, role indicators, and dietary flags that do not exist in the base model.
+  human_authoring_note: >
+    This is a mobile-first design language. All sizes, targets, and spacing assume a 375–414px
+    wide viewport as the baseline. Density is lower than desktop operational consoles because
+    thumb accuracy requires larger targets. However, the information-density philosophy remains:
+    the UI should show as much useful information as possible without visual noise.
+  core_qualities:
+    - Touch-first: all interactive targets meet 44×44pt minimum; swipe gestures are primary.
+    - Thumb-zone aware: primary actions sit in the bottom thumb zone; browse content sits mid-screen.
+    - Composition-aware: ingredient lists with role badges and substitution indicators are the central visual element.
+    - Dietary-transparent: dietary tags and allergen warnings are always visible, never hidden behind interactions.
+    - Quick-path optimized: the flow from "see menu item" to "add to order" should be under 5 taps.
+    - Substitution-intelligent: replacement suggestions appear inline and can be accepted with a single tap.
+  anti_goals:
+    - Do not build a generic food delivery app UI; this is a street deli counter with a specific ordering flow.
+    - Do not hide dietary or allergen information behind tabs, modals, or progressive disclosure.
+    - Do not treat substitution suggestions as advertising or upselling; they are intelligent role-preservation recommendations.
+    - Do not use decorative food photography that increases load time and adds no ordering information.
+    - Do not use bottom navigation bars with 5 tabs; the ordering flow is linear, not tabbed.
+
+theme_axes:
+  density:
+    values:
+      - compact
+      - regular
+    default: regular
+    description: >
+      Mobile density is more constrained than desktop. Compact mode uses smaller cards and
+      tighter ingredient lists; regular mode uses comfortable touch targets. There is no
+      spacious mode on mobile—detail panels become bottom sheets instead.
+    hard_boundaries:
+      - Touch targets must be at least 44×44pt regardless of density mode.
+      - Ingredient list items must be tall enough to swipe reliably even in compact mode.
+  neutral_tone:
+    values:
+      - warm_white
+      - subtle_warm_gray
+      - kraft_paper
+    default: warm_white
+    description: >
+      Deli ordering benefits from a warm, approachable neutral that feels like a paper menu
+      rather than a clinical console. Kraft paper tone is acceptable for a casual street deli
+      aesthetic but must not introduce texture or grain.
+    hard_boundaries:
+      - Backgrounds must remain texture-free even when using warm tones.
+      - Text contrast must meet WCAG AA on all neutral backgrounds.
+  type_mode:
+    values:
+      - sans_with_mono
+      - rounded_sans
+    default: rounded_sans
+    description: >
+      A slightly rounded sans-serif feels approachable for a deli without becoming childish.
+      Monospace is still used for prices, order numbers, and timestamps.
+  accent_strategy:
+    values:
+      - single_primary
+      - ingredient_color
+    default: ingredient_color
+    description: >
+      Deli ordering can use subtle ingredient-inspired accent colors (ripe avocado green,
+      smoked salmon pink, toasted bread amber) for role indicators and substitution badges,
+      but must not turn the interface into a colorful food collage.
+    hard_boundaries:
+      - Accent colors must remain tied to semantic roles or ingredient categories, not decoration.
+      - No more than 3 accent colors visible at once on any screen.
+
+typography:
+  families:
+    ui_sans:
+      role: interface
+      examples:
+        - Nunito
+        - DM Sans
+        - SF Pro Rounded
+    ui_mono:
+      role: prices_numbers_order_ids
+      examples:
+        - Berkeley Mono
+        - IBM Plex Mono
+        - SF Mono
+  roles:
+    body:
+      family: ui_sans
+      size_range:
+        - 15
+        - 17
+      weight_range:
+        - 400
+        - 500
+      line_height_range:
+        - 1.35
+        - 1.5
+      purpose: Menu item names, ingredient labels, order summaries.
+      long_purpose: Primary readable text for the ordering interface. Larger than desktop body to meet touch-target and readability requirements on mobile.
+    metadata:
+      family: ui_mono
+      size_range:
+        - 12
+        - 14
+      weight_range:
+        - 400
+        - 500
+      line_height_range:
+        - 1.25
+        - 1.4
+      purpose: Order numbers, timestamps, price values, quantity counts.
+      long_purpose: Compact monospaced text for precise numeric and identifier display. Prices should use tabular figures.
+    label:
+      family: ui_sans
+      size_range:
+        - 11
+        - 13
+      weight_range:
+        - 600
+        - 700
+      transform: uppercase
+      tracking_range:
+        - 0.04em
+        - 0.08em
+      purpose: Section headers, dietary badges, role tags, station indicators.
+      long_purpose: Short labels for section headers, dietary badges (DF, GF, V), ingredient role tags (structural, protein, richness), and station names.
+    title:
+      family: ui_sans
+      size_range:
+        - 20
+        - 28
+      weight_range:
+        - 600
+        - 700
+      line_height_range:
+        - 1.1
+        - 1.2
+      purpose: Menu item name in detail view; order confirmation title.
+      long_purpose: Sparse hierarchy marker for detail views and confirmation screens. Should not appear in browsing surfaces.
+    price:
+      family: ui_mono
+      size_range:
+        - 15
+        - 17
+      weight_range:
+        - 500
+        - 600
+      numeric: tabular
+      purpose: Prices on menu cards, cart items, and totals.
+      long_purpose: Prices are semantically important in an ordering app. They deserve their own typography role with tabular alignment for easy comparison.
+    role_tag:
+      family: ui_sans
+      size_range:
+        - 10
+        - 12
+      weight_range:
+        - 600
+        - 700
+      transform: uppercase
+      tracking_range:
+        - 0.06em
+        - 0.1em
+      purpose: Ingredient role badges (PROTEIN, RICHNESS, CRUNCH, etc.).
+      long_purpose: Ultra-compact role tags that appear next to ingredient names in the composition view. They must be immediately scannable without reading the ingredient name.
+
+spacing:
+  base_grid: 4
+  tokens:
+    - 4
+    - 8
+    - 12
+    - 16
+    - 20
+    - 24
+    - 32
+    - 40
+  rules:
+    - Touch targets are minimum 44×44pt (11×11 grid units).
+    - Ingredient list items need 12pt vertical padding for reliable swipe gestures.
+    - Cart items need 8pt vertical separation.
+    - Bottom sheets need 24pt top padding for drag handle.
+
+color:
+  neutral_roles:
+    background:
+      range:
+        - warm_white
+        - subtle_warm_gray
+      purpose: Main app background.
+    surface:
+      purpose: Menu cards, bottom sheets, cart panels.
+    text_primary:
+      purpose: Menu item names, ingredient names, order details.
+    text_secondary:
+      purpose: Descriptions, subtitles, config summaries.
+    text_muted:
+      purpose: Metadata, prices in browsing context, timestamps.
+    divider:
+      opacity_range:
+        - 0.1
+        - 0.2
+  semantic_roles:
+    neutral:
+      purpose: Default non-emphatic state.
+    info:
+      purpose: Substitution suggestion, dietary info badge.
+    success:
+      purpose: Order confirmed, item ready, substitution applied.
+    warning:
+      purpose: Allergen caution, unfulfilled required role, cross-contamination risk.
+    danger:
+      purpose: Allergen conflict, order cancelled, unavailable item.
+    pending:
+      purpose: Order received, in queue.
+    active:
+      purpose: Currently being prepared, at station.
+    selected:
+      purpose: Selected menu item, chosen substitution.
+  ingredient_role_colors:
+    structural:
+      tone: amber
+      description: Bread, wrap, base—structural foundation.
+    protein:
+      tone: warm_brown
+      description: Meat, tofu, tempeh—primary protein source.
+    richness:
+      tone: avocado_green
+      description: Cheese, avocado, mayo—richness and creaminess.
+    moisture:
+      tone: light_blue
+      description: Sauce, dressing, mayo—moisture and binding.
+    acidity:
+      tone: yellow_green
+      description: Pickle, mustard, vinegar—acidity and tang.
+    crunch:
+      tone: lettuce_green
+      description: Lettuce, onion, chips—crunch and freshness.
+    heat:
+      tone: red_orange
+      description: Hot sauce, jalapeño, spice—heat and pungency.
+    garnish:
+      tone: herb_green
+      description: Herbs, sprouts, garnish—finishing touch.
+  rules:
+    - Ingredient role colors are used for role tags and substitution indicators only, not for broad backgrounds.
+    - Dietary badges use semantic tones: green for safe/matching, yellow for compatible-with-caveats, red for contains-allergen.
+    - Price text uses neutral text color; sale/discount uses success tone.
+    - Substitution suggestion chips use info tone; accepted substitutions shift to success tone.
+    - Unfilled required roles after a removal show warning tone.
+
+interaction_states:
+  states:
+    rest:
+      purpose: Default non-interacting state.
+    pressed:
+      purpose: Touch/press active; replaces hover for touch interfaces.
+      description: Touch press feedback. Should provide immediate visual response within 100ms.
+    selected:
+      purpose: Selected menu item, active dietary filter, chosen substitution.
+    candidate:
+      purpose: Valid substitution candidate during replacement flow.
+    active:
+      purpose: Currently in preparation at a station.
+    disabled:
+      purpose: Unavailable menu item or ingredient, sold out.
+    swipe_reveal:
+      purpose: Swiping an ingredient row reveals remove/substitute actions.
+      description: Mobile-specific state where swipe gesture reveals action buttons behind the row.
+  rules:
+    - All interactive targets must have press feedback.
+    - Swipe gestures are primary for ingredient list actions.
+    - Long-press opens detail context (ingredient detail, substitution alternatives).
+    - Bottom sheets are preferred over modals for substitution flows.
+    - Cart slide-up is the primary order review mechanism.
+    - Dietary filter chips should persist at the top of the menu browsing surface.
+
+layout:
+  primitives:
+    menu_browser:
+      regions:
+        - dietary_filter_bar
+        - category_tabs
+        - menu_card_list
+        - cart_button
+      description: Primary browsing surface showing menu categories and item cards.
+      rules:
+        - Dietary filter bar is always visible at the top.
+        - Category tabs scroll horizontally.
+        - Menu cards are in a vertical scrolling list.
+        - Cart button floats at the bottom with item count and total.
+    composition_customizer:
+      regions:
+        - item_header
+        - ingredient_list
+        - config_options
+        - substitution_suggestions
+        - dietary_summary
+        - add_to_order_button
+      description: Full customization surface for a selected menu item.
+      rules:
+        - Opens as a bottom sheet or full screen.
+        - Ingredient list is swipeable for remove/substitute.
+        - Substitution suggestions appear inline below the removed ingredient.
+        - Config options (size, spice, temperature) use segmented controls.
+        - Dietary summary shows current item's dietary profile.
+        - Add-to-order button is always in the bottom thumb zone.
+    order_cart:
+      regions:
+        - order_item_list
+        - subtotal
+        - dietary_summary
+        - place_order_button
+      description: Order review and submission surface.
+      rules:
+        - Slides up from the bottom.
+        - Each order item shows config, substitutions, and price.
+        - Dietary summary aggregates all items.
+        - Place order button is in the bottom thumb zone.
+    order_tracker:
+      regions:
+        - order_status_header
+        - station_progress
+        - prep_events
+        - pickup_instructions
+      description: Post-order status tracking surface.
+      rules:
+        - Shows station-by-station progress.
+        - Prep events stream in reverse chronological order.
+        - Pickup instructions are prominent when order is ready.
+
+presentation_recipes:
+  composition_card:
+    typography: body
+    density: regular
+    affordances:
+      - tap_to_customize
+      - dietary_badges_visible
+      - price_visible
+    states:
+      - rest
+      - pressed
+      - selected
+      - disabled
+    description: Menu item card. Shows name, compact ingredient summary, price, dietary badges.
+  ingredient_list:
+    typography: body
+    density: regular
+    affordances:
+      - swipe_to_remove
+      - swipe_to_substitute
+      - long_press_detail
+    states:
+      - rest
+      - swipe_reveal
+      - selected
+    description: List of ingredients with role tags, dietary flags, and swipe actions.
+  substitution_badge:
+    typography: label
+    color_source: info_or_success_tone
+    shape: pill
+    affordances:
+      - tap_to_apply
+      - tap_to_see_alternatives
+    states:
+      - rest
+      - pressed
+      - applied
+    description: Inline badge showing removal and replacement suggestion. "No cheese → Avocado".
+  substitution_pair:
+    typography: body
+    density: compact
+    affordances:
+      - tap_to_apply
+      - see_alternatives
+    states:
+      - rest
+      - pressed
+      - applied
+    description: Side-by-side original and replacement with role overlap and dietary compatibility.
+  dietary_badge:
+    typography: label
+    shape: pill
+    color_source: dietary_tone
+    affordances:
+      - tap_to_filter
+    states:
+      - rest
+      - pressed
+      - active_filter
+    description: Compact dietary tag badge (V, GF, DF, NF).
+  prep_status_badge:
+    typography: label
+    shape: slight_radius
+    color_source: state_tone
+    affordances:
+      - tap_for_detail
+    states:
+      - rest
+      - pressed
+    description: Station preparation status indicator.
+  order_item_row:
+    typography: body
+    density: compact
+    affordances:
+      - swipe_to_edit
+      - swipe_to_remove
+      - tap_to_expand
+    states:
+      - rest
+      - swipe_reveal
+      - expanded
+    description: Cart item row with name, config summary, substitution badges, quantity, price.
+  role_tag:
+    typography: role_tag
+    shape: pill
+    color_source: ingredient_role_color
+    affordances: []
+    states:
+      - rest
+    description: Ultra-compact role tag (PROTEIN, RICHNESS, etc.) next to ingredient names.
+
+lint_rules:
+  touch_target_minimum:
+    severity: error
+    description: All interactive elements must meet 44×44pt minimum touch target.
+    long_description: Mobile touch interfaces require generous targets. Any button, badge, or swipeable row that falls below 44×44pt is an accessibility and usability failure.
+  dietary_always_visible:
+    severity: error
+    description: Dietary tags and allergen warnings must not be hidden behind interactions.
+    long_description: In a food ordering context, hiding dietary information behind taps or modals is a safety risk. Dietary badges must be visible on menu cards and ingredient lists.
+  no_hidden_substitution_costs:
+    severity: warning
+    description: Price deltas for substitutions must be shown before application.
+    long_description: Customers must see the cost impact of a substitution before confirming it. No surprise upcharges.
+  substitution_not_upsell:
+    severity: warning
+    description: Substitution suggestions must not be disguised upselling.
+    long_description: The replacement engine suggests based on role preservation and dietary compatibility, not profit margin. If a higher-priced item is suggested, it must be because it is the best role match, not because it costs more.
+  allergen_warning_visible:
+    severity: error
+    description: Allergen conflicts between substitutions and customer dietary profile must show explicit warnings.
+    long_description: If a substitution candidate contains an allergen that the customer's dietary profile flags, the UI must show a danger-toned warning before the substitution can be applied.
+  ingredient_role_tagged:
+    severity: warning
+    description: Every ingredient in a composition should carry a role tag for the replacement engine to reason about.
+    long_description: Ingredients without role tags cannot participate in the intelligent replacement system. Every part of a composable menu item must have at least one role.
