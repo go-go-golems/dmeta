@@ -74,3 +74,22 @@ Split dmeta/sources/dmeta-ir/01-core-model.yaml into a core-model package with s
 
 Expanded dmeta/sources/dmeta-ir/core-model/presentations.yaml with long_description prose for every presentation and action. Expanded dmeta/sources/dmeta-ir/02-design-language.yaml with long_summary/description/long_purpose/long_description context across theme axes, typography, density, spacing, color, layout, recipes, interaction states, data attributes, and lint rules. Updated playbooks to require richer prose sections for presentations/actions and design-language YAML. Validator now warns on missing presentation/action long_description; tests and validate-ir pass.
 
+
+## 2026-05-19
+
+Added design doc comparing Hair Booking Admin DSL widget IR to DMETA's current widget IR, identifying always-present generic helper widgets for dense operational/log/agent/workflow/event/table design systems and separating optional domain packs.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/02-generic-widget-baseline-for-dense-operational-design-systems.md — New baseline widget comparison and recommendation document
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/reference/01-dmeta-001-investigation-diary.md — Diary updated for widget baseline comparison work
+
+
+## 2026-05-19
+
+Uploaded DMETA 001 Generic Widget Baseline design doc to reMarkable at /ai/2026/05/19/DMETA-001.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/02-generic-widget-baseline-for-dense-operational-design-systems.md — Uploaded source design document
+

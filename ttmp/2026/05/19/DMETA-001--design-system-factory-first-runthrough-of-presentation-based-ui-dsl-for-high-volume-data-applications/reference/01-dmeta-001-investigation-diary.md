@@ -471,3 +471,79 @@ GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-in
 ```
 
 All tests passed and the validator emitted `validation_ok`.
+
+## Step 7: Hair Booking Widget Baseline Comparison
+
+This step returned to the HAIR-041 Admin DSL widget IR and compared its widget catalog against the much smaller DMETA v0 widget IR. The goal was not to copy the Hair Booking admin catalog wholesale, but to identify which helper widgets are actually domain-neutral infrastructure for dense operational systems.
+
+The output is a new DMETA-001 design document that proposes an always-present widget baseline for log, agent, workflow, event, and table-oriented design systems. It separates DMETA's semantic widgets from generic helper widgets such as shells, page headers, panels, toolbars, filters, search, result controls, state displays, forms, overlays, and confirmations.
+
+### Prompt Context
+
+**User prompt (verbatim):** "so  let's go back to @hair-booking/ttmp/2026/05/15/HAIR-041--real-admin-backend-for-intake-app/sources/admin-dsl-widget-ir/03-shell-widgets.yaml and @hair-booking/ttmp/2026/05/15/HAIR-041--real-admin-backend-for-intake-app/sources/admin-dsl-widget-ir/05-layout-widgets.yaml and all the other widgets and compare that to ours. There's a significant of "generic" helper widgets in hair booking, and like, which ones would apply to all the log/dense/agent/workflow/events/table kind of design systems we are targeting? Which widgets should kind of always be present.
+
+Write this up as a design-doc in DMETA-001 and upload to remarkable.
+
+Keep a diary as you work (see skill)"
+
+**Assistant interpretation:** Compare the Hair Booking widget IR against the DMETA widget IR, identify reusable generic helper widgets for dense operational design systems, document the recommendations under DMETA-001, upload the result to reMarkable, and keep the ticket diary updated.
+
+**Inferred user intent:** Establish a practical baseline widget catalog for future DMETA-generated design systems so the project does not focus only on semantic presentation widgets while missing the ordinary UI infrastructure required by real applications.
+
+**Commit (code):** N/A — documentation-only step at diary-writing time.
+
+### What I did
+- Read the Hair Booking widget IR files, especially shell/layout widgets and the rest of the widget catalog.
+- Read the current DMETA widget IR at `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/03-widgets.yaml`.
+- Used `docmgr doc add` to create `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/02-generic-widget-baseline-for-dense-operational-design-systems.md`.
+- Wrote the design document with a tiered recommendation: semantic widgets already in DMETA, helper widgets that should become always-present, and optional/domain-specific packs.
+- Related the new document to the Hair Booking source YAML files and the current DMETA widget IR with `docmgr doc relate`.
+
+### Why
+- DMETA's current widget IR has a strong semantic core, but it lacks common helper infrastructure that generated dense apps need.
+- The Hair Booking IR provides a useful inventory of shell, layout, action, table, state, form, field, and surface widgets that are mostly not hair-booking-specific.
+- A written baseline recommendation will guide the next expansion of `03-widgets.yaml` or a split widget package.
+
+### What worked
+- The Hair Booking widget catalog cleanly separated into generic baseline candidates and optional domain packs.
+- The new design doc identifies always-present widgets such as `WorkbenchShell`, `PageHeader`, `Panel`, `Toolbar`, `ActionButton`, `ActionGroup`, `ContextMenuTrigger`, `FilterBar`, `SearchBox`, `PresentationCell`, `BulkActionBar`, `ResultWindowControls`, `EmptyState`, `LoadingState`, `InlineError`, `KeyValueList`, `OverlaySurface`, `ConfirmDialog`, and a narrowed `ActionParameterForm` field set.
+- `docmgr doc relate` successfully updated the new design document's related file metadata.
+
+### What didn't work
+- N/A so far. The reMarkable upload is still pending at this point in the diary sequence.
+
+### What I learned
+- Hair Booking's media, calendar, image, and money widgets should be optional packs, not DMETA baseline widgets.
+- Hair Booking's `ResourceTable` maps to DMETA's existing `DenseTable`, but `ResourceTableCell`, `BulkActionBar`, and `PaginationBar` reveal missing helper pieces around `DenseTable`.
+- Hair Booking's `ActivityFeed` overlaps with DMETA's `RecordStream`; DMETA should avoid adding a second feed abstraction unless it is just a light wrapper.
+
+### What was tricky to build
+- The main tricky part was drawing a boundary between "generic helper" and "domain-specific carryover." Calendar, media, and money fields are reusable in some domains, but they are not universal for logs, agents, workflows, events, and dense tables. The solution was to classify widgets into always-present baseline, useful optional/dashboard-adjacent widgets, and domain packs.
+- Another tricky part was preserving DMETA's semantic emphasis. The recommendation does not replace `PresentationToken`, `RecordStream`, `DenseTable`, `DetailDrawer`, or `ActionPalette`; it adds the boring infrastructure those widgets need to live in generated applications.
+
+### What warrants a second pair of eyes
+- Whether `ComparisonTable` belongs in Tier 1 baseline or should remain optional until comparison flows are implemented.
+- Whether `OverlaySurface` should be public widget IR or internal infrastructure behind `DetailDrawer`, `ConfirmDialog`, and action parameter forms.
+- Whether `DateField` and `TimeField` should remain separate or become one `DateTimeField` in DMETA.
+
+### What should be done in the future
+- Split `dmeta/sources/dmeta-ir/03-widgets.yaml` into a widget package similar to the split core model.
+- Add baseline helper widgets as draft IR entries with rich prose.
+- Update the validator to load split widget packages and warn on missing descriptive fields.
+- Keep optional packs separate: dashboard, markdown/preview, calendar, media, finance/commerce.
+
+### Code review instructions
+- Start with the new design doc: `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/02-generic-widget-baseline-for-dense-operational-design-systems.md`.
+- Compare the mapping table against Hair Booking source files under `/home/manuel/workspaces/2026-05-19/dmeta-dsl/hair-booking/ttmp/2026/05/15/HAIR-041--real-admin-backend-for-intake-app/sources/admin-dsl-widget-ir/`.
+- Validate doc metadata with `docmgr doctor --ticket DMETA-001 --stale-after 30`.
+
+### Technical details
+- Main DMETA source compared: `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/03-widgets.yaml`.
+- Main Hair Booking sources compared: `03-shell-widgets.yaml`, `04-action-widgets.yaml`, `05-layout-widgets.yaml`, `06-resource-widgets.yaml`, `07-data-display-widgets.yaml`, `10-form-widgets.yaml`, `10a-form-field-widgets.yaml`, and `11-surface-widgets.yaml`.
+
+### Upload completion
+Uploaded the new design document to reMarkable:
+
+```text
+OK: uploaded DMETA_001_Generic_Widget_Baseline.pdf -> /ai/2026/05/19/DMETA-001
+```
