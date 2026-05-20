@@ -173,7 +173,7 @@ Hard-rule candidates for later:
 
 Base palette:
 
-- Neutral background: warm off-white, paper, cool gray, or muted light surface.
+- Neutral background: subtle cool grey, neutral grey, white panel, or muted light surface. No decorative background noise.
 - Primary text: near-black or high-contrast dark gray.
 - Secondary text: 60-75% perceived intensity of primary text.
 - Muted metadata: 45-60% perceived intensity.
@@ -465,7 +465,7 @@ theme_axes:
   density:
     values: [compact, regular, spacious]
   neutral_tone:
-    values: [warm_paper, cool_gray, white_panel, dark_console]
+    values: [subtle_cool_gray, neutral_gray, white_panel, dark_console]
   type_mode:
     values: [mono_only, sans_with_mono, sans_only_with_tabular]
   radius:
@@ -574,7 +574,7 @@ Once hard values exist, linting can check:
 
 1. Should the default concrete instance be mono-only or sans+mono?
 2. Should dark mode be a first-class archetype variant or a later theme?
-3. How much decorative texture is allowed (paper grain, grid dots) before it becomes theme-specific rather than archetypal?
+3. How subtle should the neutral background contrast/temperature be before it starts competing with dense operational content?
 4. Which components require minimum hit targets that conflict with dense row heights, and how should the design reconcile them?
 5. Should row striping be a theme knob or a data-density requirement?
 6. How strict should presentation token affordances be: underline-on-hover, background-on-hover, explicit chip, or configurable by density/theme?

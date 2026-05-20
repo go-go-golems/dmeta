@@ -110,8 +110,8 @@ theme_axes:
     values: [compact, regular, spacious]
     default: regular
   neutral_tone:
-    values: [warm_paper, cool_gray, white_panel, dark_console]
-    default: warm_paper
+    values: [subtle_cool_gray, neutral_gray, white_panel, dark_console]
+    default: subtle_cool_gray
   type_mode:
     values: [mono_only, sans_with_mono, sans_only_with_tabular]
     default: sans_with_mono
@@ -249,8 +249,8 @@ Validation rules:
 color:
   neutral_roles:
     background:
-      range: [warm_off_white, cool_gray, white]
-      purpose: Main application surface.
+      range: [subtle_cool_gray, neutral_gray, white]
+      purpose: Main application surface. Must remain texture-free and visually quiet.
     surface:
       purpose: Panels, drawers, cards, floating surfaces.
     text_primary:

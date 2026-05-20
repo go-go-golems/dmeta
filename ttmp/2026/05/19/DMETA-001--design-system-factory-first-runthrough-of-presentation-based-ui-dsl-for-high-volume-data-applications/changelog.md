@@ -59,3 +59,8 @@ Created minimal v0 DMETA IR YAML sources under dmeta/sources/dmeta-ir/: 00-index
 
 Completed the concrete v0 documentation/YAML pass with logical commits. Ran docmgr doctor successfully after each major step and kept the diary/changelog current. Commits created: foundation docs, concrete system spec, core/widget spec, design-language/tooling spec, and minimal IR sources.
 
+
+## 2026-05-19
+
+Updated the design-system visual direction to remove paper/grain/texture references. The target is now explicitly sober, subtle cool-grey/neutral, low-chrome, and texture-free. Updated long-term design docs and dmeta/sources/dmeta-ir/02-design-language.yaml; validator still passes.
+

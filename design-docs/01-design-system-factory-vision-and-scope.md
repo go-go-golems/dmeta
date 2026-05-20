@@ -112,7 +112,7 @@ The aesthetic is an archetype rather than a single theme. The two existing refer
 
 #### From image-collector
 - Programme № 1 CSS: 1 family · 1 weight · 2 sizes · 2 cases · 3 values · 4 roles
-- Paper grain texture overlay
+- Subtle cool-grey/neutral surfaces with no decorative background noise
 - Zero-radius scrollbars
 - Ink selection highlight
 - Strict typographic hierarchy: no font-size or font-weight outside the four roles
@@ -164,7 +164,7 @@ The design language is not "a theme." It is a constraint system for producing ca
 - Status/category color used sparingly and semantically
 - Low chrome; visual distinction comes from typography, spacing, alignment, and carefully constrained contrast
 
-A concrete app may choose Berkeley Mono and paper/ink, or a related sober palette and typeface. What must remain stable is the information-design archetype: dense, legible, restrained, and semantically colored.
+A concrete app may choose Berkeley Mono with a subtle cool-grey neutral palette, or a related sober palette and typeface. What must remain stable is the information-design archetype: dense, legible, restrained, texture-free, and semantically colored.
 
 ## Alternatives Considered
 
@@ -196,7 +196,7 @@ Following the Collaborative Schema Design Sessions playbook:
 2. **How do domain mappings work?** For example, Agent/Customer/Warehouse/Carrier can all map to Actor in different applications, while ToolCall/ShipmentStep/BuildJob can map to Work Item or Event.
 3. **Which presentation variants are archetypal vs domain-specific?** Compact reference, inline token, dense row, summary card, detail panel, timeline marker, status badge.
 4. **How generic should streaming semantics be?** Does the archetype layer need notions like append-only stream, mutable process, finite pipeline, and historical ledger?
-5. **How strict is the graphic design archetype?** Which constraints are mandatory (density, typographic hierarchy, sober palette), and which are theme choices (exact font, paper texture, accent colors)?
+5. **How strict is the graphic design archetype?** Which constraints are mandatory (density, typographic hierarchy, sober texture-free neutral palette), and which are theme choices (exact font, neutral temperature, accent colors)?
 6. **Tailwind integration with design tokens**: how tightly should the generated design helpers couple to Tailwind's config vs. plain CSS custom properties?
 
 ## Related Artifacts

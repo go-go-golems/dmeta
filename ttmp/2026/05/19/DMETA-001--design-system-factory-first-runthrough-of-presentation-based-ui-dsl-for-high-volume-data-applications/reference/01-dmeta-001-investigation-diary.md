@@ -98,7 +98,7 @@ The semantic layer should define **archetypes** such as:
 
 Application-specific domain entities then map onto these archetypes. Example: `Agent` in an agent dashboard and `Carrier` in a logistics dashboard can both map to Actor for purposes of presentation, filtering, selection, and action dispatch.
 
-The graphic design layer should also be treated as an archetype, not a fixed theme. The target is sober, dense, typographic, low-chrome information UI. Berkeley Mono / paper-and-ink is one instance, not the universal output.
+The graphic design layer should also be treated as an archetype, not a fixed theme. The target is sober, dense, typographic, low-chrome information UI with subtle cool-grey/neutral texture-free surfaces. Berkeley Mono with a cool neutral palette is one instance, not the universal output.
 
 ### Consequence
 The first real design session should define:
@@ -341,3 +341,23 @@ Ran `docmgr doctor --ticket DMETA-001 --stale-after 30`; all checks passed. Mark
 
 ### Remaining work
 The concrete docs and YAML source artifacts are drafts. The next implementation step is to build `01-validate-dmeta-ir.ts` or a small equivalent validator to enforce the references and invariants now described in the specs.
+
+## 2026-05-19 — Visual design correction: no texture/grain
+
+### What changed
+The user clarified that the design system should not include paper grain, texture overlays, or any decorative background noise. The intended visual archetype is sober, subtle cool-grey/neutral, low-chrome, and visually quiet — closer to a clean dense operational surface than a textured paper metaphor.
+
+### Files updated
+- `dmeta/design-docs/01-design-system-factory-vision-and-scope.md`
+- `dmeta/design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md`
+- `dmeta/design-docs/06-dmeta-design-language-and-tooling-spec.md`
+- `dmeta/sources/dmeta-ir/02-design-language.yaml`
+
+### Validation
+Searched the long-term docs and DMETA source IR for paper/grain/warm-paper references and removed/replaced them. Ran:
+
+```bash
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+```
+
+The validator emitted `validation_ok` with no error-severity findings.
