@@ -173,3 +173,14 @@ Phases 2-3: Added street-deli-ordering instantiation manifest/local templates an
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/cmds/scaffold_instance.go — CLI command for selected-template scaffolding
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/generator/widgets/render.go — Instance widget scaffold renderer
 
+
+## 2026-05-20
+
+Phase 4: Validated split widget-template IR, ran Go tests, and confirmed DMETA-001 docmgr hygiene after street-deli instance generation.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/instantiations/street-deli-ordering.yaml — Validated generation through scaffold-instance
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/03-widgets.yaml — Validated widget-template package index
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/reference/01-dmeta-001-investigation-diary.md — Diary updated for phases
+

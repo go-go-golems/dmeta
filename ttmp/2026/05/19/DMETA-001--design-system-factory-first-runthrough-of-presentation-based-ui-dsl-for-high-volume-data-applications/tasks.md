@@ -25,4 +25,4 @@
 - [x] Phase 1: Cleanly cut over widget IR to a split widget-templates package (no backwards-compatibility wrapper).
 - [x] Phase 2: Add an instantiations directory model and create the street-deli-ordering instance manifest under examples/street-deli-ordering/.
 - [x] Phase 3: Implement/adjust generator support for selected widget templates and generate street-deli-ordering code under the example directory.
-- [ ] Phase 4: Validate IR/generated code, update diary/changelog, and commit at logical boundaries.
+- [x] Phase 4: Validate IR/generated code, update diary/changelog, and commit at logical boundaries.
