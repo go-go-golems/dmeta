@@ -25,12 +25,30 @@ templates:
     - Which menu archetypes in this concrete ordering system require this widget?
     - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
     adaptation_points:
-    - component_name
-    - mobile_layout
-    - presentation_mapping
-    - copy_and_labels
-    - action_slots
-    - story_examples
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      mobile_layout:
+        type: any
+        required: false
+        description: Mobile-specific layout, surface, and touch target choices.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      copy_and_labels:
+        type: any
+        required: false
+        description: Instance-specific labels, helper text, and operator-facing copy.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
+      story_examples:
+        type: any
+        required: false
+        description: Instance-specific adaptation for story examples.
     common_variants:
     - bottom_sheet
     - full_screen_mobile
@@ -97,12 +115,30 @@ templates:
     - Which menu archetypes in this concrete ordering system require this widget?
     - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
     adaptation_points:
-    - component_name
-    - mobile_layout
-    - presentation_mapping
-    - copy_and_labels
-    - action_slots
-    - story_examples
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      mobile_layout:
+        type: any
+        required: false
+        description: Mobile-specific layout, surface, and touch target choices.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      copy_and_labels:
+        type: any
+        required: false
+        description: Instance-specific labels, helper text, and operator-facing copy.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
+      story_examples:
+        type: any
+        required: false
+        description: Instance-specific adaptation for story examples.
     common_variants:
     - stepper
     - single_screen_sections
@@ -160,12 +196,30 @@ templates:
     - Which menu archetypes in this concrete ordering system require this widget?
     - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
     adaptation_points:
-    - component_name
-    - mobile_layout
-    - presentation_mapping
-    - copy_and_labels
-    - action_slots
-    - story_examples
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      mobile_layout:
+        type: any
+        required: false
+        description: Mobile-specific layout, surface, and touch target choices.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      copy_and_labels:
+        type: any
+        required: false
+        description: Instance-specific labels, helper text, and operator-facing copy.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
+      story_examples:
+        type: any
+        required: false
+        description: Instance-specific adaptation for story examples.
     common_variants:
     - mobile_default
     avoid_when:
@@ -215,12 +269,30 @@ templates:
     - Which menu archetypes in this concrete ordering system require this widget?
     - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
     adaptation_points:
-    - component_name
-    - mobile_layout
-    - presentation_mapping
-    - copy_and_labels
-    - action_slots
-    - story_examples
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      mobile_layout:
+        type: any
+        required: false
+        description: Mobile-specific layout, surface, and touch target choices.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      copy_and_labels:
+        type: any
+        required: false
+        description: Instance-specific labels, helper text, and operator-facing copy.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
+      story_examples:
+        type: any
+        required: false
+        description: Instance-specific adaptation for story examples.
     common_variants:
     - mobile_default
     avoid_when:

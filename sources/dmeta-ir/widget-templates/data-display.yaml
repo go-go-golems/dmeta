@@ -24,9 +24,18 @@ templates:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
     - Which selected presentations/actions should this template expose?
     adaptation_points:
-    - value_renderers
-    - grouping
-    - copy_behavior
+      value_renderers:
+        type: any
+        required: false
+        description: Instance-specific adaptation for value renderers.
+      grouping:
+        type: any
+        required: false
+        description: Instance-specific adaptation for grouping.
+      copy_behavior:
+        type: any
+        required: false
+        description: Instance-specific adaptation for copy behavior.
     common_variants:
     - plain
     - grouped
@@ -81,9 +90,18 @@ templates:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
     - Which selected presentations/actions should this template expose?
     adaptation_points:
-    - comparison_axis
-    - highlight_rules
-    - unit_compatibility
+      comparison_axis:
+        type: any
+        required: false
+        description: Instance-specific adaptation for comparison axis.
+      highlight_rules:
+        type: any
+        required: false
+        description: Instance-specific adaptation for highlight rules.
+      unit_compatibility:
+        type: any
+        required: false
+        description: Instance-specific adaptation for unit compatibility.
     common_variants:
     - metric_comparison
     - candidate_comparison
@@ -143,9 +161,18 @@ templates:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
     - Which selected presentations/actions should this template expose?
     adaptation_points:
-    - sanitization
-    - allowed_elements
-    - code_highlighting
+      sanitization:
+        type: any
+        required: false
+        description: Instance-specific adaptation for sanitization.
+      allowed_elements:
+        type: any
+        required: false
+        description: Instance-specific adaptation for allowed elements.
+      code_highlighting:
+        type: any
+        required: false
+        description: Instance-specific adaptation for code highlighting.
     common_variants:
     - read_only
     - collapsible
@@ -191,9 +218,18 @@ templates:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
     - Which selected presentations/actions should this template expose?
     adaptation_points:
-    - sandboxing
-    - preview_kind
-    - fallback_behavior
+      sandboxing:
+        type: any
+        required: false
+        description: Instance-specific adaptation for sandboxing.
+      preview_kind:
+        type: any
+        required: false
+        description: Instance-specific adaptation for preview kind.
+      fallback_behavior:
+        type: any
+        required: false
+        description: Instance-specific adaptation for fallback behavior.
     common_variants:
     - image
     - document

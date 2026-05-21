@@ -329,14 +329,21 @@ type Widget struct {
 }
 
 type TemplateMetadata struct {
-	Category           string   `yaml:"category"`
-	Selection          string   `yaml:"selection"`
-	Maturity           string   `yaml:"maturity"`
-	DefaultImportance  string   `yaml:"default_importance"`
-	SelectionQuestions []string `yaml:"selection_questions"`
-	AdaptationPoints   []string `yaml:"adaptation_points"`
-	CommonVariants     []string `yaml:"common_variants"`
-	AvoidWhen          []string `yaml:"avoid_when"`
+	Category           string                     `yaml:"category"`
+	Selection          string                     `yaml:"selection"`
+	Maturity           string                     `yaml:"maturity"`
+	DefaultImportance  string                     `yaml:"default_importance"`
+	SelectionQuestions []string                   `yaml:"selection_questions"`
+	AdaptationPoints   map[string]AdaptationPoint `yaml:"adaptation_points"`
+	CommonVariants     []string                   `yaml:"common_variants"`
+	AvoidWhen          []string                   `yaml:"avoid_when"`
+}
+
+type AdaptationPoint struct {
+	Type                string   `yaml:"type"`
+	Required            bool     `yaml:"required"`
+	RequiredForVariants []string `yaml:"required_for_variants"`
+	Description         string   `yaml:"description"`
 }
 
 type WidgetIntent struct {

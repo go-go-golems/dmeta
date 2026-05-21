@@ -99,6 +99,19 @@ func ValidateInstanceAgainstCatalog(instance InstanceManifest, catalog TemplateC
 		if selected.Variant != "" && len(widget.Template.CommonVariants) > 0 && !contains(widget.Template.CommonVariants, selected.Variant) {
 			findings = append(findings, PlanFinding{Severity: "warning", Subject: selected.Template, Code: "variant_not_declared", Message: "selected variant is not listed in template.common_variants", Detail: selected.Variant})
 		}
+		for key := range selected.Adaptations {
+			if _, ok := widget.Template.AdaptationPoints[key]; !ok {
+				findings = append(findings, PlanFinding{Severity: "warning", Subject: selected.Template, Code: "unknown_adaptation", Message: "selected adaptation is not declared by template.adaptation_points", Detail: key})
+			}
+		}
+		for key, point := range widget.Template.AdaptationPoints {
+			if !adaptationRequiredForVariant(point, selected.Variant) {
+				continue
+			}
+			if _, ok := selected.Adaptations[key]; !ok {
+				findings = append(findings, PlanFinding{Severity: "error", Subject: selected.Template, Code: "missing_required_adaptation", Message: "selected template is missing a required adaptation", Detail: key})
+			}
+		}
 	}
 	for _, excluded := range instance.ExcludedTemplates {
 		if _, ok := catalog.Templates[excluded.Template]; !ok {
@@ -150,6 +163,16 @@ func hasPlanErrors(findings []PlanFinding) bool {
 		}
 	}
 	return false
+}
+
+func adaptationRequiredForVariant(point validator.AdaptationPoint, variant string) bool {
+	if point.Required {
+		return true
+	}
+	if variant == "" {
+		return false
+	}
+	return contains(point.RequiredForVariants, variant)
 }
 
 func contains(values []string, value string) bool {

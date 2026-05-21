@@ -61,11 +61,26 @@ templates:
     selection_questions:
     - Does this instance need PresentationToken as a concrete component or can another selected template cover the same role?
     adaptation_points:
-    - component_name
-    - props
-    - stories
-    - presentation_mapping
-    - action_slots
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      props:
+        type: any
+        required: false
+        description: Concrete prop surface and view-model shape for the selected instance.
+      stories:
+        type: any
+        required: false
+        description: Storybook scenarios relevant to the selected variant and instance.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
     common_variants:
     - default
     avoid_when:
@@ -122,11 +137,26 @@ templates:
     selection_questions:
     - Does this instance need StatusBadge as a concrete component or can another selected template cover the same role?
     adaptation_points:
-    - component_name
-    - props
-    - stories
-    - presentation_mapping
-    - action_slots
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      props:
+        type: any
+        required: false
+        description: Concrete prop surface and view-model shape for the selected instance.
+      stories:
+        type: any
+        required: false
+        description: Storybook scenarios relevant to the selected variant and instance.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
     common_variants:
     - default
     avoid_when:
@@ -189,11 +219,26 @@ templates:
     selection_questions:
     - Does this instance need CompactReference as a concrete component or can another selected template cover the same role?
     adaptation_points:
-    - component_name
-    - props
-    - stories
-    - presentation_mapping
-    - action_slots
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      props:
+        type: any
+        required: false
+        description: Concrete prop surface and view-model shape for the selected instance.
+      stories:
+        type: any
+        required: false
+        description: Storybook scenarios relevant to the selected variant and instance.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
     common_variants:
     - default
     avoid_when:
@@ -255,11 +300,26 @@ templates:
     selection_questions:
     - Does this instance need MetricCell as a concrete component or can another selected template cover the same role?
     adaptation_points:
-    - component_name
-    - props
-    - stories
-    - presentation_mapping
-    - action_slots
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      props:
+        type: any
+        required: false
+        description: Concrete prop surface and view-model shape for the selected instance.
+      stories:
+        type: any
+        required: false
+        description: Storybook scenarios relevant to the selected variant and instance.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
     common_variants:
     - default
     avoid_when:

@@ -248,3 +248,16 @@ Phase 7: Updated system specs and README for widget-template packages, instance 
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/07-generated-instance-widget-review-guide.md — New review guide for generated/promoted instance widgets
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/scripts/03-update-widget-template-docs.py — Ticket script for documentation update
 
+
+## 2026-05-20
+
+Phase 6: Finished validation hardening by converting adaptation_points to formal schemas and validating required/missing adaptations in plan-instance/scaffold-instance.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/widget-templates/menu-browsing.yaml — Local templates now use adaptation-point schemas
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/generator/widgets/load.go — Validates unknown and missing required adaptations
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/validator/model.go — Added AdaptationPoint schema model
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/widget-templates/filters.yaml — Global templates now use adaptation-point schemas
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/scripts/04-convert-adaptation-points-to-schema.py — Ticket migration script for schema conversion
+

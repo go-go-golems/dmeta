@@ -18,6 +18,25 @@ WT = EXAMPLE / "widget-templates"
 INST = EXAMPLE / "instantiations"
 
 
+
+
+def adaptation_schema(points: list[str] | None) -> dict[str, dict[str, object]]:
+    base = points or [
+        "component_name",
+        "props",
+        "stories",
+        "presentation_mapping",
+        "action_slots",
+    ]
+    return {
+        p: {
+            "type": "any",
+            "required": False,
+            "description": f"Instance-specific adaptation for {p.replace('_', ' ')}.",
+        }
+        for p in base
+    }
+
 def meta(category: str, selection="optional", variants=None, points=None, avoid=None, questions=None):
     return {
         "category": category,
@@ -28,14 +47,7 @@ def meta(category: str, selection="optional", variants=None, points=None, avoid=
             "Which menu archetypes in this concrete ordering system require this widget?",
             "Should this be generated from the shared menu-ordering template or replaced with a more specific local template?",
         ],
-        "adaptation_points": points or [
-            "component_name",
-            "mobile_layout",
-            "presentation_mapping",
-            "copy_and_labels",
-            "action_slots",
-            "story_examples",
-        ],
+        "adaptation_points": adaptation_schema(points),
         "common_variants": variants or ["mobile_default"],
         "avoid_when": avoid or [
             "The menu type does not expose this interaction.",

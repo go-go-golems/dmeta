@@ -1533,3 +1533,71 @@ The documentation now states the key invariant directly: widget records in the g
 - Review `design-docs/04-concrete-dmeta-system-spec.md` for artifact layout accuracy.
 - Review the new update section in `design-docs/05-dmeta-core-model-and-widget-ir-spec.md`.
 - Review `design-docs/07-generated-instance-widget-review-guide.md` for promotion guidance.
+
+## Step 18: Phase 6 — Formal Adaptation-Point Schemas and Validation
+
+This step finished the remaining Phase 6 validation-hardening task. Template adaptation points were previously represented as a list of names. That was enough for documentation, but not enough for validation. The model now treats `template.adaptation_points` as a map of named adaptation-point schemas.
+
+The planner can now validate required adaptations. A template can mark an adaptation point as globally required or required only for selected variants. `plan-instance` and `scaffold-instance` share the validation path, so scaffolding will fail before writing files if a selected template is missing a required adaptation.
+
+### Prompt Context
+
+**User prompt (verbatim):** (same as Step 17)
+
+**Assistant interpretation:** After completing Phase 7 docs, return to Phase 6 and finish the remaining adaptation-schema validation work.
+
+**Inferred user intent:** Make instance planning robust enough to catch missing adaptation decisions before code is generated.
+
+**Commit (code):** N/A — pending commit at diary-writing time.
+
+### What I did
+- Added a formal adaptation-point schema type in `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/validator/model.go`:
+  - `type`
+  - `required`
+  - `required_for_variants`
+  - `description`
+- Changed `TemplateMetadata.AdaptationPoints` from `[]string` to `map[string]AdaptationPoint`.
+- Updated `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/generator/widgets/load.go` so instance validation now checks:
+  - unknown selected adaptations;
+  - missing globally required adaptations;
+  - missing adaptations required for the selected variant.
+- Added and ran the ticket script:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/scripts/04-convert-adaptation-points-to-schema.py`
+- Converted all global and Street Deli local widget templates from list-style adaptation points to schema maps.
+- Updated the earlier ticket scripts that generate template files so they now emit adaptation-point schemas rather than old list syntax.
+- Ran `plan-instance` for both Street Deli manifests, plus IR validation, Go tests, and docmgr doctor.
+
+### Why
+- The widget-template model depends on explicit adaptation. If templates only list adaptation names, tooling cannot tell whether an instance forgot a required decision.
+- Required adaptation-point schemas are the foundation for stricter instance planning and future CI validation.
+
+### What worked
+- Both Street Deli instances still plan cleanly after the schema conversion.
+- Existing templates did not require specific adaptations yet, so no instance manifest needed new `adaptations` blocks.
+- The shared validation path means `scaffold-instance` benefits from the same checks as `plan-instance`.
+
+### What didn't work
+- I briefly used `/tmp` output redirection while checking planner output. I removed the temporary files and reran visible plan commands without writing logs. Persistent scripts and artifacts are kept in the ticket workspace or repository.
+
+### What I learned
+- Adaptation metadata needs to be structured before it can become enforceable. A list of names is useful prose, but a map of schemas is toolable.
+- The next useful hardening step would be typed validation of adaptation values, not only presence/absence.
+
+### What was tricky to build
+- The tricky part was changing the schema without breaking all existing templates. I used a ticket script to convert both global and local template files consistently.
+- Another tricky point was keeping historical scripts valid. The earlier template-generation scripts now emit schema maps too, so rerunning them should not reintroduce the obsolete list shape.
+
+### What warrants a second pair of eyes
+- Whether `type: any` is acceptable as the initial default or whether common adaptation-point types should be enumerated now.
+- Whether missing required adaptations should always be error-severity or configurable as warning during early design sessions.
+
+### What should be done in the future
+- Validate adaptation value types against the declared schema.
+- Add `required_for_variants` to templates that genuinely need concrete instance decisions, such as autocomplete search sources.
+- Add JSON/Markdown output modes for `plan-instance` so planning reports can be attached to reviews.
+
+### Code review instructions
+- Review `pkg/dmeta/validator/model.go` for the adaptation schema type.
+- Review `pkg/dmeta/generator/widgets/load.go` for required adaptation validation.
+- Inspect any widget template file and confirm `template.adaptation_points` is now a map, not a list.
+- Run both Street Deli `plan-instance` commands.
