@@ -47,3 +47,11 @@ type GeneratedFile struct {
 	Path    string
 	Content []byte
 }
+
+type PlanFinding struct {
+	Severity string
+	Subject  string
+	Code     string
+	Message  string
+	Detail   string
+}

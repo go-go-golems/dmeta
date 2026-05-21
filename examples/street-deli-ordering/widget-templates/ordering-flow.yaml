@@ -469,7 +469,8 @@ templates:
     - action_slots
     - story_examples
     common_variants:
-    - mobile_default
+    - compact_mode
+    - regular
     avoid_when:
     - The concrete ordering flow does not expose this part of the menu/customization/cart lifecycle.
   consumes: {}
