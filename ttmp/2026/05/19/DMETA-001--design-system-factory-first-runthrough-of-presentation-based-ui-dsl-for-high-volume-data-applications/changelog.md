@@ -199,3 +199,15 @@ Phase 5: Expanded global widget-template catalog to 48 templates across filters,
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/widget-templates/states.yaml — New empty/loading/error/state templates
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/scripts/01-expand-widget-templates.py — Reproducible ticket script for the catalog expansion
 
+
+## 2026-05-20
+
+Phase 6: Added dmeta plan-instance and shared instance/catalog validation before scaffolding; fixed Street Deli RoleTag variant metadata.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/widget-templates/ordering-flow.yaml — Declared RoleTag compact_mode variant used by the instance manifest
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/cmds/plan_instance.go — New plan-instance CLI command
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/generator/widgets/load.go — Shared template catalog loading and instance validation
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/tasks.md — Updated Phase 6 task status and remaining adaptation-schema task
+

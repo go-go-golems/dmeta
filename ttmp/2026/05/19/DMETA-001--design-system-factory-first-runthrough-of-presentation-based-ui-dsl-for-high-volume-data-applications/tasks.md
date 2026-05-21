@@ -71,11 +71,12 @@
   - [x] Validate references against core-model presentations/capabilities/archetypes.
 
 - [ ] Phase 6: Instance planning and validation hardening
-  - [ ] Add `dmeta plan-instance` before further scaffolding work.
-  - [ ] Add validator support for `dmeta_instance` manifests.
-  - [ ] Validate selected template ids, duplicate `as` names, local template files, and required adaptation points.
-  - [ ] Validate exclusions reference known templates.
-  - [ ] Report selected, excluded, auto-included, and missing-decision templates.
+  - [x] Add `dmeta plan-instance` before further scaffolding work.
+  - [x] Add validator support for `dmeta_instance` manifests.
+  - [x] Validate selected template ids, duplicate `as` names, local template files, declared variants, and selection/exclusion reasons.
+  - [ ] Add formal required adaptation-point schemas and validate missing required adaptations.
+  - [x] Validate exclusions reference known templates.
+  - [x] Report selected, excluded, auto-included, and missing-decision templates.
 
 - [ ] Phase 7: Documentation/spec follow-up
   - [ ] Update `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` to describe widget-template packages and instance manifests.

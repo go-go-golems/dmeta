@@ -1207,3 +1207,95 @@ GOWORK=off go test ./...
 ### Technical details
 - Total global template count after this phase: 48.
 - No generated street-deli widgets changed in this phase.
+
+## Step 15: Phase 6 — Add Instance Planning Before Scaffolding
+
+This step added the first instance-planning command so concrete DMETA instances can be checked before code is generated. The planner loads the global template catalog, merges any local template files declared by the instance manifest, validates selected and excluded template references, and reports the selected/excluded plan as a table.
+
+This makes the generation workflow safer: authors can run `plan-instance` to see exactly which templates will become concrete widgets, which templates are intentionally excluded, and which manifest issues need attention before `scaffold-instance` writes files.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Continue."
+
+**Assistant interpretation:** Continue the next task phase after expanding the global widget-template catalog, focusing on Phase 6: instance planning and validation hardening.
+
+**Inferred user intent:** Keep progressing through the detailed task list rather than stopping at catalog expansion.
+
+**Commit (code):** N/A — pending commit at diary-writing time.
+
+### What I did
+- Added `dmeta plan-instance` CLI command in:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/cmds/plan_instance.go`
+- Registered it in:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/cmd/dmeta/main.go`
+- Refactored widget instance loading in:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/generator/widgets/load.go`
+- Added planning/validation support for:
+  - loading global template catalogs;
+  - merging local instance template files;
+  - validating selected template ids;
+  - validating excluded template ids;
+  - detecting duplicate selected component aliases;
+  - warning on missing selection/exclusion reasons;
+  - warning when selected variants are not declared in `template.common_variants`.
+- Updated `scaffold-instance` to reuse the same validation path and fail fast when the instance plan has errors.
+- Fixed the Street Deli local `RoleTag` template so its selected `compact_mode` variant is declared.
+- Ran:
+
+```bash
+GOWORK=off go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+GOWORK=off go test ./...
+docmgr doctor --ticket DMETA-001 --stale-after 30
+```
+
+### Why
+- Planning should precede scaffolding so instance authors can see selected and excluded templates before files are written.
+- The Street Deli instance now acts as a real pressure test for local template merging and exclusion validation.
+- Reusing validation in `scaffold-instance` avoids separate behaviors between planning and generation.
+
+### What worked
+- `plan-instance` reports selected Street Deli templates with concrete component names, variants, categories, status, and reasons.
+- It also reports explicitly excluded global templates with reasons.
+- After fixing the `RoleTag` variant metadata, the Street Deli plan has no warning/error rows.
+- Go tests and IR validation still pass.
+
+### What didn't work
+- The first planner run warned:
+
+```text
+variant_not_declared | deli.role_tag | selected variant is not listed in template.common_variants: compact_mode
+```
+
+- This was a useful validation catch. I fixed the local template by adding `compact_mode` and `regular` to `deli.role_tag.template.common_variants`.
+
+### What I learned
+- Even lightweight planning catches real metadata drift between instance manifests and local templates.
+- Local templates need the same quality bar as global templates: if an instance selects a variant, the template should declare that variant.
+- `scaffold-instance` should never have a weaker validation path than `plan-instance`.
+
+### What was tricky to build
+- The main tricky point was factoring template catalog loading so both commands share it. `LoadTemplateCatalog` now loads global templates plus local files; `ValidateInstanceAgainstCatalog` performs manifest checks; `ResolveTemplates` reuses that validation before returning concrete templates.
+- Required adaptation-point validation is not implemented yet because adaptation points are currently a list of names, not a typed schema with required/optional status. I split that into a remaining explicit task.
+
+### What warrants a second pair of eyes
+- Whether `plan-instance` should be moved from generator/widgets into a validator package once instance validation becomes more formal.
+- Whether warnings should cause non-zero exits in CI or remain informational until formal schemas exist.
+- Whether `common_variants` should become a map with descriptions and required adaptation points.
+
+### What should be done in the future
+- Add formal adaptation-point schemas and validate required adaptations.
+- Add auto-included dependencies/conflict detection.
+- Add markdown/JSON output examples for plan reports.
+- Use `plan-instance` before every future scaffold or regeneration step.
+
+### Code review instructions
+- Start with `pkg/dmeta/cmds/plan_instance.go` for CLI behavior.
+- Then read `pkg/dmeta/generator/widgets/load.go` for shared catalog loading and validation.
+- Run the Street Deli plan command and confirm no warnings/errors are reported.
+
+### Technical details
+- `plan-instance` returns an error only for error-severity findings.
+- Missing reasons and undeclared variants are warnings.
+- `scaffold-instance` now fails if `ValidateInstanceAgainstCatalog` returns any error-severity finding.
