@@ -23,6 +23,6 @@
 - [x] Draft dmeta/sources/dmeta-ir/03-widgets.yaml with the first generic dense-operational widget classes
 - [x] Validate docmgr hygiene, update diary/changelog, and commit work at logical intervals
 - [x] Phase 1: Cleanly cut over widget IR to a split widget-templates package (no backwards-compatibility wrapper).
-- [ ] Phase 2: Add an instantiations directory model and create the street-deli-ordering instance manifest under examples/street-deli-ordering/.
-- [ ] Phase 3: Implement/adjust generator support for selected widget templates and generate street-deli-ordering code under the example directory.
+- [x] Phase 2: Add an instantiations directory model and create the street-deli-ordering instance manifest under examples/street-deli-ordering/.
+- [x] Phase 3: Implement/adjust generator support for selected widget templates and generate street-deli-ordering code under the example directory.
 - [ ] Phase 4: Validate IR/generated code, update diary/changelog, and commit at logical boundaries.
