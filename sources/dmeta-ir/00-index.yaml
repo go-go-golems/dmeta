@@ -24,11 +24,12 @@ artifacts:
       - scaffold-dmeta-widgets
   widgets:
     path: ./03-widgets.yaml
-    artifact_type: dmeta_widget_ir
-    description: Generic dense-operational widget classes and contracts.
+    artifact_type: dmeta_widget_template_package
+    description: Split widget-template package index for selectable/adaptable concrete instance widgets.
     consumers:
       - validate-dmeta-ir
-      - scaffold-dmeta-widgets
+      - plan-dmeta-instance
+      - scaffold-dmeta-instance
       - validate-widget-promotion
 
 references:

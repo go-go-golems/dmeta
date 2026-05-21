@@ -1,0 +1,77 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: tables
+summary: DMETA tables widget templates.
+long_summary: Templates in this file are selectable/adaptable tables starting points for concrete DMETA instances.
+templates:
+- id: dmeta.dense_table
+  name: DenseTable
+  status: template
+  classification:
+    level: organism
+    role: dense_table
+  intent:
+    purpose: Render sortable/filterable dense records with presentation-aware cells.
+    adapter_boundary: Receives normalized columns/rows and emits typed row/cell callbacks.
+  consumes:
+    archetypes:
+    - WorkItem
+    - Resource
+    - Actor
+    - Metric
+    presentations:
+    - dense_row
+    - compact_ref
+    - status_badge
+    - state_cell
+    - metric_cell
+    - timestamp_inline
+  contract:
+    props:
+      DenseTableProps:
+        fields:
+          columns:
+            type: DenseTableColumn[]
+            required: true
+          rows:
+            type: DenseTableRow[]
+            required: true
+          density:
+            type: DensityMode
+            required: false
+    action_slots:
+      onCellAction:
+        accepts: PresentationRef
+      onRowAction:
+        accepts: PresentationRef
+      onSort:
+        accepts: DenseTableSort
+  stories:
+  - work_items
+  - shipments
+  - metrics
+  - selected_rows
+  - filtered_state
+  outputs:
+    component: src/dmeta/widgets/DenseTable/DenseTable.tsx
+    types: src/dmeta/widgets/DenseTable/DenseTable.types.ts
+    metadata: src/dmeta/widgets/DenseTable/DenseTable.metadata.ts
+    stories: src/dmeta/widgets/DenseTable/DenseTable.stories.tsx
+    barrel: src/dmeta/widgets/DenseTable/index.ts
+  template:
+    category: tables
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this instance need DenseTable as a concrete component or can another selected template cover the same role?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    common_variants:
+    - default
+    avoid_when:
+    - The concrete instance has no workflow matching this template role.

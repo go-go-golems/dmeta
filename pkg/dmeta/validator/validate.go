@@ -57,7 +57,7 @@ func validateArtifactIdentity(pkg *Package) []Finding {
 		{"index", "artifact_type", pkg.Index.ArtifactType, "dmeta_ir_index", pkg.Index.SchemaVersion},
 		{"core_model", "artifact_type", pkg.CoreModel.ArtifactType, "dmeta_core_model", pkg.CoreModel.SchemaVersion},
 		{"design_language", "artifact_type", pkg.DesignLanguage.ArtifactType, "dmeta_design_language", pkg.DesignLanguage.SchemaVersion},
-		{"widgets", "artifact_type", pkg.Widgets.ArtifactType, "dmeta_widget_ir", pkg.Widgets.SchemaVersion},
+		{"widgets", "artifact_type", pkg.Widgets.ArtifactType, "dmeta_widget_template_package", pkg.Widgets.SchemaVersion},
 	}
 	for _, c := range checks {
 		if c.got != c.want {
@@ -75,7 +75,7 @@ func validateIndex(pkg *Package) []Finding {
 	expected := map[string]string{
 		"core_model":      "dmeta_core_model",
 		"design_language": "dmeta_design_language",
-		"widgets":         "dmeta_widget_ir",
+		"widgets":         "dmeta_widget_template_package",
 	}
 	loadedTypes := map[string]string{
 		"core_model":      pkg.CoreModel.ArtifactType,

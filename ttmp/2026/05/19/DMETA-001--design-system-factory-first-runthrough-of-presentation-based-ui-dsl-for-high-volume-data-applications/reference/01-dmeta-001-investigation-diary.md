@@ -944,3 +944,75 @@ docmgr doctor --ticket DMETA-001 --stale-after 30
 ### Technical details
 - reMarkable destination: `/ai/2026/05/20/DMETA-001`
 - This step changed only ticket documentation, diary, and changelog.
+
+## Step 12: Phase 1 — Clean Cutover to Split Widget Templates
+
+This step began the implementation of the widget-template model by changing the formal source IR rather than adding a compatibility layer. The former monolithic `03-widgets.yaml` is now a package entrypoint for split files under `sources/dmeta-ir/widget-templates/`, and the validator expects that clean structure.
+
+The key behavior change is semantic: widgets in the source package are now selectable templates for concrete instances, not an implied fixed baseline catalog. The existing base templates were preserved but moved into category files so future template groups can be added without making every instance generate every widget.
+
+### Prompt Context
+
+**User prompt (verbatim):** "- No compabitility / backwards csompatibility / wrappers needed, we can do a clean cutover.
+- the instance manifest should be in the instantiations directory.  that instance can come with its own widgets (and maybe templates?) as well.
+- create the instance manifest for @dmeta/examples/street-deli-ordering/ and generate the code (under @dmeta/examples/street-deli-ordering/ as well, to keep every in a toplevel directory
+
+
+- Add tasks and phases to DMETA-001 and go through them one by one, commit at appropriate level, keep a diary as you work"
+
+**Assistant interpretation:** Implement the widget-template cutover without compatibility shims, then create a street-deli instantiation with local templates and generated code under the example directory, while tracking phases as DMETA-001 tasks and committing at logical milestones.
+
+**Inferred user intent:** Move from design discussion to implementation while keeping DMETA's meta-design-system structure clean and instance-oriented.
+
+**Commit (code):** N/A — pending commit at diary-writing time.
+
+### What I did
+- Added DMETA-001 tasks for four phases: widget-template cutover, street-deli instantiation manifest, instance code generation, and validation/bookkeeping.
+- Created `sources/dmeta-ir/widget-templates/` with split template files:
+  - `00-index.yaml`
+  - `presentations.yaml`
+  - `streams.yaml`
+  - `tables.yaml`
+  - `surfaces.yaml`
+  - `actions.yaml`
+- Replaced `sources/dmeta-ir/03-widgets.yaml` with a clean widget-template package index using `artifact_type: dmeta_widget_template_package`.
+- Updated `sources/dmeta-ir/00-index.yaml` so the widgets artifact points to `dmeta_widget_template_package`.
+- Updated the validator model and loader so `03-widgets.yaml` is loaded as a split widget-template package and each subfile uses `artifact_type: dmeta_widget_templates`.
+- Ran validation:
+
+```bash
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+```
+
+### Why
+- The user explicitly asked for a clean cutover with no backwards-compatibility wrapper.
+- A split `widget-templates/` directory matches the existing split `core-model/` design and keeps template categories reviewable.
+- Loading templates through the validator ensures future generators consume the same package structure as validation.
+
+### What worked
+- The split package validates successfully.
+- The existing base widgets fit into category files without changing their core contract shape.
+- The validator loader could be kept small because there is no monolithic fallback path.
+
+### What didn't work
+- N/A in this phase.
+
+### What I learned
+- The existing `Widget` struct was close enough to reuse for templates by adding template metadata fields.
+- Clean cutover is simpler than compatibility: the loader can fail fast if `03-widgets.yaml` is not `dmeta_widget_template_package`.
+
+### What was tricky to build
+- The main tricky point was preserving current widget data while changing its meaning from concrete catalog to template package. The solution was to move entries into category files and add `template` metadata for selection/adaptation guidance.
+
+### What warrants a second pair of eyes
+- Whether the initial category split is granular enough or whether layout/filter/state templates should be added immediately.
+- Whether the current template metadata is sufficiently formal for future instance validation.
+
+### What should be done in the future
+- Add additional template categories from the design guide: filters, layout, dashboards, forms, states, data-display.
+- Tighten validator checks for template selection metadata and adaptation points.
+
+### Code review instructions
+- Start with `sources/dmeta-ir/03-widgets.yaml`, then inspect `sources/dmeta-ir/widget-templates/*.yaml`.
+- Review `pkg/dmeta/validator/load.go` to confirm there is no monolithic widget fallback.
+- Validate with `GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table`.
