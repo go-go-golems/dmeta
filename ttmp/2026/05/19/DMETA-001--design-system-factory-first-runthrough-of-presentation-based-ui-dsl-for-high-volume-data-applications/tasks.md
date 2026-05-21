@@ -70,11 +70,11 @@
   - [x] Update `sources/dmeta-ir/03-widgets.yaml` and `widget-templates/00-index.yaml` file maps.
   - [x] Validate references against core-model presentations/capabilities/archetypes.
 
-- [ ] Phase 6: Instance planning and validation hardening
+- [x] Phase 6: Instance planning and validation hardening
   - [x] Add `dmeta plan-instance` before further scaffolding work.
   - [x] Add validator support for `dmeta_instance` manifests.
   - [x] Validate selected template ids, duplicate `as` names, local template files, declared variants, and selection/exclusion reasons.
-  - [ ] Add formal required adaptation-point schemas and validate missing required adaptations.
+  - [x] Add formal required adaptation-point schemas and validate missing required adaptations.
   - [x] Validate exclusions reference known templates.
   - [x] Report selected, excluded, auto-included, and missing-decision templates.
 

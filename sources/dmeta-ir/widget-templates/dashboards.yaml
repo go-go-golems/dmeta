@@ -24,9 +24,18 @@ templates:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
     - Which selected presentations/actions should this template expose?
     adaptation_points:
-    - region_layout
-    - refresh_policy
-    - alert_priority
+      region_layout:
+        type: any
+        required: false
+        description: Instance-specific adaptation for region layout.
+      refresh_policy:
+        type: any
+        required: false
+        description: Instance-specific adaptation for refresh policy.
+      alert_priority:
+        type: any
+        required: false
+        description: Instance-specific adaptation for alert priority.
     common_variants:
     - single_screen
     - responsive_grid
@@ -81,13 +90,34 @@ templates:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
     - Which selected presentations/actions should this template expose?
     adaptation_points:
-    - component_name
-    - props
-    - stories
-    - presentation_mapping
-    - action_slots
-    - density
-    - empty_state
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      props:
+        type: any
+        required: false
+        description: Concrete prop surface and view-model shape for the selected instance.
+      stories:
+        type: any
+        required: false
+        description: Storybook scenarios relevant to the selected variant and instance.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
+      density:
+        type: any
+        required: false
+        description: Density mode or spacing behavior selected for the concrete design system.
+      empty_state:
+        type: any
+        required: false
+        description: Empty/no-results behavior and copy for this widget.
     common_variants:
     - default
     avoid_when:
@@ -139,13 +169,34 @@ templates:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
     - Which selected presentations/actions should this template expose?
     adaptation_points:
-    - component_name
-    - props
-    - stories
-    - presentation_mapping
-    - action_slots
-    - density
-    - empty_state
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      props:
+        type: any
+        required: false
+        description: Concrete prop surface and view-model shape for the selected instance.
+      stories:
+        type: any
+        required: false
+        description: Storybook scenarios relevant to the selected variant and instance.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
+      density:
+        type: any
+        required: false
+        description: Density mode or spacing behavior selected for the concrete design system.
+      empty_state:
+        type: any
+        required: false
+        description: Empty/no-results behavior and copy for this widget.
     common_variants:
     - default
     avoid_when:
@@ -200,13 +251,34 @@ templates:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
     - Which selected presentations/actions should this template expose?
     adaptation_points:
-    - component_name
-    - props
-    - stories
-    - presentation_mapping
-    - action_slots
-    - density
-    - empty_state
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      props:
+        type: any
+        required: false
+        description: Concrete prop surface and view-model shape for the selected instance.
+      stories:
+        type: any
+        required: false
+        description: Storybook scenarios relevant to the selected variant and instance.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
+      density:
+        type: any
+        required: false
+        description: Density mode or spacing behavior selected for the concrete design system.
+      empty_state:
+        type: any
+        required: false
+        description: Empty/no-results behavior and copy for this widget.
     common_variants:
     - default
     avoid_when:

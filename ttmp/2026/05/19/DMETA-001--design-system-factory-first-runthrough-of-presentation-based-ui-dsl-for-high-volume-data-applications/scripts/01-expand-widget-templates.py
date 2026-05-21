@@ -16,6 +16,25 @@ ROOT = Path(__file__).resolve().parents[6]
 TEMPLATE_DIR = ROOT / "sources/dmeta-ir/widget-templates"
 
 
+
+
+def adaptation_schema(points: list[str] | None) -> dict[str, dict[str, object]]:
+    base = points or [
+        "component_name",
+        "props",
+        "stories",
+        "presentation_mapping",
+        "action_slots",
+    ]
+    return {
+        p: {
+            "type": "any",
+            "required": False,
+            "description": f"Instance-specific adaptation for {p.replace('_', ' ')}.",
+        }
+        for p in base
+    }
+
 def template_meta(
     category: str,
     selection: str = "optional",
@@ -36,16 +55,7 @@ def template_meta(
             "Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?",
             "Which selected presentations/actions should this template expose?",
         ],
-        "adaptation_points": points
-        or [
-            "component_name",
-            "props",
-            "stories",
-            "presentation_mapping",
-            "action_slots",
-            "density",
-            "empty_state",
-        ],
+        "adaptation_points": adaptation_schema(points),
         "common_variants": variants or ["default"],
         "avoid_when": avoid
         or [
