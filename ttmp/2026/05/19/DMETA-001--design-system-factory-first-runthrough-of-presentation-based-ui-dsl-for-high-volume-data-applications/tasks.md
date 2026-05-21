@@ -78,11 +78,11 @@
   - [x] Validate exclusions reference known templates.
   - [x] Report selected, excluded, auto-included, and missing-decision templates.
 
-- [ ] Phase 7: Documentation/spec follow-up
-  - [ ] Update `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` to describe widget-template packages and instance manifests.
-  - [ ] Update `design-docs/04-concrete-dmeta-system-spec.md` artifact layout.
-  - [ ] Update README command examples for `validate-ir`, `scaffold-instance`, and future `plan-instance`.
-  - [ ] Add a short generated-code review guide for promoted instance widgets.
+- [x] Phase 7: Documentation/spec follow-up
+  - [x] Update `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` to describe widget-template packages and instance manifests.
+  - [x] Update `design-docs/04-concrete-dmeta-system-spec.md` artifact layout.
+  - [x] Update README command examples for `validate-ir`, `scaffold-instance`, and future `plan-instance`.
+  - [x] Add a short generated-code review guide for promoted instance widgets.
 
 - [x] Phase 8: Generalize Street Deli local templates into menu-ordering template families
   - [x] Split `examples/street-deli-ordering/widget-templates/ordering-flow.yaml` into focused family files.

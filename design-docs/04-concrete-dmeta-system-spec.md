@@ -50,6 +50,12 @@ YAML source artifacts:
   dmeta/sources/dmeta-ir/core-model/examples/*.yaml
   dmeta/sources/dmeta-ir/02-design-language.yaml
   dmeta/sources/dmeta-ir/03-widgets.yaml
+  dmeta/sources/dmeta-ir/widget-templates/*.yaml
+
+Concrete instance artifacts:
+  dmeta/examples/<instance>/instantiations/*.yaml
+  dmeta/examples/<instance>/widget-templates/*.yaml   # optional local templates
+  dmeta/examples/<instance>/generated/<package>/      # selected generated scaffolds
 ```
 
 This is the minimum useful split:
@@ -60,7 +66,7 @@ This is the minimum useful split:
 - `core-model/presentations.yaml` covers presentations and actions.
 - `core-model/examples/*.yaml` contains one pressure-test domain per file.
 - `02-design-language.yaml` covers concrete/range-based design rules for typography, density, color, borders, interaction states, and semantic presentation styling.
-- `03-widgets.yaml` covers generic dense-operational widget classes and contracts.
+- `03-widgets.yaml` is now a widget-template package index. The selectable/adaptable template records live in `widget-templates/*.yaml`.
 - Markdown explains why the schemas exist, how to evolve them, what is formal vs informal, and how to implement the toolchain.
 
 ## Goals
@@ -72,7 +78,9 @@ intent + examples + design references
   -> Markdown specs
   -> compact YAML IR
   -> validation
-  -> generated registries/helpers/scaffolds
+  -> generated registries/helpers
+  -> instance manifests
+  -> selected widget scaffolds
   -> manually promoted React widgets
   -> Storybook coverage
   -> lint/audit
@@ -135,21 +143,38 @@ dmeta/sources/dmeta-ir/
       agent-workflow.yaml
       retail-logistics.yaml
   02-design-language.yaml
-  03-widgets.yaml
+  03-widgets.yaml            # widget-template package index
+  widget-templates/          # selectable/adaptable widget templates
+    00-index.yaml
+    presentations.yaml
+    streams.yaml
+    tables.yaml
+    surfaces.yaml
+    actions.yaml
+    filters.yaml
+    layout.yaml
+    dashboards.yaml
+    forms.yaml
+    states.yaml
+    data-display.yaml
 ```
 
-### Future tooling
+### Current and future tooling
 
 ```text
-dmeta/scripts/
-  01-validate-dmeta-ir.ts
-  02-generate-presentation-registry.ts
-  03-generate-action-registry.ts
-  04-generate-design-language.ts
-  05-scaffold-dmeta-widgets.ts
-  06-lint-dmeta-design-system.ts
-  07-validate-widget-promotion.ts
+cmd/dmeta/main.go
+  validate-ir          # validate the global DMETA IR package
+  generate-core        # generate TypeScript core registries
+  plan-instance        # validate and summarize a concrete instance manifest
+  scaffold-instance    # generate selected widget scaffolds for an instance
+
+Future tooling:
+  generate-design-language
+  lint-dmeta-design-system
+  validate-widget-promotion
 ```
+
+Ticket scripts that perform one-off migrations or reproducible editing passes should live under the relevant `ttmp/.../scripts/` directory, not under `/tmp`.
 
 The tooling names are provisional. The important rule is that each tool has explicit inputs, outputs, and validation responsibilities.
 
@@ -242,19 +267,32 @@ Purpose:
 
 This file may start range-based. Concrete domain-specific design-system instances can later harden it to exact values.
 
-### `03-widgets.yaml`
+### `03-widgets.yaml` and `widget-templates/`
 
 Purpose:
 
-- define generic dense-operational widget classes;
-- define widget contracts;
-- define presentation slots;
-- define action slots;
-- define generated outputs;
-- define Storybook requirements;
-- define adapter boundary expectations.
+- define the global widget-template package index;
+- split selectable/adaptable templates by category under `widget-templates/`;
+- define template contracts, consumed presentations/capabilities/archetypes, action slots, generated outputs, variants, and adaptation points;
+- provide selection guidance so templates do not become accidental mandatory baseline widgets.
 
-This adapts the HAIR-041 Widget IR style to presentation-based UI.
+A widget template is available to concrete instances, but it is not generated until an instance manifest selects it. This is the key difference from a fixed component catalog.
+
+### Instance manifests and local templates
+
+Concrete design-system instances live next to examples or product packages. They may provide their own local templates in addition to the global template catalog:
+
+```text
+examples/street-deli-ordering/
+  03-widgets.yaml
+  widget-templates/*.yaml
+  instantiations/street-deli-ordering.yaml
+  instantiations/street-deli-coffee-counter.yaml
+  generated/widgets/
+  generated/coffee-counter-widgets/
+```
+
+An instance manifest declares `selected_templates` and `excluded_templates`. Selection includes the template id, concrete component name, variant, optional adaptations, and the reason the widget belongs in that design-system instance. Exclusions record why plausible templates were intentionally not generated.
 
 ## System Lifecycle
 
@@ -475,8 +513,10 @@ Recommended order:
 8. Validate examples manually.
 9. Build a validator.
 10. Build generators in small passes.
-11. Promote first widgets.
-12. Instantiate first concrete domain.
+11. Create instance manifests and run `plan-instance` before scaffolding.
+12. Generate only selected widget templates with `scaffold-instance`.
+13. Promote first widgets.
+14. Instantiate first concrete domain.
 
 ## Open Questions
 

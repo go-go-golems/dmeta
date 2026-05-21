@@ -13,7 +13,7 @@ This directory contains durable design-system factory documents promoted out of 
 - `design-docs/02-semantic-archetype-and-capability-model.md` — reusable semantic archetypes, capabilities, projections, presentations, and action model.
 - `design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md` — sober dense operational UI graphic design and UX archetype.
 - `design-docs/04-concrete-dmeta-system-spec.md` — concrete v0 system architecture, Markdown/YAML split, artifact layout, lifecycle, and implementation order.
-- `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` — concrete v0 specification for `01-core-model.yaml` and `03-widgets.yaml`.
+- `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` — concrete v0 specification for `01-core-model.yaml`, widget-template packages, and instance manifests.
 - `design-docs/06-dmeta-design-language-and-tooling-spec.md` — concrete v0 specification for `02-design-language.yaml`, generated helpers, validators, generators, lint, and promotion tooling.
 
 ## Source IR
@@ -21,10 +21,41 @@ This directory contains durable design-system factory documents promoted out of 
 - `sources/dmeta-ir/00-index.yaml` — v0 IR package manifest.
 - `sources/dmeta-ir/01-core-model.yaml` — split core-model package index with references to `core-model/archetypes.yaml`, `core-model/capabilities.yaml`, `core-model/presentations.yaml`, and `core-model/examples/*.yaml`.
 - `sources/dmeta-ir/02-design-language.yaml` — sober dense operational UI design-language ranges, recipes, states, and lint rules.
-- `sources/dmeta-ir/03-widgets.yaml` — generic dense-operational widget classes and contracts.
+- `sources/dmeta-ir/03-widgets.yaml` — widget-template package index. The selectable/adaptable global templates live in `sources/dmeta-ir/widget-templates/*.yaml`.
 
 ## Ticket history
 
 The originating docmgr ticket remains under:
 
 `ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/`
+
+
+## Commands
+
+Validate the global DMETA IR package:
+
+```bash
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+```
+
+Generate TypeScript core registries:
+
+```bash
+GOWORK=off go run ./cmd/dmeta generate-core --root ./sources/dmeta-ir --out ./generated/dmeta-core --force --output table
+```
+
+Plan a concrete widget-template instantiation before writing files:
+
+```bash
+GOWORK=off go run ./cmd/dmeta plan-instance   --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml   --output table
+```
+
+Scaffold only the templates selected by an instance manifest:
+
+```bash
+GOWORK=off go run ./cmd/dmeta scaffold-instance   --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml   --force   --output table
+```
+
+## Instance widget review rule
+
+Generated instance widgets are scaffolds. Review the `.metadata.ts` sidecar first to confirm the template id, instance id, selected variant, selection reason, and adaptations. Do not overwrite promoted widgets casually; regenerate only scaffold-stage files or create an explicit migration patch for promoted implementations.

@@ -1415,3 +1415,121 @@ GOWORK=off go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-or
 ### Technical details
 - The reusable script for this phase is `scripts/02-generalize-street-deli-menu-templates.py` inside the DMETA-001 ticket workspace.
 - Generated outputs remain under the Street Deli example directory.
+
+## Step 17: Phase 7 — Documentation and Spec Follow-Up for Widget Templates
+
+This step updated the durable project documentation to match the implemented widget-template and instance-manifest system. The previous docs still described `03-widgets.yaml` as a monolithic widget IR. That was no longer true after the clean cutover, global template expansion, and Street Deli instantiations.
+
+The documentation now states the key invariant directly: widget records in the global catalog are selectable templates, and concrete generated widgets come from instance manifests. The README also includes the current commands for validating IR, generating core registries, planning instances, and scaffolding selected instance widgets.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Finish phase 6 and 7" followed by "actually start with 7, then 6"
+
+**Assistant interpretation:** Complete the remaining documentation/spec follow-up work first, then return to the remaining Phase 6 validation-hardening work.
+
+**Inferred user intent:** Make the documentation accurate before further hardening validation, so future contributors read the current model rather than the obsolete monolithic widget IR model.
+
+**Commit (code):** N/A — pending commit at diary-writing time.
+
+### What I did
+- Updated `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/04-concrete-dmeta-system-spec.md` with:
+  - widget-template package layout;
+  - instance manifest/local-template/generated-output layout;
+  - current `validate-ir`, `generate-core`, `plan-instance`, and `scaffold-instance` tooling;
+  - lifecycle updates that put instance planning before scaffolding.
+- Updated `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md` with a `2026-05 Widget Template and Instance Manifest Update` section.
+- Updated `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/README.md` with current command examples and an instance widget review rule.
+- Added `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/07-generated-instance-widget-review-guide.md`.
+- Marked Phase 7 subtasks complete.
+- Ran tests and docmgr doctor.
+
+### Why
+- The long-term docs must not teach the obsolete model where `03-widgets.yaml` is a fixed widget catalog.
+- Instance planning and scaffold generation are now concrete CLI behavior and need command examples.
+- Generated widgets need review guidance because scaffolds are not promoted product widgets.
+
+### What worked
+- The docs now consistently describe the split `widget-templates/` package and concrete `instantiations/*.yaml` manifests.
+- The new review guide gives a concise workflow for reviewing metadata, props, component scaffolds, stories, and promotion readiness.
+
+### What didn't work
+- I briefly used a one-off `/tmp` script to perform documentation edits. I removed it and did not keep it as a project artifact. The final committed state does not depend on `/tmp` scripts.
+
+### What I learned
+- The implementation moved faster than the design docs. Without this phase, contributors would read correct code but stale specs.
+- The review guide belongs in long-term docs because generated instance widgets will recur across future concrete design systems.
+
+### What was tricky to build
+- The main tricky point was documenting the new model without rewriting the entire old spec. I added an explicit dated update section to `05-dmeta-core-model-and-widget-ir-spec.md` so the historical shape remains visible while the current behavior is clear.
+
+### What warrants a second pair of eyes
+- Whether the old monolithic widget examples in `05-dmeta-core-model-and-widget-ir-spec.md` should eventually be rewritten rather than supplemented.
+- Whether the generated widget review guide should become a playbook instead of a design doc.
+
+### What should be done in the future
+- Add README examples for any future `validate-instance` or `promote-widget` commands.
+- Expand the review guide once promoted widgets exist.
+
+### Code review instructions
+- Review `design-docs/04-concrete-dmeta-system-spec.md` for artifact layout accuracy.
+- Review the new update section in `design-docs/05-dmeta-core-model-and-widget-ir-spec.md`.
+- Review `design-docs/07-generated-instance-widget-review-guide.md` for promotion guidance.
+
+## Step 17: Phase 7 — Documentation and Spec Follow-Up for Widget Templates
+
+This step updated the durable project documentation to match the implemented widget-template and instance-manifest system. The previous docs still described `03-widgets.yaml` as a monolithic widget IR. That was no longer true after the clean cutover, global template expansion, and Street Deli instantiations.
+
+The documentation now states the key invariant directly: widget records in the global catalog are selectable templates, and concrete generated widgets come from instance manifests. The README also includes the current commands for validating IR, generating core registries, planning instances, and scaffolding selected instance widgets.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Finish phase 6 and 7" followed by "actually start with 7, then 6"
+
+**Assistant interpretation:** Complete the remaining documentation/spec follow-up work first, then return to the remaining Phase 6 validation-hardening work.
+
+**Inferred user intent:** Make the documentation accurate before further hardening validation, so future contributors read the current model rather than the obsolete monolithic widget IR model.
+
+**Commit (code):** N/A — pending commit at diary-writing time.
+
+### What I did
+- Updated `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/04-concrete-dmeta-system-spec.md` with widget-template package layout, instance manifest/local-template/generated-output layout, current CLI tooling, and lifecycle updates.
+- Updated `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md` with a `2026-05 Widget Template and Instance Manifest Update` section.
+- Updated `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/README.md` with current command examples and an instance widget review rule.
+- Added `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/07-generated-instance-widget-review-guide.md`.
+- Stored the documentation update script in the ticket scripts directory:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/scripts/03-update-widget-template-docs.py`
+- Marked Phase 7 subtasks complete.
+- Ran tests and docmgr doctor.
+
+### Why
+- The long-term docs must not teach the obsolete model where `03-widgets.yaml` is a fixed widget catalog.
+- Instance planning and scaffold generation are now concrete CLI behavior and need command examples.
+- Generated widgets need review guidance because scaffolds are not promoted product widgets.
+
+### What worked
+- The docs now consistently describe the split `widget-templates/` package and concrete `instantiations/*.yaml` manifests.
+- The new review guide gives a concise workflow for reviewing metadata, props, component scaffolds, stories, and promotion readiness.
+
+### What didn't work
+- The first attempt to stage the new review guide showed that the previous edit script had not actually been executed. I corrected this by storing and running the documentation-update script inside the ticket `scripts/` directory, then reran tests and docmgr doctor.
+
+### What I learned
+- The implementation moved faster than the design docs. Without this phase, contributors would read correct code but stale specs.
+- The review guide belongs in long-term docs because generated instance widgets will recur across future concrete design systems.
+
+### What was tricky to build
+- The main tricky point was documenting the new model without rewriting the entire old spec. I added an explicit dated update section to `05-dmeta-core-model-and-widget-ir-spec.md` so the historical shape remains visible while the current behavior is clear.
+
+### What warrants a second pair of eyes
+- Whether the old monolithic widget examples in `05-dmeta-core-model-and-widget-ir-spec.md` should eventually be rewritten rather than supplemented.
+- Whether the generated widget review guide should become a playbook instead of a design doc.
+
+### What should be done in the future
+- Add README examples for any future `validate-instance` or `promote-widget` commands.
+- Expand the review guide once promoted widgets exist.
+
+### Code review instructions
+- Review `design-docs/04-concrete-dmeta-system-spec.md` for artifact layout accuracy.
+- Review the new update section in `design-docs/05-dmeta-core-model-and-widget-ir-spec.md`.
+- Review `design-docs/07-generated-instance-widget-review-guide.md` for promotion guidance.

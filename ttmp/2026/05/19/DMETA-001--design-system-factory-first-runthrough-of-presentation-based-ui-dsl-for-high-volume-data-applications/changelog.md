@@ -223,3 +223,28 @@ Phase 8: Generalized Street Deli local templates into menu-ordering families, ad
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/widget-templates/00-index.yaml — Local menu-ordering template family index
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/scripts/02-generalize-street-deli-menu-templates.py — Reproducible script for Street Deli family split and alternate instantiation
 
+
+## 2026-05-20
+
+Phase 7: Updated system specs and README for widget-template packages, instance manifests, plan/scaffold commands, and added generated instance widget review guide.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/README.md — Added current command examples and instance widget review rule
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/04-concrete-dmeta-system-spec.md — Updated artifact layout and lifecycle for widget templates and instances
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md — Added 2026-05 widget-template/instance-manifest update section
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/07-generated-instance-widget-review-guide.md — New review guide for generated/promoted instance widgets
+
+
+## 2026-05-20
+
+Phase 7: Updated system specs and README for widget-template packages, instance manifests, plan/scaffold commands, and added generated instance widget review guide.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/README.md — Added current command examples and instance widget review rule
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/04-concrete-dmeta-system-spec.md — Updated artifact layout and lifecycle for widget templates and instances
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md — Added 2026-05 widget-template/instance-manifest update section
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/design-docs/07-generated-instance-widget-review-guide.md — New review guide for generated/promoted instance widgets
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/scripts/03-update-widget-template-docs.py — Ticket script for documentation update
+
