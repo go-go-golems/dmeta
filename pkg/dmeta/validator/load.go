@@ -36,9 +36,9 @@ func LoadPackage(ctx context.Context, root string) (*Package, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "load 02-design-language.yaml")
 	}
-	widgets, err := loadYAML[WidgetIRFile](filepath.Join(absRoot, "03-widgets.yaml"))
+	widgets, err := loadWidgetTemplates(absRoot)
 	if err != nil {
-		return nil, errors.Wrap(err, "load 03-widgets.yaml")
+		return nil, errors.Wrap(err, "load widget templates")
 	}
 
 	return &Package{
@@ -101,6 +101,31 @@ func loadSplitCoreModel(root string, core *CoreModelFile) error {
 		}
 	}
 	return nil
+}
+
+func loadWidgetTemplates(root string) (WidgetIRFile, error) {
+	widgets, err := loadYAML[WidgetIRFile](filepath.Join(root, "03-widgets.yaml"))
+	if err != nil {
+		return widgets, errors.Wrap(err, "load 03-widgets.yaml")
+	}
+	if widgets.ArtifactType != "dmeta_widget_template_package" {
+		return widgets, errors.Errorf("03-widgets.yaml artifact_type is %q, expected dmeta_widget_template_package", widgets.ArtifactType)
+	}
+	widgets.Widgets = nil
+	for key, templatePath := range widgets.Files {
+		if key == "index" || templatePath == "" {
+			continue
+		}
+		templateFile, err := loadYAML[WidgetTemplatesFile](filepath.Join(root, templatePath))
+		if err != nil {
+			return widgets, errors.Wrapf(err, "load widget template file %s", templatePath)
+		}
+		if templateFile.ArtifactType != "dmeta_widget_templates" {
+			return widgets, errors.Errorf("widget template file %s artifact_type is %q, expected dmeta_widget_templates", templatePath, templateFile.ArtifactType)
+		}
+		widgets.Widgets = append(widgets.Widgets, templateFile.Templates...)
+	}
+	return widgets, nil
 }
 
 func loadYAML[T any](path string) (T, error) {

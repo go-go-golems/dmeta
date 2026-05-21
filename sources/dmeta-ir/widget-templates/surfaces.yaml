@@ -1,0 +1,73 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: surfaces
+summary: DMETA surfaces widget templates.
+long_summary: Templates in this file are selectable/adaptable surfaces starting points for concrete DMETA instances.
+templates:
+- id: dmeta.detail_drawer
+  name: DetailDrawer
+  status: template
+  classification:
+    level: organism
+    role: semantic_detail_surface
+  intent:
+    purpose: Inspect selected semantic subject while preserving list/table context.
+    adapter_boundary: Receives normalized detail sections, related presentations, and action callbacks.
+  consumes:
+    presentations:
+    - detail_panel
+    - compact_ref
+    - relation_link
+    - status_badge
+    - metric_cell
+    capabilities:
+    - inspectable
+    - relatable
+  contract:
+    props:
+      DetailDrawerProps:
+        fields:
+          subject:
+            type: PresentationRef
+            required: true
+          sections:
+            type: DetailSection[]
+            required: true
+          open:
+            type: boolean
+            required: true
+    action_slots:
+      onClose:
+        accepts: void
+      onAction:
+        accepts: PresentationActionRequest
+      onOpenRelated:
+        accepts: PresentationRef
+  stories:
+  - tool_run_detail
+  - shipment_detail
+  - related_objects
+  - collapsed_payloads
+  outputs:
+    component: src/dmeta/widgets/DetailDrawer/DetailDrawer.tsx
+    types: src/dmeta/widgets/DetailDrawer/DetailDrawer.types.ts
+    metadata: src/dmeta/widgets/DetailDrawer/DetailDrawer.metadata.ts
+    stories: src/dmeta/widgets/DetailDrawer/DetailDrawer.stories.tsx
+    barrel: src/dmeta/widgets/DetailDrawer/index.ts
+  template:
+    category: surfaces
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this instance need DetailDrawer as a concrete component or can another selected template cover the same role?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    common_variants:
+    - default
+    avoid_when:
+    - The concrete instance has no workflow matching this template role.

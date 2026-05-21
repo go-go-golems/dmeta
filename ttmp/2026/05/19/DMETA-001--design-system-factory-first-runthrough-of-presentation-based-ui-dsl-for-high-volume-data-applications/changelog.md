@@ -148,3 +148,15 @@ Step 11: Added widget-template design guide explaining selectable/adaptable widg
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/02-generic-widget-baseline-for-dense-operational-design-systems.md — Prior baseline inventory reinterpreted as template catalog
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/design-doc/04-widget-templates-and-instance-selection-for-dmeta-meta-design-systems.md — New widget-template analysis/design/implementation guide
 
+
+## 2026-05-20
+
+Phase 1: Cleanly cut over source widget IR from monolithic 03-widgets.yaml to split widget-templates package; updated validator loader to require dmeta_widget_template_package.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/validator/load.go — Loader now reads split widget-template package
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/validator/model.go — Validator model includes template metadata and split template files
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/03-widgets.yaml — Clean widget-template package index
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/widget-templates/00-index.yaml — New widget-template package index
+

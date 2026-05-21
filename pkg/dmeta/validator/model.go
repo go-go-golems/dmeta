@@ -295,12 +295,24 @@ type LintRule struct {
 }
 
 type WidgetIRFile struct {
-	SchemaVersion int            `yaml:"schema_version"`
-	ArtifactType  string         `yaml:"artifact_type"`
-	Summary       string         `yaml:"summary"`
-	Status        string         `yaml:"status"`
-	Widgets       []Widget       `yaml:"widgets"`
-	Validation    map[string]any `yaml:"validation"`
+	SchemaVersion int               `yaml:"schema_version"`
+	ArtifactType  string            `yaml:"artifact_type"`
+	Summary       string            `yaml:"summary"`
+	LongSummary   string            `yaml:"long_summary"`
+	Status        string            `yaml:"status"`
+	Files         map[string]string `yaml:"files"`
+	Widgets       []Widget          `yaml:"widgets"`
+	Validation    map[string]any    `yaml:"validation"`
+}
+
+type WidgetTemplatesFile struct {
+	SchemaVersion int               `yaml:"schema_version"`
+	ArtifactType  string            `yaml:"artifact_type"`
+	Category      string            `yaml:"category"`
+	Summary       string            `yaml:"summary"`
+	LongSummary   string            `yaml:"long_summary"`
+	References    map[string]string `yaml:"references"`
+	Templates     []Widget          `yaml:"templates"`
 }
 
 type Widget struct {
@@ -309,10 +321,22 @@ type Widget struct {
 	Status         string            `yaml:"status"`
 	Classification map[string]any    `yaml:"classification"`
 	Intent         WidgetIntent      `yaml:"intent"`
+	Template       TemplateMetadata  `yaml:"template"`
 	Consumes       Consumes          `yaml:"consumes"`
 	Contract       WidgetContract    `yaml:"contract"`
 	Stories        []string          `yaml:"stories"`
 	Outputs        map[string]string `yaml:"outputs"`
+}
+
+type TemplateMetadata struct {
+	Category           string   `yaml:"category"`
+	Selection          string   `yaml:"selection"`
+	Maturity           string   `yaml:"maturity"`
+	DefaultImportance  string   `yaml:"default_importance"`
+	SelectionQuestions []string `yaml:"selection_questions"`
+	AdaptationPoints   []string `yaml:"adaptation_points"`
+	CommonVariants     []string `yaml:"common_variants"`
+	AvoidWhen          []string `yaml:"avoid_when"`
 }
 
 type WidgetIntent struct {

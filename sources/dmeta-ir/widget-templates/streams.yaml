@@ -1,0 +1,75 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: streams
+summary: DMETA streams widget templates.
+long_summary: Templates in this file are selectable/adaptable streams starting points for concrete DMETA instances.
+templates:
+- id: dmeta.record_stream
+  name: RecordStream
+  status: template
+  classification:
+    level: organism
+    role: dense_record_stream
+  intent:
+    purpose: Render virtualizable ordered records/events/work items with selectable semantic presentations.
+    adapter_boundary: Receives normalized row models and typed callbacks; does not own backend dispatch.
+  consumes:
+    archetypes:
+    - Event
+    - WorkItem
+    - ActionInvocation
+    presentations:
+    - dense_row
+    - inline_token
+    - status_badge
+    - timestamp_inline
+    - compact_ref
+  contract:
+    props:
+      RecordStreamProps:
+        fields:
+          records:
+            type: DenseRecordViewModel[]
+            required: true
+          density:
+            type: DensityMode
+            required: false
+          selectedId:
+            type: string
+            required: false
+    action_slots:
+      onSelectRecord:
+        accepts: PresentationRef
+      onOpenContextMenu:
+        accepts: PresentationRef
+      onInspectRecord:
+        accepts: PresentationRef
+  stories:
+  - log_events
+  - tool_runs
+  - logistics_scans
+  - selected_record
+  - argument_candidates
+  outputs:
+    component: src/dmeta/widgets/RecordStream/RecordStream.tsx
+    types: src/dmeta/widgets/RecordStream/RecordStream.types.ts
+    metadata: src/dmeta/widgets/RecordStream/RecordStream.metadata.ts
+    stories: src/dmeta/widgets/RecordStream/RecordStream.stories.tsx
+    barrel: src/dmeta/widgets/RecordStream/index.ts
+  template:
+    category: streams
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this instance need RecordStream as a concrete component or can another selected template cover the same role?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    common_variants:
+    - default
+    avoid_when:
+    - The concrete instance has no workflow matching this template role.

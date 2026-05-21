@@ -1,0 +1,18 @@
+schema_version: 0
+artifact_type: dmeta_widget_template_index
+summary: Split widget template catalog for DMETA v0. Templates are selectable/adaptable starting points, not mandatory generated
+  widgets.
+long_summary: This package contains reusable widget templates that concrete DMETA instances can select, rename, specialize,
+  and promote. The catalog is intentionally broader than any one application. Instance manifests decide which templates become
+  generated widgets.
+files:
+  presentations: ./presentations.yaml
+  streams: ./streams.yaml
+  tables: ./tables.yaml
+  surfaces: ./surfaces.yaml
+  actions: ./actions.yaml
+validation:
+  require_unique_template_ids: true
+  require_known_presentations: true
+  require_known_archetypes: true
+  require_known_capabilities: true

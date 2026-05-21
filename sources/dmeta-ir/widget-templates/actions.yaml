@@ -1,0 +1,73 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: actions
+summary: DMETA actions widget templates.
+long_summary: Templates in this file are selectable/adaptable actions starting points for concrete DMETA instances.
+templates:
+- id: dmeta.action_palette
+  name: ActionPalette
+  status: template
+  classification:
+    level: organism
+    role: typed_action_discovery
+  intent:
+    purpose: Discover actions globally or for a selected PresentationRef and collect typed arguments.
+    adapter_boundary: Receives generated action metadata, current selection, and candidate presentations.
+  consumes:
+    presentations:
+    - compact_ref
+    - inline_token
+    - status_badge
+    - metric_cell
+  contract:
+    props:
+      ActionPaletteProps:
+        fields:
+          open:
+            type: boolean
+            required: true
+          source:
+            type: PresentationRef
+            required: false
+          actions:
+            type: ActionDefinition[]
+            required: true
+          candidates:
+            type: PresentationRef[]
+            required: false
+    action_slots:
+      onChooseAction:
+        accepts: ActionDefinition
+      onChooseArgument:
+        accepts: PresentationRef
+      onExecute:
+        accepts: PresentationActionRequest
+  stories:
+  - global
+  - source_context
+  - awaiting_argument
+  - candidates
+  - empty
+  outputs:
+    component: src/dmeta/widgets/ActionPalette/ActionPalette.tsx
+    types: src/dmeta/widgets/ActionPalette/ActionPalette.types.ts
+    metadata: src/dmeta/widgets/ActionPalette/ActionPalette.metadata.ts
+    stories: src/dmeta/widgets/ActionPalette/ActionPalette.stories.tsx
+    barrel: src/dmeta/widgets/ActionPalette/index.ts
+  template:
+    category: actions
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this instance need ActionPalette as a concrete component or can another selected template cover the same role?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    common_variants:
+    - default
+    avoid_when:
+    - The concrete instance has no workflow matching this template role.
