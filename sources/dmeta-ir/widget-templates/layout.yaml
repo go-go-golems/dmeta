@@ -1,0 +1,332 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: layout
+summary: Shell, page, panel, toolbar, split-pane, and tab templates.
+long_summary: Templates in this file are selectable/adaptable layout starting points for concrete DMETA instances. They are
+  not mandatory baseline widgets; instance manifests select, rename, specialize, or exclude them.
+templates:
+- id: dmeta.workbench_shell
+  name: WorkbenchShell
+  status: template
+  classification:
+    level: organism
+    role: workspace_frame
+  intent:
+    purpose: Render a global workbench frame with navigation, workspace status, command/search affordances, and main content
+      slots.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: layout
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - navigation_model
+    - global_actions
+    - responsive_behavior
+    common_variants:
+    - sidebar
+    - topbar
+    - single_panel
+    avoid_when:
+    - The instance is a single embedded widget or one fixed dashboard without app chrome.
+  consumes: {}
+  contract:
+    props:
+      WorkbenchShellProps:
+        fields:
+          navigation:
+            type: NavigationItem[]
+            required: false
+          children:
+            type: ReactNode
+            required: true
+  stories:
+  - single_workspace
+  - with_sidebar
+  - with_topbar
+  outputs:
+    component: src/dmeta/widgets/WorkbenchShell/WorkbenchShell.tsx
+    types: src/dmeta/widgets/WorkbenchShell/WorkbenchShell.types.ts
+    metadata: src/dmeta/widgets/WorkbenchShell/WorkbenchShell.metadata.ts
+    stories: src/dmeta/widgets/WorkbenchShell/WorkbenchShell.stories.tsx
+    barrel: src/dmeta/widgets/WorkbenchShell/index.ts
+- id: dmeta.page_header
+  name: PageHeader
+  status: template
+  classification:
+    level: molecule
+    role: page_identity
+  intent:
+    purpose: Render page title, subtitle, breadcrumbs/context refs, primary actions, and status summary.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: layout
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes:
+    presentations:
+    - compact_ref
+    - status_badge
+  contract:
+    props:
+      PageHeaderProps:
+        fields:
+          title:
+            type: string
+            required: true
+          subtitle:
+            type: string
+            required: false
+          actions:
+            type: ActionDefinition[]
+            required: false
+    action_slots:
+      onAction:
+        accepts: PresentationActionRequest
+  stories:
+  - with_actions
+  - with_context_ref
+  - minimal
+  outputs:
+    component: src/dmeta/widgets/PageHeader/PageHeader.tsx
+    types: src/dmeta/widgets/PageHeader/PageHeader.types.ts
+    metadata: src/dmeta/widgets/PageHeader/PageHeader.metadata.ts
+    stories: src/dmeta/widgets/PageHeader/PageHeader.stories.tsx
+    barrel: src/dmeta/widgets/PageHeader/index.ts
+- id: dmeta.panel
+  name: Panel
+  status: template
+  classification:
+    level: molecule
+    role: bounded_content_surface
+  intent:
+    purpose: Render a low-chrome content surface with optional header, body, footer, density, and action slots.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: layout
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      PanelProps:
+        fields:
+          title:
+            type: string
+            required: false
+          children:
+            type: ReactNode
+            required: true
+          density:
+            type: DensityMode
+            required: false
+  stories:
+  - plain
+  - with_header_actions
+  - dense
+  outputs:
+    component: src/dmeta/widgets/Panel/Panel.tsx
+    types: src/dmeta/widgets/Panel/Panel.types.ts
+    metadata: src/dmeta/widgets/Panel/Panel.metadata.ts
+    stories: src/dmeta/widgets/Panel/Panel.stories.tsx
+    barrel: src/dmeta/widgets/Panel/index.ts
+- id: dmeta.toolbar
+  name: Toolbar
+  status: template
+  classification:
+    level: molecule
+    role: control_row
+  intent:
+    purpose: Render a compact row for search, filters, view toggles, and actions.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: layout
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      ToolbarProps:
+        fields:
+          left:
+            type: ReactNode
+            required: false
+          right:
+            type: ReactNode
+            required: false
+          density:
+            type: DensityMode
+            required: false
+  stories:
+  - actions_only
+  - search_filter_actions
+  - dense
+  outputs:
+    component: src/dmeta/widgets/Toolbar/Toolbar.tsx
+    types: src/dmeta/widgets/Toolbar/Toolbar.types.ts
+    metadata: src/dmeta/widgets/Toolbar/Toolbar.metadata.ts
+    stories: src/dmeta/widgets/Toolbar/Toolbar.stories.tsx
+    barrel: src/dmeta/widgets/Toolbar/index.ts
+- id: dmeta.split_pane
+  name: SplitPane
+  status: template
+  classification:
+    level: organism
+    role: master_detail_layout
+  intent:
+    purpose: Render a resizable or fixed split between primary context and secondary detail/inspector content.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: layout
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - collapse_behavior
+    - initial_ratio
+    - responsive_stacking
+    common_variants:
+    - fixed
+    - resizable
+    - collapsible
+    avoid_when:
+    - The instance does not need simultaneous context and inspection.
+  consumes: {}
+  contract:
+    props:
+      SplitPaneProps:
+        fields:
+          primary:
+            type: ReactNode
+            required: true
+          secondary:
+            type: ReactNode
+            required: true
+          orientation:
+            type: '"horizontal" | "vertical"'
+            required: false
+  stories:
+  - master_detail
+  - collapsed_secondary
+  - vertical
+  outputs:
+    component: src/dmeta/widgets/SplitPane/SplitPane.tsx
+    types: src/dmeta/widgets/SplitPane/SplitPane.types.ts
+    metadata: src/dmeta/widgets/SplitPane/SplitPane.metadata.ts
+    stories: src/dmeta/widgets/SplitPane/SplitPane.stories.tsx
+    barrel: src/dmeta/widgets/SplitPane/index.ts
+- id: dmeta.tabs
+  name: Tabs
+  status: template
+  classification:
+    level: molecule
+    role: view_switcher
+  intent:
+    purpose: Render tabbed navigation among sibling views or detail sections.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: layout
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - tab_model
+    - routing
+    - keyboard_behavior
+    common_variants:
+    - line_tabs
+    - segmented
+    - dense
+    avoid_when:
+    - The information architecture is a single fixed view or uses routes instead of tabs.
+  consumes: {}
+  contract:
+    props:
+      TabsProps:
+        fields:
+          tabs:
+            type: TabItem[]
+            required: true
+          activeId:
+            type: string
+            required: true
+    action_slots:
+      onChangeTab:
+        accepts: string
+  stories:
+  - two_tabs
+  - many_tabs
+  - keyboard_navigation
+  outputs:
+    component: src/dmeta/widgets/Tabs/Tabs.tsx
+    types: src/dmeta/widgets/Tabs/Tabs.types.ts
+    metadata: src/dmeta/widgets/Tabs/Tabs.metadata.ts
+    stories: src/dmeta/widgets/Tabs/Tabs.stories.tsx
+    barrel: src/dmeta/widgets/Tabs/index.ts

@@ -1111,3 +1111,99 @@ GOWORK=off go test ./...
 - Generated files are intentionally scaffolds with metadata sidecars.
 - Existing generated files are skipped unless `--force` is passed.
 - There is no compatibility loader for monolithic `03-widgets.yaml`; source and example widgets use package-index form.
+
+## Step 14: Phase 5 — Expand the Global Widget Template Catalog
+
+This step filled in the broader global widget-template catalog that the design document described but the first implementation slice had not yet created. The global catalog now contains 48 selectable templates across presentations, streams, tables, surfaces, actions, filters, layout, dashboards, forms, states, and data-display categories.
+
+The important constraint remains unchanged: these are templates, not mandatory baseline widgets. Rare or context-specific templates such as `KeyValueList`, `ComparisonTable`, `MarkdownBlock`, `SavedFilterMenu`, and `SplitPane` are explicitly marked optional or rare with `avoid_when` guidance so concrete instances must opt into them.
+
+### Prompt Context
+
+**User prompt (verbatim):** "add detailed subtasks to the phases in the tasks file so we don't forget a step, then continue"
+
+**Assistant interpretation:** Expand the DMETA-001 task list with detailed phase subtasks, then continue implementing the next phase by adding the missing global widget-template categories.
+
+**Inferred user intent:** Keep the multi-phase widget-template migration explicit and auditable while continuing to build out the template catalog promised in the design guide.
+
+**Commit (code):** N/A — pending commit at diary-writing time.
+
+### What I did
+- Expanded `ttmp/.../tasks.md` with detailed subtasks for Phases 1-7.
+- Created the ticket script:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/scripts/01-expand-widget-templates.py`
+- Used that script to add global template files:
+  - `sources/dmeta-ir/widget-templates/filters.yaml`
+  - `sources/dmeta-ir/widget-templates/layout.yaml`
+  - `sources/dmeta-ir/widget-templates/dashboards.yaml`
+  - `sources/dmeta-ir/widget-templates/forms.yaml`
+  - `sources/dmeta-ir/widget-templates/states.yaml`
+  - `sources/dmeta-ir/widget-templates/data-display.yaml`
+- Extended existing templates:
+  - `actions.yaml` now includes `ActionButton`, `ActionGroup`, and `ContextMenuTrigger` in addition to `ActionPalette`.
+  - `tables.yaml` now includes `PresentationCell` and `BulkActionBar` in addition to `DenseTable` and relies on `ResultWindowControls` from the filters/result-state group.
+- Updated package file maps in:
+  - `sources/dmeta-ir/03-widgets.yaml`
+  - `sources/dmeta-ir/widget-templates/00-index.yaml`
+- Marked Phase 5 subtasks complete.
+- Validated the IR and ran tests:
+
+```bash
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+GOWORK=off go test ./...
+```
+
+### Why
+- The first widget-template implementation only moved the initial small catalog. The design called for more categories so concrete instances can choose layout, dashboard, form, filter, and state templates without treating them as mandatory.
+- The tasks file needed detailed subtasks so later work does not lose steps such as validator hardening, planning commands, documentation updates, and template-category expansion.
+
+### What worked
+- The expanded catalog validates successfully.
+- The catalog now has 48 templates across 11 category files.
+- Every new template has selection metadata: selection status, adaptation points, common variants, and avoid-when guidance.
+- Rare templates are explicitly marked rare/optional rather than baseline.
+
+### What didn't work
+- I initially wrote an editing helper under `/tmp`, which violates the docmgr workflow rule that ticket scripts belong under the ticket workspace. The user caught this.
+- I removed the `/tmp` helper and recreated the script under the ticket's `scripts/` directory.
+- The first run of the ticket script used the wrong parent depth for resolving the repository root. It attempted to work under `/home/manuel/workspaces/2026-05-19/dmeta-dsl/sources/...` instead of `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/...` and failed with:
+
+```text
+FileNotFoundError: [Errno 2] No such file or directory: '/home/manuel/workspaces/2026-05-19/dmeta-dsl/sources/dmeta-ir/widget-templates/actions.yaml'
+```
+
+- I fixed the script root from `parents[7]` to `parents[6]`, removed the accidental sibling `sources/` directory, reran the script successfully, and validated the result.
+
+### What I learned
+- Ticket scripts should be treated as part of the implementation record. Keeping the script under `ttmp/.../scripts/` makes the catalog expansion reproducible and reviewable.
+- `ResultWindowControls` conceptually belongs with filters/result-state/windowing, even though it was previously listed under table helpers.
+- Template metadata is now as important as widget contracts because it prevents optional widgets from becoming accidental defaults.
+
+### What was tricky to build
+- The main tricky point was balancing breadth and non-commitment. Adding many templates can look like a fixed kit unless every entry carries explicit selection and avoid-when guidance.
+- Another tricky point was ensuring new templates only reference known archetypes, capabilities, and presentations so the existing validator continues to pass.
+
+### What warrants a second pair of eyes
+- Whether `ResultWindowControls` should live in `filters.yaml` or `tables.yaml` long-term.
+- Whether category names should use hyphenated filenames such as `data-display.yaml` while package map keys use `data_display`.
+- Whether the validator should enforce `selection_questions`, `avoid_when`, and `adaptation_points` before the next phase.
+
+### What should be done in the future
+- Implement Phase 6: add `plan-instance` and validation for `dmeta_instance` manifests.
+- Make template metadata more formal so required adaptation points can be checked.
+- Add documentation/spec updates for the new widget-template package structure.
+
+### Code review instructions
+- Start with the ticket script under `ttmp/.../scripts/01-expand-widget-templates.py` to understand how the catalog was generated.
+- Review the new files under `sources/dmeta-ir/widget-templates/`.
+- Confirm rare templates such as `KeyValueList` and `ComparisonTable` are marked `selection: rare`.
+- Validate with:
+
+```bash
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+GOWORK=off go test ./...
+```
+
+### Technical details
+- Total global template count after this phase: 48.
+- No generated street-deli widgets changed in this phase.

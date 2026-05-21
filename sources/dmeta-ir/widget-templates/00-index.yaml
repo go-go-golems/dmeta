@@ -11,8 +11,15 @@ files:
   tables: ./tables.yaml
   surfaces: ./surfaces.yaml
   actions: ./actions.yaml
+  filters: ./filters.yaml
+  layout: ./layout.yaml
+  dashboards: ./dashboards.yaml
+  forms: ./forms.yaml
+  states: ./states.yaml
+  data_display: ./data-display.yaml
 validation:
   require_unique_template_ids: true
   require_known_presentations: true
   require_known_archetypes: true
   require_known_capabilities: true
+  require_selection_guidance: true

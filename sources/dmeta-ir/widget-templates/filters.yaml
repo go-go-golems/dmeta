@@ -1,0 +1,400 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: filters
+summary: Filter/search/result-state widget templates for DMETA instances.
+long_summary: Templates in this file are selectable/adaptable filters starting points for concrete DMETA instances. They are
+  not mandatory baseline widgets; instance manifests select, rename, specialize, or exclude them.
+templates:
+- id: dmeta.filter_bar
+  name: FilterBar
+  status: template
+  classification:
+    level: molecule
+    role: filter_state_control
+  intent:
+    purpose: Render active filter criteria, quick filters, and clear/remove controls for a filterable target.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: filters
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - filter_dimensions
+    - chip_format
+    - scope
+    - collapse_behavior
+    - keyboard_behavior
+    common_variants:
+    - chip_row
+    - collapsed_summary
+    - quick_filters
+    avoid_when:
+    - The app has no user-controlled result narrowing.
+  consumes:
+    archetypes:
+    - ResultSet
+    - FilterCriterion
+    capabilities:
+    - filterable
+    presentations:
+    - filter_chip
+    - filter_summary
+  contract:
+    props:
+      FilterBarProps:
+        fields:
+          target:
+            type: FilterTargetRef
+            required: true
+          activeFilters:
+            type: FilterExpression[]
+            required: true
+          density:
+            type: DensityMode
+            required: false
+    action_slots:
+      onApplyFilter:
+        accepts: FilterActionRequest
+      onRemoveFilter:
+        accepts: FilterExpression
+      onClearFilters:
+        accepts: FilterTargetRef
+  stories:
+  - no_filters
+  - several_filters
+  - collapsed_many_filters
+  - keyboard_remove
+  outputs:
+    component: src/dmeta/widgets/FilterBar/FilterBar.tsx
+    types: src/dmeta/widgets/FilterBar/FilterBar.types.ts
+    metadata: src/dmeta/widgets/FilterBar/FilterBar.metadata.ts
+    stories: src/dmeta/widgets/FilterBar/FilterBar.stories.tsx
+    barrel: src/dmeta/widgets/FilterBar/index.ts
+- id: dmeta.search_box
+  name: SearchBox
+  status: template
+  classification:
+    level: molecule
+    role: search_control
+  intent:
+    purpose: Render scoped text search or autocomplete search for a searchable result target.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: filters
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - autocomplete_sources
+    - suggestion_grouping
+    - query_syntax
+    - scope_labels
+    - keyboard_behavior
+    common_variants:
+    - simple_text_search
+    - scoped_search
+    - autocomplete_entity_search
+    avoid_when:
+    - Search is not a primary workflow or fixed filters are sufficient.
+  consumes:
+    capabilities:
+    - searchable
+    presentations:
+    - search_summary
+    - compact_ref
+    - inline_token
+  contract:
+    props:
+      SearchBoxProps:
+        fields:
+          target:
+            type: FilterTargetRef
+            required: true
+          query:
+            type: string
+            required: false
+          placeholder:
+            type: string
+            required: false
+          suggestions:
+            type: SearchSuggestion[]
+            required: false
+    action_slots:
+      onSearch:
+        accepts: SearchExpression
+      onChooseSuggestion:
+        accepts: PresentationRef
+      onClearSearch:
+        accepts: FilterTargetRef
+  stories:
+  - simple_text_query
+  - autocomplete_suggestions
+  - scoped_search
+  - no_results
+  outputs:
+    component: src/dmeta/widgets/SearchBox/SearchBox.tsx
+    types: src/dmeta/widgets/SearchBox/SearchBox.types.ts
+    metadata: src/dmeta/widgets/SearchBox/SearchBox.metadata.ts
+    stories: src/dmeta/widgets/SearchBox/SearchBox.stories.tsx
+    barrel: src/dmeta/widgets/SearchBox/index.ts
+- id: dmeta.facet_panel
+  name: FacetPanel
+  status: template
+  classification:
+    level: molecule
+    role: facet_bucket_browser
+  intent:
+    purpose: Render counted facet buckets for a facetable result set and emit facet-filter actions.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: filters
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - facet_dimensions
+    - count_format
+    - bucket_sorting
+    - empty_bucket_policy
+    common_variants:
+    - side_panel
+    - inline_group
+    - compact_counts
+    avoid_when:
+    - The backend cannot provide facet buckets/counts.
+  consumes:
+    archetypes:
+    - ResultSet
+    capabilities:
+    - facetable
+    - filterable
+    presentations:
+    - facet_bucket
+    - filter_summary
+  contract:
+    props:
+      FacetPanelProps:
+        fields:
+          target:
+            type: FilterTargetRef
+            required: true
+          facets:
+            type: FacetGroup[]
+            required: true
+    action_slots:
+      onApplyFacet:
+        accepts: FilterActionRequest
+  stories:
+  - state_buckets
+  - actor_buckets
+  - empty_facets
+  outputs:
+    component: src/dmeta/widgets/FacetPanel/FacetPanel.tsx
+    types: src/dmeta/widgets/FacetPanel/FacetPanel.types.ts
+    metadata: src/dmeta/widgets/FacetPanel/FacetPanel.metadata.ts
+    stories: src/dmeta/widgets/FacetPanel/FacetPanel.stories.tsx
+    barrel: src/dmeta/widgets/FacetPanel/index.ts
+- id: dmeta.result_summary
+  name: ResultSummary
+  status: template
+  classification:
+    level: atom
+    role: result_state_summary
+  intent:
+    purpose: Render result count, active filter/search/window state, and live-tail status for a ResultSet.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: filters
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes:
+    archetypes:
+    - ResultSet
+    capabilities:
+    - filterable
+    - searchable
+    - windowable
+    presentations:
+    - filter_summary
+    - search_summary
+  contract:
+    props:
+      ResultSummaryProps:
+        fields:
+          target:
+            type: FilterTargetRef
+            required: true
+          resultCount:
+            type: number
+            required: false
+          live:
+            type: boolean
+            required: false
+    action_slots:
+      onInspectResultSet:
+        accepts: PresentationRef
+      onClearFilters:
+        accepts: FilterTargetRef
+  stories:
+  - unfiltered
+  - with_filters
+  - live_tail
+  - search_active
+  outputs:
+    component: src/dmeta/widgets/ResultSummary/ResultSummary.tsx
+    types: src/dmeta/widgets/ResultSummary/ResultSummary.types.ts
+    metadata: src/dmeta/widgets/ResultSummary/ResultSummary.metadata.ts
+    stories: src/dmeta/widgets/ResultSummary/ResultSummary.stories.tsx
+    barrel: src/dmeta/widgets/ResultSummary/index.ts
+- id: dmeta.saved_filter_menu
+  name: SavedFilterMenu
+  status: template
+  classification:
+    level: molecule
+    role: filter_preset_selector
+  intent:
+    purpose: Render saved filter presets and apply them to compatible filterable targets.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: filters
+    selection: rare
+    maturity: draft
+    default_importance: optional
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - preset_scope
+    - permissions
+    - save_behavior
+    common_variants:
+    - dropdown
+    - panel
+    avoid_when:
+    - Users do not need reusable query states.
+  consumes:
+    archetypes:
+    - FilterPreset
+    - ResultSet
+    capabilities:
+    - filterable
+    - actionable
+    presentations:
+    - compact_ref
+    - summary_card
+  contract:
+    props:
+      SavedFilterMenuProps:
+        fields:
+          target:
+            type: FilterTargetRef
+            required: true
+          presets:
+            type: FilterPresetViewModel[]
+            required: true
+    action_slots:
+      onApplyPreset:
+        accepts: PresentationActionRequest
+      onSavePreset:
+        accepts: FilterTargetRef
+  stories:
+  - preset_list
+  - empty_presets
+  - save_current
+  outputs:
+    component: src/dmeta/widgets/SavedFilterMenu/SavedFilterMenu.tsx
+    types: src/dmeta/widgets/SavedFilterMenu/SavedFilterMenu.types.ts
+    metadata: src/dmeta/widgets/SavedFilterMenu/SavedFilterMenu.metadata.ts
+    stories: src/dmeta/widgets/SavedFilterMenu/SavedFilterMenu.stories.tsx
+    barrel: src/dmeta/widgets/SavedFilterMenu/index.ts
+- id: dmeta.result_window_controls
+  name: ResultWindowControls
+  status: template
+  classification:
+    level: molecule
+    role: result_window_navigation
+  intent:
+    purpose: Render page/cursor/live-tail controls for windowable result sets.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: filters
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - cursor_strategy
+    - page_size_options
+    - live_tail_behavior
+    common_variants:
+    - cursor
+    - pagination
+    - live_tail
+    avoid_when:
+    - The result set is small and loaded fully in memory.
+  consumes:
+    archetypes:
+    - ResultSet
+    capabilities:
+    - windowable
+    - filterable
+  contract:
+    props:
+      ResultWindowControlsProps:
+        fields:
+          target:
+            type: FilterTargetRef
+            required: true
+          window:
+            type: ResultWindow
+            required: true
+    action_slots:
+      onChangeWindow:
+        accepts: ResultWindowRequest
+      onToggleLiveTail:
+        accepts: FilterTargetRef
+  stories:
+  - cursor_next_prev
+  - page_numbers
+  - live_tail
+  outputs:
+    component: src/dmeta/widgets/ResultWindowControls/ResultWindowControls.tsx
+    types: src/dmeta/widgets/ResultWindowControls/ResultWindowControls.types.ts
+    metadata: src/dmeta/widgets/ResultWindowControls/ResultWindowControls.metadata.ts
+    stories: src/dmeta/widgets/ResultWindowControls/ResultWindowControls.stories.tsx
+    barrel: src/dmeta/widgets/ResultWindowControls/index.ts

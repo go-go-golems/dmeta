@@ -1,0 +1,232 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: data-display
+summary: Optional property, comparison, markdown, and preview templates.
+long_summary: Templates in this file are selectable/adaptable data-display starting points for concrete DMETA instances. They
+  are not mandatory baseline widgets; instance manifests select, rename, specialize, or exclude them.
+templates:
+- id: dmeta.key_value_list
+  name: KeyValueList
+  status: template
+  classification:
+    level: molecule
+    role: property_inspector
+  intent:
+    purpose: Render compact key-value properties, optionally using presentation-aware value renderers.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: data-display
+    selection: rare
+    maturity: draft
+    default_importance: optional
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - value_renderers
+    - grouping
+    - copy_behavior
+    common_variants:
+    - plain
+    - grouped
+    - copyable
+    avoid_when:
+    - The instance has no generic inspector/detail properties.
+  consumes:
+    presentations:
+    - compact_ref
+    - status_badge
+    - metric_cell
+    - relation_link
+  contract:
+    props:
+      KeyValueListProps:
+        fields:
+          items:
+            type: KeyValueItem[]
+            required: true
+          density:
+            type: DensityMode
+            required: false
+    action_slots:
+      onSelectValue:
+        accepts: PresentationRef
+  stories:
+  - basic
+  - semantic_values
+  - copyable
+  outputs:
+    component: src/dmeta/widgets/KeyValueList/KeyValueList.tsx
+    types: src/dmeta/widgets/KeyValueList/KeyValueList.types.ts
+    metadata: src/dmeta/widgets/KeyValueList/KeyValueList.metadata.ts
+    stories: src/dmeta/widgets/KeyValueList/KeyValueList.stories.tsx
+    barrel: src/dmeta/widgets/KeyValueList/index.ts
+- id: dmeta.comparison_table
+  name: ComparisonTable
+  status: template
+  classification:
+    level: organism
+    role: comparison_table
+  intent:
+    purpose: Render side-by-side comparison of metrics, candidates, versions, or before/after records.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: data-display
+    selection: rare
+    maturity: draft
+    default_importance: optional
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - comparison_axis
+    - highlight_rules
+    - unit_compatibility
+    common_variants:
+    - metric_comparison
+    - candidate_comparison
+    - before_after
+    avoid_when:
+    - Comparison is not a primary user workflow.
+  consumes:
+    archetypes:
+    - Metric
+    - Resource
+    - WorkItem
+    capabilities:
+    - measurable
+    presentations:
+    - metric_cell
+    - duration_cell
+    - compact_ref
+  contract:
+    props:
+      ComparisonTableProps:
+        fields:
+          columns:
+            type: ComparisonColumn[]
+            required: true
+          rows:
+            type: ComparisonRow[]
+            required: true
+    action_slots:
+      onSelectCell:
+        accepts: PresentationRef
+  stories:
+  - metrics
+  - candidates
+  - before_after
+  outputs:
+    component: src/dmeta/widgets/ComparisonTable/ComparisonTable.tsx
+    types: src/dmeta/widgets/ComparisonTable/ComparisonTable.types.ts
+    metadata: src/dmeta/widgets/ComparisonTable/ComparisonTable.metadata.ts
+    stories: src/dmeta/widgets/ComparisonTable/ComparisonTable.stories.tsx
+    barrel: src/dmeta/widgets/ComparisonTable/index.ts
+- id: dmeta.markdown_block
+  name: MarkdownBlock
+  status: template
+  classification:
+    level: molecule
+    role: markdown_content
+  intent:
+    purpose: Render sanitized markdown documentation, runbooks, notes, or tool output.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: data-display
+    selection: optional
+    maturity: draft
+    default_importance: optional
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - sanitization
+    - allowed_elements
+    - code_highlighting
+    common_variants:
+    - read_only
+    - collapsible
+    avoid_when:
+    - The instance does not render rich text or untrusted markdown.
+  consumes: {}
+  contract:
+    props:
+      MarkdownBlockProps:
+        fields:
+          markdown:
+            type: string
+            required: true
+    action_slots:
+      onOpenLink:
+        accepts: string
+  stories:
+  - basic
+  - code_blocks
+  - empty
+  outputs:
+    component: src/dmeta/widgets/MarkdownBlock/MarkdownBlock.tsx
+    types: src/dmeta/widgets/MarkdownBlock/MarkdownBlock.types.ts
+    metadata: src/dmeta/widgets/MarkdownBlock/MarkdownBlock.metadata.ts
+    stories: src/dmeta/widgets/MarkdownBlock/MarkdownBlock.stories.tsx
+    barrel: src/dmeta/widgets/MarkdownBlock/index.ts
+- id: dmeta.preview_frame
+  name: PreviewFrame
+  status: template
+  classification:
+    level: organism
+    role: artifact_preview
+  intent:
+    purpose: Render a preview of an artifact such as a document, image, OCR page, web output, or generated report.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: data-display
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - sandboxing
+    - preview_kind
+    - fallback_behavior
+    common_variants:
+    - image
+    - document
+    - html
+    - text
+    avoid_when:
+    - The instance has no previewable artifacts.
+  consumes:
+    archetypes:
+    - Resource
+    capabilities:
+    - inspectable
+  contract:
+    props:
+      PreviewFrameProps:
+        fields:
+          resource:
+            type: PresentationRef
+            required: true
+          preview:
+            type: PreviewViewModel
+            required: true
+    action_slots:
+      onOpenPreview:
+        accepts: PresentationRef
+  stories:
+  - image
+  - document
+  - html
+  - unavailable
+  outputs:
+    component: src/dmeta/widgets/PreviewFrame/PreviewFrame.tsx
+    types: src/dmeta/widgets/PreviewFrame/PreviewFrame.types.ts
+    metadata: src/dmeta/widgets/PreviewFrame/PreviewFrame.metadata.ts
+    stories: src/dmeta/widgets/PreviewFrame/PreviewFrame.stories.tsx
+    barrel: src/dmeta/widgets/PreviewFrame/index.ts

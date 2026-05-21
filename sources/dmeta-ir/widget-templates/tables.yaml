@@ -75,3 +75,124 @@ templates:
     - default
     avoid_when:
     - The concrete instance has no workflow matching this template role.
+- id: dmeta.presentation_cell
+  name: PresentationCell
+  status: template
+  classification:
+    level: atom
+    role: presentation_table_cell
+  intent:
+    purpose: Render one table cell by delegating to presentation-aware value renderers.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: tables
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes:
+    presentations:
+    - compact_ref
+    - status_badge
+    - state_cell
+    - metric_cell
+    - timestamp_inline
+    - relation_link
+  contract:
+    props:
+      PresentationCellProps:
+        fields:
+          cell:
+            type: PresentationCellViewModel
+            required: true
+    action_slots:
+      onCellAction:
+        accepts: PresentationRef
+  stories:
+  - compact_ref
+  - status
+  - metric
+  - relation
+  outputs:
+    component: src/dmeta/widgets/PresentationCell/PresentationCell.tsx
+    types: src/dmeta/widgets/PresentationCell/PresentationCell.types.ts
+    metadata: src/dmeta/widgets/PresentationCell/PresentationCell.metadata.ts
+    stories: src/dmeta/widgets/PresentationCell/PresentationCell.stories.tsx
+    barrel: src/dmeta/widgets/PresentationCell/index.ts
+- id: dmeta.bulk_action_bar
+  name: BulkActionBar
+  status: template
+  classification:
+    level: molecule
+    role: bulk_action_bar
+  intent:
+    purpose: Render actions for selected rows/presentations with count, scope, and confirmation affordances.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: tables
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes:
+    capabilities:
+    - actionable
+    presentations:
+    - compact_ref
+  contract:
+    props:
+      BulkActionBarProps:
+        fields:
+          selected:
+            type: PresentationRef[]
+            required: true
+          actions:
+            type: ActionDefinition[]
+            required: true
+    action_slots:
+      onExecuteBulk:
+        accepts: PresentationActionRequest
+      onClearSelection:
+        accepts: void
+  stories:
+  - no_selection
+  - some_selected
+  - danger_action
+  outputs:
+    component: src/dmeta/widgets/BulkActionBar/BulkActionBar.tsx
+    types: src/dmeta/widgets/BulkActionBar/BulkActionBar.types.ts
+    metadata: src/dmeta/widgets/BulkActionBar/BulkActionBar.metadata.ts
+    stories: src/dmeta/widgets/BulkActionBar/BulkActionBar.stories.tsx
+    barrel: src/dmeta/widgets/BulkActionBar/index.ts

@@ -1,0 +1,245 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: dashboards
+summary: Dashboard-first template options for single-screen and operational overview instances.
+long_summary: Templates in this file are selectable/adaptable dashboards starting points for concrete DMETA instances. They
+  are not mandatory baseline widgets; instance manifests select, rename, specialize, or exclude them.
+templates:
+- id: dmeta.operational_dashboard
+  name: OperationalDashboard
+  status: template
+  classification:
+    level: organism
+    role: dashboard_frame
+  intent:
+    purpose: Render a fixed or responsive dashboard composed of named operational regions.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: dashboards
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - region_layout
+    - refresh_policy
+    - alert_priority
+    common_variants:
+    - single_screen
+    - responsive_grid
+    - wallboard
+    avoid_when:
+    - The instance is primarily table/stream/detail workflow rather than dashboard-first.
+  consumes:
+    archetypes:
+    - ResultSet
+    - Metric
+    - WorkItem
+    capabilities:
+    - aggregatable
+    - stateful
+    - measurable
+  contract:
+    props:
+      OperationalDashboardProps:
+        fields:
+          regions:
+            type: DashboardRegionViewModel[]
+            required: true
+          density:
+            type: DensityMode
+            required: false
+  stories:
+  - wallboard
+  - operator_dashboard
+  - single_screen
+  outputs:
+    component: src/dmeta/widgets/OperationalDashboard/OperationalDashboard.tsx
+    types: src/dmeta/widgets/OperationalDashboard/OperationalDashboard.types.ts
+    metadata: src/dmeta/widgets/OperationalDashboard/OperationalDashboard.metadata.ts
+    stories: src/dmeta/widgets/OperationalDashboard/OperationalDashboard.stories.tsx
+    barrel: src/dmeta/widgets/OperationalDashboard/index.ts
+- id: dmeta.dashboard_region
+  name: DashboardRegion
+  status: template
+  classification:
+    level: molecule
+    role: dashboard_region
+  intent:
+    purpose: Render one named dashboard region with title, status, content, and optional action hooks.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: dashboards
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      DashboardRegionProps:
+        fields:
+          title:
+            type: string
+            required: true
+          children:
+            type: ReactNode
+            required: true
+          status:
+            type: PresentationRef
+            required: false
+    action_slots:
+      onRegionAction:
+        accepts: PresentationActionRequest
+  stories:
+  - metric_region
+  - queue_region
+  - event_region
+  outputs:
+    component: src/dmeta/widgets/DashboardRegion/DashboardRegion.tsx
+    types: src/dmeta/widgets/DashboardRegion/DashboardRegion.types.ts
+    metadata: src/dmeta/widgets/DashboardRegion/DashboardRegion.metadata.ts
+    stories: src/dmeta/widgets/DashboardRegion/DashboardRegion.stories.tsx
+    barrel: src/dmeta/widgets/DashboardRegion/index.ts
+- id: dmeta.metric_summary_strip
+  name: MetricSummaryStrip
+  status: template
+  classification:
+    level: molecule
+    role: metric_summary
+  intent:
+    purpose: Render a compact strip of comparable metrics and status indicators.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: dashboards
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes:
+    archetypes:
+    - Metric
+    capabilities:
+    - measurable
+    - aggregatable
+    presentations:
+    - metric_cell
+    - duration_cell
+    - status_badge
+  contract:
+    props:
+      MetricSummaryStripProps:
+        fields:
+          metrics:
+            type: MetricSummaryViewModel[]
+            required: true
+    action_slots:
+      onSelectMetric:
+        accepts: PresentationRef
+  stories:
+  - latency_cost_count
+  - with_status
+  - comparison_candidates
+  outputs:
+    component: src/dmeta/widgets/MetricSummaryStrip/MetricSummaryStrip.tsx
+    types: src/dmeta/widgets/MetricSummaryStrip/MetricSummaryStrip.types.ts
+    metadata: src/dmeta/widgets/MetricSummaryStrip/MetricSummaryStrip.metadata.ts
+    stories: src/dmeta/widgets/MetricSummaryStrip/MetricSummaryStrip.stories.tsx
+    barrel: src/dmeta/widgets/MetricSummaryStrip/index.ts
+- id: dmeta.queue_health_panel
+  name: QueueHealthPanel
+  status: template
+  classification:
+    level: molecule
+    role: queue_health_summary
+  intent:
+    purpose: Render queue depth, throughput, failure, and freshness status for operational work queues.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: dashboards
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes:
+    archetypes:
+    - WorkItem
+    - Metric
+    - ResultSet
+    capabilities:
+    - stateful
+    - measurable
+    - filterable
+  contract:
+    props:
+      QueueHealthPanelProps:
+        fields:
+          queue:
+            type: QueueHealthViewModel
+            required: true
+    action_slots:
+      onOpenQueue:
+        accepts: PresentationRef
+      onFilterQueue:
+        accepts: FilterActionRequest
+  stories:
+  - healthy
+  - backlogged
+  - failing
+  outputs:
+    component: src/dmeta/widgets/QueueHealthPanel/QueueHealthPanel.tsx
+    types: src/dmeta/widgets/QueueHealthPanel/QueueHealthPanel.types.ts
+    metadata: src/dmeta/widgets/QueueHealthPanel/QueueHealthPanel.metadata.ts
+    stories: src/dmeta/widgets/QueueHealthPanel/QueueHealthPanel.stories.tsx
+    barrel: src/dmeta/widgets/QueueHealthPanel/index.ts
