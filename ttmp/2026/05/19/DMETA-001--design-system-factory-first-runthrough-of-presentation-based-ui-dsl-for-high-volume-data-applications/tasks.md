@@ -83,3 +83,14 @@
   - [ ] Update `design-docs/04-concrete-dmeta-system-spec.md` artifact layout.
   - [ ] Update README command examples for `validate-ir`, `scaffold-instance`, and future `plan-instance`.
   - [ ] Add a short generated-code review guide for promoted instance widgets.
+
+- [x] Phase 8: Generalize Street Deli local templates into menu-ordering template families
+  - [x] Split `examples/street-deli-ordering/widget-templates/ordering-flow.yaml` into focused family files.
+  - [x] Add templates for simple items, variants, modifier groups, bundles, build-your-own flows, availability, and tracking.
+  - [x] Update `examples/street-deli-ordering/03-widgets.yaml` and local `widget-templates/00-index.yaml` file maps.
+  - [x] Update the current `street-deli-ordering` instance manifest to select the sandwich/composition subset from the family files.
+  - [x] Add at least one alternate Street Deli instantiation to prove optionality/flexibility.
+  - [x] Run `plan-instance` for all Street Deli instantiations.
+  - [x] Regenerate selected widget scaffolds under `examples/street-deli-ordering/generated/`.
+  - [x] Validate IR, run Go tests, update diary/changelog, and commit.
+

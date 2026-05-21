@@ -1,0 +1,313 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: item_cards
+summary: Menu item card templates for different menu archetypes.
+long_summary: Street Deli local item_cards templates. These are selectable menu-ordering templates; concrete instantiations
+  choose only the families they need.
+templates:
+- id: deli.composition_card
+  name: CompositionCard
+  status: template
+  classification:
+    level: molecule
+    role: composition_summary
+  intent:
+    purpose: Render a composed menu item such as a sandwich, bowl, wrap, salad, or plate with ingredients, dietary tags, and
+      price.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: item_cards
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    - dense_list
+    - image_card
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    archetypes:
+    - Composition
+    presentations:
+    - composition_card
+    capabilities:
+    - composable
+    - dietary
+    - measurable
+  contract:
+    props:
+      CompositionCardProps:
+        fields:
+          item:
+            type: MenuItemViewModel
+            required: true
+          selected:
+            type: boolean
+            required: false
+    action_slots:
+      onCustomize:
+        accepts: PresentationRef
+      onAddQuick:
+        accepts: PresentationActionRequest
+  stories:
+  - sandwich_card
+  - bowl_card
+  - dietary_badges
+  outputs:
+    component: src/street-deli/widgets/CompositionCard/CompositionCard.tsx
+    types: src/street-deli/widgets/CompositionCard/CompositionCard.types.ts
+    metadata: src/street-deli/widgets/CompositionCard/CompositionCard.metadata.ts
+    stories: src/street-deli/widgets/CompositionCard/CompositionCard.stories.tsx
+    barrel: src/street-deli/widgets/CompositionCard/index.ts
+- id: deli.simple_menu_item_card
+  name: SimpleMenuItemCard
+  status: template
+  classification:
+    level: molecule
+    role: simple_item_summary
+  intent:
+    purpose: Render a fixed item such as a bottled drink, chips, cookie, side, or grab-and-go item with quantity/add controls
+      and no customizer.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: item_cards
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - compact_tile
+    - list_row
+    - large_touch_target
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    archetypes:
+    - Resource
+    capabilities:
+    - measurable
+    - dietary
+    - available
+  contract:
+    props:
+      SimpleMenuItemCardProps:
+        fields:
+          item:
+            type: SimpleMenuItemViewModel
+            required: true
+          quantity:
+            type: number
+            required: false
+    action_slots:
+      onAdd:
+        accepts: PresentationActionRequest
+      onChangeQuantity:
+        accepts: number
+  stories:
+  - drink
+  - chips
+  - cookie
+  - sold_out
+  outputs:
+    component: src/street-deli/widgets/SimpleMenuItemCard/SimpleMenuItemCard.tsx
+    types: src/street-deli/widgets/SimpleMenuItemCard/SimpleMenuItemCard.types.ts
+    metadata: src/street-deli/widgets/SimpleMenuItemCard/SimpleMenuItemCard.metadata.ts
+    stories: src/street-deli/widgets/SimpleMenuItemCard/SimpleMenuItemCard.stories.tsx
+    barrel: src/street-deli/widgets/SimpleMenuItemCard/index.ts
+- id: deli.variant_menu_item_card
+  name: VariantMenuItemCard
+  status: template
+  classification:
+    level: molecule
+    role: variant_item_summary
+  intent:
+    purpose: Render an item whose primary choice is a variant such as size, soup cup/bowl, coffee size, or slice type.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: item_cards
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - inline_variants
+    - variant_sheet
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - configurable
+    - measurable
+  contract:
+    props:
+      VariantMenuItemCardProps:
+        fields:
+          item:
+            type: VariantMenuItemViewModel
+            required: true
+          selectedVariantId:
+            type: string
+            required: false
+    action_slots:
+      onSelectVariant:
+        accepts: PresentationRef
+      onAdd:
+        accepts: PresentationActionRequest
+  stories:
+  - coffee_sizes
+  - soup_sizes
+  - pizza_slice
+  outputs:
+    component: src/street-deli/widgets/VariantMenuItemCard/VariantMenuItemCard.tsx
+    types: src/street-deli/widgets/VariantMenuItemCard/VariantMenuItemCard.types.ts
+    metadata: src/street-deli/widgets/VariantMenuItemCard/VariantMenuItemCard.metadata.ts
+    stories: src/street-deli/widgets/VariantMenuItemCard/VariantMenuItemCard.stories.tsx
+    barrel: src/street-deli/widgets/VariantMenuItemCard/index.ts
+- id: deli.bundle_menu_item_card
+  name: BundleMenuItemCard
+  status: template
+  classification:
+    level: molecule
+    role: bundle_summary
+  intent:
+    purpose: Render a combo/bundle such as sandwich plus drink/chips, lunch special, boxed lunch, or catering bundle.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: item_cards
+    selection: rare
+    maturity: draft
+    default_importance: optional
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - combo_card
+    - catering_card
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    archetypes:
+    - Composition
+    capabilities:
+    - configurable
+    - measurable
+    - composable
+  contract:
+    props:
+      BundleMenuItemCardProps:
+        fields:
+          bundle:
+            type: BundleMenuItemViewModel
+            required: true
+    action_slots:
+      onConfigureBundle:
+        accepts: PresentationRef
+  stories:
+  - lunch_combo
+  - boxed_lunch
+  - family_bundle
+  outputs:
+    component: src/street-deli/widgets/BundleMenuItemCard/BundleMenuItemCard.tsx
+    types: src/street-deli/widgets/BundleMenuItemCard/BundleMenuItemCard.types.ts
+    metadata: src/street-deli/widgets/BundleMenuItemCard/BundleMenuItemCard.metadata.ts
+    stories: src/street-deli/widgets/BundleMenuItemCard/BundleMenuItemCard.stories.tsx
+    barrel: src/street-deli/widgets/BundleMenuItemCard/index.ts
+- id: deli.special_menu_item_card
+  name: SpecialMenuItemCard
+  status: template
+  classification:
+    level: molecule
+    role: special_item_summary
+  intent:
+    purpose: Render rotating specials, soup of the day, limited-time items, or featured menu entries.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: item_cards
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - available
+    - temporal
+    - measurable
+  contract:
+    props:
+      SpecialMenuItemCardProps:
+        fields:
+          special:
+            type: SpecialMenuItemViewModel
+            required: true
+    action_slots:
+      onSelectSpecial:
+        accepts: PresentationRef
+  stories:
+  - soup_of_day
+  - breakfast_special
+  - sold_out
+  outputs:
+    component: src/street-deli/widgets/SpecialMenuItemCard/SpecialMenuItemCard.tsx
+    types: src/street-deli/widgets/SpecialMenuItemCard/SpecialMenuItemCard.types.ts
+    metadata: src/street-deli/widgets/SpecialMenuItemCard/SpecialMenuItemCard.metadata.ts
+    stories: src/street-deli/widgets/SpecialMenuItemCard/SpecialMenuItemCard.stories.tsx
+    barrel: src/street-deli/widgets/SpecialMenuItemCard/index.ts

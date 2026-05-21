@@ -2,7 +2,7 @@
 
 export const StreetDeliIngredientRowMetadata = {
   "adaptations": null,
-  "category": "street_deli_ordering_flow",
+  "category": "substitutions",
   "generatedBy": "dmeta scaffold-instance",
   "instanceId": "street_deli_ordering",
   "reason": "Customizer needs explicit ingredient rows with remove/substitute actions.",

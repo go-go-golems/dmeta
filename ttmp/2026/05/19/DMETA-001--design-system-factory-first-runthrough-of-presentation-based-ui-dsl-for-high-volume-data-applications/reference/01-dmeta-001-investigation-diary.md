@@ -1299,3 +1299,119 @@ variant_not_declared | deli.role_tag | selected variant is not listed in templat
 - `plan-instance` returns an error only for error-severity findings.
 - Missing reasons and undeclared variants are warnings.
 - `scaffold-instance` now fails if `ValidateInstanceAgainstCatalog` returns any error-severity finding.
+
+## Step 16: Phase 8 — Generalize Street Deli Templates into Flexible Menu-Ordering Families
+
+This step turned the Street Deli widget templates from a single sandwich-oriented ordering-flow file into a flexible menu-ordering mini design system. The local template catalog is now split into families for menu browsing, item cards, customization, modifiers, substitutions, ordering, availability, and tracking.
+
+The original sandwich/composition instance still selects the same core ordering widgets, but it now selects them from family files. A second `street_deli_coffee_counter` instance proves that the same local template catalog can support a different menu shape: simple items, variants, modifier groups, quantity selection, availability badges, and a cart, while excluding sandwich ingredient rows and substitution chips.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Do it. Keep a detailed diary as you work."
+
+**Assistant interpretation:** Implement the proposed Street Deli generalization: split local templates into menu-ordering families, add templates for different menu types, add an alternate instantiation, regenerate selected widgets, and record the work carefully.
+
+**Inferred user intent:** Make Street Deli more than a one-off sandwich customization example; turn it into a reusable food/menu-ordering design-system instance that can accommodate different menu formats.
+
+**Commit (code):** N/A — pending commit at diary-writing time.
+
+### What I did
+- Added a ticket script, stored in the ticket workspace rather than `/tmp`:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/scripts/02-generalize-street-deli-menu-templates.py`
+- Split the old local Street Deli template catalog into family files:
+  - `examples/street-deli-ordering/widget-templates/menu-browsing.yaml`
+  - `examples/street-deli-ordering/widget-templates/item-cards.yaml`
+  - `examples/street-deli-ordering/widget-templates/customization.yaml`
+  - `examples/street-deli-ordering/widget-templates/modifiers.yaml`
+  - `examples/street-deli-ordering/widget-templates/substitutions.yaml`
+  - `examples/street-deli-ordering/widget-templates/ordering.yaml`
+  - `examples/street-deli-ordering/widget-templates/availability.yaml`
+  - `examples/street-deli-ordering/widget-templates/tracking.yaml`
+- Removed the old unreferenced `ordering-flow.yaml` file.
+- Added new templates for flexible menu types, including:
+  - `SimpleMenuItemCard`
+  - `VariantMenuItemCard`
+  - `BundleMenuItemCard`
+  - `SpecialMenuItemCard`
+  - `BuildYourOwnCustomizer`
+  - `ModifierGroup`
+  - `ModifierOption`
+  - `VariantSelector`
+  - `QuantitySelector`
+  - `AvailabilityBadge`
+  - `MenuScheduleNotice`
+  - `PrepTimeline`
+  - and related helper templates.
+- Updated `examples/street-deli-ordering/03-widgets.yaml` and local `widget-templates/00-index.yaml` to point to the family files.
+- Updated `examples/street-deli-ordering/instantiations/street-deli-ordering.yaml` so the original sandwich flow selects only the sandwich/composition subset.
+- Added a second instantiation:
+  - `examples/street-deli-ordering/instantiations/street-deli-coffee-counter.yaml`
+- Generated code for both instantiations:
+  - `examples/street-deli-ordering/generated/widgets/` for the original sandwich/composition flow.
+  - `examples/street-deli-ordering/generated/coffee-counter-widgets/` for the coffee-counter flow.
+- Ran `plan-instance` for both instantiations and confirmed clean plans.
+- Ran validation and tests:
+
+```bash
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+GOWORK=off go test ./...
+```
+
+### Why
+- The previous Street Deli templates were too centered on composed sandwiches and intelligent substitutions.
+- A flexible menu-ordering design system needs to support simple fixed items, variants, modifier groups, build-your-own flows, bundles, availability windows, and different tracking displays.
+- A second instantiation is the clearest proof that templates are selectable and adaptable rather than a hard-coded widget list.
+
+### What worked
+- `plan-instance` cleanly distinguishes the two menu systems:
+  - sandwich flow selects `CompositionCard`, `CompositionCustomizer`, `IngredientRow`, `SubstitutionChip`, and `RoleTag`;
+  - coffee counter selects `SimpleMenuItemCard`, `VariantMenuItemCard`, `VariantSelector`, `ModifierGroup`, `QuantitySelector`, and `AvailabilityBadge`.
+- The coffee counter explicitly excludes sandwich-specific templates with reasons.
+- The same generator can scaffold both instances from the same local family catalog.
+
+### What didn't work
+- The first coffee-counter plan reported undeclared variants for `QuantitySelector` and `AvailabilityBadge`:
+
+```text
+variant_not_declared: single_item
+variant_not_declared: scheduled
+```
+
+- I fixed the source script and regenerated the templates so those variants are declared in `common_variants`.
+- I briefly redirected scaffold output to `/tmp` log files while checking the generated output. I removed those temporary logs immediately. Scripts and persistent artifacts are now kept in the ticket or repo, as requested.
+
+### What I learned
+- Street Deli needs a local template catalog because a food-ordering system has domain-specific interaction families that do not belong in the global dense-operational template catalog.
+- The most useful flexibility proof is not adding every template to one instance; it is adding a second instance that deliberately excludes the first instance's core templates.
+- Variant validation is useful for local templates, not only global templates.
+
+### What was tricky to build
+- The tricky part was keeping the original sandwich instance stable while broadening the local catalog. The solution was to preserve the selected component names for the sandwich instance and only change where their templates come from.
+- Another tricky point was avoiding a vague all-purpose menu widget. The family split keeps menu browsing, item cards, customization, modifiers, substitutions, ordering, availability, and tracking as separate decisions.
+
+### What warrants a second pair of eyes
+- Whether the family file names are the right long-term taxonomy.
+- Whether `available` should become a formal DMETA capability; some templates reference availability semantics that are currently local/domain-level rather than in the global core model.
+- Whether coffee-counter should also select `MenuSearchBox` or `DietaryFilterBar` as a richer alternate example.
+
+### What should be done in the future
+- Add a third instantiation for catering/bundles to exercise `BundleMenuItemCard` and bulk quantities.
+- Add formal menu-ordering domain examples if Street Deli becomes a durable example package.
+- Promote generated scaffolds into real React widgets only once a concrete package/storybook target exists.
+
+### Code review instructions
+- Start with `examples/street-deli-ordering/widget-templates/00-index.yaml` and the family files in that directory.
+- Compare the two instantiations:
+  - `examples/street-deli-ordering/instantiations/street-deli-ordering.yaml`
+  - `examples/street-deli-ordering/instantiations/street-deli-coffee-counter.yaml`
+- Run both plan commands:
+
+```bash
+GOWORK=off go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table
+GOWORK=off go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-coffee-counter.yaml --output table
+```
+
+### Technical details
+- The reusable script for this phase is `scripts/02-generalize-street-deli-menu-templates.py` inside the DMETA-001 ticket workspace.
+- Generated outputs remain under the Street Deli example directory.

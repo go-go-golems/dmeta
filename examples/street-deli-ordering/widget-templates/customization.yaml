@@ -1,0 +1,248 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: customization
+summary: Customization and build-your-own templates.
+long_summary: Street Deli local customization templates. These are selectable menu-ordering templates; concrete instantiations
+  choose only the families they need.
+templates:
+- id: deli.composition_customizer
+  name: CompositionCustomizer
+  status: template
+  classification:
+    level: organism
+    role: item_customizer
+  intent:
+    purpose: Render the menu-item customization surface with ingredients, substitutions, configuration controls, dietary summary,
+      and add-to-order action.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: customization
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - bottom_sheet
+    - full_screen_mobile
+    - inline_dashboard
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    archetypes:
+    - Composition
+    presentations:
+    - composition_detail
+    - ingredient_list
+    - substitution_badge
+    capabilities:
+    - composable
+    - substitutable
+    - configurable
+    - dietary
+  contract:
+    props:
+      CompositionCustomizerProps:
+        fields:
+          item:
+            type: MenuItemDetailViewModel
+            required: true
+          draft:
+            type: CustomizationDraft
+            required: true
+    action_slots:
+      onRemoveIngredient:
+        accepts: PresentationRef
+      onApplySubstitution:
+        accepts: PresentationActionRequest
+      onAddToOrder:
+        accepts: PresentationActionRequest
+  stories:
+  - default
+  - substitution_candidates
+  - applied_substitution
+  outputs:
+    component: src/street-deli/widgets/CompositionCustomizer/CompositionCustomizer.tsx
+    types: src/street-deli/widgets/CompositionCustomizer/CompositionCustomizer.types.ts
+    metadata: src/street-deli/widgets/CompositionCustomizer/CompositionCustomizer.metadata.ts
+    stories: src/street-deli/widgets/CompositionCustomizer/CompositionCustomizer.stories.tsx
+    barrel: src/street-deli/widgets/CompositionCustomizer/index.ts
+- id: deli.build_your_own_customizer
+  name: BuildYourOwnCustomizer
+  status: template
+  classification:
+    level: organism
+    role: build_your_own_flow
+  intent:
+    purpose: Render a stepwise build-your-own sandwich/bowl/salad flow starting from base choices rather than editing an existing
+      composition.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: customization
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - stepper
+    - single_screen_sections
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - configurable
+    - composable
+    - dietary
+    - measurable
+  contract:
+    props:
+      BuildYourOwnCustomizerProps:
+        fields:
+          steps:
+            type: BuilderStepViewModel[]
+            required: true
+          draft:
+            type: BuildYourOwnDraft
+            required: true
+    action_slots:
+      onChooseOption:
+        accepts: PresentationRef
+      onCompleteBuild:
+        accepts: PresentationActionRequest
+  stories:
+  - choose_base
+  - choose_protein
+  - choose_toppings
+  outputs:
+    component: src/street-deli/widgets/BuildYourOwnCustomizer/BuildYourOwnCustomizer.tsx
+    types: src/street-deli/widgets/BuildYourOwnCustomizer/BuildYourOwnCustomizer.types.ts
+    metadata: src/street-deli/widgets/BuildYourOwnCustomizer/BuildYourOwnCustomizer.metadata.ts
+    stories: src/street-deli/widgets/BuildYourOwnCustomizer/BuildYourOwnCustomizer.stories.tsx
+    barrel: src/street-deli/widgets/BuildYourOwnCustomizer/index.ts
+- id: deli.customizer_summary
+  name: CustomizerSummary
+  status: template
+  classification:
+    level: molecule
+    role: customization_summary
+  intent:
+    purpose: Render a compact summary of selected options, removed ingredients, substitutions, price delta, and dietary/allergen
+      state.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: customization
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - measurable
+    - dietary
+    - substitutable
+  contract:
+    props:
+      CustomizerSummaryProps:
+        fields:
+          draft:
+            type: CustomizationDraft
+            required: true
+    action_slots:
+      onEditSection:
+        accepts: PresentationRef
+  stories:
+  - no_changes
+  - with_substitutions
+  - with_conflict
+  outputs:
+    component: src/street-deli/widgets/CustomizerSummary/CustomizerSummary.tsx
+    types: src/street-deli/widgets/CustomizerSummary/CustomizerSummary.types.ts
+    metadata: src/street-deli/widgets/CustomizerSummary/CustomizerSummary.metadata.ts
+    stories: src/street-deli/widgets/CustomizerSummary/CustomizerSummary.stories.tsx
+    barrel: src/street-deli/widgets/CustomizerSummary/index.ts
+- id: deli.choice_constraint_hint
+  name: ChoiceConstraintHint
+  status: template
+  classification:
+    level: atom
+    role: choice_constraint_hint
+  intent:
+    purpose: Render constraints such as choose one, choose up to three, required, extra charge, or incompatible options.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: customization
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - configurable
+  contract:
+    props:
+      ChoiceConstraintHintProps:
+        fields:
+          constraint:
+            type: ChoiceConstraintViewModel
+            required: true
+  stories:
+  - choose_one
+  - choose_up_to
+  - required_missing
+  outputs:
+    component: src/street-deli/widgets/ChoiceConstraintHint/ChoiceConstraintHint.tsx
+    types: src/street-deli/widgets/ChoiceConstraintHint/ChoiceConstraintHint.types.ts
+    metadata: src/street-deli/widgets/ChoiceConstraintHint/ChoiceConstraintHint.metadata.ts
+    stories: src/street-deli/widgets/ChoiceConstraintHint/ChoiceConstraintHint.stories.tsx
+    barrel: src/street-deli/widgets/ChoiceConstraintHint/index.ts

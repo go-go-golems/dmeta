@@ -2,13 +2,20 @@ schema_version: 0
 artifact_type: dmeta_instance
 id: street_deli_ordering
 name: Street Deli Ordering
-summary: Concrete DMETA instantiation for the Hudson Street Deli mobile ordering design system.
+summary: Concrete DMETA instantiation for the Hudson Street Deli sandwich/composition mobile ordering flow.
 instance_root: ..
 core_model_root: ../..
 template_sources:
   global_ir_root: ../../../sources/dmeta-ir
   local_template_files:
-  - ../widget-templates/ordering-flow.yaml
+  - ../widget-templates/menu-browsing.yaml
+  - ../widget-templates/item-cards.yaml
+  - ../widget-templates/customization.yaml
+  - ../widget-templates/modifiers.yaml
+  - ../widget-templates/substitutions.yaml
+  - ../widget-templates/ordering.yaml
+  - ../widget-templates/availability.yaml
+  - ../widget-templates/tracking.yaml
 generation:
   output_dir: ../generated/widgets
   package_name: street-deli-ordering-widgets
@@ -20,11 +27,11 @@ selected_templates:
 - template: deli.composition_card
   as: StreetDeliCompositionCard
   variant: mobile_default
-  reason: Menu items need compact composition summaries with dietary and price data.
+  reason: Sandwiches and bowls need compact composition summaries with dietary and price data.
 - template: deli.composition_customizer
   as: StreetDeliCompositionCustomizer
   variant: bottom_sheet
-  reason: Ingredient removal and intelligent substitutions are the core customization workflow.
+  reason: Ingredient removal and intelligent substitutions are the core sandwich customization workflow.
 - template: deli.ingredient_row
   as: StreetDeliIngredientRow
   variant: mobile_default
@@ -54,3 +61,7 @@ excluded_templates:
   reason: The customer app does not expose high-volume event streams.
 - template: dmeta.action_palette
   reason: The mobile app uses explicit tap actions rather than a command palette.
+- template: deli.simple_menu_item_card
+  reason: The sandwich instance uses composition cards for its primary items; simple fixed items are deferred.
+- template: deli.bundle_menu_item_card
+  reason: Bundles/catering are not part of this initial sandwich ordering flow.

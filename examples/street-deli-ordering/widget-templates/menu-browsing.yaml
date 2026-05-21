@@ -1,0 +1,296 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: menu_browsing
+summary: Menu discovery, navigation, filtering, and search templates.
+long_summary: Street Deli local menu_browsing templates. These are selectable menu-ordering templates; concrete instantiations
+  choose only the families they need.
+templates:
+- id: deli.menu_browser
+  name: MenuBrowser
+  status: template
+  classification:
+    level: organism
+    role: menu_browsing
+  intent:
+    purpose: Render grouped menu categories and selectable item cards for a concrete ordering entrypoint.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: menu_browsing
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_cards
+    - dense_list
+    - dashboard_grid
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    archetypes:
+    - Composition
+    - Resource
+    presentations:
+    - composition_card
+    - compact_ref
+    capabilities:
+    - dietary
+    - filter_source
+  contract:
+    props:
+      MenuBrowserProps:
+        fields:
+          categories:
+            type: MenuCategoryViewModel[]
+            required: true
+          selectedItemId:
+            type: string
+            required: false
+    action_slots:
+      onSelectItem:
+        accepts: PresentationRef
+      onFilterDietary:
+        accepts: PresentationRef
+  stories:
+  - categories
+  - dietary_filter
+  - sold_out_items
+  outputs:
+    component: src/street-deli/widgets/MenuBrowser/MenuBrowser.tsx
+    types: src/street-deli/widgets/MenuBrowser/MenuBrowser.types.ts
+    metadata: src/street-deli/widgets/MenuBrowser/MenuBrowser.metadata.ts
+    stories: src/street-deli/widgets/MenuBrowser/MenuBrowser.stories.tsx
+    barrel: src/street-deli/widgets/MenuBrowser/index.ts
+- id: deli.menu_section
+  name: MenuSection
+  status: template
+  classification:
+    level: molecule
+    role: menu_section
+  intent:
+    purpose: Render one section of a menu such as sandwiches, drinks, coffee, sides, specials, or catering trays.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: menu_browsing
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes: {}
+  contract:
+    props:
+      MenuSectionProps:
+        fields:
+          section:
+            type: MenuSectionViewModel
+            required: true
+    action_slots:
+      onSelectItem:
+        accepts: PresentationRef
+  stories:
+  - sandwiches
+  - drinks
+  - specials
+  outputs:
+    component: src/street-deli/widgets/MenuSection/MenuSection.tsx
+    types: src/street-deli/widgets/MenuSection/MenuSection.types.ts
+    metadata: src/street-deli/widgets/MenuSection/MenuSection.metadata.ts
+    stories: src/street-deli/widgets/MenuSection/MenuSection.stories.tsx
+    barrel: src/street-deli/widgets/MenuSection/index.ts
+- id: deli.menu_category_nav
+  name: MenuCategoryNav
+  status: template
+  classification:
+    level: molecule
+    role: category_navigation
+  intent:
+    purpose: Render compact category navigation for long or mixed menus.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: menu_browsing
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - horizontal_tabs
+    - sticky_rail
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes: {}
+  contract:
+    props:
+      MenuCategoryNavProps:
+        fields:
+          categories:
+            type: MenuCategoryRef[]
+            required: true
+          activeCategoryId:
+            type: string
+            required: false
+    action_slots:
+      onSelectCategory:
+        accepts: PresentationRef
+  stories:
+  - horizontal
+  - sticky
+  - many_categories
+  outputs:
+    component: src/street-deli/widgets/MenuCategoryNav/MenuCategoryNav.tsx
+    types: src/street-deli/widgets/MenuCategoryNav/MenuCategoryNav.types.ts
+    metadata: src/street-deli/widgets/MenuCategoryNav/MenuCategoryNav.metadata.ts
+    stories: src/street-deli/widgets/MenuCategoryNav/MenuCategoryNav.stories.tsx
+    barrel: src/street-deli/widgets/MenuCategoryNav/index.ts
+- id: deli.menu_search_box
+  name: MenuSearchBox
+  status: template
+  classification:
+    level: molecule
+    role: menu_search
+  intent:
+    purpose: Render menu-specific text/autocomplete search across item names, ingredients, dietary tags, categories, and specials.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: menu_browsing
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - simple_text
+    - autocomplete_by_type
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - searchable
+    - filter_source
+  contract:
+    props:
+      MenuSearchBoxProps:
+        fields:
+          query:
+            type: string
+            required: false
+          suggestions:
+            type: MenuSearchSuggestion[]
+            required: false
+    action_slots:
+      onSearch:
+        accepts: SearchExpression
+      onChooseSuggestion:
+        accepts: PresentationRef
+  stories:
+  - ingredient_autocomplete
+  - category_suggestions
+  - no_results
+  outputs:
+    component: src/street-deli/widgets/MenuSearchBox/MenuSearchBox.tsx
+    types: src/street-deli/widgets/MenuSearchBox/MenuSearchBox.types.ts
+    metadata: src/street-deli/widgets/MenuSearchBox/MenuSearchBox.metadata.ts
+    stories: src/street-deli/widgets/MenuSearchBox/MenuSearchBox.stories.tsx
+    barrel: src/street-deli/widgets/MenuSearchBox/index.ts
+- id: deli.dietary_filter_bar
+  name: DietaryFilterBar
+  status: template
+  classification:
+    level: molecule
+    role: dietary_filter_bar
+  intent:
+    purpose: Render dietary and allergen quick filters for menu browsing.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: menu_browsing
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - dietary
+    - filter_source
+    presentations:
+    - filter_chip
+  contract:
+    props:
+      DietaryFilterBarProps:
+        fields:
+          filters:
+            type: DietaryFilter[]
+            required: true
+    action_slots:
+      onToggleFilter:
+        accepts: FilterActionRequest
+  stories:
+  - vegetarian
+  - gluten_free
+  - allergen_warning
+  outputs:
+    component: src/street-deli/widgets/DietaryFilterBar/DietaryFilterBar.tsx
+    types: src/street-deli/widgets/DietaryFilterBar/DietaryFilterBar.types.ts
+    metadata: src/street-deli/widgets/DietaryFilterBar/DietaryFilterBar.metadata.ts
+    stories: src/street-deli/widgets/DietaryFilterBar/DietaryFilterBar.stories.tsx
+    barrel: src/street-deli/widgets/DietaryFilterBar/index.ts

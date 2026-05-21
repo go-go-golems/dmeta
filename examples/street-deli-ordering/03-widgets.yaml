@@ -1,11 +1,18 @@
 schema_version: 0
 artifact_type: dmeta_widget_template_package
 summary: Street Deli local widget-template package index.
-long_summary: Street Deli keeps local templates near the example so the concrete instantiation can evolve independently of
-  the global DMETA template catalog.
+long_summary: Street Deli local templates are split into menu-ordering families and selected by concrete instantiations under
+  examples/street-deli-ordering/instantiations.
 status: draft
 files:
   index: ./widget-templates/00-index.yaml
-  ordering_flow: ./widget-templates/ordering-flow.yaml
+  menu_browsing: ./widget-templates/menu-browsing.yaml
+  item_cards: ./widget-templates/item-cards.yaml
+  customization: ./widget-templates/customization.yaml
+  modifiers: ./widget-templates/modifiers.yaml
+  substitutions: ./widget-templates/substitutions.yaml
+  ordering: ./widget-templates/ordering.yaml
+  availability: ./widget-templates/availability.yaml
+  tracking: ./widget-templates/tracking.yaml
 validation:
   require_unique_template_ids: true

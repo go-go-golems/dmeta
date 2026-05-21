@@ -211,3 +211,15 @@ Phase 6: Added dmeta plan-instance and shared instance/catalog validation before
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/generator/widgets/load.go — Shared template catalog loading and instance validation
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/tasks.md — Updated Phase 6 task status and remaining adaptation-schema task
 
+
+## 2026-05-20
+
+Phase 8: Generalized Street Deli local templates into menu-ordering families, added coffee-counter instantiation, and regenerated selected widget scaffolds for both instances.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/generated/coffee-counter-widgets/README.md — Generated coffee-counter widget scaffold summary
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/instantiations/street-deli-coffee-counter.yaml — Alternate instance proving flexible template selection
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/widget-templates/00-index.yaml — Local menu-ordering template family index
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/scripts/02-generalize-street-deli-menu-templates.py — Reproducible script for Street Deli family split and alternate instantiation
+
