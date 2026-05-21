@@ -749,6 +749,91 @@ A valid v0 draft should support these flows:
 
 If both flows use the same generic presentations and widgets, the model is on track.
 
+
+## 2026-05 Widget Template and Instance Manifest Update
+
+The original version of this document described `03-widgets.yaml` as a monolithic widget IR. That model has been replaced. DMETA now treats widgets as **selectable templates**. The global `03-widgets.yaml` file is a package index with `artifact_type: dmeta_widget_template_package`, and concrete template records live in split files under `sources/dmeta-ir/widget-templates/`.
+
+The current global layout is:
+
+```text
+sources/dmeta-ir/
+  03-widgets.yaml
+  widget-templates/
+    00-index.yaml
+    actions.yaml
+    dashboards.yaml
+    data-display.yaml
+    filters.yaml
+    forms.yaml
+    layout.yaml
+    presentations.yaml
+    states.yaml
+    streams.yaml
+    surfaces.yaml
+    tables.yaml
+```
+
+A template record keeps the earlier widget contract fields, but it also includes selection metadata:
+
+```yaml
+template:
+  category: filters
+  selection: optional
+  maturity: draft
+  default_importance: common
+  selection_questions:
+    - Does this concrete instance need this widget behavior?
+  adaptation_points:
+    autocomplete_sources:
+      type: list
+      required_for_variants: [autocomplete_entity_search]
+      description: Suggestion sources exposed by the instance adapter.
+  common_variants:
+    - simple_text_search
+    - autocomplete_entity_search
+  avoid_when:
+    - Search is not a primary workflow or fixed filters are sufficient.
+```
+
+Concrete instances select templates from the global catalog and from optional local template files. A manifest lives under an `instantiations/` directory:
+
+```yaml
+schema_version: 0
+artifact_type: dmeta_instance
+id: street_deli_ordering
+name: Street Deli Ordering
+template_sources:
+  global_ir_root: ../../../sources/dmeta-ir
+  local_template_files:
+    - ../widget-templates/menu-browsing.yaml
+    - ../widget-templates/item-cards.yaml
+generation:
+  output_dir: ../generated/widgets
+selected_templates:
+  - template: deli.composition_customizer
+    as: StreetDeliCompositionCustomizer
+    variant: bottom_sheet
+    reason: Ingredient removal and intelligent substitutions are the core sandwich customization workflow.
+excluded_templates:
+  - template: dmeta.dense_table
+    reason: The street-deli flow is card/customizer/cart oriented, not table oriented.
+```
+
+The generator path is now:
+
+```text
+widget templates + instance manifest
+  -> dmeta plan-instance
+  -> dmeta scaffold-instance
+  -> generated selected widget scaffolds
+  -> manual promotion
+```
+
+`plan-instance` validates selected template ids, excluded template ids, duplicate concrete component names, selection/exclusion reasons, declared variants, and required adaptation points. `scaffold-instance` reuses that validation path before writing files.
+
+The key invariant is: a template being present in the catalog does not mean it should be generated. Generation is controlled by instance manifests.
+
 ## Open Questions
 
 1. Should `core-model/examples/*.yaml` become a separate examples package once domain adapters exist?
