@@ -1,0 +1,278 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: states
+summary: Empty/loading/error/connection state templates.
+long_summary: Templates in this file are selectable/adaptable states starting points for concrete DMETA instances. They are
+  not mandatory baseline widgets; instance manifests select, rename, specialize, or exclude them.
+templates:
+- id: dmeta.empty_state
+  name: EmptyState
+  status: template
+  classification:
+    level: atom
+    role: empty_state
+  intent:
+    purpose: Render a quiet empty/no-results state with optional recovery action.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: states
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      EmptyStateProps:
+        fields:
+          title:
+            type: string
+            required: true
+          description:
+            type: string
+            required: false
+    action_slots:
+      onAction:
+        accepts: PresentationActionRequest
+  stories:
+  - no_data
+  - no_filtered_results
+  - no_permission
+  outputs:
+    component: src/dmeta/widgets/EmptyState/EmptyState.tsx
+    types: src/dmeta/widgets/EmptyState/EmptyState.types.ts
+    metadata: src/dmeta/widgets/EmptyState/EmptyState.metadata.ts
+    stories: src/dmeta/widgets/EmptyState/EmptyState.stories.tsx
+    barrel: src/dmeta/widgets/EmptyState/index.ts
+- id: dmeta.loading_state
+  name: LoadingState
+  status: template
+  classification:
+    level: atom
+    role: loading_state
+  intent:
+    purpose: Render loading/progress state for panels, streams, tables, and dashboards.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: states
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      LoadingStateProps:
+        fields:
+          label:
+            type: string
+            required: false
+          progress:
+            type: number
+            required: false
+  stories:
+  - spinner
+  - progress
+  - skeleton
+  outputs:
+    component: src/dmeta/widgets/LoadingState/LoadingState.tsx
+    types: src/dmeta/widgets/LoadingState/LoadingState.types.ts
+    metadata: src/dmeta/widgets/LoadingState/LoadingState.metadata.ts
+    stories: src/dmeta/widgets/LoadingState/LoadingState.stories.tsx
+    barrel: src/dmeta/widgets/LoadingState/index.ts
+- id: dmeta.inline_error
+  name: InlineError
+  status: template
+  classification:
+    level: atom
+    role: inline_error
+  intent:
+    purpose: Render a compact recoverable error state with message, detail, and retry action.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: states
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      InlineErrorProps:
+        fields:
+          message:
+            type: string
+            required: true
+          detail:
+            type: string
+            required: false
+    action_slots:
+      onRetry:
+        accepts: void
+  stories:
+  - validation_error
+  - backend_error
+  - retryable
+  outputs:
+    component: src/dmeta/widgets/InlineError/InlineError.tsx
+    types: src/dmeta/widgets/InlineError/InlineError.types.ts
+    metadata: src/dmeta/widgets/InlineError/InlineError.metadata.ts
+    stories: src/dmeta/widgets/InlineError/InlineError.stories.tsx
+    barrel: src/dmeta/widgets/InlineError/index.ts
+- id: dmeta.disconnected_state
+  name: DisconnectedState
+  status: template
+  classification:
+    level: molecule
+    role: connection_state
+  intent:
+    purpose: Render disconnected/reconnecting/stale realtime data state.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: states
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      DisconnectedStateProps:
+        fields:
+          status:
+            type: '"connected" | "reconnecting" | "disconnected"'
+            required: true
+    action_slots:
+      onReconnect:
+        accepts: void
+  stories:
+  - connected
+  - reconnecting
+  - disconnected
+  outputs:
+    component: src/dmeta/widgets/DisconnectedState/DisconnectedState.tsx
+    types: src/dmeta/widgets/DisconnectedState/DisconnectedState.types.ts
+    metadata: src/dmeta/widgets/DisconnectedState/DisconnectedState.metadata.ts
+    stories: src/dmeta/widgets/DisconnectedState/DisconnectedState.stories.tsx
+    barrel: src/dmeta/widgets/DisconnectedState/index.ts
+- id: dmeta.stale_data_indicator
+  name: StaleDataIndicator
+  status: template
+  classification:
+    level: atom
+    role: freshness_indicator
+  intent:
+    purpose: Render last-updated/freshness warning for dashboards and live result surfaces.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: states
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes:
+    capabilities:
+    - temporal
+  contract:
+    props:
+      StaleDataIndicatorProps:
+        fields:
+          lastUpdated:
+            type: string
+            required: false
+          stale:
+            type: boolean
+            required: true
+    action_slots:
+      onRefresh:
+        accepts: void
+  stories:
+  - fresh
+  - stale
+  - refreshing
+  outputs:
+    component: src/dmeta/widgets/StaleDataIndicator/StaleDataIndicator.tsx
+    types: src/dmeta/widgets/StaleDataIndicator/StaleDataIndicator.types.ts
+    metadata: src/dmeta/widgets/StaleDataIndicator/StaleDataIndicator.metadata.ts
+    stories: src/dmeta/widgets/StaleDataIndicator/StaleDataIndicator.stories.tsx
+    barrel: src/dmeta/widgets/StaleDataIndicator/index.ts

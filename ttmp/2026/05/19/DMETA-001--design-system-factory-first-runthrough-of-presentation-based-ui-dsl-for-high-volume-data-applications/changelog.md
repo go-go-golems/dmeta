@@ -184,3 +184,18 @@ Phase 4: Validated split widget-template IR, ran Go tests, and confirmed DMETA-0
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/03-widgets.yaml — Validated widget-template package index
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/reference/01-dmeta-001-investigation-diary.md — Diary updated for phases
 
+
+## 2026-05-20
+
+Phase 5: Expanded global widget-template catalog to 48 templates across filters, layout, dashboards, forms, states, data-display, actions, tables, and existing categories; added detailed task subtasks and a ticket script for the expansion.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/widget-templates/dashboards.yaml — New dashboard templates
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/widget-templates/data-display.yaml — New optional/rare data-display templates
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/widget-templates/filters.yaml — New filter/search/result-state templates
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/widget-templates/forms.yaml — New form/field templates
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/widget-templates/layout.yaml — New layout templates
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/widget-templates/states.yaml — New empty/loading/error/state templates
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/scripts/01-expand-widget-templates.py — Reproducible ticket script for the catalog expansion
+

@@ -1,0 +1,558 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: forms
+summary: Action parameter and basic field templates.
+long_summary: Templates in this file are selectable/adaptable forms starting points for concrete DMETA instances. They are
+  not mandatory baseline widgets; instance manifests select, rename, specialize, or exclude them.
+templates:
+- id: dmeta.action_parameter_form
+  name: ActionParameterForm
+  status: template
+  classification:
+    level: organism
+    role: action_argument_form
+  intent:
+    purpose: Render typed action parameters, confirmation text, and submit/cancel controls for selected actions.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: forms
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - field_set
+    - validation
+    - confirmation_copy
+    common_variants:
+    - inline
+    - dialog
+    - drawer
+    avoid_when:
+    - The selected instance exposes no parameterized or side-effecting actions.
+  consumes:
+    archetypes:
+    - ActionSpec
+    capabilities:
+    - parameterized
+    - actionable
+  contract:
+    props:
+      ActionParameterFormProps:
+        fields:
+          action:
+            type: ActionDefinition
+            required: true
+          parameters:
+            type: ParameterField[]
+            required: true
+    action_slots:
+      onSubmit:
+        accepts: PresentationActionRequest
+      onCancel:
+        accepts: void
+  stories:
+  - simple_params
+  - confirmation
+  - validation_errors
+  outputs:
+    component: src/dmeta/widgets/ActionParameterForm/ActionParameterForm.tsx
+    types: src/dmeta/widgets/ActionParameterForm/ActionParameterForm.types.ts
+    metadata: src/dmeta/widgets/ActionParameterForm/ActionParameterForm.metadata.ts
+    stories: src/dmeta/widgets/ActionParameterForm/ActionParameterForm.stories.tsx
+    barrel: src/dmeta/widgets/ActionParameterForm/index.ts
+- id: dmeta.field_group
+  name: FieldGroup
+  status: template
+  classification:
+    level: molecule
+    role: field_group
+  intent:
+    purpose: Render a labeled group of fields with description, validation summary, and density rules.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: forms
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      FieldGroupProps:
+        fields:
+          title:
+            type: string
+            required: false
+          children:
+            type: ReactNode
+            required: true
+  stories:
+  - basic
+  - with_description
+  - with_error
+  outputs:
+    component: src/dmeta/widgets/FieldGroup/FieldGroup.tsx
+    types: src/dmeta/widgets/FieldGroup/FieldGroup.types.ts
+    metadata: src/dmeta/widgets/FieldGroup/FieldGroup.metadata.ts
+    stories: src/dmeta/widgets/FieldGroup/FieldGroup.stories.tsx
+    barrel: src/dmeta/widgets/FieldGroup/index.ts
+- id: dmeta.field_shell
+  name: FieldShell
+  status: template
+  classification:
+    level: atom
+    role: field_chrome
+  intent:
+    purpose: Render consistent label/help/error/required chrome around a form control.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: forms
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      FieldShellProps:
+        fields:
+          label:
+            type: string
+            required: false
+          help:
+            type: string
+            required: false
+          error:
+            type: string
+            required: false
+          children:
+            type: ReactNode
+            required: true
+  stories:
+  - label_help
+  - error
+  - required
+  outputs:
+    component: src/dmeta/widgets/FieldShell/FieldShell.tsx
+    types: src/dmeta/widgets/FieldShell/FieldShell.types.ts
+    metadata: src/dmeta/widgets/FieldShell/FieldShell.metadata.ts
+    stories: src/dmeta/widgets/FieldShell/FieldShell.stories.tsx
+    barrel: src/dmeta/widgets/FieldShell/index.ts
+- id: dmeta.text_field
+  name: TextField
+  status: template
+  classification:
+    level: atom
+    role: text_input
+  intent:
+    purpose: Render a single-line text input for filters, search scopes, and action parameters.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: forms
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      TextFieldProps:
+        fields:
+          value:
+            type: string
+            required: false
+          placeholder:
+            type: string
+            required: false
+    action_slots:
+      onChange:
+        accepts: string
+  stories:
+  - empty
+  - with_value
+  - error
+  outputs:
+    component: src/dmeta/widgets/TextField/TextField.tsx
+    types: src/dmeta/widgets/TextField/TextField.types.ts
+    metadata: src/dmeta/widgets/TextField/TextField.metadata.ts
+    stories: src/dmeta/widgets/TextField/TextField.stories.tsx
+    barrel: src/dmeta/widgets/TextField/index.ts
+- id: dmeta.textarea_field
+  name: TextareaField
+  status: template
+  classification:
+    level: atom
+    role: multiline_text_input
+  intent:
+    purpose: Render multiline input for notes, prompts, payload fragments, or longer parameters.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: forms
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      TextareaFieldProps:
+        fields:
+          value:
+            type: string
+            required: false
+          rows:
+            type: number
+            required: false
+    action_slots:
+      onChange:
+        accepts: string
+  stories:
+  - short
+  - long
+  - error
+  outputs:
+    component: src/dmeta/widgets/TextareaField/TextareaField.tsx
+    types: src/dmeta/widgets/TextareaField/TextareaField.types.ts
+    metadata: src/dmeta/widgets/TextareaField/TextareaField.metadata.ts
+    stories: src/dmeta/widgets/TextareaField/TextareaField.stories.tsx
+    barrel: src/dmeta/widgets/TextareaField/index.ts
+- id: dmeta.select_field
+  name: SelectField
+  status: template
+  classification:
+    level: atom
+    role: choice_input
+  intent:
+    purpose: Render enum or finite-choice parameter selection.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: forms
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      SelectFieldProps:
+        fields:
+          value:
+            type: string
+            required: false
+          options:
+            type: SelectOption[]
+            required: true
+    action_slots:
+      onChange:
+        accepts: string
+  stories:
+  - single_select
+  - many_options
+  - empty
+  outputs:
+    component: src/dmeta/widgets/SelectField/SelectField.tsx
+    types: src/dmeta/widgets/SelectField/SelectField.types.ts
+    metadata: src/dmeta/widgets/SelectField/SelectField.metadata.ts
+    stories: src/dmeta/widgets/SelectField/SelectField.stories.tsx
+    barrel: src/dmeta/widgets/SelectField/index.ts
+- id: dmeta.switch_field
+  name: SwitchField
+  status: template
+  classification:
+    level: atom
+    role: boolean_input
+  intent:
+    purpose: Render a boolean parameter or filter toggle.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: forms
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes: {}
+  contract:
+    props:
+      SwitchFieldProps:
+        fields:
+          checked:
+            type: boolean
+            required: true
+          label:
+            type: string
+            required: false
+    action_slots:
+      onChange:
+        accepts: boolean
+  stories:
+  - 'on'
+  - 'off'
+  - disabled
+  outputs:
+    component: src/dmeta/widgets/SwitchField/SwitchField.tsx
+    types: src/dmeta/widgets/SwitchField/SwitchField.types.ts
+    metadata: src/dmeta/widgets/SwitchField/SwitchField.metadata.ts
+    stories: src/dmeta/widgets/SwitchField/SwitchField.stories.tsx
+    barrel: src/dmeta/widgets/SwitchField/index.ts
+- id: dmeta.datetime_field
+  name: DateTimeField
+  status: template
+  classification:
+    level: atom
+    role: datetime_input
+  intent:
+    purpose: Render date/time input for schedules, time windows, and temporal filters.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: forms
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes:
+    capabilities:
+    - temporal
+  contract:
+    props:
+      DateTimeFieldProps:
+        fields:
+          value:
+            type: string
+            required: false
+    action_slots:
+      onChange:
+        accepts: string
+  stories:
+  - date_only
+  - datetime
+  - range_start
+  outputs:
+    component: src/dmeta/widgets/DateTimeField/DateTimeField.tsx
+    types: src/dmeta/widgets/DateTimeField/DateTimeField.types.ts
+    metadata: src/dmeta/widgets/DateTimeField/DateTimeField.metadata.ts
+    stories: src/dmeta/widgets/DateTimeField/DateTimeField.stories.tsx
+    barrel: src/dmeta/widgets/DateTimeField/index.ts
+- id: dmeta.duration_field
+  name: DurationField
+  status: template
+  classification:
+    level: atom
+    role: duration_input
+  intent:
+    purpose: Render duration, timeout, SLA, or time-window size input.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: forms
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes:
+    capabilities:
+    - temporal
+  contract:
+    props:
+      DurationFieldProps:
+        fields:
+          valueMs:
+            type: number
+            required: false
+    action_slots:
+      onChange:
+        accepts: number
+  stories:
+  - seconds
+  - minutes
+  - custom
+  outputs:
+    component: src/dmeta/widgets/DurationField/DurationField.tsx
+    types: src/dmeta/widgets/DurationField/DurationField.types.ts
+    metadata: src/dmeta/widgets/DurationField/DurationField.metadata.ts
+    stories: src/dmeta/widgets/DurationField/DurationField.stories.tsx
+    barrel: src/dmeta/widgets/DurationField/index.ts
+- id: dmeta.number_field
+  name: NumberField
+  status: template
+  classification:
+    level: atom
+    role: number_input
+  intent:
+    purpose: Render numeric input for limits, thresholds, counts, and metric filters.
+    adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
+      JSON or own trusted side effects.
+  template:
+    category: forms
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
+    - Which selected presentations/actions should this template expose?
+    adaptation_points:
+    - component_name
+    - props
+    - stories
+    - presentation_mapping
+    - action_slots
+    - density
+    - empty_state
+    common_variants:
+    - default
+    avoid_when:
+    - The instance has no workflow matching this template role.
+    - A more specific local template better expresses the product interaction.
+  consumes:
+    capabilities:
+    - measurable
+  contract:
+    props:
+      NumberFieldProps:
+        fields:
+          value:
+            type: number
+            required: false
+    action_slots:
+      onChange:
+        accepts: number
+  stories:
+  - integer
+  - decimal
+  - threshold
+  outputs:
+    component: src/dmeta/widgets/NumberField/NumberField.tsx
+    types: src/dmeta/widgets/NumberField/NumberField.types.ts
+    metadata: src/dmeta/widgets/NumberField/NumberField.metadata.ts
+    stories: src/dmeta/widgets/NumberField/NumberField.stories.tsx
+    barrel: src/dmeta/widgets/NumberField/index.ts
