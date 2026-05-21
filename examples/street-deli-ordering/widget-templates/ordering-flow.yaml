@@ -1,0 +1,494 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: street_deli_ordering_flow
+summary: Street Deli ordering-flow widget templates.
+long_summary: Concrete street-deli instances select from these local templates when generating the mobile ordering design
+  system under examples/street-deli-ordering.
+templates:
+- id: deli.menu_browser
+  name: MenuBrowser
+  status: template
+  classification:
+    level: organism
+    role: menu_browsing
+  intent:
+    purpose: Render grouped menu categories and selectable menu-item composition cards for the ordering entrypoint.
+    adapter_boundary: Receives normalized street-deli view models and emits typed presentation/action callbacks; does not
+      call backend or parse raw source YAML.
+  template:
+    category: street_deli_ordering_flow
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this ordering instance need a concrete MenuBrowser widget or is the behavior covered by another selected template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_cards
+    - dense_list
+    avoid_when:
+    - The concrete ordering flow does not expose this part of the menu/customization/cart lifecycle.
+  consumes:
+    archetypes:
+    - Composition
+    presentations:
+    - composition_card
+    - compact_ref
+    capabilities:
+    - composable
+    - dietary
+  contract:
+    props:
+      MenuBrowserProps:
+        fields:
+          categories:
+            type: MenuCategoryViewModel[]
+            required: true
+          selectedItemId:
+            type: string
+            required: false
+    action_slots:
+      onSelectItem:
+        accepts: PresentationRef
+      onFilterDietary:
+        accepts: PresentationRef
+  stories:
+  - categories
+  - dietary_filter
+  - sold_out_items
+  outputs:
+    component: src/street-deli/widgets/MenuBrowser/MenuBrowser.tsx
+    types: src/street-deli/widgets/MenuBrowser/MenuBrowser.types.ts
+    metadata: src/street-deli/widgets/MenuBrowser/MenuBrowser.metadata.ts
+    stories: src/street-deli/widgets/MenuBrowser/MenuBrowser.stories.tsx
+    barrel: src/street-deli/widgets/MenuBrowser/index.ts
+- id: deli.composition_card
+  name: CompositionCard
+  status: template
+  classification:
+    level: molecule
+    role: composition_summary
+  intent:
+    purpose: Render a menu item as a compact selectable composition summary with price, dietary tags, and primary customize
+      action.
+    adapter_boundary: Receives normalized street-deli view models and emits typed presentation/action callbacks; does not
+      call backend or parse raw source YAML.
+  template:
+    category: street_deli_ordering_flow
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this ordering instance need a concrete CompositionCard widget or is the behavior covered by another selected template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The concrete ordering flow does not expose this part of the menu/customization/cart lifecycle.
+  consumes:
+    archetypes:
+    - Composition
+    presentations:
+    - composition_card
+    capabilities:
+    - composable
+    - dietary
+    - measurable
+  contract:
+    props:
+      CompositionCardProps:
+        fields:
+          item:
+            type: MenuItemViewModel
+            required: true
+          selected:
+            type: boolean
+            required: false
+    action_slots:
+      onCustomize:
+        accepts: PresentationRef
+      onAddQuick:
+        accepts: PresentationActionRequest
+  stories:
+  - sandwich_card
+  - bowl_card
+  - dietary_badges
+  outputs:
+    component: src/street-deli/widgets/CompositionCard/CompositionCard.tsx
+    types: src/street-deli/widgets/CompositionCard/CompositionCard.types.ts
+    metadata: src/street-deli/widgets/CompositionCard/CompositionCard.metadata.ts
+    stories: src/street-deli/widgets/CompositionCard/CompositionCard.stories.tsx
+    barrel: src/street-deli/widgets/CompositionCard/index.ts
+- id: deli.composition_customizer
+  name: CompositionCustomizer
+  status: template
+  classification:
+    level: organism
+    role: item_customizer
+  intent:
+    purpose: Render the menu-item customization surface with ingredient rows, substitution suggestions, configuration controls,
+      dietary summary, and add-to-order action.
+    adapter_boundary: Receives normalized street-deli view models and emits typed presentation/action callbacks; does not
+      call backend or parse raw source YAML.
+  template:
+    category: street_deli_ordering_flow
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this ordering instance need a concrete CompositionCustomizer widget or is the behavior covered by another selected
+      template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - action_slots
+    - story_examples
+    common_variants:
+    - bottom_sheet
+    - full_screen_mobile
+    avoid_when:
+    - The concrete ordering flow does not expose this part of the menu/customization/cart lifecycle.
+  consumes:
+    archetypes:
+    - Composition
+    presentations:
+    - composition_detail
+    - ingredient_list
+    - substitution_badge
+    capabilities:
+    - composable
+    - substitutable
+    - configurable
+    - dietary
+  contract:
+    props:
+      CompositionCustomizerProps:
+        fields:
+          item:
+            type: MenuItemDetailViewModel
+            required: true
+          draft:
+            type: CustomizationDraft
+            required: true
+    action_slots:
+      onRemoveIngredient:
+        accepts: PresentationRef
+      onApplySubstitution:
+        accepts: PresentationActionRequest
+      onAddToOrder:
+        accepts: PresentationActionRequest
+  stories:
+  - default
+  - substitution_candidates
+  - applied_substitution
+  outputs:
+    component: src/street-deli/widgets/CompositionCustomizer/CompositionCustomizer.tsx
+    types: src/street-deli/widgets/CompositionCustomizer/CompositionCustomizer.types.ts
+    metadata: src/street-deli/widgets/CompositionCustomizer/CompositionCustomizer.metadata.ts
+    stories: src/street-deli/widgets/CompositionCustomizer/CompositionCustomizer.stories.tsx
+    barrel: src/street-deli/widgets/CompositionCustomizer/index.ts
+- id: deli.ingredient_row
+  name: IngredientRow
+  status: template
+  classification:
+    level: molecule
+    role: ingredient_composition_row
+  intent:
+    purpose: Render one ingredient in a composition with role labels, required/optional status, dietary/allergen hints, and
+      remove/substitute actions.
+    adapter_boundary: Receives normalized street-deli view models and emits typed presentation/action callbacks; does not
+      call backend or parse raw source YAML.
+  template:
+    category: street_deli_ordering_flow
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this ordering instance need a concrete IngredientRow widget or is the behavior covered by another selected template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The concrete ordering flow does not expose this part of the menu/customization/cart lifecycle.
+  consumes:
+    presentations:
+    - ingredient_list
+    - compact_ref
+    capabilities:
+    - dietary
+    - substitutable
+  contract:
+    props:
+      IngredientRowProps:
+        fields:
+          ingredient:
+            type: IngredientViewModel
+            required: true
+          removable:
+            type: boolean
+            required: false
+    action_slots:
+      onRemove:
+        accepts: PresentationRef
+      onShowSubstitutions:
+        accepts: PresentationRef
+  stories:
+  - required_ingredient
+  - optional_ingredient
+  - removed_state
+  outputs:
+    component: src/street-deli/widgets/IngredientRow/IngredientRow.tsx
+    types: src/street-deli/widgets/IngredientRow/IngredientRow.types.ts
+    metadata: src/street-deli/widgets/IngredientRow/IngredientRow.metadata.ts
+    stories: src/street-deli/widgets/IngredientRow/IngredientRow.stories.tsx
+    barrel: src/street-deli/widgets/IngredientRow/index.ts
+- id: deli.substitution_chip
+  name: SubstitutionChip
+  status: template
+  classification:
+    level: atom
+    role: substitution_suggestion
+  intent:
+    purpose: Render an inline replacement suggestion showing original to replacement, dietary compatibility, role fit, and
+      price delta.
+    adapter_boundary: Receives normalized street-deli view models and emits typed presentation/action callbacks; does not
+      call backend or parse raw source YAML.
+  template:
+    category: street_deli_ordering_flow
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this ordering instance need a concrete SubstitutionChip widget or is the behavior covered by another selected template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The concrete ordering flow does not expose this part of the menu/customization/cart lifecycle.
+  consumes:
+    presentations:
+    - substitution_badge
+    - substitution_pair
+    capabilities:
+    - substitutable
+    - dietary
+    - measurable
+  contract:
+    props:
+      SubstitutionChipProps:
+        fields:
+          suggestion:
+            type: SubstitutionSuggestionViewModel
+            required: true
+          state:
+            type: '"suggested" | "applied" | "dismissed"'
+            required: false
+    action_slots:
+      onApply:
+        accepts: PresentationActionRequest
+      onReject:
+        accepts: PresentationActionRequest
+  stories:
+  - no_cheese_to_avocado
+  - applied_state
+  - allergen_warning
+  outputs:
+    component: src/street-deli/widgets/SubstitutionChip/SubstitutionChip.tsx
+    types: src/street-deli/widgets/SubstitutionChip/SubstitutionChip.types.ts
+    metadata: src/street-deli/widgets/SubstitutionChip/SubstitutionChip.metadata.ts
+    stories: src/street-deli/widgets/SubstitutionChip/SubstitutionChip.stories.tsx
+    barrel: src/street-deli/widgets/SubstitutionChip/index.ts
+- id: deli.order_cart
+  name: OrderCart
+  status: template
+  classification:
+    level: organism
+    role: cart_management
+  intent:
+    purpose: Render cart line items, item customizations, totals, fulfillment details, and checkout/submit actions.
+    adapter_boundary: Receives normalized street-deli view models and emits typed presentation/action callbacks; does not
+      call backend or parse raw source YAML.
+  template:
+    category: street_deli_ordering_flow
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this ordering instance need a concrete OrderCart widget or is the behavior covered by another selected template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_bottom_sheet
+    - full_page
+    avoid_when:
+    - The concrete ordering flow does not expose this part of the menu/customization/cart lifecycle.
+  consumes:
+    archetypes:
+    - WorkItem
+    - Composition
+    presentations:
+    - order_item_row
+    - compact_ref
+    capabilities:
+    - measurable
+    - stateful
+  contract:
+    props:
+      OrderCartProps:
+        fields:
+          items:
+            type: OrderItemViewModel[]
+            required: true
+          totals:
+            type: OrderTotalsViewModel
+            required: true
+    action_slots:
+      onRemoveItem:
+        accepts: PresentationRef
+      onSubmitOrder:
+        accepts: PresentationActionRequest
+  stories:
+  - empty_cart
+  - multiple_items
+  - checkout_ready
+  outputs:
+    component: src/street-deli/widgets/OrderCart/OrderCart.tsx
+    types: src/street-deli/widgets/OrderCart/OrderCart.types.ts
+    metadata: src/street-deli/widgets/OrderCart/OrderCart.metadata.ts
+    stories: src/street-deli/widgets/OrderCart/OrderCart.stories.tsx
+    barrel: src/street-deli/widgets/OrderCart/index.ts
+- id: deli.order_tracker
+  name: OrderTracker
+  status: template
+  classification:
+    level: organism
+    role: prep_tracking
+  intent:
+    purpose: Render order preparation status, timeline events, pickup instructions, and related order references.
+    adapter_boundary: Receives normalized street-deli view models and emits typed presentation/action callbacks; does not
+      call backend or parse raw source YAML.
+  template:
+    category: street_deli_ordering_flow
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this ordering instance need a concrete OrderTracker widget or is the behavior covered by another selected template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - action_slots
+    - story_examples
+    common_variants:
+    - compact_status
+    - timeline
+    avoid_when:
+    - The concrete ordering flow does not expose this part of the menu/customization/cart lifecycle.
+  consumes:
+    archetypes:
+    - WorkItem
+    - TimelineSpan
+    - Event
+    presentations:
+    - prep_status_indicator
+    - timeline_marker
+    - dense_row
+    capabilities:
+    - stateful
+    - temporal
+    - relatable
+  contract:
+    props:
+      OrderTrackerProps:
+        fields:
+          order:
+            type: OrderTrackingViewModel
+            required: true
+    action_slots:
+      onInspectOrder:
+        accepts: PresentationRef
+      onOpenEvent:
+        accepts: PresentationRef
+  stories:
+  - received
+  - in_prep
+  - ready_for_pickup
+  outputs:
+    component: src/street-deli/widgets/OrderTracker/OrderTracker.tsx
+    types: src/street-deli/widgets/OrderTracker/OrderTracker.types.ts
+    metadata: src/street-deli/widgets/OrderTracker/OrderTracker.metadata.ts
+    stories: src/street-deli/widgets/OrderTracker/OrderTracker.stories.tsx
+    barrel: src/street-deli/widgets/OrderTracker/index.ts
+- id: deli.role_tag
+  name: RoleTag
+  status: template
+  classification:
+    level: atom
+    role: ingredient_role_label
+  intent:
+    purpose: Render an ultra-compact ingredient role label such as protein, crunch, richness, heat, freshness, or structure.
+    adapter_boundary: Receives normalized street-deli view models and emits typed presentation/action callbacks; does not
+      call backend or parse raw source YAML.
+  template:
+    category: street_deli_ordering_flow
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Does this ordering instance need a concrete RoleTag widget or is the behavior covered by another selected template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The concrete ordering flow does not expose this part of the menu/customization/cart lifecycle.
+  consumes: {}
+  contract:
+    props:
+      RoleTagProps:
+        fields:
+          role:
+            type: ingredient_role
+            required: true
+          size:
+            type: '"compact" | "regular"'
+            required: false
+  stories:
+  - all_roles
+  - compact_mode
+  outputs:
+    component: src/street-deli/widgets/RoleTag/RoleTag.tsx
+    types: src/street-deli/widgets/RoleTag/RoleTag.types.ts
+    metadata: src/street-deli/widgets/RoleTag/RoleTag.metadata.ts
+    stories: src/street-deli/widgets/RoleTag/RoleTag.stories.tsx
+    barrel: src/street-deli/widgets/RoleTag/index.ts

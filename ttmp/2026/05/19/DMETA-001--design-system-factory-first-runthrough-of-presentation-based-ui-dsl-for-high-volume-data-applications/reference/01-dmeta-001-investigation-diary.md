@@ -1016,3 +1016,98 @@ GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-in
 - Start with `sources/dmeta-ir/03-widgets.yaml`, then inspect `sources/dmeta-ir/widget-templates/*.yaml`.
 - Review `pkg/dmeta/validator/load.go` to confirm there is no monolithic widget fallback.
 - Validate with `GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table`.
+
+## Step 13: Phases 2-3 — Street Deli Instantiation Manifest and Selected Widget Scaffolding
+
+This step added the first concrete widget-template instantiation. The Street Deli example now owns a local `widget-templates/` package and an `instantiations/street-deli-ordering.yaml` manifest that selects only the widgets needed for the ordering flow. The generated code is written under `examples/street-deli-ordering/generated/widgets/`, keeping the example self-contained.
+
+The generator now uses the instance manifest as the boundary between the meta design system and a concrete design-system instance. It merges global templates with local instance templates, resolves selected template ids, applies instance aliases/variants in metadata, and scaffolds only the selected components.
+
+### Prompt Context
+
+**User prompt (verbatim):** (same as Step 12)
+
+**Assistant interpretation:** Continue the clean implementation by adding local street-deli templates, creating the instance manifest under an `instantiations/` directory, implementing generator support, and generating the selected scaffolds under the example directory.
+
+**Inferred user intent:** Demonstrate that DMETA can instantiate a concrete app-specific widget set without forcing every global template into the generated output.
+
+**Commit (code):** N/A — pending commit at diary-writing time.
+
+### What I did
+- Created local street-deli template package files:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/widget-templates/00-index.yaml`
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/widget-templates/ordering-flow.yaml`
+- Replaced the example's `03-widgets.yaml` with a local widget-template package index.
+- Created the instance manifest:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/instantiations/street-deli-ordering.yaml`
+- Selected concrete widgets including:
+  - `StreetDeliMenuBrowser`
+  - `StreetDeliCompositionCard`
+  - `StreetDeliCompositionCustomizer`
+  - `StreetDeliIngredientRow`
+  - `StreetDeliSubstitutionChip`
+  - `StreetDeliOrderCart`
+  - `StreetDeliOrderTracker`
+  - `StreetDeliRoleTag`
+- Explicitly excluded generic templates such as `dmeta.detail_drawer`, `dmeta.dense_table`, `dmeta.record_stream`, and `dmeta.action_palette` with reasons.
+- Added `dmeta scaffold-instance` CLI command.
+- Added `pkg/dmeta/generator/widgets/` with instance loading, template resolution, scaffold rendering, and file writing.
+- Generated selected widget scaffolds under:
+  - `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/generated/widgets/`
+- Ran dry-run and actual generation:
+
+```bash
+GOWORK=off go run ./cmd/dmeta scaffold-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --dry-run --output table
+GOWORK=off go run ./cmd/dmeta scaffold-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --force --output table
+```
+- Validated and tested:
+
+```bash
+GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+GOWORK=off go test ./...
+```
+
+### Why
+- The user requested the instance manifest under an `instantiations` directory and generated code under the street-deli example directory.
+- Street Deli needs app-specific widgets and should not inherit irrelevant dense/table/stream widgets by default.
+- A real instantiation proves that the widget-template split is not just documentation.
+
+### What worked
+- The instance manifest can point at global DMETA IR and local template files.
+- The generator wrote only selected widgets, not excluded or unselected templates.
+- The generated metadata preserves template id, instance id, selected alias, variant, and reason.
+- The street-deli example remains self-contained: local templates, manifest, and generated code are all under `examples/street-deli-ordering/`.
+
+### What didn't work
+- The original example `03-widgets.yaml` could not be parsed as YAML because some prose fields used plain scalars with punctuation-heavy text. Rather than preserve that monolithic file, I replaced it with a clean local template package index and wrote valid local template files.
+
+### What I learned
+- Instance manifests need local template sources; otherwise concrete apps like Street Deli have to overload the global catalog with domain-specific widgets.
+- A generator planning/dry-run mode is useful before writing dozens of scaffold files.
+- Even simple generated scaffolds are enough to test the selection model because they produce component/type/story/metadata files only for chosen templates.
+
+### What was tricky to build
+- Path resolution was the main sharp edge. The manifest lives in `examples/street-deli-ordering/instantiations/`, so local template paths and output paths are resolved relative to the manifest directory. The global IR root is also manifest-relative unless passed explicitly by CLI flag.
+- Another tricky point was TypeScript type generation. The scaffolder emits placeholder `unknown` aliases for domain view-model types so generated props can reference names like `MenuCategoryViewModel[]` without requiring the domain model to exist yet.
+
+### What warrants a second pair of eyes
+- Whether generated widgets should live under `generated/widgets/` or under a more package-like path such as `generated/street-deli-ordering-widgets/`.
+- Whether the manifest should have an explicit `local_template_packages` field instead of raw `local_template_files`.
+- Whether selected template variants should be validated against formal variant definitions next.
+
+### What should be done in the future
+- Add `plan-instance` as a separate command that reports selected/excluded templates and missing adaptations without rendering files.
+- Add validator support for `dmeta_instance` manifests.
+- Add formal variant/adaptation schemas to widget templates.
+- Promote generated street-deli scaffolds into real React widgets only when a concrete package/storybook target exists.
+
+### Code review instructions
+- Start with `examples/street-deli-ordering/instantiations/street-deli-ordering.yaml`.
+- Review local templates in `examples/street-deli-ordering/widget-templates/ordering-flow.yaml`.
+- Review the generator in `pkg/dmeta/generator/widgets/` and CLI wiring in `pkg/dmeta/cmds/scaffold_instance.go` plus `cmd/dmeta/main.go`.
+- Regenerate with `GOWORK=off go run ./cmd/dmeta scaffold-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --force --output table`.
+
+### Technical details
+- Generated files are intentionally scaffolds with metadata sidecars.
+- Existing generated files are skipped unless `--force` is passed.
+- There is no compatibility loader for monolithic `03-widgets.yaml`; source and example widgets use package-index form.

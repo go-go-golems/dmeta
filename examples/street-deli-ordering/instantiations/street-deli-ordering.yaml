@@ -1,0 +1,56 @@
+schema_version: 0
+artifact_type: dmeta_instance
+id: street_deli_ordering
+name: Street Deli Ordering
+summary: Concrete DMETA instantiation for the Hudson Street Deli mobile ordering design system.
+instance_root: ..
+core_model_root: ../..
+template_sources:
+  global_ir_root: ../../../sources/dmeta-ir
+  local_template_files:
+  - ../widget-templates/ordering-flow.yaml
+generation:
+  output_dir: ../generated/widgets
+  package_name: street-deli-ordering-widgets
+selected_templates:
+- template: deli.menu_browser
+  as: StreetDeliMenuBrowser
+  variant: mobile_cards
+  reason: Primary mobile ordering entrypoint needs category browsing and menu-item cards.
+- template: deli.composition_card
+  as: StreetDeliCompositionCard
+  variant: mobile_default
+  reason: Menu items need compact composition summaries with dietary and price data.
+- template: deli.composition_customizer
+  as: StreetDeliCompositionCustomizer
+  variant: bottom_sheet
+  reason: Ingredient removal and intelligent substitutions are the core customization workflow.
+- template: deli.ingredient_row
+  as: StreetDeliIngredientRow
+  variant: mobile_default
+  reason: Customizer needs explicit ingredient rows with remove/substitute actions.
+- template: deli.substitution_chip
+  as: StreetDeliSubstitutionChip
+  variant: mobile_default
+  reason: Replacement suggestions need a compact reusable action presentation.
+- template: deli.order_cart
+  as: StreetDeliOrderCart
+  variant: mobile_bottom_sheet
+  reason: Ordering flow needs cart review, totals, and submit actions.
+- template: deli.order_tracker
+  as: StreetDeliOrderTracker
+  variant: compact_status
+  reason: After order submission, users need preparation status and pickup state.
+- template: deli.role_tag
+  as: StreetDeliRoleTag
+  variant: compact_mode
+  reason: Ingredient roles are central to explaining substitutions and composition structure.
+excluded_templates:
+- template: dmeta.detail_drawer
+  reason: The mobile ordering flow uses bottom-sheet/full-screen surfaces instead of desktop detail drawers.
+- template: dmeta.dense_table
+  reason: The street-deli flow is card/customizer/cart oriented, not table oriented.
+- template: dmeta.record_stream
+  reason: The customer app does not expose high-volume event streams.
+- template: dmeta.action_palette
+  reason: The mobile app uses explicit tap actions rather than a command palette.

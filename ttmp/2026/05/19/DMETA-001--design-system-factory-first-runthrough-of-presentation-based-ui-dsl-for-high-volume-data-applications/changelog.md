@@ -160,3 +160,16 @@ Phase 1: Cleanly cut over source widget IR from monolithic 03-widgets.yaml to sp
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/03-widgets.yaml — Clean widget-template package index
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/sources/dmeta-ir/widget-templates/00-index.yaml — New widget-template package index
 
+
+## 2026-05-20
+
+Phases 2-3: Added street-deli-ordering instantiation manifest/local templates and implemented scaffold-instance generator to emit selected widget scaffolds under the example directory.
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/generated/widgets/README.md — Generated scaffold output summary
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/instantiations/street-deli-ordering.yaml — Concrete instance manifest selecting/adapting local widget templates
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/examples/street-deli-ordering/widget-templates/ordering-flow.yaml — Street-deli local widget templates
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/cmds/scaffold_instance.go — CLI command for selected-template scaffolding
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/pkg/dmeta/generator/widgets/render.go — Instance widget scaffold renderer
+

@@ -1,0 +1,9 @@
+schema_version: 0
+artifact_type: dmeta_widget_template_index
+summary: Street Deli local widget templates for the ordering-flow instance.
+long_summary: These local templates specialize the generic DMETA widget-template model for sandwich/menu ordering, ingredient
+  composition, substitutions, cart management, and prep tracking.
+files:
+  ordering_flow: ./ordering-flow.yaml
+validation:
+  require_unique_template_ids: true
