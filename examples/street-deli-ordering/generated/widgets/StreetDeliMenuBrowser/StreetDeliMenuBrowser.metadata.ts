@@ -2,7 +2,7 @@
 
 export const StreetDeliMenuBrowserMetadata = {
   "adaptations": null,
-  "category": "street_deli_ordering_flow",
+  "category": "menu_browsing",
   "generatedBy": "dmeta scaffold-instance",
   "instanceId": "street_deli_ordering",
   "reason": "Primary mobile ordering entrypoint needs category browsing and menu-item cards.",

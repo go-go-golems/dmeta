@@ -2,7 +2,7 @@
 
 export const StreetDeliSubstitutionChipMetadata = {
   "adaptations": null,
-  "category": "street_deli_ordering_flow",
+  "category": "substitutions",
   "generatedBy": "dmeta scaffold-instance",
   "instanceId": "street_deli_ordering",
   "reason": "Replacement suggestions need a compact reusable action presentation.",

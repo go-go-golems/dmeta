@@ -1,0 +1,221 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: availability
+summary: Availability, specials, sold-out, and schedule templates.
+long_summary: Street Deli local availability templates. These are selectable menu-ordering templates; concrete instantiations
+  choose only the families they need.
+templates:
+- id: deli.availability_badge
+  name: AvailabilityBadge
+  status: template
+  classification:
+    level: atom
+    role: availability_badge
+  intent:
+    purpose: Render availability state such as available, sold out, limited, breakfast only, or unavailable until time.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: availability
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - available
+    - sold_out
+    - limited
+    - scheduled
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - stateful
+    - temporal
+    - available
+  contract:
+    props:
+      AvailabilityBadgeProps:
+        fields:
+          availability:
+            type: AvailabilityViewModel
+            required: true
+  stories:
+  - available
+  - sold_out
+  - limited
+  - scheduled
+  outputs:
+    component: src/street-deli/widgets/AvailabilityBadge/AvailabilityBadge.tsx
+    types: src/street-deli/widgets/AvailabilityBadge/AvailabilityBadge.types.ts
+    metadata: src/street-deli/widgets/AvailabilityBadge/AvailabilityBadge.metadata.ts
+    stories: src/street-deli/widgets/AvailabilityBadge/AvailabilityBadge.stories.tsx
+    barrel: src/street-deli/widgets/AvailabilityBadge/index.ts
+- id: deli.sold_out_state
+  name: SoldOutState
+  status: template
+  classification:
+    level: molecule
+    role: sold_out_state
+  intent:
+    purpose: Render sold-out messaging and optional related substitutions/alternatives.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: availability
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - stateful
+    - relatable
+  contract:
+    props:
+      SoldOutStateProps:
+        fields:
+          item:
+            type: PresentationRef
+            required: true
+          alternatives:
+            type: PresentationRef[]
+            required: false
+    action_slots:
+      onChooseAlternative:
+        accepts: PresentationRef
+  stories:
+  - no_alternatives
+  - with_alternatives
+  outputs:
+    component: src/street-deli/widgets/SoldOutState/SoldOutState.tsx
+    types: src/street-deli/widgets/SoldOutState/SoldOutState.types.ts
+    metadata: src/street-deli/widgets/SoldOutState/SoldOutState.metadata.ts
+    stories: src/street-deli/widgets/SoldOutState/SoldOutState.stories.tsx
+    barrel: src/street-deli/widgets/SoldOutState/index.ts
+- id: deli.menu_schedule_notice
+  name: MenuScheduleNotice
+  status: template
+  classification:
+    level: molecule
+    role: menu_schedule_notice
+  intent:
+    purpose: Render menu availability windows such as breakfast until 11am or specials available weekdays.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: availability
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - temporal
+    - stateful
+  contract:
+    props:
+      MenuScheduleNoticeProps:
+        fields:
+          schedule:
+            type: MenuScheduleViewModel
+            required: true
+  stories:
+  - breakfast_until
+  - closed
+  - special_window
+  outputs:
+    component: src/street-deli/widgets/MenuScheduleNotice/MenuScheduleNotice.tsx
+    types: src/street-deli/widgets/MenuScheduleNotice/MenuScheduleNotice.types.ts
+    metadata: src/street-deli/widgets/MenuScheduleNotice/MenuScheduleNotice.metadata.ts
+    stories: src/street-deli/widgets/MenuScheduleNotice/MenuScheduleNotice.stories.tsx
+    barrel: src/street-deli/widgets/MenuScheduleNotice/index.ts
+- id: deli.specials_badge
+  name: SpecialsBadge
+  status: template
+  classification:
+    level: atom
+    role: specials_badge
+  intent:
+    purpose: Render compact labels for specials, featured items, limited run, or soup of the day.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: availability
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - labelable
+    - temporal
+  contract:
+    props:
+      SpecialsBadgeProps:
+        fields:
+          label:
+            type: string
+            required: true
+  stories:
+  - soup_of_day
+  - limited
+  - featured
+  outputs:
+    component: src/street-deli/widgets/SpecialsBadge/SpecialsBadge.tsx
+    types: src/street-deli/widgets/SpecialsBadge/SpecialsBadge.types.ts
+    metadata: src/street-deli/widgets/SpecialsBadge/SpecialsBadge.metadata.ts
+    stories: src/street-deli/widgets/SpecialsBadge/SpecialsBadge.stories.tsx
+    barrel: src/street-deli/widgets/SpecialsBadge/index.ts

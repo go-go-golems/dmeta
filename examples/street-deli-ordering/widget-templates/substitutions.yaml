@@ -1,0 +1,297 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: substitutions
+summary: Ingredient and substitution templates.
+long_summary: Street Deli local substitutions templates. These are selectable menu-ordering templates; concrete instantiations
+  choose only the families they need.
+templates:
+- id: deli.ingredient_row
+  name: IngredientRow
+  status: template
+  classification:
+    level: molecule
+    role: ingredient_composition_row
+  intent:
+    purpose: Render one ingredient in a composition with role labels, required/optional status, dietary/allergen hints, and
+      remove/substitute actions.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: substitutions
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    presentations:
+    - ingredient_list
+    - compact_ref
+    capabilities:
+    - dietary
+    - substitutable
+  contract:
+    props:
+      IngredientRowProps:
+        fields:
+          ingredient:
+            type: IngredientViewModel
+            required: true
+          removable:
+            type: boolean
+            required: false
+    action_slots:
+      onRemove:
+        accepts: PresentationRef
+      onShowSubstitutions:
+        accepts: PresentationRef
+  stories:
+  - required_ingredient
+  - optional_ingredient
+  - removed_state
+  outputs:
+    component: src/street-deli/widgets/IngredientRow/IngredientRow.tsx
+    types: src/street-deli/widgets/IngredientRow/IngredientRow.types.ts
+    metadata: src/street-deli/widgets/IngredientRow/IngredientRow.metadata.ts
+    stories: src/street-deli/widgets/IngredientRow/IngredientRow.stories.tsx
+    barrel: src/street-deli/widgets/IngredientRow/index.ts
+- id: deli.substitution_chip
+  name: SubstitutionChip
+  status: template
+  classification:
+    level: atom
+    role: substitution_suggestion
+  intent:
+    purpose: Render an inline replacement suggestion showing original to replacement, dietary compatibility, role fit, and
+      price delta.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: substitutions
+    selection: common
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    presentations:
+    - substitution_badge
+    - substitution_pair
+    capabilities:
+    - substitutable
+    - dietary
+    - measurable
+  contract:
+    props:
+      SubstitutionChipProps:
+        fields:
+          suggestion:
+            type: SubstitutionSuggestionViewModel
+            required: true
+          state:
+            type: '"suggested" | "applied" | "dismissed"'
+            required: false
+    action_slots:
+      onApply:
+        accepts: PresentationActionRequest
+      onReject:
+        accepts: PresentationActionRequest
+  stories:
+  - no_cheese_to_avocado
+  - applied_state
+  - allergen_warning
+  outputs:
+    component: src/street-deli/widgets/SubstitutionChip/SubstitutionChip.tsx
+    types: src/street-deli/widgets/SubstitutionChip/SubstitutionChip.types.ts
+    metadata: src/street-deli/widgets/SubstitutionChip/SubstitutionChip.metadata.ts
+    stories: src/street-deli/widgets/SubstitutionChip/SubstitutionChip.stories.tsx
+    barrel: src/street-deli/widgets/SubstitutionChip/index.ts
+- id: deli.substitution_detail_sheet
+  name: SubstitutionDetailSheet
+  status: template
+  classification:
+    level: organism
+    role: substitution_detail_sheet
+  intent:
+    purpose: Render all replacement candidates for a removed ingredient with comparison, compatibility, and apply actions.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: substitutions
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - bottom_sheet
+    - inline_panel
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - substitutable
+    - dietary
+    - measurable
+  contract:
+    props:
+      SubstitutionDetailSheetProps:
+        fields:
+          removed:
+            type: IngredientViewModel
+            required: true
+          candidates:
+            type: SubstitutionSuggestionViewModel[]
+            required: true
+    action_slots:
+      onApply:
+        accepts: PresentationActionRequest
+  stories:
+  - multiple_candidates
+  - no_candidates
+  - allergen_conflicts
+  outputs:
+    component: src/street-deli/widgets/SubstitutionDetailSheet/SubstitutionDetailSheet.tsx
+    types: src/street-deli/widgets/SubstitutionDetailSheet/SubstitutionDetailSheet.types.ts
+    metadata: src/street-deli/widgets/SubstitutionDetailSheet/SubstitutionDetailSheet.metadata.ts
+    stories: src/street-deli/widgets/SubstitutionDetailSheet/SubstitutionDetailSheet.stories.tsx
+    barrel: src/street-deli/widgets/SubstitutionDetailSheet/index.ts
+- id: deli.dietary_conflict_notice
+  name: DietaryConflictNotice
+  status: template
+  classification:
+    level: molecule
+    role: dietary_conflict_notice
+  intent:
+    purpose: Render warning text when a selected ingredient/modifier/substitution conflicts with dietary or allergen constraints.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: substitutions
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - dietary
+  contract:
+    props:
+      DietaryConflictNoticeProps:
+        fields:
+          conflicts:
+            type: DietaryConflict[]
+            required: true
+    action_slots:
+      onResolveConflict:
+        accepts: PresentationActionRequest
+  stories:
+  - allergen
+  - dietary_preference
+  - resolved
+  outputs:
+    component: src/street-deli/widgets/DietaryConflictNotice/DietaryConflictNotice.tsx
+    types: src/street-deli/widgets/DietaryConflictNotice/DietaryConflictNotice.types.ts
+    metadata: src/street-deli/widgets/DietaryConflictNotice/DietaryConflictNotice.metadata.ts
+    stories: src/street-deli/widgets/DietaryConflictNotice/DietaryConflictNotice.stories.tsx
+    barrel: src/street-deli/widgets/DietaryConflictNotice/index.ts
+- id: deli.role_tag
+  name: RoleTag
+  status: template
+  classification:
+    level: atom
+    role: ingredient_role_label
+  intent:
+    purpose: Render an ultra-compact ingredient role label such as protein, crunch, richness, heat, freshness, or structure.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: substitutions
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - compact_mode
+    - regular
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes: {}
+  contract:
+    props:
+      RoleTagProps:
+        fields:
+          role:
+            type: ingredient_role
+            required: true
+          size:
+            type: '"compact" | "regular"'
+            required: false
+  stories:
+  - all_roles
+  - compact_mode
+  outputs:
+    component: src/street-deli/widgets/RoleTag/RoleTag.tsx
+    types: src/street-deli/widgets/RoleTag/RoleTag.types.ts
+    metadata: src/street-deli/widgets/RoleTag/RoleTag.metadata.ts
+    stories: src/street-deli/widgets/RoleTag/RoleTag.stories.tsx
+    barrel: src/street-deli/widgets/RoleTag/index.ts

@@ -2,10 +2,10 @@
 
 export const StreetDeliCompositionCardMetadata = {
   "adaptations": null,
-  "category": "street_deli_ordering_flow",
+  "category": "item_cards",
   "generatedBy": "dmeta scaffold-instance",
   "instanceId": "street_deli_ordering",
-  "reason": "Menu items need compact composition summaries with dietary and price data.",
+  "reason": "Sandwiches and bowls need compact composition summaries with dietary and price data.",
   "selectedAs": "StreetDeliCompositionCard",
   "templateId": "deli.composition_card",
   "variant": "mobile_default"

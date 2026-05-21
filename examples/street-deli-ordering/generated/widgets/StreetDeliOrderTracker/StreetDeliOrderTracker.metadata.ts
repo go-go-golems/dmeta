@@ -2,7 +2,7 @@
 
 export const StreetDeliOrderTrackerMetadata = {
   "adaptations": null,
-  "category": "street_deli_ordering_flow",
+  "category": "tracking",
   "generatedBy": "dmeta scaffold-instance",
   "instanceId": "street_deli_ordering",
   "reason": "After order submission, users need preparation status and pickup state.",

@@ -2,7 +2,7 @@
 
 export const StreetDeliRoleTagMetadata = {
   "adaptations": null,
-  "category": "street_deli_ordering_flow",
+  "category": "substitutions",
   "generatedBy": "dmeta scaffold-instance",
   "instanceId": "street_deli_ordering",
   "reason": "Ingredient roles are central to explaining substitutions and composition structure.",

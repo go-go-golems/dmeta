@@ -1,0 +1,292 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: modifiers
+summary: Variant, modifier, option, and quantity templates.
+long_summary: Street Deli local modifiers templates. These are selectable menu-ordering templates; concrete instantiations
+  choose only the families they need.
+templates:
+- id: deli.modifier_group
+  name: ModifierGroup
+  status: template
+  classification:
+    level: molecule
+    role: modifier_group
+  intent:
+    purpose: Render a group of related choices such as bread, cheese, toppings, dressing, milk, sweetener, or side choice.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: modifiers
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - radio_group
+    - checkbox_group
+    - chip_group
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - configurable
+  contract:
+    props:
+      ModifierGroupProps:
+        fields:
+          group:
+            type: ModifierGroupViewModel
+            required: true
+    action_slots:
+      onChooseOption:
+        accepts: PresentationRef
+  stories:
+  - single_choice
+  - multi_choice
+  - required
+  outputs:
+    component: src/street-deli/widgets/ModifierGroup/ModifierGroup.tsx
+    types: src/street-deli/widgets/ModifierGroup/ModifierGroup.types.ts
+    metadata: src/street-deli/widgets/ModifierGroup/ModifierGroup.metadata.ts
+    stories: src/street-deli/widgets/ModifierGroup/ModifierGroup.stories.tsx
+    barrel: src/street-deli/widgets/ModifierGroup/index.ts
+- id: deli.modifier_option
+  name: ModifierOption
+  status: template
+  classification:
+    level: atom
+    role: modifier_option
+  intent:
+    purpose: Render one selectable option inside a modifier group, including price delta and dietary/allergen notes.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: modifiers
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - measurable
+    - dietary
+  contract:
+    props:
+      ModifierOptionProps:
+        fields:
+          option:
+            type: ModifierOptionViewModel
+            required: true
+          selected:
+            type: boolean
+            required: false
+    action_slots:
+      onSelect:
+        accepts: PresentationRef
+  stories:
+  - free_option
+  - price_delta
+  - allergen
+  outputs:
+    component: src/street-deli/widgets/ModifierOption/ModifierOption.tsx
+    types: src/street-deli/widgets/ModifierOption/ModifierOption.types.ts
+    metadata: src/street-deli/widgets/ModifierOption/ModifierOption.metadata.ts
+    stories: src/street-deli/widgets/ModifierOption/ModifierOption.stories.tsx
+    barrel: src/street-deli/widgets/ModifierOption/index.ts
+- id: deli.variant_selector
+  name: VariantSelector
+  status: template
+  classification:
+    level: molecule
+    role: variant_selector
+  intent:
+    purpose: Render mutually exclusive variants such as size, soup cup/bowl, bread type, or temperature.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: modifiers
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - segmented
+    - list
+    - chips
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - configurable
+    - measurable
+  contract:
+    props:
+      VariantSelectorProps:
+        fields:
+          variants:
+            type: MenuVariantViewModel[]
+            required: true
+          selectedVariantId:
+            type: string
+            required: false
+    action_slots:
+      onSelectVariant:
+        accepts: PresentationRef
+  stories:
+  - size_selector
+  - soup_size
+  - coffee_size
+  outputs:
+    component: src/street-deli/widgets/VariantSelector/VariantSelector.tsx
+    types: src/street-deli/widgets/VariantSelector/VariantSelector.types.ts
+    metadata: src/street-deli/widgets/VariantSelector/VariantSelector.metadata.ts
+    stories: src/street-deli/widgets/VariantSelector/VariantSelector.stories.tsx
+    barrel: src/street-deli/widgets/VariantSelector/index.ts
+- id: deli.quantity_selector
+  name: QuantitySelector
+  status: template
+  classification:
+    level: atom
+    role: quantity_selector
+  intent:
+    purpose: Render plus/minus or stepper quantity controls for simple items, cart lines, and catering quantities.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: modifiers
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - single_item
+    - cart_line
+    - bulk_quantity
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - measurable
+  contract:
+    props:
+      QuantitySelectorProps:
+        fields:
+          quantity:
+            type: number
+            required: true
+          min:
+            type: number
+            required: false
+          max:
+            type: number
+            required: false
+    action_slots:
+      onChangeQuantity:
+        accepts: number
+  stories:
+  - single_item
+  - cart_line
+  - bulk_quantity
+  outputs:
+    component: src/street-deli/widgets/QuantitySelector/QuantitySelector.tsx
+    types: src/street-deli/widgets/QuantitySelector/QuantitySelector.types.ts
+    metadata: src/street-deli/widgets/QuantitySelector/QuantitySelector.metadata.ts
+    stories: src/street-deli/widgets/QuantitySelector/QuantitySelector.stories.tsx
+    barrel: src/street-deli/widgets/QuantitySelector/index.ts
+- id: deli.price_delta_text
+  name: PriceDeltaText
+  status: template
+  classification:
+    level: atom
+    role: price_delta
+  intent:
+    purpose: Render price deltas and total adjustments for variants, modifiers, substitutions, and quantities.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: modifiers
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - measurable
+  contract:
+    props:
+      PriceDeltaTextProps:
+        fields:
+          deltaCents:
+            type: number
+            required: true
+          showZero:
+            type: boolean
+            required: false
+  stories:
+  - free
+  - extra
+  - discount
+  outputs:
+    component: src/street-deli/widgets/PriceDeltaText/PriceDeltaText.tsx
+    types: src/street-deli/widgets/PriceDeltaText/PriceDeltaText.types.ts
+    metadata: src/street-deli/widgets/PriceDeltaText/PriceDeltaText.metadata.ts
+    stories: src/street-deli/widgets/PriceDeltaText/PriceDeltaText.stories.tsx
+    barrel: src/street-deli/widgets/PriceDeltaText/index.ts

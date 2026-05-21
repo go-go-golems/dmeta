@@ -1,0 +1,239 @@
+schema_version: 0
+artifact_type: dmeta_widget_templates
+category: tracking
+summary: Preparation and pickup-tracking templates.
+long_summary: Street Deli local tracking templates. These are selectable menu-ordering templates; concrete instantiations
+  choose only the families they need.
+templates:
+- id: deli.order_tracker
+  name: OrderTracker
+  status: template
+  classification:
+    level: organism
+    role: prep_tracking
+  intent:
+    purpose: Render order preparation status, timeline events, pickup instructions, and related order references.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: tracking
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - compact_status
+    - timeline
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    archetypes:
+    - WorkItem
+    - TimelineSpan
+    - Event
+    presentations:
+    - prep_status_indicator
+    - timeline_marker
+    - dense_row
+    capabilities:
+    - stateful
+    - temporal
+    - relatable
+  contract:
+    props:
+      OrderTrackerProps:
+        fields:
+          order:
+            type: OrderTrackingViewModel
+            required: true
+    action_slots:
+      onInspectOrder:
+        accepts: PresentationRef
+      onOpenEvent:
+        accepts: PresentationRef
+  stories:
+  - received
+  - in_prep
+  - ready_for_pickup
+  outputs:
+    component: src/street-deli/widgets/OrderTracker/OrderTracker.tsx
+    types: src/street-deli/widgets/OrderTracker/OrderTracker.types.ts
+    metadata: src/street-deli/widgets/OrderTracker/OrderTracker.metadata.ts
+    stories: src/street-deli/widgets/OrderTracker/OrderTracker.stories.tsx
+    barrel: src/street-deli/widgets/OrderTracker/index.ts
+- id: deli.prep_status_badge
+  name: PrepStatusBadge
+  status: template
+  classification:
+    level: atom
+    role: prep_status_badge
+  intent:
+    purpose: Render order preparation status such as received, in prep, ready, delayed, or picked up.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: tracking
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - stateful
+    presentations:
+    - prep_status_indicator
+  contract:
+    props:
+      PrepStatusBadgeProps:
+        fields:
+          status:
+            type: string
+            required: true
+          tone:
+            type: tone
+            required: false
+  stories:
+  - received
+  - in_prep
+  - ready
+  outputs:
+    component: src/street-deli/widgets/PrepStatusBadge/PrepStatusBadge.tsx
+    types: src/street-deli/widgets/PrepStatusBadge/PrepStatusBadge.types.ts
+    metadata: src/street-deli/widgets/PrepStatusBadge/PrepStatusBadge.metadata.ts
+    stories: src/street-deli/widgets/PrepStatusBadge/PrepStatusBadge.stories.tsx
+    barrel: src/street-deli/widgets/PrepStatusBadge/index.ts
+- id: deli.prep_timeline
+  name: PrepTimeline
+  status: template
+  classification:
+    level: molecule
+    role: prep_timeline
+  intent:
+    purpose: Render preparation events and estimated pickup progression.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: tracking
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    archetypes:
+    - Event
+    - TimelineSpan
+    capabilities:
+    - temporal
+    - stateful
+  contract:
+    props:
+      PrepTimelineProps:
+        fields:
+          events:
+            type: PrepEventViewModel[]
+            required: true
+    action_slots:
+      onSelectEvent:
+        accepts: PresentationRef
+  stories:
+  - short
+  - delayed
+  - ready
+  outputs:
+    component: src/street-deli/widgets/PrepTimeline/PrepTimeline.tsx
+    types: src/street-deli/widgets/PrepTimeline/PrepTimeline.types.ts
+    metadata: src/street-deli/widgets/PrepTimeline/PrepTimeline.metadata.ts
+    stories: src/street-deli/widgets/PrepTimeline/PrepTimeline.stories.tsx
+    barrel: src/street-deli/widgets/PrepTimeline/index.ts
+- id: deli.pickup_ready_notice
+  name: PickupReadyNotice
+  status: template
+  classification:
+    level: molecule
+    role: pickup_ready_notice
+  intent:
+    purpose: Render prominent pickup-ready state, pickup shelf/location, and order reference.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: tracking
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+    - component_name
+    - mobile_layout
+    - presentation_mapping
+    - copy_and_labels
+    - action_slots
+    - story_examples
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - stateful
+    - relatable
+  contract:
+    props:
+      PickupReadyNoticeProps:
+        fields:
+          order:
+            type: OrderTrackingViewModel
+            required: true
+    action_slots:
+      onConfirmPickup:
+        accepts: PresentationActionRequest
+  stories:
+  - ready
+  - picked_up
+  - late
+  outputs:
+    component: src/street-deli/widgets/PickupReadyNotice/PickupReadyNotice.tsx
+    types: src/street-deli/widgets/PickupReadyNotice/PickupReadyNotice.types.ts
+    metadata: src/street-deli/widgets/PickupReadyNotice/PickupReadyNotice.metadata.ts
+    stories: src/street-deli/widgets/PickupReadyNotice/PickupReadyNotice.stories.tsx
+    barrel: src/street-deli/widgets/PickupReadyNotice/index.ts

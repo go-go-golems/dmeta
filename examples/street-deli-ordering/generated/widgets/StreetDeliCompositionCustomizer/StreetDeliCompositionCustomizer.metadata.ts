@@ -2,10 +2,10 @@
 
 export const StreetDeliCompositionCustomizerMetadata = {
   "adaptations": null,
-  "category": "street_deli_ordering_flow",
+  "category": "customization",
   "generatedBy": "dmeta scaffold-instance",
   "instanceId": "street_deli_ordering",
-  "reason": "Ingredient removal and intelligent substitutions are the core customization workflow.",
+  "reason": "Ingredient removal and intelligent substitutions are the core sandwich customization workflow.",
   "selectedAs": "StreetDeliCompositionCustomizer",
   "templateId": "deli.composition_customizer",
   "variant": "bottom_sheet"
