@@ -10,7 +10,18 @@ references:
   design_doc: ../../../design-docs/02-semantic-archetype-and-capability-model.md
   spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
 capabilities:
+  Capability:
+    abstract: true
+    description: Root affordance/projection class.
+    extends: []
+    projections: {}
+    presentations: []
+    actions: []
+    filters: []
+    long_description: Every semantic capability inherits from Capability. The root is abstract and exists so validation, generated TypeScript, and action/presentation matching can reason about the full capability hierarchy explicitly.
   identifiable:
+    extends:
+    - Capability
     description: Subject has stable identity.
     projections:
       id:
@@ -30,6 +41,8 @@ capabilities:
       many downstream behaviors depend on it: compact references, copy actions, detail routing, relation matching, and stable
       selection state.'
   labelable:
+    extends:
+    - Capability
     description: Subject has human-readable label text.
     projections:
       label:
@@ -50,6 +63,8 @@ capabilities:
       to stable ids for precision. Optional subtitles provide secondary context such as model name, destination, owner, or
       short description.'
   stateful:
+    extends:
+    - Capability
     description: Subject has state/status that can be shown, filtered, and acted on.
     projections:
       state:
@@ -78,6 +93,8 @@ capabilities:
       phase. Stateful presentations such as status badges must pair text with tone; color reinforces meaning but does not
       replace it.
   temporal:
+    extends:
+    - Capability
     description: Subject has instant, interval, or duration time semantics.
     projections:
       timestamp:
@@ -107,6 +124,8 @@ capabilities:
       those. Dense operational systems depend heavily on temporal ordering, recency, latency, and duration comparison. Temporal
       projections enable stream ordering, timeline markers, duration cells, time filters, and detail views.'
   inspectable:
+    extends:
+    - Capability
     description: Subject can open a detail/inspection surface.
     projections:
       detail_ref:
@@ -122,6 +141,8 @@ capabilities:
       Inspection should preserve context: users should be able to open details from a table, stream, relation, or token without
       losing their place.'
   relatable:
+    extends:
+    - Capability
     description: Subject can reference or be referenced by other semantic subjects.
     projections:
       relation_refs:
@@ -152,6 +173,8 @@ capabilities:
       attach to incidents. Relatable projections enable relation links, related-object lists, navigation actions, and filtering
       by association.'
   actionable:
+    extends:
+    - Capability
     description: Subject can be used as an action source or target.
     projections:
       available_actions:
@@ -164,6 +187,8 @@ capabilities:
       the widget executes the operation directly; widgets emit typed action requests and the adapter/backend handles trusted
       side effects. Actionable subjects participate in context menus, command palettes, and typed argument collection.
   streamable:
+    extends:
+    - Capability
     description: Subject can appear in an ordered stream.
     projections:
       sequence:
@@ -174,6 +199,8 @@ capabilities:
       list. Streamable subjects need stable sequence/order behavior and compact row or token presentations. This capability
       is important for realtime logs, scan feeds, tool output, agent traces, and monitoring streams.
   append_only:
+    extends:
+    - Capability
     description: Subject is an immutable or append-only observation.
     projections:
       sequence:
@@ -184,6 +211,8 @@ capabilities:
       records should not be visually conflated with mutable WorkItems. This capability helps tooling and UI distinguish event
       streams and audit trails from stateful objects whose current value changes over time.
   measurable:
+    extends:
+    - Capability
     description: Subject has numeric value semantics.
     projections:
       value:
@@ -206,6 +235,8 @@ capabilities:
       throughput, latency, error rate, or capacity. Measurable values need units, alignment, comparison actions, and range
       filters. They should be rendered with tabular numeric treatment in dense tables.
   aggregatable:
+    extends:
+    - Capability
     description: Subject can be summarized or aggregated.
     projections:
       aggregate_key:
@@ -216,6 +247,8 @@ capabilities:
       It often appears with Metric, TimelineSpan, WorkItem, or Event collections. The capability does not prescribe a chart;
       it says that the subject has stable grouping/summarization semantics.
   schedulable:
+    extends:
+    - Capability
     description: Subject can be scheduled for execution.
     projections:
       scheduled_at:
@@ -228,6 +261,8 @@ capabilities:
       objects, jobs, maintenance windows, and workflow tasks. Scheduling semantics should be explicit because scheduled work
       differs from immediate commands and from already-running work.
   executable:
+    extends:
+    - Capability
     description: Subject represents executable work.
     projections:
       execution_state:
@@ -241,6 +276,8 @@ capabilities:
       capability is narrower than actionable: many things are actionable, but executable things have execution-specific lifecycle
       and control semantics. It enables retry/cancel actions and execution-state detail.'
   spatial:
+    extends:
+    - Capability
     description: Subject has location, route, or spatial semantics.
     projections:
       location:
@@ -260,6 +297,8 @@ capabilities:
       does not require map rendering; it first provides structured projections for location-aware filtering, relation, and
       display.
   parameterized:
+    extends:
+    - Capability
     description: Subject has parameters or schema-defined inputs.
     projections:
       parameters:
@@ -270,6 +309,8 @@ capabilities:
       example: a tool definition or command definition has parameters before it is invoked. Parameterized projections drive
       forms, validation, previews, and action scheduling.'
   filterable:
+    extends:
+    - Capability
     description: Subject or surface can be constrained by typed filter expressions.
     projections:
       filter_target_id:
@@ -295,6 +336,8 @@ capabilities:
       filterable surfaces. The adapter owns backend query lowering, but widgets and generated registries need this capability
       to know where filter expressions can be applied and which dimensions are valid for the current surface.
   filter_source:
+    extends:
+    - Capability
     description: Subject presentation can derive one or more filter expressions for compatible targets.
     projections:
       filter_keys:
@@ -324,6 +367,8 @@ capabilities:
       the resulting expression. The runtime matches sources to targets through filter keys, dimensions, relation paths, or
       adapter-provided mappings.
   searchable:
+    extends:
+    - Capability
     description: Subject or collection can be narrowed by a text query.
     projections:
       search_text:
@@ -350,6 +395,8 @@ capabilities:
       backend-specific search syntax. Many ResultSets will be both filterable and searchable, but structured filter chips
       and free-text search should remain separate pieces of UI and runtime state.
   facetable:
+    extends:
+    - Capability
     description: Subject or result set can expose grouped filter buckets with counts.
     projections:
       facets:
@@ -369,6 +416,8 @@ capabilities:
       bucket usually applies a corresponding filter expression to the same target. Facetable should be modeled separately
       from aggregatable because the buckets are specifically tied to query narrowing.
   sortable:
+    extends:
+    - Capability
     description: Subject or result set can be ordered by one or more sort keys.
     projections:
       sort_keys:
@@ -384,6 +433,8 @@ capabilities:
       and streams need it in the same result-state model so adapters, URL state, Storybook examples, and ResultWindowControls
       stay consistent.
   windowable:
+    extends:
+    - Capability
     description: Subject or result set can be read through page, cursor, or live-tail windows.
     projections:
       cursor:
