@@ -365,6 +365,55 @@ const state = {
   nextOrderNum: 100,
 };
 
+// ─── SEMANTIC INHERITANCE VIEW MODEL ─────────────────────────────────
+const SEMANTIC = {
+  menuItem: {
+    domainType: 'MenuItem',
+    archetypes: ['MenuItem', 'ProductSpec', 'ProductComposition'],
+    capabilities: ['ingredient_composable', 'configurable', 'dietary', 'measurable', 'available'],
+    lineage: 'MenuItem extends ProductSpec + ProductComposition',
+  },
+  ingredient: {
+    domainType: 'Ingredient',
+    archetypes: ['Ingredient', 'Resource'],
+    capabilities: ['identifiable', 'labelable', 'dietary', 'available'],
+    lineage: 'Ingredient extends Resource',
+  },
+  substitution: {
+    domainType: 'SubstitutionSuggestion',
+    archetypes: ['SubstitutionSuggestion', 'Substitution'],
+    capabilities: ['role_preserving_substitutable', 'dietary_substitutable', 'price_aware_substitutable'],
+    lineage: 'SubstitutionSuggestion extends Substitution',
+  },
+  orderItem: {
+    domainType: 'OrderItem',
+    archetypes: ['OrderItem', 'WorkItem', 'ProductComposition'],
+    capabilities: ['ingredient_composable', 'configurable', 'stateful', 'relatable'],
+    lineage: 'OrderItem extends WorkItem + ProductComposition',
+  },
+};
+
+function semanticBadges(kind, options = {}) {
+  const spec = SEMANTIC[kind];
+  if (!spec) return '';
+  const limit = options.limit || 3;
+  const caps = spec.capabilities.slice(0, limit).map(cap => `<span class="semantic-pill capability">${cap}</span>`).join('');
+  return `
+    <span class="semantic-kicker">DMETA</span>
+    <span class="semantic-pill domain">${spec.domainType}</span>
+    <span class="semantic-pill archetype">${spec.lineage}</span>
+    ${caps}
+  `;
+}
+
+function semanticAttributes(el, kind) {
+  const spec = SEMANTIC[kind];
+  if (!spec) return;
+  el.dataset.dmetaDomainType = spec.domainType;
+  el.dataset.dmetaArchetypes = spec.archetypes.join(' ');
+  el.dataset.dmetaCapabilities = spec.capabilities.join(' ');
+}
+
 // ─── HELPERS ──────────────────────────────────────────────────────────
 function fmt(cents) {
   return '$' + (cents / 100).toFixed(2);
@@ -426,12 +475,14 @@ function renderMenu() {
   for (const item of filtered) {
     const card = document.createElement('div');
     card.className = 'menu-card';
+    semanticAttributes(card, 'menuItem');
     card.onclick = () => openCustomizer(item);
 
     const ingNames = item.ingredients.map(i => i.name).join(', ');
     const badges = getDietaryBadges(item);
 
     card.innerHTML = `
+      <div class="semantic-strip semantic-strip-card">${semanticBadges('menuItem', { limit: 2 })}</div>
       <div class="menu-card-top">
         <div class="menu-card-name">${item.name}</div>
         <div class="menu-card-price">${fmt(item.basePrice)}</div>
@@ -512,6 +563,7 @@ function renderCustomizer() {
 
   document.getElementById('cust-item-name').textContent = c.menuItem.name;
   document.getElementById('cust-price').textContent = fmt(c.currentPriceCents);
+  document.getElementById('cust-semantic').innerHTML = semanticBadges('menuItem');
   document.getElementById('add-to-order-total').textContent = fmt(c.currentPriceCents);
 
   renderIngredientList();
@@ -529,6 +581,7 @@ function renderIngredientList() {
   for (const ing of c.composition) {
     const row = document.createElement('div');
     row.className = 'ingredient-row';
+    semanticAttributes(row, 'ingredient');
     if (ing.removed && !ing.substitution) row.classList.add('removed');
     if (ing.substitution) row.classList.add('substituted');
 
@@ -547,6 +600,7 @@ function renderIngredientList() {
       row.innerHTML = `
         <button class="ing-remove" data-id="${ing.id}" data-undo="true" title="Undo substitution" style="background:#FEF3CD;color:var(--warning);font-size:14px">↶</button>
         <span class="ing-name">${nameHTML}</span>
+        <span class="ing-semantic">${semanticBadges('substitution', { limit: 1 })}</span>
         <span class="ing-roles">${subRoleTags}</span>
         ${subDietBadges ? `<span class="ing-dietary">${subDietBadges}</span>` : ''}
       `;
@@ -561,6 +615,7 @@ function renderIngredientList() {
     row.innerHTML = `
       ${removeBtn}
       <span class="ing-name">${nameHTML}</span>
+      <span class="ing-semantic">${semanticBadges('ingredient', { limit: 1 })}</span>
       <span class="ing-roles">${roleTags}</span>
       ${dietBadges ? `<span class="ing-dietary">${dietBadges}</span>` : ''}
     `;
@@ -662,12 +717,14 @@ function renderSubstitutionZone() {
         const cand = topCandidates[ci];
         const card = document.createElement('div');
         card.className = `sub-card${cand.auto ? ' auto-suggest' : ''}`;
+        semanticAttributes(card, 'substitution');
 
         const roleTags = cand.roles.slice(0, 3).map(r => `<span class="role-tag ${r}">${r}</span>`).join('');
         const priceClass = cand.priceDelta > 0 ? 'positive' : 'zero';
         const priceText = cand.priceDelta > 0 ? `+${fmt(cand.priceDelta)}` : 'no extra';
 
         card.innerHTML = `
+          <div class="semantic-strip semantic-strip-inline">${semanticBadges('substitution', { limit: 1 })}</div>
           <span class="sub-original">${pending.name}</span>
           <span class="sub-arrow">→</span>
           <span class="sub-replacement">${cand.name}</span>
@@ -723,6 +780,7 @@ function openSubDetail(ingredientId) {
     const cand = rules.candidates[ci];
     const card = document.createElement('div');
     card.className = `candidate-card${cand.auto ? ' auto' : ''}`;
+    semanticAttributes(card, 'substitution');
 
     const roleTags = cand.roles.map(r => `<span class="role-tag ${r}">${r}</span>`).join('');
     const dietBadges = cand.dietary.map(d => {
@@ -733,6 +791,7 @@ function openSubDetail(ingredientId) {
     const priceText = cand.priceDelta > 0 ? `+${fmt(cand.priceDelta)}` : 'No extra cost';
 
     card.innerHTML = `
+      <div class="semantic-strip semantic-strip-inline">${semanticBadges('substitution', { limit: 2 })}</div>
       <div class="candidate-name">${cand.name}</div>
       <div class="candidate-reasoning">${cand.reasoning}</div>
       <div class="candidate-meta">
@@ -922,6 +981,7 @@ function renderCart() {
   for (const item of state.cart) {
     const card = document.createElement('div');
     card.className = 'cart-item';
+    semanticAttributes(card, 'orderItem');
 
     const subs = item.composition.filter(i => i.substitution);
     const subsHTML = subs.map(i => `<div class="cart-sub-line">↳ ${i.name} → ${i.substitution.name}</div>`).join('');
@@ -931,6 +991,7 @@ function renderCart() {
     const configStr = Object.entries(item.config).map(([k, v]) => v).join(' · ');
 
     card.innerHTML = `
+      <div class="semantic-strip semantic-strip-card">${semanticBadges('orderItem', { limit: 2 })}</div>
       <div class="cart-item-header">
         <div>
           <div class="cart-item-name">${item.menuItem.name}</div>
@@ -1011,7 +1072,8 @@ function placeOrder() {
   document.querySelectorAll('.tracker-step').forEach(s => {
     s.classList.remove('completed', 'active');
   });
-  document.getElementById('tracker-detail').innerHTML = '<p>We\'re making your order now. We\'ll call your number when it\'s ready.</p>';
+  document.getElementById('tracker-detail').innerHTML = `<p>We're making your order now. We'll call your number when it's ready.</p>
+    <div class="semantic-panel tracker-semantic">${semanticBadges('orderItem', { limit: 3 })}</div>`;
 
   setTimeout(advanceStep, 500);
 }

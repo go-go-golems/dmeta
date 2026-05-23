@@ -268,6 +268,72 @@ body {
 .dietary-badge.v { background: #E8F5E9; color: #2E7D32; border-color: rgba(46,125,50,0.2); }
 .dietary-badge.vg { background: #E8F5E9; color: #388E3C; border-color: rgba(56,142,60,0.2); }
 
+/* === DMETA semantic inheritance markers === */
+.semantic-strip,
+.semantic-panel,
+.ing-semantic {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+.semantic-strip-card {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed var(--divider);
+}
+.semantic-strip-inline {
+  margin-bottom: 8px;
+}
+.semantic-panel {
+  margin: 0 var(--space-4) var(--space-3);
+  padding: 10px;
+  border-radius: var(--r-md);
+  border: 1px dashed rgba(91,140,62,0.28);
+  background: rgba(234,242,227,0.55);
+}
+.semantic-kicker,
+.semantic-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  white-space: nowrap;
+}
+.semantic-kicker {
+  color: var(--accent);
+  background: #F5F9F0;
+  border: 1px solid rgba(91,140,62,0.22);
+}
+.semantic-pill.domain {
+  color: #1D4ED8;
+  background: #EFF6FF;
+  border: 1px solid rgba(29,78,216,0.18);
+}
+.semantic-pill.archetype {
+  color: #7C2D12;
+  background: #FFF7ED;
+  border: 1px solid rgba(124,45,18,0.18);
+}
+.semantic-pill.capability {
+  color: #047857;
+  background: #ECFDF5;
+  border: 1px solid rgba(4,120,87,0.18);
+}
+.ing-semantic {
+  grid-column: 2 / -1;
+  margin-top: -2px;
+  opacity: 0.95;
+}
+.tracker-semantic {
+  margin: var(--space-3) 0 0;
+}
+
 /* === BOTTOM SHEET === */
 .overlay {
   position: fixed;
