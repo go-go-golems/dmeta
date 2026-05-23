@@ -30,4 +30,4 @@
 - [x] Phase 8: Rewrite Street Deli ordering example with explicit archetype/capability inheritance
 - [x] Phase 8.1: Validate Street Deli example and fix inherited projection/domain mappings
 - [x] Phase 9: End-to-end validation, generation, screenshots, diary, and changelog
-- [ ] Phase 10: Write Obsidian deep-dive technical blog post with screenshots and implementation narrative
+- [x] Phase 10: Write Obsidian deep-dive technical blog post with screenshots and implementation narrative

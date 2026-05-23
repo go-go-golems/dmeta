@@ -102,3 +102,13 @@ Rewrote Street Deli as a standalone inherited semantic model, validated it end t
 - /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/core-model/capabilities.yaml — Inherited deli capability hierarchy
 - /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/www/mobile/app.js — Prototype semantic markers and screenshots
 
+
+## 2026-05-23
+
+Wrote and pushed Obsidian deep-dive technical article with inherited-system diagrams and refactored deli screenshots (vault commit 81c2e1c).
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/22/DMETA-IR-COMPOSITION--ir-imports-and-extension-composition/assets/screenshots/deli-refactored-menu.png — Article screenshot source
+- /home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/23/ARTICLE - DMETA Semantic Inheritance - From Flat Tags to Deli Ordering.md — Published Obsidian article
+
