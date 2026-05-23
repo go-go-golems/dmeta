@@ -37,9 +37,11 @@ func ValidateRoot(ctx context.Context, root string, includeInfo bool) ([]Finding
 
 func ValidatePackage(pkg *Package) []Finding {
 	var findings []Finding
+	resolved, inheritanceFindings := ResolveCoreInheritance(pkg.CoreModel)
+	findings = append(findings, inheritanceFindings...)
 	findings = append(findings, validateArtifactIdentity(pkg)...)
 	findings = append(findings, validateIndex(pkg)...)
-	findings = append(findings, validateCoreModel(pkg)...)
+	findings = append(findings, validateCoreModel(pkg, resolved)...)
 	findings = append(findings, validateDesignLanguage(pkg)...)
 	findings = append(findings, validateWidgets(pkg)...)
 	return findings
@@ -106,7 +108,7 @@ func validateIndex(pkg *Package) []Finding {
 	return findings
 }
 
-func validateCoreModel(pkg *Package) []Finding {
+func validateCoreModel(pkg *Package, resolved *ResolvedCoreModel) []Finding {
 	var findings []Finding
 	core := pkg.CoreModel
 
@@ -118,12 +120,13 @@ func validateCoreModel(pkg *Package) []Finding {
 		if arch.LongDescription == "" {
 			findings = append(findings, Warning("core_model", fmt.Sprintf("archetypes.%s.long_description", id), "missing_long_description", fmt.Sprintf("archetype %q has no long_description", id), "Add a prose explanation with examples, boundaries, and UI implications."))
 		}
-		for _, capID := range arch.DefaultCapabilities {
+		resolvedArch := resolved.Archetypes[id]
+		for _, capID := range resolvedArch.EffectiveDefaultCapabilities {
 			if _, ok := core.Capabilities[capID]; !ok {
 				findings = append(findings, Error("core_model", fmt.Sprintf("archetypes.%s.default_capabilities.%s", id, capID), "unknown_capability", fmt.Sprintf("archetype %q references unknown capability %q", id, capID), "Define the capability or remove the reference."))
 			}
 		}
-		for _, presID := range arch.RecommendedPresentations {
+		for _, presID := range resolvedArch.EffectiveRecommendedPresentations {
 			if _, ok := core.Presentations[presID]; !ok {
 				findings = append(findings, Error("core_model", fmt.Sprintf("archetypes.%s.recommended_presentations.%s", id, presID), "unknown_presentation", fmt.Sprintf("archetype %q recommends unknown presentation %q", id, presID), "Define the presentation or remove the reference."))
 			}
@@ -138,22 +141,23 @@ func validateCoreModel(pkg *Package) []Finding {
 		if cap.LongDescription == "" {
 			findings = append(findings, Warning("core_model", fmt.Sprintf("capabilities.%s.long_description", capID), "missing_long_description", fmt.Sprintf("capability %q has no long_description", capID), "Add a prose explanation with examples, consumers, and UI implications."))
 		}
-		if len(cap.Projections) == 0 {
+		resolvedCap := resolved.Capabilities[capID]
+		if len(resolvedCap.EffectiveProjections) == 0 && !cap.Abstract {
 			findings = append(findings, Warning("core_model", fmt.Sprintf("capabilities.%s.projections", capID), "capability_without_projections", fmt.Sprintf("capability %q has no projections", capID), "Capabilities should contribute projections or a documented consumer."))
 		}
-		for projID, proj := range cap.Projections {
+		for projID, proj := range resolvedCap.EffectiveProjections {
 			if proj.Type == "" {
 				findings = append(findings, Error("core_model", fmt.Sprintf("capabilities.%s.projections.%s.type", capID, projID), "missing_projection_type", fmt.Sprintf("projection %s.%s has no type", capID, projID), "Add a logical type."))
 			} else if len(logicalTypes) > 0 && !logicalTypes[proj.Type] {
 				findings = append(findings, Warning("core_model", fmt.Sprintf("capabilities.%s.projections.%s.type", capID, projID), "unknown_logical_type", fmt.Sprintf("projection %s.%s uses unknown logical type %q", capID, projID, proj.Type), "Add it to logical_types or fix the type."))
 			}
 		}
-		for _, presID := range cap.Presentations {
+		for _, presID := range resolvedCap.EffectivePresentations {
 			if _, ok := core.Presentations[presID]; !ok {
 				findings = append(findings, Error("core_model", fmt.Sprintf("capabilities.%s.presentations.%s", capID, presID), "unknown_presentation", fmt.Sprintf("capability %q references unknown presentation %q", capID, presID), "Define the presentation or remove the reference."))
 			}
 		}
-		for _, actionID := range cap.Actions {
+		for _, actionID := range resolvedCap.EffectiveActions {
 			if _, ok := core.Actions[actionID]; !ok {
 				findings = append(findings, Error("core_model", fmt.Sprintf("capabilities.%s.actions.%s", capID, actionID), "unknown_action", fmt.Sprintf("capability %q references unknown action %q", capID, actionID), "Define the action or remove the reference."))
 			}
@@ -205,8 +209,13 @@ func validateCoreModel(pkg *Package) []Finding {
 	for exampleID, example := range core.DomainExamples {
 		for domainTypeID, domainType := range example.DomainTypes {
 			for _, archID := range domainType.Archetypes {
-				if _, ok := core.Archetypes[archID]; !ok {
+				arch, ok := core.Archetypes[archID]
+				if !ok {
 					findings = append(findings, Error("core_model", fmt.Sprintf("domain_examples.%s.domain_types.%s.archetypes.%s", exampleID, domainTypeID, archID), "unknown_archetype", fmt.Sprintf("domain type %q references unknown archetype %q", domainTypeID, archID), "Define the archetype or fix the domain example."))
+					continue
+				}
+				if arch.Abstract {
+					findings = append(findings, Error("core_model", fmt.Sprintf("domain_examples.%s.domain_types.%s.archetypes.%s", exampleID, domainTypeID, archID), "abstract_archetype_mapping", fmt.Sprintf("domain type %q maps abstract archetype %q", domainTypeID, archID), "Map domain types to concrete archetype descendants."))
 				}
 			}
 			for capID, mapping := range domainType.Capabilities {
@@ -215,7 +224,11 @@ func validateCoreModel(pkg *Package) []Finding {
 					findings = append(findings, Error("core_model", fmt.Sprintf("domain_examples.%s.domain_types.%s.capabilities.%s", exampleID, domainTypeID, capID), "unknown_capability", fmt.Sprintf("domain type %q maps unknown capability %q", domainTypeID, capID), "Define the capability or fix the mapping."))
 					continue
 				}
-				for projID, proj := range cap.Projections {
+				if cap.Abstract {
+					findings = append(findings, Error("core_model", fmt.Sprintf("domain_examples.%s.domain_types.%s.capabilities.%s", exampleID, domainTypeID, capID), "abstract_capability_mapping", fmt.Sprintf("domain type %q maps abstract capability %q", domainTypeID, capID), "Map domain types to concrete capability descendants."))
+				}
+				resolvedCap := resolved.Capabilities[capID]
+				for projID, proj := range resolvedCap.EffectiveProjections {
 					if proj.Required {
 						if _, ok := mapping[projID]; !ok {
 							findings = append(findings, Error("core_model", fmt.Sprintf("domain_examples.%s.domain_types.%s.capabilities.%s.%s", exampleID, domainTypeID, capID, projID), "missing_required_projection_mapping", fmt.Sprintf("domain type %q capability %q is missing required projection %q", domainTypeID, capID, projID), "Map the required projection to a domain field."))

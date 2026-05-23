@@ -9,7 +9,36 @@ references:
   design_doc: ../../../design-docs/02-semantic-archetype-and-capability-model.md
   spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
 archetypes:
+  Archetype:
+    abstract: true
+    description: Root semantic role class.
+    extends: []
+    default_capabilities: []
+    recommended_presentations: []
+    examples: []
+    long_description: Every semantic archetype inherits from Archetype. The root is abstract and exists so validation, generated TypeScript, and documentation can reason about the complete archetype hierarchy explicitly.
+  Entity:
+    extends:
+    - Archetype
+    abstract: true
+    description: Base semantic thing with identity, labels, inspection, and relation affordances.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - inspectable
+    - relatable
+    recommended_presentations:
+    - compact_ref
+    - detail_panel
+    examples:
+    - Agent
+    - Order
+    - Ingredient
+    - Shipment
+    long_description: Entity is the shared parent for semantic subjects that appear in operational UIs. It captures the minimum contract for things that can be referenced, labeled, inspected, and related to other things. Domain-specific archetypes should usually inherit from Entity or from one of Entity's descendants rather than from Archetype directly.
   Actor:
+    extends:
+    - Entity
     description: Entity that can perform, own, receive, or be assigned work.
     default_capabilities:
     - identifiable
@@ -35,6 +64,8 @@ archetypes:
       assignment targets, provenance markers, and action subjects. Actor presentations should make identity and label legible
       at compact sizes and should support inspection and relation traversal.'
   WorkItem:
+    extends:
+    - Entity
     description: Unit of work that can be tracked, progressed, completed, failed, retried, or inspected.
     default_capabilities:
     - identifiable
@@ -61,6 +92,8 @@ archetypes:
       and temporal: they can be pending, running, blocked, failed, completed, retried, cancelled, or inspected. The core UI
       responsibility is to show many WorkItems densely while preserving state, owner/actor, timing, relation, and action affordances.'
   Event:
+    extends:
+    - Entity
     description: Timestamped observation, log entry, scan, lifecycle update, or state transition.
     default_capabilities:
     - identifiable
@@ -84,6 +117,8 @@ archetypes:
       must support dense streaming, filtering by semantic token, and quick inspection without turning the stream into visual
       noise.
   Resource:
+    extends:
+    - Entity
     description: Thing used, moved, consumed, stored, referenced, or inspected by work.
     default_capabilities:
     - identifiable
@@ -106,6 +141,8 @@ archetypes:
       or infrastructure objects such as machines and locations. Resources often appear as related objects inside WorkItems
       and Events. Their presentations should emphasize compact reference, copyable identity, relation traversal, and inspection.
   Relation:
+    extends:
+    - Entity
     description: Semantic edge between objects, such as assignment, dependency, containment, trigger, or location.
     default_capabilities:
     - identifiable
@@ -127,6 +164,8 @@ archetypes:
       UIs are rarely flat: users need to move from an event to its work item, from a work item to an actor, or from a resource
       to all related events. Relation presentations should be compact, selectable, and action-aware.'
   Metric:
+    extends:
+    - Entity
     description: Quantitative value used for comparison, monitoring, sorting, aggregation, or alerting.
     default_capabilities:
     - measurable
@@ -149,6 +188,8 @@ archetypes:
       be standalone semantic subjects or projections of other archetypes. Metric presentations should use tabular alignment,
       explicit units, and restrained visual emphasis so users can compare values quickly in dense tables and summaries.
   TimelineSpan:
+    extends:
+    - Entity
     description: Bounded interval such as a session, route, workflow run, incident window, or execution phase.
     default_capabilities:
     - identifiable
@@ -174,6 +215,8 @@ archetypes:
       temporal, stateful, aggregatable, and relatable capabilities. Their UI role is to show duration, phase, progress, and
       related events/work items without requiring a domain-specific timeline implementation for every application.
   ActionSpec:
+    extends:
+    - Entity
     description: Definition/signature of an operation that may be invoked or scheduled.
     default_capabilities:
     - identifiable
@@ -195,6 +238,8 @@ archetypes:
       or workflow action. It is distinct from ActionInvocation, which is a concrete run. ActionSpec presentations should expose
       name, description, parameters, and invocation affordances without implying that the action is currently running.'
   ActionInvocation:
+    extends:
+    - WorkItem
     description: Concrete execution of an operation.
     default_capabilities:
     - identifiable
@@ -219,6 +264,8 @@ archetypes:
       a WorkItem, but it also carries execution semantics. Tool calls are the canonical example: the tool definition is an
       ActionSpec, the running or completed call is an ActionInvocation, and emitted log records are Events.'
   Annotation:
+    extends:
+    - Entity
     description: Human or system-authored note, flag, classification, or explanation attached to another semantic object.
     default_capabilities:
     - identifiable
@@ -241,6 +288,8 @@ archetypes:
       to mark, explain, triage, suppress, or escalate items without changing the underlying object. Annotation presentations
       should show authorship, timestamp, label, and relation to the annotated subject.
   ResultSet:
+    extends:
+    - Entity
     description: Collection or query result surface containing records that can be filtered, searched, sorted, windowed, or inspected.
     default_capabilities:
     - identifiable
@@ -265,6 +314,8 @@ archetypes:
       Widgets such as RecordStream, DenseTable, FilterBar, SearchBox, and ResultWindowControls should receive or derive ResultSet
       context when they need to coordinate active constraints and backend query state.
   FilterCriterion:
+    extends:
+    - Entity
     description: Active predicate constraining a filter target.
     default_capabilities:
     - identifiable
@@ -287,6 +338,8 @@ archetypes:
       saved as part of a preset. Treating active filters as semantic presentations keeps filtering inside the same presentation/action
       model as inspection and relation traversal.
   FilterSpec:
+    extends:
+    - Entity
     description: Definition of a filter dimension or filter operation that can constrain compatible targets.
     default_capabilities:
     - identifiable
@@ -308,6 +361,8 @@ archetypes:
       projections, but this archetype reserves a first-class semantic role for generated documentation, filter builders, facet
       panels, and adapters that need to expose query capabilities explicitly.
   FilterPreset:
+    extends:
+    - Entity
     description: Saved or reusable collection of filter criteria.
     default_capabilities:
     - identifiable
