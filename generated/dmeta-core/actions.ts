@@ -5,13 +5,21 @@ import type { CapabilityId } from "./capabilities";
 import type { PresentationId } from "./presentations";
 
 export const actionIds = [
+  "apply_facet_filter",
+  "apply_filter",
+  "apply_search",
   "cancel_work_item",
+  "clear_filters",
+  "clear_search",
   "compare_metrics",
   "copy_reference",
+  "filter_by_relation",
   "filter_by_state",
   "filter_by_value",
   "inspect",
   "open_related",
+  "remove_filter",
+  "replace_filter",
   "retry_work_item",
   "schedule_action",
 ] as const;
@@ -50,6 +58,44 @@ export type ActionDefinition = {
 };
 
 export const actions: Record<ActionId, ActionDefinition> = {
+  apply_facet_filter: {
+    id: "apply_facet_filter",
+    description: "Apply a filter expression from a selected facet bucket.",
+    longDescription: "Apply_facet_filter turns a counted facet bucket into an active FilterCriterion on the same or compatible ResultSet. It lets facet panels operate through the same typed action and adapter boundary as presentation-derived filters rather than owning backend query mutation inside the facet widget.",
+    category: "filter",
+    accepts: [{ capability: "facetable" }, { presentation: "facet_bucket" }],
+    arguments: {
+      bucket: { mode: "selected_presentation", required: true, accepts: [{ presentation: "facet_bucket" }] },
+      target: { mode: "choice", required: true, accepts: [{ capability: "filterable" }] },
+    },
+    result: { kind: "apply_filter" },
+  },
+  apply_filter: {
+    id: "apply_filter",
+    description: "Apply a typed filter expression to a compatible filterable target.",
+    longDescription: "Apply_filter is the explicit target-aware filter action. It turns a selected filter source, facet bucket, or user-chosen value into a FilterExpression and applies it to a ResultSet or other filterable target. Widgets collect the typed arguments; adapters lower the expression to backend query syntax. This action should be preferred when the target, dimension, or operator is ambiguous and the UI needs to ask the user for a choice.",
+    category: "filter",
+    accepts: [{ capability: "filter_source" }, { presentation: "filter_value_token" }, { presentation: "facet_bucket" }],
+    arguments: {
+      dimension: { mode: "choice", required: true, accepts: [] },
+      operator: { mode: "choice", required: true, accepts: [] },
+      source: { mode: "selected_presentation", required: true, accepts: [{ capability: "filter_source" }] },
+      target: { mode: "choice", required: true, accepts: [{ capability: "filterable" }] },
+    },
+    result: { kind: "apply_filter" },
+  },
+  apply_search: {
+    id: "apply_search",
+    description: "Apply text search to a searchable target.",
+    longDescription: "Apply_search applies a free-text query to a searchable target. It is intentionally separate from structured filtering because search may involve tokenization, backend indexes, highlighting, and query syntax. Search should compose with active filters without becoming an untyped filter chip unless the adapter explicitly represents it that way.",
+    category: "filter",
+    accepts: [{ capability: "searchable" }],
+    arguments: {
+      query: { mode: "free_text", required: true, accepts: [] },
+      target: { mode: "selected_presentation", required: true, accepts: [{ capability: "searchable" }] },
+    },
+    result: { kind: "apply_search" },
+  },
   cancel_work_item: {
     id: "cancel_work_item",
     description: "Cancel running or scheduled work.",
@@ -61,6 +107,29 @@ export const actions: Record<ActionId, ActionDefinition> = {
       work_item: { mode: "selected_presentation", required: true, accepts: [] },
     },
     result: { kind: "dispatch_action" },
+  },
+  clear_filters: {
+    id: "clear_filters",
+    description: "Clear all active structured filters from a filterable target.",
+    longDescription: "Clear_filters removes all structured filter criteria from a ResultSet or filterable surface. It should be available from FilterBar, filter summaries, command palettes, and result headers. It may require confirmation when clearing many constraints would cause a large or expensive query refresh.",
+    category: "filter",
+    accepts: [{ capability: "filterable" }, { presentation: "filter_summary" }],
+    arguments: {
+      confirmation: { mode: "confirmation", required: false, accepts: [] },
+      target: { mode: "selected_presentation", required: true, accepts: [{ capability: "filterable" }] },
+    },
+    result: { kind: "clear_filters" },
+  },
+  clear_search: {
+    id: "clear_search",
+    description: "Clear text search from a searchable target.",
+    longDescription: "Clear_search removes the active free-text query from a searchable target while preserving structured filters unless the UI explicitly asks to clear both. It should be available from SearchBox, search summaries, and command palettes.",
+    category: "filter",
+    accepts: [{ capability: "searchable" }, { presentation: "search_summary" }],
+    arguments: {
+      target: { mode: "selected_presentation", required: true, accepts: [{ capability: "searchable" }] },
+    },
+    result: { kind: "clear_search" },
   },
   compare_metrics: {
     id: "compare_metrics",
@@ -84,6 +153,18 @@ export const actions: Record<ActionId, ActionDefinition> = {
       subject: { mode: "selected_presentation", required: true, accepts: [{ capability: "identifiable" }] },
     },
     result: { kind: "copy" },
+  },
+  filter_by_relation: {
+    id: "filter_by_relation",
+    description: "Add a relation-based filter derived from a related semantic reference.",
+    longDescription: "Filter_by_relation specializes filtering for graph-shaped operational data. It handles cases such as event stream by session, tool runs by agent, scan events by shipment, shipments by carrier, or resources by facility. The action should preserve the relation path or backend field mapping so adapters can lower it correctly.",
+    category: "filter",
+    accepts: [{ capability: "relatable" }, { capability: "filter_source" }, { presentation: "relation_link" }],
+    arguments: {
+      relation: { mode: "selected_presentation", required: true, accepts: [{ capability: "relatable" }] },
+      target: { mode: "choice", required: true, accepts: [{ capability: "filterable" }] },
+    },
+    result: { kind: "apply_filter" },
   },
   filter_by_state: {
     id: "filter_by_state",
@@ -128,6 +209,29 @@ export const actions: Record<ActionId, ActionDefinition> = {
       relation: { mode: "presentation_candidate", required: true, accepts: [{ capability: "relatable" }] },
     },
     result: { kind: "open_related" },
+  },
+  remove_filter: {
+    id: "remove_filter",
+    description: "Remove one active filter criterion from its target.",
+    longDescription: "Remove_filter removes a single active FilterCriterion from the target ResultSet. It is normally exposed from a filter chip close affordance, context menu, keyboard action, or ActionPalette command. Removing a filter should update the target's result state through the adapter rather than mutating widget-only local state.",
+    category: "filter",
+    accepts: [{ archetype: "FilterCriterion" }, { presentation: "filter_chip" }],
+    arguments: {
+      criterion: { mode: "selected_presentation", required: true, accepts: [{ archetype: "FilterCriterion" }] },
+    },
+    result: { kind: "remove_filter" },
+  },
+  replace_filter: {
+    id: "replace_filter",
+    description: "Replace an existing criterion for the same target or dimension.",
+    longDescription: "Replace_filter updates an existing constraint, usually when only one criterion for a dimension should be active at a time. Examples include replacing one session id with another, one state with another, or one time window with a new time window. It prevents UIs from accumulating contradictory chips when the intended behavior is replacement.",
+    category: "filter",
+    accepts: [{ archetype: "FilterCriterion" }, { capability: "filter_source" }],
+    arguments: {
+      existing: { mode: "selected_presentation", required: false, accepts: [{ archetype: "FilterCriterion" }] },
+      replacement: { mode: "presentation_candidate", required: true, accepts: [{ capability: "filter_source" }] },
+    },
+    result: { kind: "replace_filter" },
   },
   retry_work_item: {
     id: "retry_work_item",
