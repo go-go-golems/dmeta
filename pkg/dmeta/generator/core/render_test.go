@@ -35,11 +35,18 @@ func TestGenerateCurrentCoreSmoke(t *testing.T) {
 
 	assertContains(t, byPath["generated/dmeta-core/archetypes.ts"], "export type ArchetypeId")
 	assertContains(t, byPath["generated/dmeta-core/archetypes.ts"], "longDescription")
+	assertContains(t, byPath["generated/dmeta-core/archetypes.ts"], "ancestors")
+	assertContains(t, byPath["generated/dmeta-core/archetypes.ts"], "effectiveDefaultCapabilities")
+	assertContains(t, byPath["generated/dmeta-core/archetypes.ts"], "isArchetypeA")
 	assertContains(t, byPath["generated/dmeta-core/capabilities.ts"], "export type CapabilityId")
+	assertContains(t, byPath["generated/dmeta-core/capabilities.ts"], "effectiveProjections")
+	assertContains(t, byPath["generated/dmeta-core/capabilities.ts"], "isCapabilityA")
 	assertContains(t, byPath["generated/dmeta-core/presentations.ts"], "export type PresentationId")
 	assertContains(t, byPath["generated/dmeta-core/actions.ts"], "export type ActionId")
 	assertContains(t, byPath["generated/dmeta-core/PresentationRef.ts"], "export type PresentationRef")
 	assertContains(t, byPath["generated/dmeta-core/actionMatching.ts"], "actionsForPresentationRef")
+	assertContains(t, byPath["generated/dmeta-core/actionMatching.ts"], "isArchetypeA")
+	assertContains(t, byPath["generated/dmeta-core/actionMatching.ts"], "isCapabilityA")
 }
 
 func TestGenerateCurrentCoreDeterministic(t *testing.T) {

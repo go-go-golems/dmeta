@@ -16,12 +16,20 @@ func Generate(pkg *validator.Package, outDir string) ([]GeneratedFile, error) {
 	if pkg == nil {
 		return nil, fmt.Errorf("nil validator package")
 	}
+	resolved, findings := validator.ResolveCoreInheritance(pkg.CoreModel)
+	if validator.HasErrors(findings) {
+		for _, finding := range findings {
+			if finding.Severity == validator.SeverityError {
+				return nil, fmt.Errorf("resolve core inheritance: %s: %s", finding.Code, finding.Message)
+			}
+		}
+	}
 	if outDir == "" {
 		outDir = "generated/dmeta-core"
 	}
 	files := []GeneratedFile{
-		{Path: joinOut(outDir, "archetypes.ts"), Content: []byte(RenderArchetypes(pkg.CoreModel))},
-		{Path: joinOut(outDir, "capabilities.ts"), Content: []byte(RenderCapabilities(pkg.CoreModel))},
+		{Path: joinOut(outDir, "archetypes.ts"), Content: []byte(renderArchetypes(pkg.CoreModel, resolved))},
+		{Path: joinOut(outDir, "capabilities.ts"), Content: []byte(renderCapabilities(pkg.CoreModel, resolved))},
 		{Path: joinOut(outDir, "presentations.ts"), Content: []byte(RenderPresentations(pkg.CoreModel))},
 		{Path: joinOut(outDir, "actions.ts"), Content: []byte(RenderActions(pkg.CoreModel))},
 		{Path: joinOut(outDir, "PresentationRef.ts"), Content: []byte(RenderPresentationRef())},
@@ -32,6 +40,11 @@ func Generate(pkg *validator.Package, outDir string) ([]GeneratedFile, error) {
 }
 
 func RenderArchetypes(core validator.CoreModelFile) string {
+	resolved, _ := validator.ResolveCoreInheritance(core)
+	return renderArchetypes(core, resolved)
+}
+
+func renderArchetypes(core validator.CoreModelFile, resolved *validator.ResolvedCoreModel) string {
 	var b bytes.Buffer
 	b.WriteString(generatedHeader)
 	b.WriteString("import type { CapabilityId } from \"./capabilities\";\n")
@@ -43,33 +56,59 @@ func RenderArchetypes(core validator.CoreModelFile) string {
   id: ArchetypeId;
   description: string;
   longDescription: string;
+  extends: ArchetypeId[];
+  abstract: boolean;
+  ancestors: ArchetypeId[];
   defaultCapabilities: CapabilityId[];
+  effectiveDefaultCapabilities: CapabilityId[];
   recommendedPresentations: PresentationId[];
+  effectiveRecommendedPresentations: PresentationId[];
   examples: string[];
+  effectiveExamples: string[];
 };
 
 `)
 	b.WriteString("export const archetypes: Record<ArchetypeId, ArchetypeDefinition> = {\n")
 	for _, id := range ids {
 		a := core.Archetypes[id]
+		ra := resolved.Archetypes[id]
 		b.WriteString(fmt.Sprintf("  %s: {\n", tsProperty(id)))
 		b.WriteString(fmt.Sprintf("    id: %s,\n", tsString(id)))
 		b.WriteString(fmt.Sprintf("    description: %s,\n", tsString(a.Description)))
 		b.WriteString(fmt.Sprintf("    longDescription: %s,\n", tsString(a.LongDescription)))
-		b.WriteString(fmt.Sprintf("    defaultCapabilities: %s,\n", tsArray(a.DefaultCapabilities)))
-		b.WriteString(fmt.Sprintf("    recommendedPresentations: %s,\n", tsArray(a.RecommendedPresentations)))
+		b.WriteString(fmt.Sprintf("    extends: %s as ArchetypeId[],\n", tsArray(a.Extends)))
+		b.WriteString(fmt.Sprintf("    abstract: %t,\n", a.Abstract))
+		b.WriteString(fmt.Sprintf("    ancestors: %s as ArchetypeId[],\n", tsArray(ra.Ancestors)))
+		b.WriteString(fmt.Sprintf("    defaultCapabilities: %s as CapabilityId[],\n", tsArray(a.DefaultCapabilities)))
+		b.WriteString(fmt.Sprintf("    effectiveDefaultCapabilities: %s as CapabilityId[],\n", tsArray(ra.EffectiveDefaultCapabilities)))
+		b.WriteString(fmt.Sprintf("    recommendedPresentations: %s as PresentationId[],\n", tsArray(a.RecommendedPresentations)))
+		b.WriteString(fmt.Sprintf("    effectiveRecommendedPresentations: %s as PresentationId[],\n", tsArray(ra.EffectiveRecommendedPresentations)))
 		b.WriteString(fmt.Sprintf("    examples: %s,\n", tsArray(a.Examples)))
+		b.WriteString(fmt.Sprintf("    effectiveExamples: %s,\n", tsArray(ra.EffectiveExamples)))
 		b.WriteString("  },\n")
 	}
 	b.WriteString("};\n\n")
 	b.WriteString(`export function isArchetypeId(value: string): value is ArchetypeId {
   return (archetypeIds as readonly string[]).includes(value);
 }
+
+export function isArchetypeA(child: ArchetypeId, ancestor: ArchetypeId): boolean {
+  return child === ancestor || archetypes[child].ancestors.includes(ancestor);
+}
+
+export function archetypeHasCapability(archetype: ArchetypeId, capability: CapabilityId): boolean {
+  return archetypes[archetype].effectiveDefaultCapabilities.includes(capability);
+}
 `)
 	return b.String()
 }
 
 func RenderCapabilities(core validator.CoreModelFile) string {
+	resolved, _ := validator.ResolveCoreInheritance(core)
+	return renderCapabilities(core, resolved)
+}
+
+func renderCapabilities(core validator.CoreModelFile, resolved *validator.ResolvedCoreModel) string {
 	var b bytes.Buffer
 	b.WriteString(generatedHeader)
 	b.WriteString("import type { ActionId } from \"./actions\";\n")
@@ -88,34 +127,52 @@ export type CapabilityDefinition = {
   id: CapabilityId;
   description: string;
   longDescription: string;
+  extends: CapabilityId[];
+  abstract: boolean;
+  ancestors: CapabilityId[];
   projections: Record<string, ProjectionDefinition>;
+  effectiveProjections: Record<string, ProjectionDefinition>;
   presentations: PresentationId[];
+  effectivePresentations: PresentationId[];
   actions: ActionId[];
+  effectiveActions: ActionId[];
   filters: string[];
+  effectiveFilters: string[];
 };
 
 `)
 	b.WriteString("export const capabilities: Record<CapabilityId, CapabilityDefinition> = {\n")
 	for _, id := range ids {
 		c := core.Capabilities[id]
+		rc := resolved.Capabilities[id]
 		b.WriteString(fmt.Sprintf("  %s: {\n", tsProperty(id)))
 		b.WriteString(fmt.Sprintf("    id: %s,\n", tsString(id)))
 		b.WriteString(fmt.Sprintf("    description: %s,\n", tsString(c.Description)))
 		b.WriteString(fmt.Sprintf("    longDescription: %s,\n", tsString(c.LongDescription)))
-		b.WriteString("    projections: {\n")
-		for _, projID := range sortedKeys(c.Projections) {
-			p := c.Projections[projID]
-			b.WriteString(fmt.Sprintf("      %s: { name: %s, type: %s, required: %t, description: %s },\n", tsProperty(projID), tsString(projID), tsString(p.Type), p.Required, tsString(p.Description)))
-		}
-		b.WriteString("    },\n")
-		b.WriteString(fmt.Sprintf("    presentations: %s,\n", tsArray(c.Presentations)))
-		b.WriteString(fmt.Sprintf("    actions: %s,\n", tsArray(c.Actions)))
+		b.WriteString(fmt.Sprintf("    extends: %s as CapabilityId[],\n", tsArray(c.Extends)))
+		b.WriteString(fmt.Sprintf("    abstract: %t,\n", c.Abstract))
+		b.WriteString(fmt.Sprintf("    ancestors: %s as CapabilityId[],\n", tsArray(rc.Ancestors)))
+		b.WriteString("    projections: ")
+		renderProjectionMap(&b, c.Projections)
+		b.WriteString(",\n")
+		b.WriteString("    effectiveProjections: ")
+		renderProjectionMap(&b, rc.EffectiveProjections)
+		b.WriteString(",\n")
+		b.WriteString(fmt.Sprintf("    presentations: %s as PresentationId[],\n", tsArray(c.Presentations)))
+		b.WriteString(fmt.Sprintf("    effectivePresentations: %s as PresentationId[],\n", tsArray(rc.EffectivePresentations)))
+		b.WriteString(fmt.Sprintf("    actions: %s as ActionId[],\n", tsArray(c.Actions)))
+		b.WriteString(fmt.Sprintf("    effectiveActions: %s as ActionId[],\n", tsArray(rc.EffectiveActions)))
 		b.WriteString(fmt.Sprintf("    filters: %s,\n", tsArray(c.Filters)))
+		b.WriteString(fmt.Sprintf("    effectiveFilters: %s,\n", tsArray(rc.EffectiveFilters)))
 		b.WriteString("  },\n")
 	}
 	b.WriteString("};\n\n")
 	b.WriteString(`export function isCapabilityId(value: string): value is CapabilityId {
   return (capabilityIds as readonly string[]).includes(value);
+}
+
+export function isCapabilityA(child: CapabilityId, ancestor: CapabilityId): boolean {
+  return child === ancestor || capabilities[child].ancestors.includes(ancestor);
 }
 `)
 	return b.String()
@@ -279,23 +336,35 @@ export type PresentationRef = {
 }
 
 func RenderActionMatching() string {
-	return generatedHeader + `import { actions } from "./actions";
+	return generatedHeader + `import { isArchetypeA } from "./archetypes";
+import type { ArchetypeId } from "./archetypes";
+import { actions } from "./actions";
 import type { ActionDefinition, ActionSelector } from "./actions";
+import { isCapabilityA } from "./capabilities";
+import type { CapabilityId } from "./capabilities";
 import type { PresentationRef } from "./PresentationRef";
 
-function requiresCapabilitiesMatch(required: readonly string[] | undefined, ref: PresentationRef): boolean {
+function refHasCapability(ref: PresentationRef, capability: CapabilityId): boolean {
+  return ref.capabilities.some((candidate) => isCapabilityA(candidate, capability));
+}
+
+function refHasArchetype(ref: PresentationRef, archetype: ArchetypeId): boolean {
+  return ref.archetypes.some((candidate) => isArchetypeA(candidate, archetype));
+}
+
+function requiresCapabilitiesMatch(required: readonly CapabilityId[] | undefined, ref: PresentationRef): boolean {
   if (!required || required.length === 0) return true;
-  return required.every((capability) => (ref.capabilities as readonly string[]).includes(capability));
+  return required.every((capability) => refHasCapability(ref, capability));
 }
 
 export function selectorMatchesPresentationRef(selector: ActionSelector, ref: PresentationRef): boolean {
   if ("capability" in selector) {
-    if (!ref.capabilities.includes(selector.capability)) return false;
+    if (!refHasCapability(ref, selector.capability)) return false;
     return requiresCapabilitiesMatch(selector.requiresCapabilities, ref);
   }
 
   if ("archetype" in selector) {
-    if (!ref.archetypes.includes(selector.archetype)) return false;
+    if (!refHasArchetype(ref, selector.archetype)) return false;
     return requiresCapabilitiesMatch(selector.requiresCapabilities, ref);
   }
 
@@ -328,6 +397,19 @@ export * from "./actions";
 export * from "./PresentationRef";
 export * from "./actionMatching";
 `
+}
+
+func renderProjectionMap(b *bytes.Buffer, projections map[string]validator.Projection) {
+	if len(projections) == 0 {
+		b.WriteString("{}")
+		return
+	}
+	b.WriteString("{\n")
+	for _, projID := range sortedKeys(projections) {
+		p := projections[projID]
+		b.WriteString(fmt.Sprintf("      %s: { name: %s, type: %s, required: %t, description: %s },\n", tsProperty(projID), tsString(projID), tsString(p.Type), p.Required, tsString(p.Description)))
+	}
+	b.WriteString("    }")
 }
 
 func renderConstStringArray(b *bytes.Buffer, name string, values []string) {
