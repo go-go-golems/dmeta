@@ -1,88 +1,693 @@
 schema_version: 0
 artifact_type: dmeta_archetypes
-summary: Deli-extended operational archetypes for the Street Deli mobile ordering meta design system.
-long_summary: >
-  This file extends the base DMETA v0 archetypes with two new archetypes needed for the intelligent
-  replacement system: Composition and Substitution. All base archetypes (Actor, WorkItem, Event,
-  Resource, Relation, Metric, TimelineSpan, ActionSpec, ActionInvocation, Annotation) are inherited
-  and reused without modification. The new archetypes are additive.
+summary: Standalone Street Deli archetype hierarchy with explicit DMETA inheritance roots and deli-specific descendants.
+long_summary: 'This file is intentionally standalone for validation: it includes the base DMETA archetype hierarchy plus deli-specific
+  semantic descendants. Deli concepts use explicit extends declarations instead of inherited_from_base documentation blocks.'
 references:
   base_archetypes: ../../../sources/dmeta-ir/core-model/archetypes.yaml
+  inheritance_guide: ../../../ttmp/2026/05/22/DMETA-IR-COMPOSITION--ir-imports-and-extension-composition/design-doc/03-implemented-inheritance-system-intern-guide.md
   design_doc: ../../../design-docs/02-semantic-archetype-and-capability-model.md
   spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
   core_model_metadata: ./core-model.yaml
-
-inherited_from_base:
-  summary: All base DMETA v0 archetypes are inherited. This file only defines additions.
-  archetypes:
-    - Actor
-    - WorkItem
-    - Event
-    - Resource
-    - Relation
-    - Metric
-    - TimelineSpan
-    - ActionSpec
-    - ActionInvocation
-    - Annotation
-
 archetypes:
+  Archetype:
+    abstract: true
+    description: Root semantic role class.
+    extends: []
+    default_capabilities: []
+    recommended_presentations: []
+    examples: []
+    long_description: Every semantic archetype inherits from Archetype. The root is abstract and exists so validation, generated
+      TypeScript, and documentation can reason about the complete archetype hierarchy explicitly.
+  Entity:
+    extends:
+    - Archetype
+    abstract: true
+    description: Base semantic thing with identity, labels, inspection, and relation affordances.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - inspectable
+    - relatable
+    recommended_presentations:
+    - compact_ref
+    - detail_panel
+    examples:
+    - Agent
+    - Order
+    - Ingredient
+    - Shipment
+    long_description: Entity is the shared parent for semantic subjects that appear in operational UIs. It captures the minimum
+      contract for things that can be referenced, labeled, inspected, and related to other things. Domain-specific archetypes
+      should usually inherit from Entity or from one of Entity's descendants rather than from Archetype directly.
+  Actor:
+    extends:
+    - Entity
+    description: Entity that can perform, own, receive, or be assigned work.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - actionable
+    - relatable
+    - inspectable
+    recommended_presentations:
+    - compact_ref
+    - inline_token
+    - summary_card
+    - detail_panel
+    examples:
+    - Agent
+    - User
+    - Carrier
+    - Warehouse
+    - Service
+    - Assignee
+    long_description: 'Actor represents an entity that can initiate, own, receive, perform, or be assigned operational work.
+      It is intentionally broader than a human user: in different domains an Actor may be an AI agent, a warehouse, a carrier,
+      a service account, a machine, a team, or a customer. The important UI property is that Actors often become filters,
+      assignment targets, provenance markers, and action subjects. Actor presentations should make identity and label legible
+      at compact sizes and should support inspection and relation traversal.'
+  WorkItem:
+    extends:
+    - Entity
+    description: Unit of work that can be tracked, progressed, completed, failed, retried, or inspected.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - stateful
+    - temporal
+    - actionable
+    - inspectable
+    - relatable
+    recommended_presentations:
+    - compact_ref
+    - dense_row
+    - summary_card
+    - detail_panel
+    examples:
+    - ToolRun
+    - Shipment
+    - Order
+    - BuildJob
+    - Ticket
+    - PipelineStep
+    long_description: 'WorkItem represents a unit of operational work that moves through a lifecycle. It may be an order,
+      shipment, tool run, background job, ticket, build, pipeline step, import, or incident task. WorkItems are usually stateful
+      and temporal: they can be pending, running, blocked, failed, completed, retried, cancelled, or inspected. The core UI
+      responsibility is to show many WorkItems densely while preserving state, owner/actor, timing, relation, and action affordances.'
+  Event:
+    extends:
+    - Entity
+    description: Timestamped observation, log entry, scan, lifecycle update, or state transition.
+    default_capabilities:
+    - identifiable
+    - temporal
+    - append_only
+    - inspectable
+    - relatable
+    recommended_presentations:
+    - inline_token
+    - dense_row
+    - detail_panel
+    examples:
+    - LogEvent
+    - ToolEvent
+    - ScanEvent
+    - StatusTransition
+    - SensorReading
+    long_description: Event represents an append-oriented observation of something that happened. Events include logs, scan
+      events, lifecycle transitions, sensor readings, incident updates, tool output messages, and audit records. Events are
+      usually immutable or append-only, strongly temporal, and often related to Actors, WorkItems, or Resources. Event presentations
+      must support dense streaming, filtering by semantic token, and quick inspection without turning the stream into visual
+      noise.
+  Resource:
+    extends:
+    - Entity
+    description: Thing used, moved, consumed, stored, referenced, or inspected by work.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - relatable
+    - inspectable
+    recommended_presentations:
+    - compact_ref
+    - summary_card
+    - detail_panel
+    examples:
+    - File
+    - Package
+    - InventoryItem
+    - Machine
+    - Endpoint
+    - Location
+    long_description: Resource represents a thing that is used, moved, consumed, stored, referenced, or inspected by operational
+      work. Resources can be physical objects such as packages or inventory items, digital objects such as files or endpoints,
+      or infrastructure objects such as machines and locations. Resources often appear as related objects inside WorkItems
+      and Events. Their presentations should emphasize compact reference, copyable identity, relation traversal, and inspection.
+  Relation:
+    extends:
+    - Entity
+    description: Semantic edge between objects, such as assignment, dependency, containment, trigger, or location.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - relatable
+    - inspectable
+    recommended_presentations:
+    - relation_link
+    - inline_token
+    - detail_panel
+    examples:
+    - AssignedTo
+    - DependsOn
+    - BelongsTo
+    - TriggeredBy
+    - LocatedAt
+    long_description: 'Relation represents a semantic edge between objects. Examples include assigned-to, depends-on, belongs-to,
+      triggered-by, located-at, contains, produced-by, or shipped-with. Relations are important because dense operational
+      UIs are rarely flat: users need to move from an event to its work item, from a work item to an actor, or from a resource
+      to all related events. Relation presentations should be compact, selectable, and action-aware.'
+  Metric:
+    extends:
+    - Entity
+    description: Quantitative value used for comparison, monitoring, sorting, aggregation, or alerting.
+    default_capabilities:
+    - measurable
+    - aggregatable
+    - temporal
+    - inspectable
+    recommended_presentations:
+    - metric_cell
+    - inline_token
+    - summary_card
+    examples:
+    - Duration
+    - Latency
+    - Throughput
+    - Count
+    - Cost
+    - ErrorRate
+    long_description: Metric represents a quantitative value used for comparison, monitoring, sorting, aggregation, or alerting.
+      Metrics include duration, latency, throughput, count, cost, error rate, queue depth, and similar values. Metrics may
+      be standalone semantic subjects or projections of other archetypes. Metric presentations should use tabular alignment,
+      explicit units, and restrained visual emphasis so users can compare values quickly in dense tables and summaries.
+  TimelineSpan:
+    extends:
+    - Entity
+    description: Bounded interval such as a session, route, workflow run, incident window, or execution phase.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - temporal
+    - stateful
+    - aggregatable
+    - inspectable
+    - relatable
+    recommended_presentations:
+    - timeline_marker
+    - dense_row
+    - summary_card
+    - detail_panel
+    examples:
+    - Session
+    - ShipmentRoute
+    - WorkflowRun
+    - IncidentWindow
+    - ExecutionPhase
+    long_description: TimelineSpan represents a bounded interval rather than a single instant. Examples include sessions,
+      workflow runs, shipment routes, incident windows, execution phases, and maintenance windows. TimelineSpans often combine
+      temporal, stateful, aggregatable, and relatable capabilities. Their UI role is to show duration, phase, progress, and
+      related events/work items without requiring a domain-specific timeline implementation for every application.
+  ActionSpec:
+    extends:
+    - Entity
+    description: Definition/signature of an operation that may be invoked or scheduled.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - actionable
+    - parameterized
+    - inspectable
+    recommended_presentations:
+    - compact_ref
+    - summary_card
+    - detail_panel
+    examples:
+    - ToolDefinition
+    - CommandDefinition
+    - MutationSpec
+    - ScheduledJobTemplate
+    long_description: 'ActionSpec represents the definition or signature of an operation that can be invoked, scheduled, or
+      parameterized. It is the abstract callable thing: a tool definition, command definition, mutation spec, job template,
+      or workflow action. It is distinct from ActionInvocation, which is a concrete run. ActionSpec presentations should expose
+      name, description, parameters, and invocation affordances without implying that the action is currently running.'
+  ActionInvocation:
+    extends:
+    - WorkItem
+    description: Concrete execution of an operation.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - stateful
+    - temporal
+    - executable
+    - schedulable
+    - inspectable
+    - relatable
+    recommended_presentations:
+    - dense_row
+    - summary_card
+    - detail_panel
+    examples:
+    - ToolRun
+    - JobRun
+    - MutationRun
+    - ImportRun
+    long_description: 'ActionInvocation represents a concrete execution of an ActionSpec or equivalent operation. It has state,
+      timing, arguments, results, actor/provenance, and often retry/cancel/inspect affordances. In UI terms it behaves like
+      a WorkItem, but it also carries execution semantics. Tool calls are the canonical example: the tool definition is an
+      ActionSpec, the running or completed call is an ActionInvocation, and emitted log records are Events.'
+  Annotation:
+    extends:
+    - Entity
+    description: Human or system-authored note, flag, classification, or explanation attached to another semantic object.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - temporal
+    - inspectable
+    - relatable
+    recommended_presentations:
+    - inline_token
+    - summary_card
+    - detail_panel
+    examples:
+    - Comment
+    - Flag
+    - Label
+    - ReviewNote
+    - IncidentNote
+    long_description: Annotation represents a human or system-authored note, flag, classification, explanation, or review
+      artifact attached to another semantic object. Annotations are useful in dense operational systems because users need
+      to mark, explain, triage, suppress, or escalate items without changing the underlying object. Annotation presentations
+      should show authorship, timestamp, label, and relation to the annotated subject.
+  ResultSet:
+    extends:
+    - Entity
+    description: Collection or query result surface containing records that can be filtered, searched, sorted, windowed, or
+      inspected.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - filterable
+    - searchable
+    - aggregatable
+    - inspectable
+    recommended_presentations:
+    - filter_summary
+    - summary_card
+    - detail_panel
+    examples:
+    - EventStreamWindow
+    - SessionSearchResults
+    - ShipmentQueue
+    - TraceResultWindow
+    long_description: ResultSet represents a collection-oriented semantic surface rather than an individual domain record.
+      It covers filtered tables, event stream windows, search result pages, workflow queues, trace windows, and other result
+      surfaces whose contents are controlled by filters, search text, sort order, and result-window state. ResultSet gives
+      DMETA a place to attach filterable/searchable semantics without pretending that an event stream is itself an Event.
+      Widgets such as RecordStream, DenseTable, FilterBar, SearchBox, and ResultWindowControls should receive or derive ResultSet
+      context when they need to coordinate active constraints and backend query state.
+  FilterCriterion:
+    extends:
+    - Entity
+    description: Active predicate constraining a filter target.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - actionable
+    - inspectable
+    recommended_presentations:
+    - filter_chip
+    - inline_token
+    - detail_panel
+    examples:
+    - ClientEqualsWeb
+    - SessionEqualsSess123
+    - FailedStateOnly
+    - LastHourWindow
+    long_description: FilterCriterion represents an active query constraint, usually rendered as a compact filter chip in
+      a FilterBar or result header. It is distinct from the domain object that supplied the value and distinct from the ResultSet
+      being constrained. A Session compact reference may create a criterion such as session_id equals sess_123; after creation,
+      the criterion itself becomes a semantic object that can be selected, removed, inverted, explained, pinned, copied, or
+      saved as part of a preset. Treating active filters as semantic presentations keeps filtering inside the same presentation/action
+      model as inspection and relation traversal.
+  FilterSpec:
+    extends:
+    - Entity
+    description: Definition of a filter dimension or filter operation that can constrain compatible targets.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - parameterized
+    - inspectable
+    recommended_presentations:
+    - filter_dimension_label
+    - compact_ref
+    - detail_panel
+    examples:
+    - SessionIdFilter
+    - ClientFilter
+    - StateFilter
+    - TimeWindowFilter
+    long_description: FilterSpec represents filter definitions rather than active filter state. It describes dimensions such
+      as client_id, session_id, state, timestamp, event_type, carrier_id, or facility_id; the operators each dimension supports;
+      and the target ResultSets that can accept the dimension. DMETA may initially store filter specs inside filterable capability
+      projections, but this archetype reserves a first-class semantic role for generated documentation, filter builders, facet
+      panels, and adapters that need to expose query capabilities explicitly.
+  FilterPreset:
+    extends:
+    - Entity
+    description: Saved or reusable collection of filter criteria.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - actionable
+    - inspectable
+    - parameterized
+    recommended_presentations:
+    - compact_ref
+    - summary_card
+    - detail_panel
+    examples:
+    - FailedToolCallsLastHour
+    - CurrentClientSessions
+    - DelayedShipmentsByCarrier
+    long_description: FilterPreset represents a named, reusable query state composed of one or more filter criteria, search
+      terms, sort choices, or result-window preferences. Presets are useful when operators repeatedly return to common slices
+      such as failed actions in the last hour, delayed shipments by carrier, or current client sessions. A preset is actionable
+      because applying it changes the target ResultSet, but it should still flow through adapter-owned query lowering rather
+      than embedding backend syntax in widgets.
+  Spec:
+    abstract: true
+    extends:
+    - Archetype
+    description: Abstract semantic specification for a product, recipe, option, or user-facing item definition.
+    default_capabilities:
+    - identifiable
+    - labelable
+    - inspectable
+    recommended_presentations:
+    - compact_ref
+    - detail_panel
+    examples:
+    - MenuItem
+    - RecipeTemplate
+    long_description: Spec is the abstract parent for things that define what may be ordered or configured before a concrete
+      order instance exists. In Street Deli, product specifications describe sandwiches, bowls, combos, and modifier families.
+  ProductSpec:
+    abstract: true
+    extends:
+    - Spec
+    description: Abstract specification for a sellable deli product.
+    default_capabilities:
+    - configurable
+    - dietary
+    - measurable
+    - available
+    recommended_presentations:
+    - composition_card
+    - composition_detail
+    examples:
+    - SandwichSpec
+    - SaladBowlSpec
+    - ComboMealSpec
+    long_description: 'ProductSpec adds menu-facing behavior to a generic specification: products have prices, availability,
+      dietary metadata, and customization options. Concrete leaves describe actual product families.'
+  MenuItem:
+    extends:
+    - ProductSpec
+    - ProductComposition
+    description: Concrete sellable menu item definition that is both a product spec and a role-based ingredient composition.
+    default_capabilities:
+    - searchable
+    - filterable
+    recommended_presentations:
+    - composition_card
+    - composition_detail
+    - ingredient_list
+    examples:
+    - BLT Sandwich
+    - Turkey Club
+    - Build Your Own Bowl
+    long_description: MenuItem is the central browsing and customization concept. It inherits product metadata from ProductSpec
+      and ingredient structure from ProductComposition, so UI code can treat it as both a sellable product and a composition
+      that can be modified.
+  SandwichSpec:
+    extends:
+    - MenuItem
+    description: Menu item whose composition is organized around bread/wrap structure and layered fillings.
+    default_capabilities: []
+    recommended_presentations:
+    - composition_card
+    - composition_detail
+    examples:
+    - BLT
+    - Turkey Club
+    - Italian Hoagie
+    long_description: SandwichSpec specializes MenuItem for bread-like structural roles. It is concrete enough for domain
+      examples and widget selection, while inheriting all product/composition contracts.
+  SaladBowlSpec:
+    extends:
+    - MenuItem
+    description: Menu item whose composition is organized around greens/grain base, protein, toppings, and dressing.
+    default_capabilities: []
+    recommended_presentations:
+    - composition_card
+    - composition_detail
+    examples:
+    - Greek Salad Bowl
+    - Grain Bowl
+    long_description: SaladBowlSpec specializes MenuItem for bowl-style products where base, protein, crunch, and dressing
+      roles are prominent.
+  ComboMealSpec:
+    extends:
+    - MenuItem
+    description: Menu item composed from multiple bundled product components such as sandwich, side, and drink.
+    default_capabilities: []
+    recommended_presentations:
+    - composition_card
+    examples:
+    - Lunch Combo
+    - Half Sandwich Soup Combo
+    long_description: ComboMealSpec models a bundled sellable product. It inherits composability so the bundle can expose
+      component roles and substitution constraints.
   Composition:
-    description: A composite thing made of replaceable parts, where parts have functional roles and the whole has integrity constraints.
+    abstract: true
+    extends:
+    - Archetype
+    description: Abstract whole assembled from parts with functional roles and integrity constraints.
     default_capabilities:
-      - identifiable
-      - labelable
-      - composable
-      - inspectable
+    - identifiable
+    - labelable
+    - composable
+    - inspectable
     recommended_presentations:
-      - composition_card
-      - composition_detail
-      - ingredient_list
+    - composition_card
+    - composition_detail
+    - ingredient_list
     examples:
-      - Sandwich
-      - SaladBowl
-      - Platter
-      - ComboMeal
-      - Burger
-      - Wrap
-    long_description: >
-      Composition represents a whole that is assembled from parts with defined functional roles.
-      In the deli domain, a sandwich is a Composition: it has structural parts (bread), richness
-      parts (cheese, avocado), moisture parts (sauce, dressing), acidity parts (pickle, mustard),
-      crunch parts (lettuce, onion), protein parts (meat, tofu), and garnish parts. The intelligent
-      replacement system operates on Compositions: when a customer removes a part, the system finds
-      replacements that preserve the composition's functional integrity by matching on role overlap.
-      A Composition is not merely a list of ingredients—it is an assemblage with role-based constraints.
-      A BLT without bacon is not just "a BLT minus bacon"; it is a composition that has lost its primary
-      protein and smoky umami role, and the replacement engine should suggest something that fills those
-      roles (e.g., smoked tofu, tempeh bacon, or grilled portobello).
+    - SandwichComposition
+    - SaladComposition
+    - ComboMealComposition
+    long_description: 'Composition represents a whole that is assembled from parts with defined functional roles. In the deli
+      domain, a sandwich is a Composition: it has structural parts (bread), richness parts (cheese, avocado), moisture parts
+      (sauce, dressing), acidity parts (pickle, mustard), crunch parts (lettuce, onion), protein parts (meat, tofu), and garnish
+      parts. The intelligent replacement system operates on Compositions: when a customer removes a part, the system finds
+      replacements that preserve the composition''s functional integrity by matching on role overlap. A Composition is not
+      merely a list of ingredients—it is an assemblage with role-based constraints. A BLT without bacon is not just "a BLT
+      minus bacon"; it is a composition that has lost its primary protein and smoky umami role, and the replacement engine
+      should suggest something that fills those roles (e.g., smoked tofu, tempeh bacon, or grilled portobello).
 
-  Substitution:
-    description: A declared or inferred replacement rule mapping one ingredient to a compatible alternative based on role, dietary, and flavor constraints.
+      '
+  ProductComposition:
+    abstract: true
+    extends:
+    - Composition
+    description: Abstract composition intended to become a sellable or orderable deli product.
     default_capabilities:
-      - identifiable
-      - labelable
-      - substitutable
-      - inspectable
-      - relatable
+    - ingredient_composable
+    - dietary
     recommended_presentations:
-      - substitution_badge
-      - substitution_pair
-      - substitution_detail
+    - ingredient_list
+    - composition_detail
     examples:
-      - NoCheeseToAvocado
-      - NoBaconToSmokedTofu
-      - NoGlutenBreadToLettuceWrap
-      - NoMayoToHummus
-      - ExtraProteinDoubleMeat
-    long_description: >
-      Substitution represents the core intelligence of the replacement engine. Each substitution
-      declares what is being removed (or reduced), what can replace it, under what constraints the
-      replacement is valid, and what the replacement contributes to the composition's role profile.
-      Substitutions are not simple 1:1 swaps: "no cheese" can map to avocado (richness, creaminess),
-      or to nutritional yeast (umami, sharpness), or to extra sauce (moisture), depending on what the
-      customer wants to optimize for. The Substitution archetype carries enough metadata for the
-      replacement engine to reason about role preservation, dietary compatibility, allergen safety,
-      and flavor profile fit. Substitutions may be automatic (suggested by the system) or manual
-      (explicitly chosen by the customer). They may also cascade: removing bread (gluten-free) triggers
-      a lettuce wrap substitution, which itself changes the composition's structural properties.
+    - SandwichComposition
+    - SaladComposition
+    long_description: ProductComposition is the composition side of a menu item. It contributes ingredient-role semantics
+      independently from product metadata so a MenuItem can inherit both.
+  SandwichComposition:
+    extends:
+    - ProductComposition
+    description: Ingredient composition for sandwiches and wraps.
+    default_capabilities: []
+    recommended_presentations:
+    - ingredient_list
+    examples:
+    - BLT ingredients
+    - Italian hoagie ingredients
+    long_description: 'SandwichComposition defines the role vocabulary for sandwich-style assemblies: structural bread/wrap,
+      protein, richness, moisture, acidity, crunch, heat, and garnish.'
+  SaladComposition:
+    extends:
+    - ProductComposition
+    description: Ingredient composition for salads.
+    default_capabilities: []
+    recommended_presentations:
+    - ingredient_list
+    examples:
+    - Greek salad ingredients
+    long_description: SaladComposition defines bowl/salad ingredient roles such as base greens, protein, crunch, dressing,
+      garnish, and add-ons.
+  BowlComposition:
+    extends:
+    - ProductComposition
+    description: Ingredient composition for grain bowls or rice bowls.
+    default_capabilities: []
+    recommended_presentations:
+    - ingredient_list
+    examples:
+    - Grain bowl ingredients
+    long_description: BowlComposition extends ProductComposition for bowl-style products where a base and toppings are customized
+      independently.
+  Ingredient:
+    extends:
+    - Resource
+    description: Concrete food ingredient resource with dietary, allergen, role, availability, and substitution metadata.
+    default_capabilities:
+    - dietary
+    - available
+    recommended_presentations:
+    - compact_ref
+    - ingredient_list
+    examples:
+    - Avocado
+    - Cheese
+    - Smoked tofu
+    long_description: Ingredient is a concrete resource in the deli pantry. Ingredients can participate in compositions, carry
+      dietary/allergen metadata, and become substitution candidates.
+  Order:
+    extends:
+    - WorkItem
+    - TimelineSpan
+    description: Customer order moving through placement, preparation, pickup, and completion.
+    default_capabilities:
+    - filterable
+    - searchable
+    recommended_presentations:
+    - summary_card
+    - detail_panel
+    examples:
+    - 'Order #1842'
+    long_description: Order is a concrete work item with lifecycle and duration semantics. It inherits WorkItem behavior for
+      state/actions and TimelineSpan semantics for placed/completed timing.
+  OrderItem:
+    extends:
+    - WorkItem
+    - ProductComposition
+    description: Concrete line item inside an order, based on a MenuItem with selected configuration and substitutions.
+    default_capabilities:
+    - configurable
+    recommended_presentations:
+    - order_item_row
+    - ingredient_list
+    examples:
+    - Turkey club, no cheese, add avocado
+    long_description: 'OrderItem is intentionally multiple-inherited: it is work tracked through prep and also a concrete
+      composition after customer customization.'
+  PrepTask:
+    extends:
+    - WorkItem
+    description: Kitchen preparation task assigned to a station for an order or order item.
+    default_capabilities:
+    - schedulable
+    recommended_presentations:
+    - dense_row
+    - prep_status_indicator
+    examples:
+    - Toast bread
+    - Assemble sandwich
+    long_description: PrepTask represents station-level work derived from an order item. It is useful for kitchen views and
+      order tracking.
+  Substitution:
+    abstract: true
+    extends:
+    - Relation
+    description: Abstract replacement relationship between an original ingredient/part and compatible alternatives.
+    default_capabilities:
+    - substitutable
+    - inspectable
+    - relatable
+    recommended_presentations:
+    - substitution_badge
+    - substitution_pair
+    - substitution_detail
+    examples:
+    - No cheese to avocado
+    long_description: 'Substitution represents the core intelligence of the replacement engine. Each substitution declares
+      what is being removed (or reduced), what can replace it, under what constraints the replacement is valid, and what the
+      replacement contributes to the composition''s role profile. Substitutions are not simple 1:1 swaps: "no cheese" can
+      map to avocado (richness, creaminess), or to nutritional yeast (umami, sharpness), or to extra sauce (moisture), depending
+      on what the customer wants to optimize for. The Substitution archetype carries enough metadata for the replacement engine
+      to reason about role preservation, dietary compatibility, allergen safety, and flavor profile fit. Substitutions may
+      be automatic (suggested by the system) or manual (explicitly chosen by the customer). They may also cascade: removing
+      bread (gluten-free) triggers a lettuce wrap substitution, which itself changes the composition''s structural properties.
+
+      '
+  IngredientSubstitutionRule:
+    extends:
+    - Substitution
+    description: Declared reusable substitution rule authored by the deli or learned from accepted replacements.
+    default_capabilities:
+    - role_preserving_substitutable
+    - dietary_substitutable
+    - price_aware_substitutable
+    recommended_presentations:
+    - substitution_pair
+    - substitution_detail
+    examples:
+    - No cheese to avocado
+    - No bacon to smoked tofu
+    long_description: IngredientSubstitutionRule is a concrete substitution relation used by the replacement engine to rank
+      and explain alternatives.
+  SubstitutionSuggestion:
+    extends:
+    - Substitution
+    description: Runtime suggestion generated after a customer removes or changes an ingredient.
+    default_capabilities:
+    - role_preserving_substitutable
+    - dietary_substitutable
+    - price_aware_substitutable
+    recommended_presentations:
+    - substitution_badge
+    - substitution_pair
+    examples:
+    - Suggest avocado after cheese removal
+    long_description: SubstitutionSuggestion is a candidate presented to the customer. It inherits the same substitution contract
+      as rules but represents a runtime recommendation.
+  AppliedSubstitution:
+    extends:
+    - Substitution
+    description: Substitution accepted and applied to an order item.
+    default_capabilities:
+    - role_preserving_substitutable
+    - dietary_substitutable
+    - price_aware_substitutable
+    - stateful
+    recommended_presentations:
+    - substitution_badge
+    - substitution_detail
+    examples:
+    - Cheese removed, avocado added
+    long_description: AppliedSubstitution records the actual replacement in an order item so the cart, kitchen, and receipt
+      can explain what changed.
