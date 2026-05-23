@@ -20,7 +20,7 @@ RelatedFiles:
       Note: Working proof of action registry keyed by semantic type
 ExternalSources: []
 Summary: "Intermediate semantic model for reusable archetypes, capabilities, projections, presentations, and actions."
-LastUpdated: 2026-05-19T17:36:00-04:00
+LastUpdated: 2026-05-23T00:00:00-04:00
 WhatFor: "Use to derive concrete archetypes.yaml, capabilities.yaml, domain-mapping.yaml, presentations.yaml, and actions.yaml schemas."
 WhenToUse: "Read when refining the domain side of the design-system factory or pressure-testing it against concrete domains."
 ---
@@ -45,7 +45,9 @@ Application domain type
   -> widgets and actions
 ```
 
-Archetypes are compositional. A concrete type may map to more than one archetype. Presentations often attach to capabilities rather than whole archetypes: a `status-badge` represents the `stateful` capability, not necessarily a `State` archetype. A `State` archetype exists only when state itself is modeled as a first-class semantic object.
+Archetypes now use explicit semantic inheritance. `Archetype` is the abstract root class; reusable parents such as `Entity`, `WorkItem`, `Resource`, and `Relation` contribute inherited capabilities, presentations, examples, and generated ancestry metadata. A concrete type may map to more than one concrete archetype, but it should not map directly to abstract taxonomy nodes. Presentations often attach to capabilities rather than whole archetypes: a `status-badge` represents the `stateful` capability, not necessarily a `State` archetype. A `State` archetype exists only when state itself is modeled as a first-class semantic object.
+
+Capabilities use the same explicit inheritance model rooted at the abstract `Capability` class. Parent capabilities contribute projections, presentations, actions, and filters to descendants. Validators and generators consume the effective inherited model, so inherited required projections must be mapped by domain examples and generated TypeScript can answer `isArchetypeA(child, ancestor)` / `isCapabilityA(child, ancestor)`.
 
 ## Problem Statement
 
@@ -94,7 +96,7 @@ Examples:
 - `ActionInvocation`
 - `Annotation`
 
-An archetype is best understood as a named bundle of capabilities that tends to recur in roughly similar form.
+An archetype is best understood as a named bundle of capabilities that tends to recur in roughly similar form. In YAML it must either be the abstract root `Archetype` with `extends: []` or it must declare one or more parents in `extends`. Use `abstract: true` for intermediate taxonomy nodes that explain the semantic hierarchy but should not be assigned directly to domain types.
 
 ### Capability
 
@@ -116,7 +118,7 @@ Examples:
 - `executable`
 - `append_only`
 
-Capabilities are often the correct level for reusable presentations. For example, `status-badge` attaches to `stateful`, while `timestamp-inline` attaches to `temporal`.
+Capabilities are often the correct level for reusable presentations. For example, `status-badge` attaches to `stateful`, while `timestamp-inline` attaches to `temporal`. In YAML every non-root capability declares `extends`; inherited projections/actions/presentations are part of the effective capability contract seen by validators and generators.
 
 ### Projection
 

@@ -84,6 +84,7 @@ Define the reusable semantic layer at the meta level. Do not lock onto one concr
 - Which concrete domain objects from example apps map to those roles?
 - Which roles are better understood as archetypes vs capabilities?
 - Which presentations are capability-level vs archetype-level?
+- Which semantic roles should be abstract parents, which should be concrete leaves, and where should multiple inheritance be allowed?
 - Which actions operate over capabilities, archetypes, or concrete domain types?
 
 ### Required output
@@ -102,7 +103,8 @@ It must define:
 - projection;
 - presentation;
 - action;
-- compositional mapping rules;
+- inheritance rules rooted at abstract `Archetype` and `Capability`;
+- compositional mapping rules for concrete domain types;
 - at least two cross-domain examples.
 
 ### Exit criteria
@@ -181,8 +183,9 @@ The split is intentional. `01-core-model.yaml` is a package index. The semantic 
 1. Draft schemas with examples before finalizing fields.
 2. Add both short and long prose context:
    - every core-model package/index file needs `summary` and `long_summary`;
-   - every archetype needs `description` and `long_description`;
-   - every capability needs `description` and `long_description`;
+   - every archetype needs `description`, `long_description`, and either `extends` or root status;
+   - every capability needs `description`, `long_description`, and either `extends` or root status;
+   - helper/taxonomy parents should be marked `abstract: true` so domain examples cannot map to them directly;
    - every presentation and action should include `description` and `long_description` once it becomes part of the formal IR;
    - design-language sections should include explanatory `long_summary`, `description`, or `long_purpose` fields so humans understand how to apply the terse tokens;
    - subfiles should include `references` pointing to the design docs needed to understand them.
