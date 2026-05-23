@@ -857,3 +857,89 @@ python3 -m http.server 8766
   - `/home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/22/DMETA-IR-COMPOSITION--ir-imports-and-extension-composition/assets/screenshots/deli-refactored-customizer.png`
   - `/home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/22/DMETA-IR-COMPOSITION--ir-imports-and-extension-composition/assets/screenshots/deli-refactored-substitution.png`
   - `/home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/22/DMETA-IR-COMPOSITION--ir-imports-and-extension-composition/assets/screenshots/deli-refactored-cart.png`
+
+## Step 8: Publish the Obsidian Deep-Dive Article
+
+I wrote the requested Obsidian project report as a durable technical article in Manuel's vault. The article explains the semantic inheritance model, how it was implemented in the validator/generator, how Street Deli uses it, and how the refactored deli prototype demonstrates the model visually.
+
+The report includes the inheritance overview screenshots, validation-command screenshot, and the four refactored deli app screenshots captured from the mobile prototype. I committed and pushed the vault changes separately from the DMETA repository, following the vault workflow.
+
+### Prompt Context
+
+**User prompt (verbatim):** (see Step 6)
+
+**Assistant interpretation:** Complete the final requested deliverable by writing a deep-dive technical blog post in the Obsidian vault with screenshots and concrete implementation references.
+
+**Inferred user intent:** The user wants a durable, readable narrative outside the ticket workspace that explains both the system and the deli rewrite for future reference.
+
+**Commit (vault/docs):** `81c2e1c128bb36e83a3677098bab73dc61626937` — "Add DMETA semantic inheritance deep dive"
+
+### What I did
+
+- Created Obsidian article:
+  - `/home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/23/ARTICLE - DMETA Semantic Inheritance - From Flat Tags to Deli Ordering.md`
+- Copied screenshots into the vault under:
+  - `/home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/23/assets/dmeta-semantic-inheritance/`
+- Included screenshots for:
+  - inheritance overview;
+  - Street Deli semantic rewrite overview;
+  - validation commands;
+  - refactored deli menu;
+  - refactored deli customizer;
+  - refactored deli substitution flow;
+  - refactored deli cart.
+- Committed the intended article/assets only in the vault repo.
+- Pushed the vault repo to `ssh://github.com/go-go-golems/go-go-parc`.
+- Checked ticket task 28 and updated the changelog.
+
+### Why
+
+- Ticket docs are implementation records; the Obsidian article is a broader technical narrative meant for future reading and reuse.
+- The screenshots make the article concrete: a reader can see both the model-level inheritance and the deli app flow.
+
+### What worked
+
+- The vault commit succeeded:
+
+```text
+[main 81c2e1c] Add DMETA semantic inheritance deep dive
+```
+
+- The push succeeded:
+
+```text
+main -> main
+```
+
+### What didn't work
+
+- The vault had unrelated untracked `.obsidian/workspace.json` and `.pi/` paths. I did not stage them.
+
+### What I learned
+
+- The Obsidian article format is a good place to explain the difference between semantic inheritance and package composition.
+- Embedding screenshots from the ticket assets into the vault gives the article stable visual context without depending on external files.
+
+### What was tricky to build
+
+- The tricky part was choosing the right scope. The article needed enough implementation detail to be useful, but it also needed to read like a technical blog post rather than a raw changelog. I structured it around mental model, architecture, implementation, Street Deli usage, screenshots, validation, and open questions.
+
+### What warrants a second pair of eyes
+
+- Review the article for tone and whether the screenshots are the right size in Obsidian.
+- Review whether the semantic chips in the prototype should be described as debug/documentation UI rather than production UI; the article currently makes that distinction.
+
+### What should be done in the future
+
+- If generated React widgets are promoted later, write a follow-up article or append a new dated note rather than overwriting this history.
+
+### Code review instructions
+
+- Open the Obsidian note and verify all embeds resolve:
+  - `Projects/2026/05/23/ARTICLE - DMETA Semantic Inheritance - From Flat Tags to Deli Ordering.md`
+- In the vault repository, confirm only the article and screenshot assets were committed.
+
+### Technical details
+
+- Vault commit: `81c2e1c128bb36e83a3677098bab73dc61626937`
+- Article path: `/home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/23/ARTICLE - DMETA Semantic Inheritance - From Flat Tags to Deli Ordering.md`
