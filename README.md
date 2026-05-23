@@ -16,6 +16,10 @@ This directory contains durable design-system factory documents promoted out of 
 - `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` — concrete v0 specification for `01-core-model.yaml`, widget-template packages, and instance manifests.
 - `design-docs/06-dmeta-design-language-and-tooling-spec.md` — concrete v0 specification for `02-design-language.yaml`, generated helpers, validators, generators, lint, and promotion tooling.
 
+## Current semantic model note
+
+The core semantic model now uses explicit multi-level inheritance. `Archetype` and `Capability` are abstract roots, every non-root archetype/capability declares `extends`, validators resolve inherited capabilities/projections/actions before checking domain examples, and generated TypeScript exposes `isArchetypeA(...)`, `isCapabilityA(...)`, and effective inherited fields. Treat older flat archetype/capability examples as historical sketches unless they have been updated with `extends`.
+
 ## Source IR
 
 - `sources/dmeta-ir/00-index.yaml` — v0 IR package manifest.

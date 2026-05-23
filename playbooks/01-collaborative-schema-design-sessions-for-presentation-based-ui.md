@@ -132,7 +132,17 @@ An **archetype** is a reusable functional role that appears across many applicat
 
 A **capability** is a reusable affordance or behavior: `identifiable`, `labelable`, `stateful`, `temporal`, `inspectable`, `relatable`, `actionable`, `streamable`, `measurable`, `schedulable`.
 
-An archetype is usually a named bundle of capabilities. A concrete domain type may map to multiple archetypes.
+An archetype is usually a named bundle of capabilities. In the current IR, archetypes form an explicit inheritance tree/DAG rooted at the abstract `Archetype` class. Common parents such as `Entity`, `WorkItem`, `Resource`, and `Relation` contribute inherited capabilities and recommended presentations; domain-specific archetypes should extend the nearest semantic parent instead of copying its fields. A concrete domain type may map to multiple concrete archetypes, but it should not map to abstract roots or abstract helper parents.
+
+Capabilities also form an explicit inheritance tree/DAG rooted at the abstract `Capability` class. A specialized capability such as `filter_source` or `facetable` inherits required projections, presentations, actions, and filters from its parents. This means the authoring question is not only “which capabilities exist?” but also “what reusable capability class does this capability extend?”
+
+Authoring rules:
+
+- `Archetype` and `Capability` are explicit abstract roots with `extends: []`.
+- Every non-root archetype/capability must declare at least one `extends` parent.
+- Use `abstract: true` for taxonomy and helper nodes that should never appear directly in domain mappings.
+- Multiple inheritance is allowed when it models a real semantic intersection, but parent order is meaningful because inherited arrays are merged in stable parent order.
+- Domain examples are validated against the effective inherited model, so required projections inherited from parent capabilities must be mapped.
 
 ### Capability-level presentation vs archetype-level presentation
 
@@ -445,6 +455,7 @@ Authoring context requirements:
 - Use `summary` for short tables and generated manifests.
 - Use `long_summary` for intern guides, generated documentation, review context, and LLM-assisted workflows.
 - Every archetype and capability must include both `description` and `long_description`.
+- Every non-root archetype and capability must include `extends`; abstract taxonomy nodes must include `abstract: true`.
 - Every formal presentation and action should include both `description` and `long_description` once it is promoted beyond a sketch.
 - Design-language YAML should avoid opaque token lists: sections should include `long_summary`, and roles/recipes/states/rules should include `description`, `long_purpose`, or `long_description` where useful.
 - Every core-model subfile should include `references` to the relevant design docs, especially `dmeta/design-docs/02-semantic-archetype-and-capability-model.md` and `dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md`.
@@ -452,9 +463,10 @@ Authoring context requirements:
 
 Expected invariants:
 
-- Every referenced archetype exists.
-- Every referenced capability exists.
-- Every capability projection is mapped by concrete domain types that claim it.
+- Every referenced archetype exists and has a valid path to the abstract `Archetype` root.
+- Every referenced capability exists and has a valid path to the abstract `Capability` root.
+- No domain type maps an abstract archetype or abstract capability directly.
+- Every required capability projection, including inherited required projections, is mapped by concrete domain types that claim it.
 - Every presentation requirement resolves to a projection.
 - Every action argument references known archetypes/capabilities/domain types.
 - Every widget references known presentations or presentation slots.

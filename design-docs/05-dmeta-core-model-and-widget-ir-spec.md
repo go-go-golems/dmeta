@@ -21,7 +21,7 @@ RelatedFiles:
       Note: Future widget IR source artifact described by this spec
 ExternalSources: []
 Summary: "Concrete v0 specification for the split DMETA core model package and widget IR YAML."
-LastUpdated: 2026-05-19T21:00:00-04:00
+LastUpdated: 2026-05-23T00:00:00-04:00
 WhatFor: "Use to draft or validate dmeta/sources/dmeta-ir/01-core-model.yaml, core-model/*.yaml, and 03-widgets.yaml."
 WhenToUse: "Read before editing the semantic model, presentation/action definitions, domain mappings, or generic dense-operational widget inventory."
 ---
@@ -58,13 +58,14 @@ The purpose of this split is deliberate: archetypes and capabilities need enough
 
 ## Design Principles
 
-1. **Archetypes are composable.** A domain type can map to more than one archetype.
-2. **Capabilities carry reusable affordances.** Presentations and actions often attach to capabilities rather than whole archetypes.
-3. **Domain mappings are examples in v0.** They pressure-test the model but do not yet need to be a separate production artifact.
-4. **Presentations are display contracts.** They specify required projections and interaction affordances, not only visual components.
-5. **Actions are typed semantic operations.** They can accept capabilities, archetypes, presentations, or concrete domain types.
-6. **Widgets consume presentations.** Widgets should not need to know arbitrary raw domain structures.
-7. **The adapter boundary remains explicit.** Runtime wire data becomes typed props and `PresentationRef`s before reaching widgets.
+1. **Archetypes inherit explicitly.** `Archetype` is an abstract root, non-root archetypes declare `extends`, and validators/generators operate on effective inherited capabilities and presentations.
+2. **Capabilities inherit explicitly.** `Capability` is an abstract root, non-root capabilities declare `extends`, and descendants inherit projections, presentations, actions, and filters.
+3. **Domain mappings target concrete semantics.** A domain type can map to more than one concrete archetype/capability, but not to abstract taxonomy nodes.
+4. **Domain mappings are examples in v0.** They pressure-test the model but do not yet need to be a separate production artifact.
+5. **Presentations are display contracts.** They specify required projections and interaction affordances, not only visual components.
+6. **Actions are typed semantic operations.** They can accept capabilities, archetypes, presentations, or concrete domain types.
+7. **Widgets consume presentations.** Widgets should not need to know arbitrary raw domain structures.
+8. **The adapter boundary remains explicit.** Runtime wire data becomes typed props and `PresentationRef`s before reaching widgets.
 
 ## `01-core-model.yaml` and split `core-model/` package
 
@@ -124,7 +125,36 @@ references:
   design_doc: ../../../design-docs/02-semantic-archetype-and-capability-model.md
   spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
 archetypes:
+  Archetype:
+    abstract: true
+    description: Root semantic role class.
+    extends: []
+    default_capabilities: []
+    recommended_presentations: []
+    examples: []
+    long_description: >
+      Every semantic archetype inherits from Archetype. The root is abstract and
+      exists so validation, generated TypeScript, and documentation can reason
+      about the complete hierarchy explicitly.
+  Entity:
+    abstract: true
+    extends:
+      - Archetype
+    description: Base semantic thing with identity, labels, inspection, and relation affordances.
+    default_capabilities:
+      - identifiable
+      - labelable
+      - inspectable
+      - relatable
+    recommended_presentations:
+      - compact_ref
+      - detail_panel
+    examples: []
+    long_description: >
+      Entity is the shared parent for semantic subjects that appear in operational UIs.
   WorkItem:
+    extends:
+      - Entity
     description: A unit of work that can be tracked, progressed, completed, failed, retried, or inspected.
     long_description: >
       Longer prose paragraph explaining what WorkItem means, what it is not,
@@ -155,7 +185,9 @@ archetypes:
 | --- | --- | --- |
 | `description` | string | Short human-readable semantic definition. |
 | `long_description` | string | Longer prose context for interns, generated docs, review, and LLM-assisted workflows. |
-| `default_capabilities` | string[] | Capabilities normally expected for this archetype. |
+| `extends` | string[] | Parent archetypes. Required for every non-root archetype; empty only on `Archetype`. |
+| `abstract` | boolean | Whether this archetype is a taxonomy/helper node that domain examples must not map directly. |
+| `default_capabilities` | string[] | Capabilities normally expected for this archetype before inheritance; validators/generators also expose effective inherited capabilities. |
 
 ### Optional fields
 
