@@ -107,6 +107,8 @@ type LogicalTypes struct {
 type Archetype struct {
 	Description              string   `yaml:"description"`
 	LongDescription          string   `yaml:"long_description"`
+	Extends                  []string `yaml:"extends"`
+	Abstract                 bool     `yaml:"abstract"`
 	DefaultCapabilities      []string `yaml:"default_capabilities"`
 	RecommendedPresentations []string `yaml:"recommended_presentations"`
 	Examples                 []string `yaml:"examples"`
@@ -116,6 +118,8 @@ type Archetype struct {
 type Capability struct {
 	Description     string                `yaml:"description"`
 	LongDescription string                `yaml:"long_description"`
+	Extends         []string              `yaml:"extends"`
+	Abstract        bool                  `yaml:"abstract"`
 	Projections     map[string]Projection `yaml:"projections"`
 	Presentations   []string              `yaml:"presentations"`
 	Actions         []string              `yaml:"actions"`
