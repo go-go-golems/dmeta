@@ -87,6 +87,13 @@ func main() {
 	}
 	addGlazedCommand(rootCmd, "plan-pbui-react", planPBUIReact)
 
+	planPBUIReactApp, err := dmetacmds.NewPlanPBUIReactAppCommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating plan-pbui-react-app command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "plan-pbui-react-app", planPBUIReactApp)
+
 	scaffoldPBUIReact, err := dmetacmds.NewScaffoldPBUIReactCommand()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error creating scaffold-pbui-react command: %v\n", err)
