@@ -50,16 +50,16 @@ Validation gate:
 
 Goal: apply the concrete presentation profile to abstract PBUI obligations and produce a target-neutral concrete presentation plan.
 
-- [ ] Define `ConcretePresentationPlan`.
-- [ ] Define view plan, surface plan, component binding plan, style plan, runtime mode plan.
-- [ ] Implement `InstantiateProfile` from PBUI obligations + descriptors + profile package.
-- [ ] Add `dmeta instantiate-pbui`.
-- [ ] Output table columns: view, surface, presentation type, component, domain types, actions, representations, presenter intent, recognizer intent, style profile.
-- [ ] Add golden test for Street Deli concrete instantiation.
+- [x] Define `ConcretePresentationPlan`.
+- [x] Define view plan, surface plan, component binding plan, style plan, runtime mode plan.
+- [x] Implement `InstantiateProfile` from PBUI obligations + descriptors + profile package.
+- [x] Add `dmeta instantiate-pbui`.
+- [x] Output table columns: view, surface, presentation type, component, domain types, actions, representations, presenter intent, recognizer intent, style profile.
+- [x] Add golden test for Street Deli concrete instantiation.
 
 Validation gate:
 
-- [ ] `go run ./cmd/dmeta instantiate-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output table`
+- [x] `go run ./cmd/dmeta instantiate-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output table`
 
 ## Phase 4: Plan React CLIM app target
 

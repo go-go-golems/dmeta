@@ -44,3 +44,13 @@ Implemented Phase 2 by adding concrete PBUI profile Go model/load/validate suppo
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/validate_pbui_profile.go — Exposes validation as dmeta validate-pbui-profile
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/validate.go — Validates concrete profile structure and PBUI presentation type references
 
+
+## 2026-05-24
+
+Implemented Phase 3 by adding ConcretePresentationPlan instantiation and the instantiate-pbui CLI command (commit e04e465a2483fca0752d477d446571fe9a8980f6).
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/instantiate_pbui.go — Exposes concrete presentation planning as dmeta instantiate-pbui
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/instantiate.go — Instantiates concrete views
+

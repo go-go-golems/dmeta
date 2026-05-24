@@ -15,7 +15,9 @@ Intent: long-term
 Owners: []
 RelatedFiles:
     - Path: cmd/dmeta/main.go
-      Note: Registers validate-pbui-profile
+      Note: |-
+        Registers validate-pbui-profile
+        Registers instantiate-pbui
     - Path: examples/street-deli-ordering/meta-design-systems/pbui/presentation-bindings.yaml
       Note: PBUI presentation type to concrete renderer binding profile
     - Path: examples/street-deli-ordering/meta-design-systems/pbui/presentation-system.yaml
@@ -28,8 +30,14 @@ RelatedFiles:
       Note: Concrete PBUI React app target metadata
     - Path: examples/street-deli-ordering/meta-design-systems/pbui/view-models.yaml
       Note: Concrete menu/detail/substitution/cart/help/tracker view model profile
+    - Path: pkg/dmeta/cmds/instantiate_pbui.go
+      Note: CLI command for producing concrete PBUI presentation plans
     - Path: pkg/dmeta/cmds/validate_pbui_profile.go
       Note: CLI command for validating concrete PBUI profiles
+    - Path: pkg/dmeta/metadesign/pbui/profile/instantiate.go
+      Note: Concrete PBUI profile instantiation model and grouping pass
+    - Path: pkg/dmeta/metadesign/pbui/profile/instantiate_test.go
+      Note: Street Deli concrete presentation plan test
     - Path: pkg/dmeta/metadesign/pbui/profile/load.go
       Note: Concrete PBUI profile loader
     - Path: pkg/dmeta/metadesign/pbui/profile/load_validate_test.go
@@ -48,6 +56,7 @@ LastUpdated: 2026-05-24T17:58:00-04:00
 WhatFor: Record ticket setup, evidence gathering, design decisions, implementation steps, failures, validation, and handoff notes for the PBUI concrete presentation profile pass.
 WhenToUse: Read before resuming work on DMETA-PBUI-PRESENTATION-PROFILE or implementing profile schemas, validators, instantiation, or the Street Deli clim-react app.
 ---
+
 
 
 
@@ -384,3 +393,103 @@ This is intentionally a validation-only phase. It does not yet instantiate PBUI 
   - view mode labels and PBUI presentation type references;
   - binding component names, classes, and PBUI presentation type references;
   - React app target output directory, provenance, and normal/select/confirm runtime states.
+
+## Step 5: Instantiate the concrete PBUI profile into a presentation plan
+
+This step implemented Phase 3: the concrete profile is now applied to abstract PBUI obligations to produce a target-neutral `ConcretePresentationPlan`. The new plan is the missing compiler object between `lower-pbui` and future React CLIM app planning. It does not render files yet; it says which concrete Street Deli views host which PBUI presentation types, which surface and renderer component each presentation uses, which domain types/actions/representations caused it, and which style profile governs it.
+
+I also added the `dmeta instantiate-pbui` command. This command runs the upstream semantic → interaction → PBUI lowering chain, validates the concrete profile, instantiates the profile, and emits a table with the view/surface/component mapping. The output is intentionally reviewable before any app scaffolding is attempted.
+
+### Prompt Context
+
+**User prompt (verbatim):** "continue"
+
+**Additional user prompt (verbatim):** "Read the diary if necessary to get past context."
+
+**Assistant interpretation:** Continue implementing the ticket phases after Phase 2, using the diary to keep context and preserve the step-by-step record.
+
+**Inferred user intent:** Keep progressing through the concrete PBUI profile implementation without losing architectural context from earlier steps.
+
+**Commit (code):** e04e465a2483fca0752d477d446571fe9a8980f6 — "DMETA-PBUI-PRESENTATION-PROFILE: instantiate PBUI profile plans"
+
+### What I did
+- Read the ticket diary and task list before continuing.
+- Added concrete profile instantiation support:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/instantiate.go`
+- Added a Street Deli instantiation test:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/instantiate_test.go`
+- Added CLI command:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/instantiate_pbui.go`
+- Registered the CLI command in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+- Ran validation:
+  - `go test ./pkg/dmeta/metadesign/pbui/... ./cmd/dmeta -count=1`
+  - `go test ./pkg/dmeta/... ./cmd/dmeta -count=1`
+  - `go run ./cmd/dmeta instantiate-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output table`
+- Updated Phase 3 tasks and validation gates.
+
+### Why
+- PBUI lowering creates abstract presentation obligations, but a real app needs a concrete view/surface/component interpretation.
+- The concrete profile should be reviewable as a target-neutral plan before React app file planning begins.
+- Future React app planning should consume this concrete plan rather than rediscovering view placement and component bindings from YAML directly.
+
+### What worked
+- The new `ConcretePresentationPlan` groups PBUI obligations into Street Deli views according to `view-models.yaml`.
+- Renderer components come from `presentation-bindings.yaml`, for example:
+  - `pbui.presentation_ref` → `PresentationRefLine`
+  - `pbui.action_presentation` → `ActionPresentationInline`
+  - `pbui.composition_presentation` → `CompositionPresentationBlock`
+- Surface resolution maps profile placement hints such as `active_view`, `action_bar`, and `tracker_view` to the concrete `view` surface for v1.
+- `instantiate-pbui` emitted a stable table containing the required review columns.
+
+### What didn't work
+- Initial command output used multi-paragraph presenter/recognizer intent strings directly, which made table output hard to read because embedded newlines expanded rows visually.
+- Fix:
+  - kept rich intent text in the in-memory plan;
+  - normalized intent fields to one line only in the CLI table output with `oneLineIntent`.
+
+### What I learned
+- Profile instantiation is naturally a grouping pass: it groups obligations by view and presentation type, then enriches them with binding, surface, component, and style data.
+- It is still too early to decide exact React file layout here. This pass should remain target-neutral and let Phase 4 own React app planning.
+
+### What was tricky to build
+- The tricky boundary was avoiding direct React planning in `InstantiateProfile`. Component names appear in the concrete profile because they are part of the presentation-system vocabulary, but file paths, Vite package shape, runtime modules, and generated registries belong to Phase 4.
+- Another subtlety was surface resolution. The profile uses semantic placement hints like `active_view` and `action_bar`, while the surface catalog has concrete surfaces like `view` and `command_line`. The v1 resolver maps those hints into stable concrete surface ids rather than requiring every binding to repeat shell structure.
+
+### What warrants a second pair of eyes
+- Review whether grouping by view + presentation type is sufficient or whether Phase 4 needs finer-grained rows per source rule/domain type.
+- Review whether `resolveSurfaceID` should become data-driven inside `surfaces.yaml` instead of hardcoded in Go.
+- Review whether `ConcretePresentationPlan` should include object/action descriptors now or wait for React app planning.
+
+### What should be done in the future
+- Implement Phase 4: plan the React CLIM app target from `ConcretePresentationPlan`.
+- Consider adding a golden output fixture for `instantiate-pbui` if the table/YAML output becomes part of review workflows.
+
+### Code review instructions
+- Start with:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/instantiate.go`
+- Then review command wiring:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/instantiate_pbui.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+- Validate with:
+  - `go test ./pkg/dmeta/... ./cmd/dmeta -count=1`
+  - `go run ./cmd/dmeta instantiate-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output table`
+
+### Technical details
+- `ConcretePresentationPlan` contains:
+  - profile id/name;
+  - style profile id;
+  - React target id;
+  - runtime states;
+  - view plans;
+  - concrete presentation instances.
+- `ConcretePresentationInstance` contains:
+  - view and mode label;
+  - surface id and surface component;
+  - PBUI presentation type;
+  - concrete component;
+  - domain types;
+  - source rules;
+  - source representations/actions;
+  - presenter and recognizer intent;
+  - style profile id.
