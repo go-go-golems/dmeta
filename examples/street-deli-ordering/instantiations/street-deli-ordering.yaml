@@ -8,14 +8,14 @@ core_model_root: ../..
 template_sources:
   global_ir_root: ../../../sources/dmeta-ir
   local_template_files:
-  - ../widget-templates/menu-browsing.yaml
-  - ../widget-templates/item-cards.yaml
-  - ../widget-templates/customization.yaml
-  - ../widget-templates/modifiers.yaml
-  - ../widget-templates/substitutions.yaml
-  - ../widget-templates/ordering.yaml
-  - ../widget-templates/availability.yaml
-  - ../widget-templates/tracking.yaml
+  - ../meta-design-systems/web/widgets/menu-browsing.yaml
+  - ../meta-design-systems/web/widgets/item-cards.yaml
+  - ../meta-design-systems/web/widgets/customization.yaml
+  - ../meta-design-systems/web/widgets/modifiers.yaml
+  - ../meta-design-systems/web/widgets/substitutions.yaml
+  - ../meta-design-systems/web/widgets/ordering.yaml
+  - ../meta-design-systems/web/widgets/availability.yaml
+  - ../meta-design-systems/web/widgets/tracking.yaml
 generation:
   output_dir: ../generated/widgets
   package_name: street-deli-ordering-widgets

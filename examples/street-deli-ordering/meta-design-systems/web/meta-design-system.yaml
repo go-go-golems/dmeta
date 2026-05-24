@@ -1,0 +1,23 @@
+schema_version: 0
+artifact_type: dmeta_meta_design_system
+id: web
+name: Web MetaDesignSystem
+summary: Street Deli local Web MetaDesignSystem extensions.
+long_summary: Defines Street Deli Web widget templates selected by concrete instances. These templates realize interaction representations/actions as mobile web ordering widgets and React scaffold inputs.
+status: draft
+files:
+  index: ./widgets/00-index.yaml
+  menu_browsing: ./widgets/menu-browsing.yaml
+  item_cards: ./widgets/item-cards.yaml
+  customization: ./widgets/customization.yaml
+  modifiers: ./widgets/modifiers.yaml
+  substitutions: ./widgets/substitutions.yaml
+  ordering: ./widgets/ordering.yaml
+  availability: ./widgets/availability.yaml
+  tracking: ./widgets/tracking.yaml
+validation:
+  require_unique_template_ids: true
+  require_known_representations: false
+  require_known_actions: false
+  reject_abstract_selected_templates: true
+  require_realizes: false

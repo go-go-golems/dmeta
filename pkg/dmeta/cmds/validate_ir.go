@@ -45,8 +45,8 @@ func NewValidateIRCommand() (*ValidateIRCommand, error) {
 		cmds.WithLong(`Validate the DMETA v0 IR package.
 
 The command loads 00-index.yaml, 01-core-model.yaml, 02-design-language.yaml,
-and 03-widgets.yaml from the provided root directory, checks artifact identity
-and cross-references, and emits structured validation finding rows.
+and the Web MetaDesignSystem package from the provided root directory, checks
+artifact identity and cross-references, and emits structured validation finding rows.
 
 Examples:
   dmeta validate-ir --root ./sources/dmeta-ir --output table

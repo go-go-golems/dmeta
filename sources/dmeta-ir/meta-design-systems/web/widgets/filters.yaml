@@ -1,7 +1,7 @@
 schema_version: 0
-artifact_type: dmeta_widget_templates
+artifact_type: dmeta_web_widget_templates
 category: filters
-summary: Filter/search/result-state widget templates for DMETA instances.
+summary: Filter/search/result-state Web widget templates for DMETA instances.
 long_summary: Templates in this file are selectable/adaptable filters starting points for concrete DMETA instances. They are
   not mandatory baseline widgets; instance manifests select, rename, specialize, or exclude them.
 templates:

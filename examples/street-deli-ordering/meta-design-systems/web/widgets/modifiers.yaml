@@ -1,24 +1,96 @@
 schema_version: 0
-artifact_type: dmeta_widget_templates
-category: item_cards
-summary: Menu item card templates for different menu archetypes.
-long_summary: Street Deli local item_cards templates. These are selectable menu-ordering templates; concrete instantiations
+artifact_type: dmeta_web_widget_templates
+category: modifiers
+summary: Variant, modifier, option, and quantity templates.
+long_summary: Street Deli local modifiers templates. These are selectable menu-ordering templates; concrete instantiations
   choose only the families they need.
 templates:
-- id: deli.composition_card
-  name: CompositionCard
+- id: deli.modifier_group
+  name: ModifierGroup
   status: template
   classification:
     level: molecule
-    role: composition_summary
+    role: modifier_group
   intent:
-    purpose: Render a composed menu item such as a sandwich, bowl, wrap, salad, or plate with ingredients, dietary tags, and
-      price.
+    purpose: Render a group of related choices such as bread, cheese, toppings, dressing, milk, sweetener, or side choice.
     adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
       parse raw source YAML or own trusted side effects.
   template:
-    category: item_cards
-    selection: common
+    category: modifiers
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      mobile_layout:
+        type: any
+        required: false
+        description: Mobile-specific layout, surface, and touch target choices.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      copy_and_labels:
+        type: any
+        required: false
+        description: Instance-specific labels, helper text, and operator-facing copy.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
+      story_examples:
+        type: any
+        required: false
+        description: Instance-specific adaptation for story examples.
+    common_variants:
+    - radio_group
+    - checkbox_group
+    - chip_group
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    capabilities:
+    - configurable
+  contract:
+    props:
+      ModifierGroupProps:
+        fields:
+          group:
+            type: ModifierGroupViewModel
+            required: true
+    action_slots:
+      onChooseOption:
+        accepts: PresentationRef
+  stories:
+  - single_choice
+  - multi_choice
+  - required
+  outputs:
+    component: src/street-deli/widgets/ModifierGroup/ModifierGroup.tsx
+    types: src/street-deli/widgets/ModifierGroup/ModifierGroup.types.ts
+    metadata: src/street-deli/widgets/ModifierGroup/ModifierGroup.metadata.ts
+    stories: src/street-deli/widgets/ModifierGroup/ModifierGroup.stories.tsx
+    barrel: src/street-deli/widgets/ModifierGroup/index.ts
+- id: deli.modifier_option
+  name: ModifierOption
+  status: template
+  classification:
+    level: atom
+    role: modifier_option
+  intent:
+    purpose: Render one selectable option inside a modifier group, including price delta and dietary/allergen notes.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: modifiers
+    selection: optional
     maturity: draft
     default_importance: common
     selection_questions:
@@ -51,93 +123,48 @@ templates:
         description: Instance-specific adaptation for story examples.
     common_variants:
     - mobile_default
-    - dense_list
-    - image_card
     avoid_when:
     - The menu type does not expose this interaction.
     - A simpler selected template covers the flow without extra UI surface.
   consumes:
-    archetypes:
-    - Composition
-    presentations:
-    - composition_card
     capabilities:
-    - composable
-    - dietary
     - measurable
+    - dietary
   contract:
     props:
-      CompositionCardProps:
+      ModifierOptionProps:
         fields:
-          item:
-            type: MenuItemViewModel
+          option:
+            type: ModifierOptionViewModel
             required: true
           selected:
             type: boolean
             required: false
     action_slots:
-      onCustomize:
+      onSelect:
         accepts: PresentationRef
-      onAddQuick:
-        accepts: PresentationActionRequest
   stories:
-  - sandwich_card
-  - bowl_card
-  - dietary_badges
+  - free_option
+  - price_delta
+  - allergen
   outputs:
-    component: src/street-deli/widgets/CompositionCard/CompositionCard.tsx
-    types: src/street-deli/widgets/CompositionCard/CompositionCard.types.ts
-    metadata: src/street-deli/widgets/CompositionCard/CompositionCard.metadata.ts
-    stories: src/street-deli/widgets/CompositionCard/CompositionCard.stories.tsx
-    barrel: src/street-deli/widgets/CompositionCard/index.ts
-  semantic_context:
-    archetypes:
-    - ProductComposition
-    capabilities:
-    - ingredient_composable
-    - dietary
-    - measurable
-    - available
-    presentations:
-    - composition_card
-    intent: Render a mobile menu card for a sellable ingredient composition. The semantic model explains why MenuItem fits
-      here without requiring every variant to render the full ingredient role graph.
-    inherited_context_note: MenuItem extends ProductSpec and ProductComposition, so it satisfies both product browsing and
-      composition customization context.
-  projection_hints:
-    recommended:
-    - labelable.label
-    - measurable.value
-    - ingredient_composable.parts
-    - dietary.dietary_tags
-    optional:
-    - available.availability_state
-    - ingredient_composable.required_roles
-    - ingredient_composable.ingredient_roles
-    documentation_only:
-    - ingredient_composable.role_profile
-    adapter_todos:
-    - Decide whether the selected variant shows a short ingredient summary or full ingredient rows.
-    - Keep dietary/allergen information visible when safety-relevant.
-  generation:
-    scaffold_mode: adapter_todos
-    emit_semantic_metadata: true
-    emit_doc_comments: true
-    emit_adapter_todos: true
-    strict_projection_adapter: false
-- id: deli.simple_menu_item_card
-  name: SimpleMenuItemCard
+    component: src/street-deli/widgets/ModifierOption/ModifierOption.tsx
+    types: src/street-deli/widgets/ModifierOption/ModifierOption.types.ts
+    metadata: src/street-deli/widgets/ModifierOption/ModifierOption.metadata.ts
+    stories: src/street-deli/widgets/ModifierOption/ModifierOption.stories.tsx
+    barrel: src/street-deli/widgets/ModifierOption/index.ts
+- id: deli.variant_selector
+  name: VariantSelector
   status: template
   classification:
     level: molecule
-    role: simple_item_summary
+    role: variant_selector
   intent:
-    purpose: Render a fixed item such as a bottled drink, chips, cookie, side, or grab-and-go item with quantity/add controls
-      and no customizer.
+    purpose: Render mutually exclusive variants such as size, soup cup/bowl, bread type, or temperature.
     adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
       parse raw source YAML or own trusted side effects.
   template:
-    category: item_cards
+    category: modifiers
     selection: optional
     maturity: draft
     default_importance: common
@@ -170,91 +197,9 @@ templates:
         required: false
         description: Instance-specific adaptation for story examples.
     common_variants:
-    - compact_tile
-    - list_row
-    - large_touch_target
-    avoid_when:
-    - The menu type does not expose this interaction.
-    - A simpler selected template covers the flow without extra UI surface.
-  consumes:
-    archetypes:
-    - Resource
-    capabilities:
-    - measurable
-    - dietary
-    - available
-  contract:
-    props:
-      SimpleMenuItemCardProps:
-        fields:
-          item:
-            type: SimpleMenuItemViewModel
-            required: true
-          quantity:
-            type: number
-            required: false
-    action_slots:
-      onAdd:
-        accepts: PresentationActionRequest
-      onChangeQuantity:
-        accepts: number
-  stories:
-  - drink
-  - chips
-  - cookie
-  - sold_out
-  outputs:
-    component: src/street-deli/widgets/SimpleMenuItemCard/SimpleMenuItemCard.tsx
-    types: src/street-deli/widgets/SimpleMenuItemCard/SimpleMenuItemCard.types.ts
-    metadata: src/street-deli/widgets/SimpleMenuItemCard/SimpleMenuItemCard.metadata.ts
-    stories: src/street-deli/widgets/SimpleMenuItemCard/SimpleMenuItemCard.stories.tsx
-    barrel: src/street-deli/widgets/SimpleMenuItemCard/index.ts
-- id: deli.variant_menu_item_card
-  name: VariantMenuItemCard
-  status: template
-  classification:
-    level: molecule
-    role: variant_item_summary
-  intent:
-    purpose: Render an item whose primary choice is a variant such as size, soup cup/bowl, coffee size, or slice type.
-    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
-      parse raw source YAML or own trusted side effects.
-  template:
-    category: item_cards
-    selection: optional
-    maturity: draft
-    default_importance: common
-    selection_questions:
-    - Which menu archetypes in this concrete ordering system require this widget?
-    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
-    adaptation_points:
-      component_name:
-        type: any
-        required: false
-        description: Concrete component name selected by the instance manifest.
-      mobile_layout:
-        type: any
-        required: false
-        description: Mobile-specific layout, surface, and touch target choices.
-      presentation_mapping:
-        type: any
-        required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
-      copy_and_labels:
-        type: any
-        required: false
-        description: Instance-specific labels, helper text, and operator-facing copy.
-      action_slots:
-        type: any
-        required: false
-        description: Typed callbacks/actions exposed by the concrete widget.
-      story_examples:
-        type: any
-        required: false
-        description: Instance-specific adaptation for story examples.
-    common_variants:
-    - inline_variants
-    - variant_sheet
+    - segmented
+    - list
+    - chips
     avoid_when:
     - The menu type does not expose this interaction.
     - A simpler selected template covers the flow without extra UI surface.
@@ -264,10 +209,10 @@ templates:
     - measurable
   contract:
     props:
-      VariantMenuItemCardProps:
+      VariantSelectorProps:
         fields:
-          item:
-            type: VariantMenuItemViewModel
+          variants:
+            type: MenuVariantViewModel[]
             required: true
           selectedVariantId:
             type: string
@@ -275,33 +220,31 @@ templates:
     action_slots:
       onSelectVariant:
         accepts: PresentationRef
-      onAdd:
-        accepts: PresentationActionRequest
   stories:
-  - coffee_sizes
-  - soup_sizes
-  - pizza_slice
+  - size_selector
+  - soup_size
+  - coffee_size
   outputs:
-    component: src/street-deli/widgets/VariantMenuItemCard/VariantMenuItemCard.tsx
-    types: src/street-deli/widgets/VariantMenuItemCard/VariantMenuItemCard.types.ts
-    metadata: src/street-deli/widgets/VariantMenuItemCard/VariantMenuItemCard.metadata.ts
-    stories: src/street-deli/widgets/VariantMenuItemCard/VariantMenuItemCard.stories.tsx
-    barrel: src/street-deli/widgets/VariantMenuItemCard/index.ts
-- id: deli.bundle_menu_item_card
-  name: BundleMenuItemCard
+    component: src/street-deli/widgets/VariantSelector/VariantSelector.tsx
+    types: src/street-deli/widgets/VariantSelector/VariantSelector.types.ts
+    metadata: src/street-deli/widgets/VariantSelector/VariantSelector.metadata.ts
+    stories: src/street-deli/widgets/VariantSelector/VariantSelector.stories.tsx
+    barrel: src/street-deli/widgets/VariantSelector/index.ts
+- id: deli.quantity_selector
+  name: QuantitySelector
   status: template
   classification:
-    level: molecule
-    role: bundle_summary
+    level: atom
+    role: quantity_selector
   intent:
-    purpose: Render a combo/bundle such as sandwich plus drink/chips, lunch special, boxed lunch, or catering bundle.
+    purpose: Render plus/minus or stepper quantity controls for simple items, cart lines, and catering quantities.
     adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
       parse raw source YAML or own trusted side effects.
   template:
-    category: item_cards
-    selection: rare
+    category: modifiers
+    selection: optional
     maturity: draft
-    default_importance: optional
+    default_importance: common
     selection_questions:
     - Which menu archetypes in this concrete ordering system require this widget?
     - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
@@ -331,50 +274,53 @@ templates:
         required: false
         description: Instance-specific adaptation for story examples.
     common_variants:
-    - combo_card
-    - catering_card
+    - single_item
+    - cart_line
+    - bulk_quantity
     avoid_when:
     - The menu type does not expose this interaction.
     - A simpler selected template covers the flow without extra UI surface.
   consumes:
-    archetypes:
-    - Composition
     capabilities:
-    - configurable
     - measurable
-    - composable
   contract:
     props:
-      BundleMenuItemCardProps:
+      QuantitySelectorProps:
         fields:
-          bundle:
-            type: BundleMenuItemViewModel
+          quantity:
+            type: number
             required: true
+          min:
+            type: number
+            required: false
+          max:
+            type: number
+            required: false
     action_slots:
-      onConfigureBundle:
-        accepts: PresentationRef
+      onChangeQuantity:
+        accepts: number
   stories:
-  - lunch_combo
-  - boxed_lunch
-  - family_bundle
+  - single_item
+  - cart_line
+  - bulk_quantity
   outputs:
-    component: src/street-deli/widgets/BundleMenuItemCard/BundleMenuItemCard.tsx
-    types: src/street-deli/widgets/BundleMenuItemCard/BundleMenuItemCard.types.ts
-    metadata: src/street-deli/widgets/BundleMenuItemCard/BundleMenuItemCard.metadata.ts
-    stories: src/street-deli/widgets/BundleMenuItemCard/BundleMenuItemCard.stories.tsx
-    barrel: src/street-deli/widgets/BundleMenuItemCard/index.ts
-- id: deli.special_menu_item_card
-  name: SpecialMenuItemCard
+    component: src/street-deli/widgets/QuantitySelector/QuantitySelector.tsx
+    types: src/street-deli/widgets/QuantitySelector/QuantitySelector.types.ts
+    metadata: src/street-deli/widgets/QuantitySelector/QuantitySelector.metadata.ts
+    stories: src/street-deli/widgets/QuantitySelector/QuantitySelector.stories.tsx
+    barrel: src/street-deli/widgets/QuantitySelector/index.ts
+- id: deli.price_delta_text
+  name: PriceDeltaText
   status: template
   classification:
-    level: molecule
-    role: special_item_summary
+    level: atom
+    role: price_delta
   intent:
-    purpose: Render rotating specials, soup of the day, limited-time items, or featured menu entries.
+    purpose: Render price deltas and total adjustments for variants, modifiers, substitutions, and quantities.
     adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
       parse raw source YAML or own trusted side effects.
   template:
-    category: item_cards
+    category: modifiers
     selection: optional
     maturity: draft
     default_importance: common
@@ -413,26 +359,24 @@ templates:
     - A simpler selected template covers the flow without extra UI surface.
   consumes:
     capabilities:
-    - available
-    - temporal
     - measurable
   contract:
     props:
-      SpecialMenuItemCardProps:
+      PriceDeltaTextProps:
         fields:
-          special:
-            type: SpecialMenuItemViewModel
+          deltaCents:
+            type: number
             required: true
-    action_slots:
-      onSelectSpecial:
-        accepts: PresentationRef
+          showZero:
+            type: boolean
+            required: false
   stories:
-  - soup_of_day
-  - breakfast_special
-  - sold_out
+  - free
+  - extra
+  - discount
   outputs:
-    component: src/street-deli/widgets/SpecialMenuItemCard/SpecialMenuItemCard.tsx
-    types: src/street-deli/widgets/SpecialMenuItemCard/SpecialMenuItemCard.types.ts
-    metadata: src/street-deli/widgets/SpecialMenuItemCard/SpecialMenuItemCard.metadata.ts
-    stories: src/street-deli/widgets/SpecialMenuItemCard/SpecialMenuItemCard.stories.tsx
-    barrel: src/street-deli/widgets/SpecialMenuItemCard/index.ts
+    component: src/street-deli/widgets/PriceDeltaText/PriceDeltaText.tsx
+    types: src/street-deli/widgets/PriceDeltaText/PriceDeltaText.types.ts
+    metadata: src/street-deli/widgets/PriceDeltaText/PriceDeltaText.metadata.ts
+    stories: src/street-deli/widgets/PriceDeltaText/PriceDeltaText.stories.tsx
+    barrel: src/street-deli/widgets/PriceDeltaText/index.ts

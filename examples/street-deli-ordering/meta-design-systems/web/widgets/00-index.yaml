@@ -1,6 +1,6 @@
 schema_version: 0
 artifact_type: dmeta_widget_template_index
-summary: Street Deli local widget templates for flexible menu-ordering design systems.
+summary: Street Deli local Web widget templates for flexible menu-ordering design systems.
 long_summary: The local catalog is split into menu-ordering families so concrete Street Deli instantiations can select sandwich/composition,
   coffee/variant, catering/bundle, or other menu-specific subsets.
 files:

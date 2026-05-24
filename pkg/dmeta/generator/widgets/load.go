@@ -234,8 +234,8 @@ func loadLocalTemplates(path string) (validator.WidgetTemplatesFile, error) {
 	if err := yaml.Unmarshal(b, &out); err != nil {
 		return out, errors.Wrapf(err, "parse local template file %s", path)
 	}
-	if out.ArtifactType != "dmeta_widget_templates" {
-		return out, errors.Errorf("local template file %s artifact_type is %q, expected dmeta_widget_templates", path, out.ArtifactType)
+	if out.ArtifactType != "dmeta_web_widget_templates" {
+		return out, errors.Errorf("local Web widget template file %s artifact_type is %q, expected dmeta_web_widget_templates", path, out.ArtifactType)
 	}
 	return out, nil
 }

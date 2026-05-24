@@ -1,5 +1,5 @@
 schema_version: 0
-artifact_type: dmeta_widget_templates
+artifact_type: dmeta_web_widget_templates
 category: forms
 summary: Action parameter and basic field templates.
 long_summary: Templates in this file are selectable/adaptable forms starting points for concrete DMETA instances. They are

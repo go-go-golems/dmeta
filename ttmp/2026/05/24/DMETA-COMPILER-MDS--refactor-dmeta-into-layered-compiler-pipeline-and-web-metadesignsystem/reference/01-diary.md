@@ -432,3 +432,152 @@ docmgr changelog update --ticket DMETA-COMPILER-MDS \
   --file-note "/home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/tasks.md:Updated hard-cut phased task list" \
   --file-note "/home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/design-doc/01-layered-compiler-pipeline-and-web-metadesignsystem-refactor-guide.md:Updated hard-cut design policy and phases"
 ```
+
+## Step 4: Move widget templates under the Web MetaDesignSystem
+
+This step started the hard cutover. The old top-level widget-template package is no longer the source of truth. Global Web widget templates now live under `sources/dmeta-ir/meta-design-systems/web/widgets/`, and Street Deli local Web widget templates now live under `examples/street-deli-ordering/meta-design-systems/web/widgets/`.
+
+The implementation intentionally did not add compatibility aliases for the old paths. Instead, the validator and template catalog loader now read the Web MetaDesignSystem package directly. The old `03-widgets.yaml` files were removed, and both root indexes now point at `web_meta_design_system` artifacts.
+
+### Prompt Context
+
+**User prompt (verbatim):** (same as Step 3)
+
+**Assistant interpretation:** Begin implementing the hard-cutover plan by moving widget templates into the Web MetaDesignSystem layout and updating tools to load the new canonical paths.
+
+**Inferred user intent:** Make the repository architecture match the refined model instead of adding transitional compatibility around the old widget-template package.
+
+**Commit (code):** pending at time of diary entry — Phase 1 cutover changes.
+
+### What I did
+
+- Created global Web MetaDesignSystem root:
+  - `sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml`
+  - `sources/dmeta-ir/meta-design-systems/web/widgets/`
+- Moved all global template files from:
+  - `sources/dmeta-ir/widget-templates/`
+  - to `sources/dmeta-ir/meta-design-systems/web/widgets/`
+- Created Street Deli Web MetaDesignSystem extension root:
+  - `examples/street-deli-ordering/meta-design-systems/web/meta-design-system.yaml`
+  - `examples/street-deli-ordering/meta-design-systems/web/widgets/`
+- Moved all Street Deli local template files from:
+  - `examples/street-deli-ordering/widget-templates/`
+  - to `examples/street-deli-ordering/meta-design-systems/web/widgets/`
+- Removed old package entry files:
+  - `sources/dmeta-ir/03-widgets.yaml`
+  - `examples/street-deli-ordering/03-widgets.yaml`
+- Updated root indexes:
+  - `sources/dmeta-ir/00-index.yaml`
+  - `examples/street-deli-ordering/00-index.yaml`
+- Updated instance manifests to point at local Web widget templates:
+  - `examples/street-deli-ordering/instantiations/street-deli-ordering.yaml`
+  - `examples/street-deli-ordering/instantiations/street-deli-coffee-counter.yaml`
+- Updated template file artifact type from `dmeta_widget_templates` to `dmeta_web_widget_templates`.
+- Updated validator loading:
+  - `pkg/dmeta/validator/load.go` now loads `meta-design-systems/web/meta-design-system.yaml` instead of `03-widgets.yaml`.
+- Updated validator identity/index checks:
+  - `pkg/dmeta/validator/validate.go` now validates `web_meta_design_system` with artifact type `dmeta_meta_design_system`.
+- Updated local template loading:
+  - `pkg/dmeta/generator/widgets/load.go` now expects `dmeta_web_widget_templates` for local Web widget template files.
+- Updated `validate-ir` help text to describe loading the Web MetaDesignSystem package.
+- Updated `tasks.md` and changelog.
+
+### Why
+
+- Widgets are target-family-specific artifacts. Keeping them in `sources/dmeta-ir/widget-templates/` made them look like universal DMETA concepts.
+- The Web MetaDesignSystem should own visual terms such as widgets, cards, chips, tables, sheets, and surfaces.
+- A hard cutover avoids wrapper loaders and old/new path support. That is appropriate because this repository is WIP experimentation.
+
+### What worked
+
+- Go package tests passed:
+
+```bash
+go test ./pkg/dmeta/... -count=1
+```
+
+- Global IR validation passed:
+
+```bash
+go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+```
+
+- Street Deli IR validation passed:
+
+```bash
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+```
+
+- Street Deli instance planning still found the expected eight selected templates and six exclusions:
+
+```bash
+go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table
+```
+
+- Scaffold dry-run still planned expected generated files:
+
+```bash
+go run ./cmd/dmeta scaffold-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --dry-run --output table
+```
+
+### What didn't work
+
+- N/A. The first hard-cut path move and loader update passed tests and validation.
+
+### What I learned
+
+- The current `WidgetIRFile` struct can temporarily carry the Web MetaDesignSystem YAML because it already has the file-map shape needed by the loader. This is not the final elegant type shape, but it allowed the path cutover to land before the deeper Go model split.
+- The root package index is the important boundary. Once it points at `web_meta_design_system`, the old `03-widgets.yaml` files can be removed without keeping compatibility wrappers.
+
+### What was tricky to build
+
+- The loader previously assumed `03-widgets.yaml` at the root and resolved template paths relative to the root. After the move, template paths are relative to `meta-design-systems/web/`, so the loader needed a `webRoot` and must join template paths against that directory.
+- The instance manifest local template paths also had to change. Otherwise `plan-instance` would still try to load files from the deleted `widget-templates/` directory.
+- The validation code still stores the loaded Web MetaDesignSystem in `pkg.Widgets`. That naming is now conceptually stale. This is acceptable only as an intermediate implementation detail until the model split phase replaces generic widget structs with Web-specific types.
+
+### What warrants a second pair of eyes
+
+- Review whether `dmeta_web_widget_templates` is the right artifact type name or whether `dmeta_web_widgets` would be cleaner.
+- Review whether `sources/dmeta-ir/00-index.yaml` should use key `web_meta_design_system` or a more general `meta_design_systems` collection later.
+- Review the temporary use of `Package.Widgets` for the loaded Web MetaDesignSystem. It should not remain long term.
+
+### What should be done in the future
+
+- Replace generic `WidgetIRFile`/`WidgetTemplatesFile` names with Web-specific model structs.
+- Move React generation policy out of the universal widget model and into the React target.
+- Add `realizes.representations/actions` and abstract/selectable validation for Web templates.
+
+### Code review instructions
+
+Start with these files:
+
+- `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/web/meta-design-system.yaml`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/load.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/validate.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/load.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/instantiations/street-deli-ordering.yaml`
+
+Validate with:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+go test ./pkg/dmeta/... -count=1
+go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table
+go run ./cmd/dmeta scaffold-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --dry-run --output table
+```
+
+### Technical details
+
+Important commands:
+
+```bash
+mkdir -p sources/dmeta-ir/meta-design-systems/web examples/street-deli-ordering/meta-design-systems/web
+git mv sources/dmeta-ir/widget-templates sources/dmeta-ir/meta-design-systems/web/widgets
+git mv examples/street-deli-ordering/widget-templates examples/street-deli-ordering/meta-design-systems/web/widgets
+git rm sources/dmeta-ir/03-widgets.yaml examples/street-deli-ordering/03-widgets.yaml
+gofmt -w pkg/dmeta/validator/load.go pkg/dmeta/validator/validate.go pkg/dmeta/generator/widgets/load.go pkg/dmeta/cmds/validate_ir.go
+go test ./pkg/dmeta/... -count=1
+```

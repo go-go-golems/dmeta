@@ -1,7 +1,7 @@
 schema_version: 0
-artifact_type: dmeta_widget_templates
+artifact_type: dmeta_web_widget_templates
 category: tables
-summary: DMETA tables widget templates.
+summary: DMETA tables Web widget templates.
 long_summary: Templates in this file are selectable/adaptable tables starting points for concrete DMETA instances.
 templates:
 - id: dmeta.dense_table

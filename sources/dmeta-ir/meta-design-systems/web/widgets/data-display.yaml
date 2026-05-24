@@ -1,5 +1,5 @@
 schema_version: 0
-artifact_type: dmeta_widget_templates
+artifact_type: dmeta_web_widget_templates
 category: data-display
 summary: Optional property, comparison, markdown, and preview templates.
 long_summary: Templates in this file are selectable/adaptable data-display starting points for concrete DMETA instances. They
