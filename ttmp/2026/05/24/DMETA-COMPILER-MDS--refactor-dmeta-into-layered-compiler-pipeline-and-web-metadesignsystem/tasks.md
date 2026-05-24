@@ -170,27 +170,29 @@ Validation gate:
 
 Goal: React becomes a concrete codegen target of the Web MetaDesignSystem, not the meaning of DMETA widgets.
 
-- [ ] Create `sources/dmeta-ir/meta-design-systems/web/targets/react.yaml`.
-- [ ] Add `pkg/dmeta/generator/react/model.go`.
-- [ ] Define `ReactScaffoldPlan`.
-- [ ] Define `PlannedFile` with path, kind, symbol, and provenance.
-- [ ] Define React file kinds: component, types, metadata, stories, barrel, adapter TODO, README, package index.
-- [ ] Add `pkg/dmeta/generator/react/plan.go`.
-- [ ] Implement Web widget IR -> React scaffold plan.
+- [x] Create `sources/dmeta-ir/meta-design-systems/web/targets/react.yaml`.
+- [x] Add `pkg/dmeta/generator/react/model.go`.
+- [x] Define `ReactScaffoldPlan`.
+- [x] Define `PlannedFile` with path, kind, symbol, and provenance.
+- [x] Define React file kinds: component, types, metadata, stories, barrel, adapter TODO, README, package index.
+- [x] Add `pkg/dmeta/generator/react/plan.go`.
+- [x] Implement Web widget IR -> React scaffold plan.
+- [x] Add Street Deli lowering rule for `deli.menu_browser` so all eight selected widgets receive React plan provenance.
 - [ ] Add `pkg/dmeta/generator/react/render.go`.
 - [ ] Move useful rendering logic out of `pkg/dmeta/generator/widgets/render.go` into React-specific rendering.
 - [ ] Delete generic widget scaffold rendering once React rendering is in place.
-- [ ] Add `dmeta plan-scaffold --target react` command.
+- [x] Add `pkg/dmeta/cmds/plan_scaffold.go`.
+- [x] Add `dmeta plan-scaffold --target react` command.
 - [ ] Rewrite `scaffold-instance` to call the React target path or replace it with a clearer command name.
-- [ ] Add metadata fields: `metaDesignSystem`, `codegenTarget`, `realizes.representations`, `realizes.actions`, pass versions.
+- [x] Add metadata fields: `metaDesignSystem`, `codegenTarget`, `realizes.representations`, `realizes.actions`, pass versions.
 - [ ] Add generated component data attributes for MetaDesignSystem and representation ids.
 - [ ] Add Storybook docs text that names representations/actions.
 - [ ] Add golden tests for React scaffold plan and one rendered metadata sidecar.
 
 Validation gate:
 
-- [ ] `go test ./pkg/dmeta/generator/react/... -count=1`
-- [ ] `go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output yaml`
+- [x] `go test ./pkg/dmeta/generator/react/... -count=1`
+- [x] `go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output yaml`
 
 ## Phase 8: Move and rewrite Street Deli Web templates and instance metadata
 

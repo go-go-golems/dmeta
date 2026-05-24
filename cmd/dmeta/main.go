@@ -59,6 +59,13 @@ func main() {
 	}
 	addGlazedCommand(rootCmd, "plan-instance", planInstance)
 
+	planScaffold, err := dmetacmds.NewPlanScaffoldCommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating plan-scaffold command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "plan-scaffold", planScaffold)
+
 	scaffoldInstance, err := dmetacmds.NewScaffoldInstanceCommand()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error creating scaffold-instance command: %v\n", err)

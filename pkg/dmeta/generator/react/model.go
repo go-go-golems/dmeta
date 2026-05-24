@@ -1,0 +1,73 @@
+package react
+
+type TargetFile struct {
+	SchemaVersion int              `yaml:"schema_version"`
+	ArtifactType  string           `yaml:"artifact_type"`
+	ID            string           `yaml:"id"`
+	Name          string           `yaml:"name"`
+	Summary       string           `yaml:"summary"`
+	LongSummary   string           `yaml:"long_summary"`
+	Status        string           `yaml:"status"`
+	Defaults      TargetDefaults   `yaml:"defaults"`
+	FileKinds     []string         `yaml:"file_kinds"`
+	Provenance    TargetProvenance `yaml:"provenance"`
+}
+
+type TargetDefaults struct {
+	OutputDir        string `yaml:"output_dir"`
+	PackageName      string `yaml:"package_name"`
+	Style            string `yaml:"style"`
+	Storybook        bool   `yaml:"storybook"`
+	MetadataSidecars bool   `yaml:"metadata_sidecars"`
+}
+
+type TargetProvenance struct {
+	MetaDesignSystem string   `yaml:"meta_design_system"`
+	CodegenTarget    string   `yaml:"codegen_target"`
+	SourcePasses     []string `yaml:"source_passes"`
+}
+
+type ScaffoldPlan struct {
+	InstanceID       string
+	TargetID         string
+	MetaDesignSystem string
+	OutputDir        string
+	PackageName      string
+	Components       []ComponentPlan
+	Files            []PlannedFile
+}
+
+type ComponentPlan struct {
+	TemplateID              string
+	ComponentName           string
+	Variant                 string
+	OutputDir               string
+	PackageName             string
+	Slots                   []string
+	VisualStates            []string
+	EventBindings           []string
+	RealizesActions         []string
+	RealizesRepresentations []string
+	SourceDomainTypes       []string
+	SourceRules             []string
+	Files                   []PlannedFile
+}
+
+type PlannedFile struct {
+	Path       string
+	Kind       string
+	Symbol     string
+	Provenance FileProvenance
+}
+
+type FileProvenance struct {
+	MetaDesignSystem string
+	CodegenTarget    string
+	TemplateID       string
+	ComponentName    string
+	Representations  []string
+	Actions          []string
+	DomainTypes      []string
+	SourceRules      []string
+	Passes           []string
+}

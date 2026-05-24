@@ -6,6 +6,17 @@ long_summary: >
   flow. They stay above React: the emitted artifacts are Web widget obligations, slots,
   visual states, and event bindings, not components or hooks.
 rules:
+  - id: menu_item_obligations_to_deli_menu_browser
+    description: Menu item browsing obligations lower to the mobile menu browser shell.
+    when:
+      domain_types: [MenuItem]
+      representations: [composition_summary, dietary_summary]
+    emits:
+      widget_templates: [deli.menu_browser]
+      slots: [category_nav, menu_cards, dietary_filters, search]
+      visual_states: [default, filtered, empty]
+      event_bindings: [filter_by_dietary, inspect_subject]
+
   - id: composition_summary_to_deli_card
     description: Composable menu/order items need a tappable composition card.
     when:
