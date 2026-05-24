@@ -24,6 +24,11 @@ file_kinds:
   - index_html
   - main_tsx
   - app_shell
+  - storybook_main
+  - storybook_preview
+  - storybook_preview_css
+  - storybook_story_shell
+  - storybook_fixtures
   - clim_types
   - clim_store
   - clim_actions
@@ -34,13 +39,21 @@ file_kinds:
   - font_assets
   - generated_registry_copy
   - shell_component
+  - shell_story
   - command_line_component
+  - command_line_story
   - command_bar_component
+  - command_bar_story
   - presentation_component
+  - presentation_story
   - action_presentation_component
+  - action_presentation_story
   - context_menu_component
+  - context_menu_story
   - confirm_prompt_component
+  - confirm_prompt_story
   - view_component
+  - view_story
   - metadata
 planned_components:
   shell:

@@ -75,6 +75,16 @@ func planFilesForKind(pkg *Package, concretePlan ConcretePresentationPlan, outpu
 		return single(filepath.Join("src", "main.tsx"), "main")
 	case "app_shell":
 		return single(filepath.Join("src", "App.tsx"), "App")
+	case "storybook_main":
+		return single(filepath.Join(".storybook", "main.ts"), "storybookMain")
+	case "storybook_preview":
+		return single(filepath.Join(".storybook", "preview.tsx"), "storybookPreview")
+	case "storybook_preview_css":
+		return single(filepath.Join(".storybook", "preview.css"), "storybookPreviewCss")
+	case "storybook_story_shell":
+		return single(filepath.Join("src", "components", "storybook", "ClimStoryShell.tsx"), "ClimStoryShell")
+	case "storybook_fixtures":
+		return single(filepath.Join("src", "fixtures", "presentationFixtures.ts"), "presentationFixtures")
 	case "clim_types":
 		return single(filepath.Join("src", "clim", "types.ts"), "climTypes")
 	case "clim_store":
@@ -97,18 +107,32 @@ func planFilesForKind(pkg *Package, concretePlan ConcretePresentationPlan, outpu
 		return single(filepath.Join("src", "generated", "concretePresentationPlan.metadata.json"), "concretePresentationPlanMetadata")
 	case "shell_component":
 		return planNamedComponents(outputDir, kind, "src/components/shell", pkg.ReactAppTarget.PlannedComponents["shell"], base)
+	case "shell_story":
+		return planComponentStories(outputDir, kind, "src/components/shell", pkg.ReactAppTarget.PlannedComponents["shell"], base)
 	case "command_line_component":
 		return planSelectedComponents(outputDir, kind, "src/components/command", pkg.ReactAppTarget.PlannedComponents["command_surfaces"], []string{"ClimCommandLine"}, base)
+	case "command_line_story":
+		return planSelectedComponentStories(outputDir, kind, "src/components/command", pkg.ReactAppTarget.PlannedComponents["command_surfaces"], []string{"ClimCommandLine"}, base)
 	case "command_bar_component":
 		return planSelectedComponents(outputDir, kind, "src/components/command", pkg.ReactAppTarget.PlannedComponents["command_surfaces"], []string{"ClimCommandBar", "ActionHintBar"}, base)
+	case "command_bar_story":
+		return planSelectedComponentStories(outputDir, kind, "src/components/command", pkg.ReactAppTarget.PlannedComponents["command_surfaces"], []string{"ClimCommandBar", "ActionHintBar"}, base)
 	case "context_menu_component":
 		return planSelectedComponents(outputDir, kind, "src/components/command", pkg.ReactAppTarget.PlannedComponents["command_surfaces"], []string{"ClimContextMenu"}, base)
+	case "context_menu_story":
+		return planSelectedComponentStories(outputDir, kind, "src/components/command", pkg.ReactAppTarget.PlannedComponents["command_surfaces"], []string{"ClimContextMenu"}, base)
 	case "confirm_prompt_component":
 		return planSelectedComponents(outputDir, kind, "src/components/command", pkg.ReactAppTarget.PlannedComponents["command_surfaces"], []string{"ClimConfirmPrompt"}, base)
+	case "confirm_prompt_story":
+		return planSelectedComponentStories(outputDir, kind, "src/components/command", pkg.ReactAppTarget.PlannedComponents["command_surfaces"], []string{"ClimConfirmPrompt"}, base)
 	case "presentation_component", "action_presentation_component":
 		return planPresentationComponentFiles(outputDir, kind, concretePlan, base)
+	case "presentation_story", "action_presentation_story":
+		return planPresentationStoryFiles(outputDir, kind, concretePlan, base)
 	case "view_component":
 		return planViewComponentFiles(outputDir, kind, concretePlan, base)
+	case "view_story":
+		return planViewStoryFiles(outputDir, kind, concretePlan, base)
 	default:
 		return nil
 	}
@@ -156,6 +180,28 @@ func planSelectedComponents(outputDir, kind, dir string, components []string, se
 	return planNamedComponents(outputDir, kind, dir, filtered, base)
 }
 
+func planComponentStories(outputDir, kind, dir string, components []string, base ReactAppFileProvenance) []ReactAppPlannedFile {
+	var out []ReactAppPlannedFile
+	for _, component := range components {
+		out = append(out, ReactAppPlannedFile{Path: filepath.Join(outputDir, dir, component+".stories.tsx"), Kind: kind, Symbol: component + "Stories", Component: component, Provenance: withSource(base, "react-app-target.storybook")})
+	}
+	return out
+}
+
+func planSelectedComponentStories(outputDir, kind, dir string, components []string, selected []string, base ReactAppFileProvenance) []ReactAppPlannedFile {
+	selectedSet := map[string]bool{}
+	for _, value := range selected {
+		selectedSet[value] = true
+	}
+	var filtered []string
+	for _, component := range components {
+		if selectedSet[component] {
+			filtered = append(filtered, component)
+		}
+	}
+	return planComponentStories(outputDir, kind, dir, filtered, base)
+}
+
 func planPresentationComponentFiles(outputDir, kind string, concretePlan ConcretePresentationPlan, base ReactAppFileProvenance) []ReactAppPlannedFile {
 	byComponent := map[string]ReactAppPlannedFile{}
 	for _, view := range concretePlan.Views {
@@ -181,11 +227,45 @@ func planPresentationComponentFiles(outputDir, kind string, concretePlan Concret
 	return out
 }
 
+func planPresentationStoryFiles(outputDir, kind string, concretePlan ConcretePresentationPlan, base ReactAppFileProvenance) []ReactAppPlannedFile {
+	byComponent := map[string]ReactAppPlannedFile{}
+	for _, view := range concretePlan.Views {
+		for _, presentation := range view.Presentations {
+			if kind == "action_presentation_story" && presentation.PresentationTypeID != "pbui.action_presentation" {
+				continue
+			}
+			if kind == "presentation_story" && presentation.PresentationTypeID == "pbui.action_presentation" {
+				continue
+			}
+			path := filepath.Join(outputDir, "src", "components", "presentations", presentation.Component+".stories.tsx")
+			existing := byComponent[path]
+			if existing.Path == "" {
+				existing = ReactAppPlannedFile{Path: path, Kind: kind, Symbol: presentation.Component + "Stories", Component: presentation.Component, PresentationTypeID: presentation.PresentationTypeID, SurfaceID: presentation.SurfaceID, Provenance: withSource(base, "concrete-presentation-plan.stories")}
+			}
+			byComponent[path] = existing
+		}
+	}
+	out := make([]ReactAppPlannedFile, 0, len(byComponent))
+	for _, file := range byComponent {
+		out = append(out, file)
+	}
+	return out
+}
+
 func planViewComponentFiles(outputDir, kind string, concretePlan ConcretePresentationPlan, base ReactAppFileProvenance) []ReactAppPlannedFile {
 	var out []ReactAppPlannedFile
 	for _, view := range concretePlan.Views {
 		component := toPascal(view.ID) + "View"
 		out = append(out, ReactAppPlannedFile{Path: filepath.Join(outputDir, "src", "views", component+".tsx"), Kind: kind, Symbol: component, ViewID: view.ID, Component: component, SurfaceID: view.SurfaceID, Provenance: withSource(base, "concrete-presentation-plan.views")})
+	}
+	return out
+}
+
+func planViewStoryFiles(outputDir, kind string, concretePlan ConcretePresentationPlan, base ReactAppFileProvenance) []ReactAppPlannedFile {
+	var out []ReactAppPlannedFile
+	for _, view := range concretePlan.Views {
+		component := toPascal(view.ID) + "View"
+		out = append(out, ReactAppPlannedFile{Path: filepath.Join(outputDir, "src", "views", component+".stories.tsx"), Kind: kind, Symbol: component + "Stories", ViewID: view.ID, Component: component, SurfaceID: view.SurfaceID, Provenance: withSource(base, "concrete-presentation-plan.view-stories")})
 	}
 	return out
 }
