@@ -1,0 +1,93 @@
+schema_version: 0
+artifact_type: dmeta_web_lowering_rules
+summary: Street Deli Web lowering rules from Interaction IR obligations to mobile ordering widget obligations.
+long_summary: >
+  These rules specialize the Web MetaDesignSystem for the Hudson Street Deli mobile ordering
+  flow. They stay above React: the emitted artifacts are Web widget obligations, slots,
+  visual states, and event bindings, not components or hooks.
+rules:
+  - id: composition_summary_to_deli_card
+    description: Composable menu/order items need a tappable composition card.
+    when:
+      representations: [composition_summary, dietary_summary]
+    emits:
+      widget_templates: [deli.composition_card]
+      slots: [title, description, price, dietary_tags, primary_image]
+      visual_states: [default, selected, unavailable]
+      event_bindings: [inspect_subject]
+
+  - id: composition_breakdown_to_deli_customizer
+    description: Editable compositions lower to the main ingredient customization surface.
+    when:
+      representations: [composition_breakdown, configuration_summary]
+      actions: [remove_part, add_part, change_config]
+    emits:
+      widget_templates: [deli.composition_customizer]
+      slots: [ingredient_rows, config_controls, substitution_candidates, order_summary]
+      visual_states: [editing, dirty, ready_to_add]
+      event_bindings: [remove_part, add_part, change_config]
+
+  - id: ingredient_rows_to_deli_ingredient_row
+    description: Ingredient row obligations become removable rows with role tags.
+    when:
+      representations: [ingredient_composition_row, role_label]
+      actions: [remove_part, undo_remove_part, see_alternatives]
+    emits:
+      widget_templates: [deli.ingredient_row, deli.role_tag]
+      slots: [ingredient_label, role_label, remove_control, substitution_hint]
+      visual_states: [included, removed, suggested]
+      event_bindings: [remove_part, undo_remove_part, see_alternatives]
+
+  - id: substitution_candidate_to_deli_chip
+    description: Substitution candidates become suggested replacement chips.
+    when:
+      representations: [substitution_candidate]
+      actions: [apply_substitution, reject_substitution, see_alternatives]
+    emits:
+      widget_templates: [deli.substitution_chip]
+      slots: [candidate_label, rationale, price_delta, apply_control]
+      visual_states: [suggested, applied, rejected]
+      event_bindings: [apply_substitution, reject_substitution, see_alternatives]
+
+  - id: substitution_price_delta_to_deli_price_text
+    description: Price-aware substitutions need explicit price delta text.
+    when:
+      representations: [substitution_price_delta]
+    emits:
+      widget_templates: [deli.price_delta_text]
+      slots: [price_delta]
+      visual_states: [neutral, surcharge, discount]
+      event_bindings: []
+
+  - id: dietary_summary_to_deli_filter_bar
+    description: Dietary summaries in menu browsing become mobile dietary filters.
+    when:
+      representations: [dietary_summary]
+      actions: [filter_by_dietary]
+    emits:
+      widget_templates: [deli.dietary_filter_bar]
+      slots: [dietary_tags, active_filters]
+      visual_states: [default, filtered]
+      event_bindings: [filter_by_dietary]
+
+  - id: order_state_to_deli_tracker
+    description: Stateful order-like subjects lower to the deli order tracker surface.
+    when:
+      domain_types: [Order]
+      representations: [state_indicator]
+    emits:
+      widget_templates: [deli.order_tracker]
+      slots: [order_number, current_state, lifecycle_steps, eta]
+      visual_states: [placed, preparing, ready, completed]
+      event_bindings: [filter_by_state]
+
+  - id: order_item_summary_to_cart_line
+    description: Order item summaries lower to cart line items and the cart surface.
+    when:
+      domain_types: [OrderItem]
+      representations: [composition_summary, configuration_summary]
+    emits:
+      widget_templates: [deli.cart_line_item, deli.order_cart]
+      slots: [item_label, config_summary, line_price, remove_control]
+      visual_states: [default, editing, pending]
+      event_bindings: [inspect_subject]

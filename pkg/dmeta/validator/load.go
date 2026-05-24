@@ -118,7 +118,7 @@ func loadWidgetTemplates(root string) (WidgetIRFile, error) {
 	}
 	widgets.Widgets = nil
 	for key, templatePath := range widgets.Files {
-		if key == "index" || templatePath == "" {
+		if key == "index" || key == "lowering_rules" || templatePath == "" {
 			continue
 		}
 		templateFile, err := loadYAML[WidgetTemplatesFile](filepath.Join(webRoot, templatePath))

@@ -988,3 +988,127 @@ The elaboration command output is intentionally still target-neutral. It emits r
 - `summary`
 
 It does not mention Web widgets, React components, CSS classes, Storybook stories, slots, surfaces, or visual states.
+
+## Step 8: Lower Interaction IR into Web MetaDesignSystem obligations
+
+This step added the first Web-specific compiler pass. The pass consumes modality-neutral Interaction IR obligations and emits Web-level widget template obligations: slots, visual states, event bindings, and source representation/action provenance.
+
+The important boundary is that this still does not produce React components. React remains a later target under the Web MetaDesignSystem. This step proves the new pipeline shape: Semantic IR produces Interaction IR obligations, then Web owns the visual/widget interpretation of those obligations.
+
+### Prompt Context
+
+**User prompt (verbatim):** "continue keeping your diary and commititng at appropriate intervals."
+
+**Assistant interpretation:** Continue implementation from the Interaction IR work, keep the docmgr diary current, and commit at sensible checkpoints.
+
+**Inferred user intent:** Advance the compiler cutover without losing the chronological implementation record or leaving a large uncommitted working tree.
+
+**Commit (code):** pending at time of diary entry — Web lowering changes.
+
+### What I did
+
+- Added global Web lowering rules:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/web/lowering-rules.yaml`
+- Added Street Deli local Web lowering rules:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/web/lowering-rules.yaml`
+- Updated both Web MetaDesignSystem entrypoints to reference `files.lowering_rules`.
+- Updated the existing validator widget-template loader to skip `lowering_rules` when loading Web widget template files.
+- Added `pkg/dmeta/metadesign/web/` with:
+  - `model.go`
+  - `load.go`
+  - `validate.go`
+  - `lower.go`
+- Added `pkg/dmeta/cmds/lower_web.go`.
+- Registered `lower-web` in `cmd/dmeta/main.go`.
+- Updated ticket tasks, changelog, and related file metadata.
+
+### Why
+
+- The Interaction IR should not know about visual widgets, slots, or browser events.
+- The Web MetaDesignSystem should own those concepts before React codegen begins.
+- A Web lowering command gives reviewers a table that explains why a semantic domain type needs particular Web templates.
+
+### What worked
+
+- `go test ./pkg/dmeta/... ./cmd/dmeta -count=1` passed.
+- Global Web lowering worked against Street Deli semantic/interaction obligations.
+- Street Deli local Web lowering emitted concrete deli widget obligations such as:
+  - `deli.composition_card` for `composition_summary` + `dietary_summary`;
+  - `deli.composition_customizer` for `composition_breakdown` + `configuration_summary` + edit actions;
+  - `deli.ingredient_row` and `deli.role_tag` for ingredient row obligations;
+  - `deli.substitution_chip` for substitution candidate obligations;
+  - `deli.order_tracker` for the `Order` state indicator;
+  - `deli.order_cart` and `deli.cart_line_item` for `OrderItem` composition/configuration summaries.
+- Existing validation still passed:
+  - global `validate-ir`;
+  - Street Deli `validate-ir`;
+  - Street Deli `plan-instance`.
+
+### What didn't work
+
+- Adding `files.lowering_rules` to the Web MetaDesignSystem entrypoints would have caused the existing `validator.loadWidgetTemplates` loop to try parsing `lowering-rules.yaml` as a widget-template file. I fixed this by skipping `lowering_rules` alongside `index`.
+- I intentionally did not implement YAML output or a generic `lower-metadesign --target web` command yet. The narrower `lower-web` command is enough to validate the pass before generalizing command shape.
+
+### What I learned
+
+- A very small lowering-rule model is enough for the first useful Web pass: match required representations/actions/domain types, emit widget template IDs plus slots/states/event bindings.
+- The local Street Deli Web package is the better demonstration surface than the generic global Web package because it maps directly to the promoted mobile ordering widgets.
+- The hard layer boundary remains intact: the new package imports Interaction IR and validator model types, but nothing universal imports Web.
+
+### What was tricky to build
+
+- The same Web MetaDesignSystem metadata file is used by the existing validator as a widget-template package. Adding `lowering_rules` therefore required preserving old widget loading behavior while extending the package format.
+- Some event bindings are useful even when the triggering action is not part of the rule's required match set. For example, a `composition_card` can bind `inspect_subject` even though the rule primarily matches representations. The validator checks that emitted bindings refer to known concrete Interaction IR actions.
+- The lowering output is grouped by example/domain type. That avoids attaching a widget to a single isolated representation row when the rule actually needs a set such as `composition_breakdown` plus `configuration_summary` plus `remove_part`/`add_part`/`change_config`.
+
+### What warrants a second pair of eyes
+
+- Review whether event bindings should be required to appear in `when.actions`, or whether the looser current model is preferable for optional affordances.
+- Review the Street Deli local lowering rules for over-broad matches. For example, `dietary_summary_to_deli_filter_bar` currently applies to every dietary-aware domain type.
+- Review whether `deli.order_cart` should be emitted from `OrderItem` obligations, `Order` obligations, or a future aggregate/cart semantic type.
+
+### What should be done in the future
+
+- Add unit tests for Web lowering rule matching and validation failures.
+- Add structured YAML/JSON output for Web obligations so React target planning can consume it directly.
+- Decide whether to keep `lower-web` or fold it into a later generalized `lower-metadesign --target web` command.
+- Add explicit Web template `realizes.representations` / `realizes.actions` metadata so lowering can be cross-checked against template declarations.
+
+### Code review instructions
+
+Start with:
+
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/web/model.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/web/load.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/web/validate.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/web/lower.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/lower_web.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/web/lowering-rules.yaml`
+
+Validate with:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+go test ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta lower-web --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --web-root ./examples/street-deli-ordering/meta-design-systems/web --output table
+go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table
+```
+
+### Technical details
+
+The new output columns are:
+
+- `example`
+- `domain_type`
+- `widget_template`
+- `source_rule`
+- `source_representations`
+- `source_actions`
+- `slots`
+- `visual_states`
+- `event_bindings`
+- `description`
+
+This preserves provenance from Interaction IR to Web obligations without introducing React component names yet.

@@ -7,6 +7,7 @@ long_summary: Defines Street Deli Web widget templates selected by concrete inst
 status: draft
 files:
   index: ./widgets/00-index.yaml
+  lowering_rules: ./lowering-rules.yaml
   menu_browsing: ./widgets/menu-browsing.yaml
   item_cards: ./widgets/item-cards.yaml
   customization: ./widgets/customization.yaml

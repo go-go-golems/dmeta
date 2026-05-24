@@ -45,6 +45,13 @@ func main() {
 	}
 	addGlazedCommand(rootCmd, "elaborate-interactions", elaborateInteractions)
 
+	lowerWeb, err := dmetacmds.NewLowerWebCommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating lower-web command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "lower-web", lowerWeb)
+
 	planInstance, err := dmetacmds.NewPlanInstanceCommand()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error creating plan-instance command: %v\n", err)

@@ -1,0 +1,60 @@
+schema_version: 0
+artifact_type: dmeta_web_lowering_rules
+summary: Generic Web MetaDesignSystem lowering rules from Interaction IR obligations to reusable Web widget obligations.
+long_summary: >
+  These rules are Web-specific but target-framework-neutral. They translate modality-neutral
+  Interaction IR representations and actions into Web widget template obligations, slots,
+  visual states, and event bindings. React, Vue, Svelte, or other targets consume these Web
+  obligations in later target-specific passes.
+rules:
+  - id: compact_reference_to_web_token
+    description: Compact references lower to a small visual identity token.
+    when:
+      representations: [compact_reference]
+    emits:
+      widget_templates: [dmeta.compact_reference]
+      slots: [label, subtitle, identity]
+      visual_states: [default, hover, selected]
+      event_bindings: [copy_reference]
+
+  - id: state_indicator_to_status_badge
+    description: Stateful subjects lower to status badges with filter affordances when filtering is available.
+    when:
+      representations: [state_indicator]
+    emits:
+      widget_templates: [dmeta.status_badge]
+      slots: [state_label, state_tone]
+      visual_states: [default, active, warning, error]
+      event_bindings: [filter_by_state]
+
+  - id: dietary_summary_to_filter_bar
+    description: Dietary summaries lower to facet/filter affordances on Web surfaces.
+    when:
+      representations: [dietary_summary]
+    emits:
+      widget_templates: [dmeta.filter_bar]
+      slots: [filter_label, active_filters]
+      visual_states: [default, active]
+      event_bindings: [filter_by_dietary]
+
+  - id: configuration_summary_to_form_group
+    description: Configurable subjects lower to grouped form controls.
+    when:
+      representations: [configuration_summary]
+      actions: [change_config]
+    emits:
+      widget_templates: [dmeta.field_group, dmeta.select_field]
+      slots: [field_label, field_value, option_list]
+      visual_states: [default, focused, invalid]
+      event_bindings: [change_config]
+
+  - id: inspection_entrypoint_to_detail_drawer
+    description: Inspectable subjects lower to a Web detail surface entrypoint.
+    when:
+      representations: [inspection_entrypoint]
+      actions: [inspect_subject]
+    emits:
+      widget_templates: [dmeta.detail_drawer]
+      slots: [trigger, title, detail_body]
+      visual_states: [closed, open]
+      event_bindings: [inspect_subject]

@@ -21,12 +21,16 @@ RelatedFiles:
       Note: |-
         Concrete instance manifest used as the migration acceptance test
         Instance manifest now points to local Web widget templates
+    - Path: examples/street-deli-ordering/meta-design-systems/web/lowering-rules.yaml
+      Note: Local Street Deli Web lowering rules
     - Path: examples/street-deli-ordering/meta-design-systems/web/meta-design-system.yaml
       Note: Street Deli local Web MetaDesignSystem entrypoint created in Phase 1
     - Path: examples/street-deli-ordering/widget-templates/customization.yaml
       Note: Representative local web widget template to migrate from consumes.presentations to realizes.representations/actions
     - Path: pkg/dmeta/cmds/elaborate_interactions.go
       Note: CLI command exposing interaction elaboration
+    - Path: pkg/dmeta/cmds/lower_web.go
+      Note: CLI command for Web lowering
     - Path: pkg/dmeta/cmds/validate_interactions.go
       Note: CLI command exposing Interaction IR validation
     - Path: pkg/dmeta/generator/widgets/load.go
@@ -39,6 +43,14 @@ RelatedFiles:
       Note: Interaction IR Go model created for Actions
     - Path: pkg/dmeta/interaction/validate.go
       Note: Interaction IR validation rules created for roots
+    - Path: pkg/dmeta/metadesign/web/load.go
+      Note: Web MetaDesignSystem loader
+    - Path: pkg/dmeta/metadesign/web/lower.go
+      Note: Interaction-to-Web lowering pass
+    - Path: pkg/dmeta/metadesign/web/model.go
+      Note: Web MetaDesignSystem lowering model
+    - Path: pkg/dmeta/metadesign/web/validate.go
+      Note: Web lowering rule validation
     - Path: pkg/dmeta/validator/inheritance.go
       Note: Current archetype/capability inheritance resolver to reuse for Actions and Representations
     - Path: pkg/dmeta/validator/load.go
@@ -59,6 +71,7 @@ LastUpdated: 2026-05-24T18:15:00-04:00
 WhatFor: 'Use when implementing the next DMETA architecture step: Actions/Representations, MetaDesignSystem schemas, web-style UI lowering, React scaffold tooling, and migration of Street Deli templates.'
 WhenToUse: Read before changing pkg/dmeta/validator, pkg/dmeta/generator/widgets, sources/dmeta-ir widget templates, or examples/street-deli-ordering instance manifests for the compiler-pipeline refactor.
 ---
+
 
 
 
