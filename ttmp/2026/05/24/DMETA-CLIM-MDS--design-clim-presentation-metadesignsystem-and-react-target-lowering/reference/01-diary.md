@@ -30,6 +30,8 @@ RelatedFiles:
       Note: PBUI descriptor derivation from Semantic and Interaction IR
     - Path: pkg/dmeta/metadesign/pbui/descriptors_test.go
       Note: Descriptor derivation tests for Street Deli object metadata and submit_order action metadata
+    - Path: pkg/dmeta/metadesign/pbui/golden_test.go
+      Note: PBUI golden test harness
     - Path: pkg/dmeta/metadesign/pbui/load.go
       Note: PBUI loader with duplicate presentation key scan
     - Path: pkg/dmeta/metadesign/pbui/lower.go
@@ -48,6 +50,10 @@ RelatedFiles:
       Note: Renderer and metadata JSON validation tests
     - Path: pkg/dmeta/metadesign/pbui/react_write.go
       Note: PBUI React scaffold dry-run/write support
+    - Path: pkg/dmeta/metadesign/pbui/testdata/composition_metadata.golden.json
+      Note: Golden rendered PBUI composition metadata sidecar
+    - Path: pkg/dmeta/metadesign/pbui/testdata/lower_street_deli_pbui.golden.json
+      Note: Golden Street Deli PBUI lowering summary
     - Path: pkg/dmeta/metadesign/pbui/validate.go
       Note: PBUI validator against Interaction IR
     - Path: sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml
@@ -72,6 +78,7 @@ LastUpdated: 2026-05-24T16:30:06.156039781-04:00
 WhatFor: Record the source import, thesis analysis, design interpretation, and future implementation work for the CLIM MetaDesignSystem ticket.
 WhenToUse: Read before resuming CLIM MetaDesignSystem research or implementation.
 ---
+
 
 
 
@@ -822,3 +829,73 @@ The renderer preserves the user-requested explanatory content. Metadata sidecars
 - Temp write validation:
   - `go run ./cmd/dmeta scaffold-pbui-react --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output-dir /tmp/dmeta-pbui-react-scaffold-test --dry-run=false --force --output table`
   - `find /tmp/dmeta-pbui-react-scaffold-test -type f | wc -l` returned `34`.
+
+## Step 10: Add focused golden tests for PBUI validation, Street Deli lowering, and rendered metadata
+
+This step completed Phase 6 by adding deterministic golden coverage around the first concrete PBUI example. The tests now freeze the no-error PBUI validation result, the Street Deli `lower-pbui` obligation summary, and a rendered `PbuiCompositionPresentation` metadata sidecar. The golden output intentionally includes presenter and recognizer intent so regressions in explanatory IR fields are visible.
+
+The result is a compact review fixture for the new PBUI path. If future changes alter the presentation obligations, action/representation coverage, or metadata provenance, the golden tests will fail and force the change to be reviewed as an intentional schema/compiler evolution rather than an accidental drift.
+
+### Prompt Context
+
+**User prompt (verbatim):** "go ahead"
+
+**Assistant interpretation:** Continue the implementation plan from the previous turn, starting with Phase 6 golden tests and then moving toward Street Deli dogfooding.
+
+**Inferred user intent:** Keep making concrete progress without pausing for confirmation, while preserving tests, diary entries, and commits.
+
+**Commit (code):** pending at time of diary entry
+
+### What I did
+- Added golden tests in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/golden_test.go`
+- Added golden fixtures:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/testdata/validate_pbui_findings.golden.json`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/testdata/lower_street_deli_pbui.golden.json`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/testdata/composition_metadata.golden.json`
+- Updated the Phase 6 task checklist.
+
+### Why
+- The PBUI path now has enough moving parts that regression tests should capture concrete compiler outputs.
+- Golden tests are useful here because the output is explanatory data, not just behavior. We want to preserve intent text and provenance as part of the contract.
+
+### What worked
+- `UPDATE_GOLDEN=1 go test ./pkg/dmeta/metadesign/pbui -count=1` generated the initial fixtures.
+- `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... ./cmd/dmeta -count=1` passes.
+- `go test ./pkg/dmeta/... ./cmd/dmeta -count=1` passes.
+- Validation commands pass for Street Deli semantic IR, Interaction IR, PBUI validation, and `lower-pbui`.
+
+### What didn't work
+- N/A. The golden test pass was straightforward.
+
+### What I learned
+- The Street Deli lower-pbui golden output is a good early design-review surface: it shows object presentations, action presentations, composition presentations, inspector panels, lifecycle status presentations, source Interaction IR obligations, and presenter/recognizer intent in one place.
+- The generated metadata sidecar currently serializes Go struct field names. That is acceptable for the golden checkpoint, but before generated PBUI output becomes a polished TypeScript package, we may want explicit JSON tags for lower/camel-case metadata keys.
+
+### What was tricky to build
+- The only subtlety was keeping the golden fixtures stable without making them too broad. The lower-pbui fixture records a summary row shape rather than every field of the full obligation object.
+- The metadata golden test focuses on `PbuiCompositionPresentation` because it exercises the richest Street Deli case: multiple domain types, composition/substitution representations, multiple actions, source rules, and preserved presenter/recognizer intent.
+
+### What warrants a second pair of eyes
+- Review whether the golden files are the right granularity. They are useful now, but may become too noisy if the PBUI rules churn frequently.
+- Review whether metadata JSON should move to explicit lower/camel-case key tags before Street Deli generated output is committed.
+
+### What should be done in the future
+- Start Phase 7 by actually writing the Street Deli PBUI scaffold under the chosen generated output path.
+- Wrap the generated output as a buildable package or otherwise add TypeScript syntax validation.
+
+### Code review instructions
+- Review:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/golden_test.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/testdata/lower_street_deli_pbui.golden.json`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/testdata/composition_metadata.golden.json`
+- Validate with:
+  - `go test ./pkg/dmeta/... ./cmd/dmeta -count=1`
+  - `go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table`
+  - `go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table`
+  - `go run ./cmd/dmeta validate-pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
+  - `go run ./cmd/dmeta lower-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table`
+
+### Technical details
+- Golden fixtures can be intentionally refreshed with:
+  - `UPDATE_GOLDEN=1 go test ./pkg/dmeta/metadesign/pbui -count=1`

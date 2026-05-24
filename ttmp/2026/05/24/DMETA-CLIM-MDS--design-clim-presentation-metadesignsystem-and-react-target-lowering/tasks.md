@@ -162,19 +162,19 @@ Validation gate:
 
 Goal: make the PBUI path reviewable by producing a small deterministic example, preferably against Street Deli first because it already has Semantic and Interaction obligations.
 
-- [ ] Add golden output for PBUI validation.
-- [ ] Add golden output for `lower-pbui` against Street Deli.
-- [ ] Add a small rendered metadata sidecar golden test.
-- [ ] Verify the example demonstrates object presentations and action presentations.
-- [ ] Verify the example demonstrates presenter/recognizer intent without adding heavyweight runtime presenter objects.
+- [x] Add golden output for PBUI validation.
+- [x] Add golden output for `lower-pbui` against Street Deli.
+- [x] Add a small rendered metadata sidecar golden test.
+- [x] Verify the example demonstrates object presentations and action presentations.
+- [x] Verify the example demonstrates presenter/recognizer intent without adding heavyweight runtime presenter objects.
 
 Validation gate:
 
-- [ ] `go test ./pkg/dmeta/... ./cmd/dmeta -count=1`
-- [ ] `go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table`
-- [ ] `go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table`
-- [ ] `go run ./cmd/dmeta validate-pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
-- [ ] `go run ./cmd/dmeta lower-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table`
+- [x] `go test ./pkg/dmeta/... ./cmd/dmeta -count=1`
+- [x] `go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table`
+- [x] `go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table`
+- [x] `go run ./cmd/dmeta validate-pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
+- [x] `go run ./cmd/dmeta lower-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table`
 
 
 ## Phase 7: Port and dogfood Street Deli through the PBUI/CLIM path

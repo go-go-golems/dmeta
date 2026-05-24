@@ -95,3 +95,13 @@ Implemented Phase 5 PBUI React scaffold rendering with dry-run, metadata-only fi
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_pbui_react.go — PBUI scaffold CLI
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_render.go — PBUI React renderer
 
+
+## 2026-05-24
+
+Added Phase 6 golden tests for PBUI validation, Street Deli PBUI lowering, and rendered composition metadata sidecar.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/golden_test.go — Golden test harness
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/testdata/lower_street_deli_pbui.golden.json — Street Deli PBUI lowering fixture
+
