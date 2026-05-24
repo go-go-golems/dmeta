@@ -139,3 +139,15 @@ Hard-cut instance manifests and CLI away from generic widget scaffolding. Street
 - /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/instantiations/street-deli-ordering.yaml — Main Street Deli manifest migrated to explicit Web/React targets
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/model.go — Instance manifest schema hard-cut to semantic_root/interactions_root/meta_design_systems/targets
 
+
+## 2026-05-24
+
+Renamed remaining instance/catalog planning package to pkg/dmeta/instance and removed universal WidgetGenerationPolicy plus Web template generation blocks. React target policy now lives in the React target file and renderer path.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/instance/load.go — Renamed instance catalog loader and validator package
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/instance/model.go — Renamed instance manifest and planning model package
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/model.go — Removed WidgetGenerationPolicy from universal widget model
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/validate.go — Projection hint validation no longer depends on scaffold generation policy
+
