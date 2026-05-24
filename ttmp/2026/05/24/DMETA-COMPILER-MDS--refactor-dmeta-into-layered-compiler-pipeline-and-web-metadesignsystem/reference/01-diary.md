@@ -19,12 +19,15 @@ RelatedFiles:
       Note: Current scaffold generator inspected while writing Step 1
     - Path: ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/design-doc/01-layered-compiler-pipeline-and-web-metadesignsystem-refactor-guide.md
       Note: Primary design guide created during Step 1
+    - Path: ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/tasks.md
+      Note: Expanded phased implementation checklist recorded in Step 2
 ExternalSources: []
 Summary: Chronological implementation diary for the layered compiler pipeline and Web MetaDesignSystem refactor design ticket.
 LastUpdated: 2026-05-24T18:25:00-04:00
 WhatFor: Use to resume or review the DMETA-COMPILER-MDS design/documentation work, including commands run, evidence gathered, and delivery status.
 WhenToUse: Read before continuing implementation planning or starting code changes for the compiler pipeline refactor.
 ---
+
 
 
 # Diary
@@ -234,4 +237,102 @@ reMarkable upload result:
 
 ```text
 OK: uploaded DMETA COMPILER MDS Refactor Guide.pdf -> /ai/2026/05/24/DMETA-COMPILER-MDS
+```
+
+## Step 2: Expand ticket tasks into implementation phases
+
+This step converted the ticket task list from a short delivery checklist into a detailed phased implementation plan. The goal was to make the ticket directly executable: an intern or future agent should be able to open `tasks.md`, pick the next unchecked item, and understand what part of the compiler-pipeline refactor they are implementing.
+
+The new task list mirrors the design guide: start with compatibility fields, introduce Interaction IR, validate and elaborate interactions, define the Web MetaDesignSystem, lower into Web UI widget IR, add the React scaffold-plan target, migrate Street Deli, update promoted React metadata, and finish with documentation plus CLIM handoff preparation.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Create details phases and tasks in the ticket."
+
+**Assistant interpretation:** Expand the ticket's task list into detailed implementation phases with concrete checkbox tasks and validation gates.
+
+**Inferred user intent:** Make the design ticket operational, not just descriptive, so implementation can proceed phase-by-phase without re-deriving the work breakdown.
+
+**Commit (code):** pending — documentation/task update only.
+
+### What I did
+
+- Rewrote `tasks.md` into ten phases:
+  - Phase 0: Ticket setup and baseline evidence.
+  - Phase 1: Add compatibility fields to widget templates.
+  - Phase 2: Introduce Interaction IR catalogs.
+  - Phase 3: Validate and resolve Interaction IR inheritance.
+  - Phase 4: Build semantic-to-interaction elaboration.
+  - Phase 5: Define the Web MetaDesignSystem package.
+  - Phase 6: Lower Interaction IR into Web UI widget IR.
+  - Phase 7: Create the React target and scaffold plan.
+  - Phase 8: Migrate Street Deli templates and instance metadata.
+  - Phase 9: Align promoted React app metadata and stories.
+  - Phase 10: Documentation, changelog, and CLIM handoff.
+- Added concrete file-level tasks under each phase.
+- Added validation gates for Go tests, DMETA CLI commands, React build, Storybook build, and docmgr doctor.
+- Updated the ticket changelog to record the task expansion.
+- Re-ran `docmgr doctor --ticket DMETA-COMPILER-MDS --stale-after 30` and confirmed it still passes.
+
+### Why
+
+- The design guide explains the architecture, but implementation needs a checklist with smaller units of work.
+- The phases preserve the intended dependency order. For example, planner compatibility fields should land before Interaction IR drives validation, and Interaction IR should exist before Web MetaDesignSystem lowering.
+- Validation gates make it clear when a phase is done and reduce the risk of breaking the existing Street Deli path while adding new layers.
+
+### What worked
+
+- The task file can be edited directly as Markdown while remaining understandable to docmgr and humans.
+- The resulting structure keeps completed ticket setup in Phase 0 and leaves implementation phases unchecked.
+- `docmgr doctor` passed after the task update.
+
+### What didn't work
+
+- N/A. The update was a direct documentation/task edit and did not produce command errors.
+
+### What I learned
+
+- The ticket needs two levels of planning: the long design guide for rationale and schemas, and `tasks.md` for executable sequencing.
+- The task breakdown surfaced a useful implementation boundary: `realizes` fields and abstract/selectable validation can be implemented before the full Interaction IR lowerer exists.
+
+### What was tricky to build
+
+- The main challenge was keeping tasks detailed enough to be actionable without making them so granular that the checklist becomes noise. I grouped tasks by compiler stage and added validation gates rather than creating a separate micro-phase for every struct or field.
+- Another subtle point was Phase 0. The original ticket tasks were already complete, so I preserved them as completed baseline tasks instead of deleting history.
+
+### What warrants a second pair of eyes
+
+- Review the phase ordering before implementation starts. In particular, check whether the Web MetaDesignSystem package should be introduced before or after the first elaboration command.
+- Review the task list for scope creep. Some Phase 9 promoted React metadata tasks may be deferred if the compiler-side metadata is more urgent.
+
+### What should be done in the future
+
+- Start with Phase 1: widget `abstract/selectable/realizes` fields and planner validation.
+- Add diary entries and changelog updates as each phase completes.
+
+### Code review instructions
+
+- Review `tasks.md` first:
+  - `ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/tasks.md`
+- Compare the task phases against the implementation phases in the design guide:
+  - `ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/design-doc/01-layered-compiler-pipeline-and-web-metadesignsystem-refactor-guide.md`
+- Validate ticket hygiene with:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+docmgr doctor --ticket DMETA-COMPILER-MDS --stale-after 30
+```
+
+### Technical details
+
+Commands run during this step:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+
+docmgr changelog update --ticket DMETA-COMPILER-MDS \
+  --entry "Expanded ticket tasks into detailed phased implementation checklist covering compatibility fields, Interaction IR, Web MetaDesignSystem, React target, Street Deli migration, promoted React metadata, validation, and CLIM handoff." \
+  --file-note "/home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/tasks.md:Detailed phase/task checklist"
+
+docmgr doctor --ticket DMETA-COMPILER-MDS --stale-after 30
 ```
