@@ -4,6 +4,13 @@ export const StreetDeliIngredientRowMetadata = {
   "adaptations": null,
   "category": "substitutions",
   "generatedBy": "dmeta scaffold-instance",
+  "generation": {
+    "emitAdapterTODOs": false,
+    "emitDocComments": true,
+    "emitSemanticMetadata": true,
+    "scaffoldMode": "reflective",
+    "strictProjectionAdapter": false
+  },
   "instanceId": "street_deli_ordering",
   "reason": "Customizer needs explicit ingredient rows with remove/substitute actions.",
   "selectedAs": "StreetDeliIngredientRow",

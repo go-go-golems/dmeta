@@ -2,6 +2,12 @@
 
 import type { StreetDeliMenuBrowserProps } from "./StreetDeliMenuBrowser.types";
 
+/**
+ * StreetDeliMenuBrowser
+ *
+ * Reflection-first scaffold generated from `deli.menu_browser`.
+ * Selected because: Primary mobile ordering entrypoint needs category browsing and menu-item cards.
+ */
 export function StreetDeliMenuBrowser(props: StreetDeliMenuBrowserProps) {
   return (
     <section data-dmeta-widget="deli.menu_browser" data-dmeta-template="deli.menu_browser" data-dmeta-variant="mobile_cards">

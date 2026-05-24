@@ -2,6 +2,36 @@
 
 import type { StreetDeliSubstitutionChipProps } from "./StreetDeliSubstitutionChip.types";
 
+/**
+ * StreetDeliSubstitutionChip
+ *
+ * Reflection-first scaffold generated from `deli.substitution_chip`.
+ * Selected because: Replacement suggestions need a compact reusable action presentation.
+ *
+ * Semantic context:
+ * - Archetype: Substitution
+ * - Capability: role_preserving_substitutable
+ * - Capability: dietary_substitutable
+ * - Capability: price_aware_substitutable
+ * - Presentation: substitution_badge
+ * - Presentation: substitution_pair
+ *
+ * Intent:
+ * Render a compact replacement suggestion or applied substitution. Descendant capabilities may add dietary and price information, but each variant decides what fits in the chip.
+ *
+ * Inherited context note:
+ * SubstitutionSuggestion and AppliedSubstitution extend Substitution and can carry role-preserving, dietary, and price-aware substitution capabilities.
+ *
+ * Projection hints are scaffold guidance, not rigid layout requirements unless strict mode is enabled.
+ * Recommended:
+ * - substitutable.replaces
+ * - substitutable.replacement_candidates
+ * - role_preserving_substitutable.role_overlap_score
+ * Optional:
+ * - dietary_substitutable.dietary_explanation
+ * - price_aware_substitutable.price_delta_label
+ * - dietary.dietary_tags
+ */
 export function StreetDeliSubstitutionChip(props: StreetDeliSubstitutionChipProps) {
   return (
     <section data-dmeta-widget="deli.substitution_chip" data-dmeta-template="deli.substitution_chip" data-dmeta-variant="mobile_default">

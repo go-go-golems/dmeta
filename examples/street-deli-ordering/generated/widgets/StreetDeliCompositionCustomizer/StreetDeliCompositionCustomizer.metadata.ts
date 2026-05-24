@@ -4,9 +4,53 @@ export const StreetDeliCompositionCustomizerMetadata = {
   "adaptations": null,
   "category": "customization",
   "generatedBy": "dmeta scaffold-instance",
+  "generation": {
+    "emitAdapterTODOs": true,
+    "emitDocComments": true,
+    "emitSemanticMetadata": true,
+    "scaffoldMode": "adapter_todos",
+    "strictProjectionAdapter": false
+  },
   "instanceId": "street_deli_ordering",
+  "projectionHints": {
+    "adapterTODOs": [
+      "Map removed ingredient state separately from static ingredient projections.",
+      "Decide which substitution projections are displayed inline versus in a detail sheet."
+    ],
+    "documentationOnly": null,
+    "optional": [
+      "role_preserving_substitutable.role_overlap_score",
+      "dietary.allergen_contains"
+    ],
+    "recommended": [
+      "ingredient_composable.parts",
+      "ingredient_composable.ingredient_roles",
+      "configurable.config_options",
+      "dietary.dietary_tags",
+      "substitutable.replacement_candidates"
+    ],
+    "required": null
+  },
   "reason": "Ingredient removal and intelligent substitutions are the core sandwich customization workflow.",
   "selectedAs": "StreetDeliCompositionCustomizer",
+  "semanticContext": {
+    "archetypes": [
+      "ProductComposition"
+    ],
+    "capabilities": [
+      "ingredient_composable",
+      "role_preserving_substitutable",
+      "configurable",
+      "dietary"
+    ],
+    "inheritedContextNote": "OrderItem and MenuItem can both satisfy ProductComposition, but the customizer usually starts from a MenuItem and produces an OrderItem.",
+    "intent": "Render the full customization surface where ingredient roles, configuration options, and substitution suggestions are visible. Projection hints should scaffold adapter work without forcing one universal customizer prop shape.",
+    "presentations": [
+      "composition_detail",
+      "ingredient_list",
+      "substitution_badge"
+    ]
+  },
   "templateId": "deli.composition_customizer",
   "variant": "bottom_sheet"
 } as const;

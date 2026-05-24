@@ -2,6 +2,39 @@
 
 import type { StreetDeliCompositionCustomizerProps } from "./StreetDeliCompositionCustomizer.types";
 
+/**
+ * StreetDeliCompositionCustomizer
+ *
+ * Reflection-first scaffold generated from `deli.composition_customizer`.
+ * Selected because: Ingredient removal and intelligent substitutions are the core sandwich customization workflow.
+ *
+ * Semantic context:
+ * - Archetype: ProductComposition
+ * - Capability: ingredient_composable
+ * - Capability: role_preserving_substitutable
+ * - Capability: configurable
+ * - Capability: dietary
+ * - Presentation: composition_detail
+ * - Presentation: ingredient_list
+ * - Presentation: substitution_badge
+ *
+ * Intent:
+ * Render the full customization surface where ingredient roles, configuration options, and substitution suggestions are visible. Projection hints should scaffold adapter work without forcing one universal customizer prop shape.
+ *
+ * Inherited context note:
+ * OrderItem and MenuItem can both satisfy ProductComposition, but the customizer usually starts from a MenuItem and produces an OrderItem.
+ *
+ * Projection hints are scaffold guidance, not rigid layout requirements unless strict mode is enabled.
+ * Recommended:
+ * - ingredient_composable.parts
+ * - ingredient_composable.ingredient_roles
+ * - configurable.config_options
+ * - dietary.dietary_tags
+ * - substitutable.replacement_candidates
+ * Optional:
+ * - role_preserving_substitutable.role_overlap_score
+ * - dietary.allergen_contains
+ */
 export function StreetDeliCompositionCustomizer(props: StreetDeliCompositionCustomizerProps) {
   return (
     <section data-dmeta-widget="deli.composition_customizer" data-dmeta-template="deli.composition_customizer" data-dmeta-variant="bottom_sheet">

@@ -5,6 +5,13 @@ import { StreetDeliSubstitutionChip } from "./StreetDeliSubstitutionChip";
 export default {
   title: "Street Deli Ordering/StreetDeliSubstitutionChip",
   component: StreetDeliSubstitutionChip,
+  parameters: {
+    docs: {
+      description: {
+        component: "Generated scaffold for `deli.substitution_chip`. Semantic context: Substitution, role_preserving_substitutable, dietary_substitutable, price_aware_substitutable, substitution_badge, substitution_pair. Projection hints are scaffold guidance, not mandatory layout.",
+      },
+    },
+  },
 };
 
 export const NoCheeseToAvocado = {

@@ -4,9 +4,52 @@ export const StreetDeliOrderTrackerMetadata = {
   "adaptations": null,
   "category": "tracking",
   "generatedBy": "dmeta scaffold-instance",
+  "generation": {
+    "emitAdapterTODOs": true,
+    "emitDocComments": true,
+    "emitSemanticMetadata": true,
+    "scaffoldMode": "adapter_todos",
+    "strictProjectionAdapter": false
+  },
   "instanceId": "street_deli_ordering",
+  "projectionHints": {
+    "adapterTODOs": [
+      "Decide whether tracker steps are derived from order state, prep tasks, or both."
+    ],
+    "documentationOnly": null,
+    "optional": [
+      "temporal.duration_ms",
+      "relatable.actor_ref",
+      "relatable.work_item_ref"
+    ],
+    "recommended": [
+      "stateful.state",
+      "temporal.start_time",
+      "temporal.end_time"
+    ],
+    "required": null
+  },
   "reason": "After order submission, users need preparation status and pickup state.",
   "selectedAs": "StreetDeliOrderTracker",
+  "semanticContext": {
+    "archetypes": [
+      "Order",
+      "WorkItem",
+      "TimelineSpan"
+    ],
+    "capabilities": [
+      "stateful",
+      "temporal",
+      "relatable"
+    ],
+    "inheritedContextNote": "Order extends WorkItem and TimelineSpan; PrepTask extends WorkItem and can appear as a station-level child in tracking views.",
+    "intent": "Render order preparation progress using work-item state and timeline semantics. Inheritance helps explain why Order and PrepTask can share tracking presentations while still using different layouts.",
+    "presentations": [
+      "prep_status_indicator",
+      "timeline_marker",
+      "dense_row"
+    ]
+  },
   "templateId": "deli.order_tracker",
   "variant": "compact_status"
 } as const;

@@ -4,6 +4,13 @@ export const StreetDeliMenuBrowserMetadata = {
   "adaptations": null,
   "category": "menu_browsing",
   "generatedBy": "dmeta scaffold-instance",
+  "generation": {
+    "emitAdapterTODOs": false,
+    "emitDocComments": true,
+    "emitSemanticMetadata": true,
+    "scaffoldMode": "reflective",
+    "strictProjectionAdapter": false
+  },
   "instanceId": "street_deli_ordering",
   "reason": "Primary mobile ordering entrypoint needs category browsing and menu-item cards.",
   "selectedAs": "StreetDeliMenuBrowser",

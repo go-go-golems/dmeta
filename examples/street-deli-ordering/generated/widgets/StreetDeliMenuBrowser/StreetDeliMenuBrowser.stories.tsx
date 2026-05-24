@@ -5,6 +5,13 @@ import { StreetDeliMenuBrowser } from "./StreetDeliMenuBrowser";
 export default {
   title: "Street Deli Ordering/StreetDeliMenuBrowser",
   component: StreetDeliMenuBrowser,
+  parameters: {
+    docs: {
+      description: {
+        component: "Generated scaffold for `deli.menu_browser`.",
+      },
+    },
+  },
 };
 
 export const Categories = {

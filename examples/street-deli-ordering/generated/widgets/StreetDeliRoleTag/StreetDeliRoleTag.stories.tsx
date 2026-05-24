@@ -5,6 +5,13 @@ import { StreetDeliRoleTag } from "./StreetDeliRoleTag";
 export default {
   title: "Street Deli Ordering/StreetDeliRoleTag",
   component: StreetDeliRoleTag,
+  parameters: {
+    docs: {
+      description: {
+        component: "Generated scaffold for `deli.role_tag`.",
+      },
+    },
+  },
 };
 
 export const AllRoles = {

@@ -2,6 +2,39 @@
 
 import type { StreetDeliOrderTrackerProps } from "./StreetDeliOrderTracker.types";
 
+/**
+ * StreetDeliOrderTracker
+ *
+ * Reflection-first scaffold generated from `deli.order_tracker`.
+ * Selected because: After order submission, users need preparation status and pickup state.
+ *
+ * Semantic context:
+ * - Archetype: Order
+ * - Archetype: WorkItem
+ * - Archetype: TimelineSpan
+ * - Capability: stateful
+ * - Capability: temporal
+ * - Capability: relatable
+ * - Presentation: prep_status_indicator
+ * - Presentation: timeline_marker
+ * - Presentation: dense_row
+ *
+ * Intent:
+ * Render order preparation progress using work-item state and timeline semantics. Inheritance helps explain why Order and PrepTask can share tracking presentations while still using different layouts.
+ *
+ * Inherited context note:
+ * Order extends WorkItem and TimelineSpan; PrepTask extends WorkItem and can appear as a station-level child in tracking views.
+ *
+ * Projection hints are scaffold guidance, not rigid layout requirements unless strict mode is enabled.
+ * Recommended:
+ * - stateful.state
+ * - temporal.start_time
+ * - temporal.end_time
+ * Optional:
+ * - temporal.duration_ms
+ * - relatable.actor_ref
+ * - relatable.work_item_ref
+ */
 export function StreetDeliOrderTracker(props: StreetDeliOrderTrackerProps) {
   return (
     <section data-dmeta-widget="deli.order_tracker" data-dmeta-template="deli.order_tracker" data-dmeta-variant="compact_status">

@@ -4,9 +4,53 @@ export const StreetDeliCompositionCardMetadata = {
   "adaptations": null,
   "category": "item_cards",
   "generatedBy": "dmeta scaffold-instance",
+  "generation": {
+    "emitAdapterTODOs": true,
+    "emitDocComments": true,
+    "emitSemanticMetadata": true,
+    "scaffoldMode": "adapter_todos",
+    "strictProjectionAdapter": false
+  },
   "instanceId": "street_deli_ordering",
+  "projectionHints": {
+    "adapterTODOs": [
+      "Decide whether the selected variant shows a short ingredient summary or full ingredient rows.",
+      "Keep dietary/allergen information visible when safety-relevant."
+    ],
+    "documentationOnly": [
+      "ingredient_composable.role_profile"
+    ],
+    "optional": [
+      "available.availability_state",
+      "ingredient_composable.required_roles",
+      "ingredient_composable.ingredient_roles"
+    ],
+    "recommended": [
+      "labelable.label",
+      "measurable.value",
+      "ingredient_composable.parts",
+      "dietary.dietary_tags"
+    ],
+    "required": null
+  },
   "reason": "Sandwiches and bowls need compact composition summaries with dietary and price data.",
   "selectedAs": "StreetDeliCompositionCard",
+  "semanticContext": {
+    "archetypes": [
+      "ProductComposition"
+    ],
+    "capabilities": [
+      "ingredient_composable",
+      "dietary",
+      "measurable",
+      "available"
+    ],
+    "inheritedContextNote": "MenuItem extends ProductSpec and ProductComposition, so it satisfies both product browsing and composition customization context.",
+    "intent": "Render a mobile menu card for a sellable ingredient composition. The semantic model explains why MenuItem fits here without requiring every variant to render the full ingredient role graph.",
+    "presentations": [
+      "composition_card"
+    ]
+  },
   "templateId": "deli.composition_card",
   "variant": "mobile_default"
 } as const;

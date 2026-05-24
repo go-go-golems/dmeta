@@ -2,6 +2,12 @@
 
 import type { StreetDeliIngredientRowProps } from "./StreetDeliIngredientRow.types";
 
+/**
+ * StreetDeliIngredientRow
+ *
+ * Reflection-first scaffold generated from `deli.ingredient_row`.
+ * Selected because: Customizer needs explicit ingredient rows with remove/substitute actions.
+ */
 export function StreetDeliIngredientRow(props: StreetDeliIngredientRowProps) {
   return (
     <section data-dmeta-widget="deli.ingredient_row" data-dmeta-template="deli.ingredient_row" data-dmeta-variant="mobile_default">

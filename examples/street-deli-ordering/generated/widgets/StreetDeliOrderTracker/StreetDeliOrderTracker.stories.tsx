@@ -5,6 +5,13 @@ import { StreetDeliOrderTracker } from "./StreetDeliOrderTracker";
 export default {
   title: "Street Deli Ordering/StreetDeliOrderTracker",
   component: StreetDeliOrderTracker,
+  parameters: {
+    docs: {
+      description: {
+        component: "Generated scaffold for `deli.order_tracker`. Semantic context: Order, WorkItem, TimelineSpan, stateful, temporal, relatable, prep_status_indicator, timeline_marker, dense_row. Projection hints are scaffold guidance, not mandatory layout.",
+      },
+    },
+  },
 };
 
 export const Received = {

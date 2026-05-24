@@ -4,9 +4,53 @@ export const StreetDeliOrderCartMetadata = {
   "adaptations": null,
   "category": "ordering",
   "generatedBy": "dmeta scaffold-instance",
+  "generation": {
+    "emitAdapterTODOs": true,
+    "emitDocComments": true,
+    "emitSemanticMetadata": true,
+    "scaffoldMode": "adapter_todos",
+    "strictProjectionAdapter": false
+  },
   "instanceId": "street_deli_ordering",
+  "projectionHints": {
+    "adapterTODOs": [
+      "Map applied substitutions as cart-line annotations, not as raw ingredient rows only.",
+      "Decide whether stateful prep status appears in cart or only in tracker."
+    ],
+    "documentationOnly": null,
+    "optional": [
+      "stateful.state",
+      "relatable.work_item_ref"
+    ],
+    "recommended": [
+      "labelable.label",
+      "measurable.value",
+      "ingredient_composable.parts",
+      "configurable.current_config"
+    ],
+    "required": null
+  },
   "reason": "Ordering flow needs cart review, totals, and submit actions.",
   "selectedAs": "StreetDeliOrderCart",
+  "semanticContext": {
+    "archetypes": [
+      "OrderItem",
+      "WorkItem",
+      "ProductComposition"
+    ],
+    "capabilities": [
+      "ingredient_composable",
+      "configurable",
+      "measurable",
+      "stateful"
+    ],
+    "inheritedContextNote": "OrderItem extends WorkItem and ProductComposition, so it combines lifecycle/work semantics with final ingredient composition state.",
+    "intent": "Render the order review surface after menu items become customized order items. The inherited work-item and product-composition context should guide metadata and adapter TODOs, not force cart layout.",
+    "presentations": [
+      "order_item_row",
+      "compact_ref"
+    ]
+  },
   "templateId": "deli.order_cart",
   "variant": "mobile_bottom_sheet"
 } as const;
