@@ -65,6 +65,8 @@ RelatedFiles:
       Note: Writer/copy support for React app scaffold files and fonts
     - Path: pkg/dmeta/metadesign/pbui/profile/validate.go
       Note: Concrete PBUI profile validator
+    - Path: ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/analysis/01-pbui-metadesignsystem-implementation-report.md
+      Note: Step 8 exhaustive PBUI implementation report
     - Path: ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/design-doc/01-concrete-pbui-presentation-profile-pass-guide.md
       Note: Primary guide produced in Step 1
     - Path: ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/tasks.md
@@ -75,6 +77,7 @@ LastUpdated: 2026-05-24T17:58:00-04:00
 WhatFor: Record ticket setup, evidence gathering, design decisions, implementation steps, failures, validation, and handoff notes for the PBUI concrete presentation profile pass.
 WhenToUse: Read before resuming work on DMETA-PBUI-PRESENTATION-PROFILE or implementing profile schemas, validators, instantiation, or the Street Deli clim-react app.
 ---
+
 
 
 
@@ -733,3 +736,79 @@ The scaffold is intentionally a buildable first pass rather than the final polis
   - `--force` overwrites existing files;
   - `--output-dir` overrides profile target output.
 - The generated app currently uses deterministic fixtures and placeholder runtime modules. This is a scaffolded app foundation, not the final fully interactive CLIM runtime.
+
+## Step 8: Write the PBUI MetaDesignSystem implementation report
+
+This step paused feature work and produced a long-form implementation report for the PBUI MetaDesignSystem as it exists now. The report is intended to be a durable onboarding and review artifact: it explains the authored IR files, Go packages, validation and lowering passes, descriptor derivation, generic PBUI React scaffold, concrete Street Deli profile, concrete app planner/scaffolder, generated outputs, command workflow, application-author responsibilities, current limitations, and next implementation work.
+
+The report deliberately uses a textbook style. It starts from the pipeline and the responsibilities of each layer, then grounds the explanation in concrete file paths, YAML snippets, Go types, command invocations, generated row counts, and Street Deli examples. It avoids treating the generated `www/clim-react` app as finished; it identifies it as a buildable scaffold whose runtime and renderers still need to be filled in.
+
+### Prompt Context
+
+**User prompt (verbatim):** "ok, before we get properly into that, we are going to work on the current scaffolding. 
+
+For now, write a detailed project report on the implementation of PBUI MetaDesignSystem so far, exhaustively going through every piece of it: the IRs, the schemas, the parts, how they fgit together, what gets generated from what and how, what go code is involved, which commands get called, what an application user has to fill in (in this case using the deli examples), how the workflow is going from app idea to fully realized PBUI react result, etc... Leave no stone unturned, and explain everything in the greatest detail. This can be a ridiculously large article if necessary. Use a textbook writing style (no analogies, see skill). Commit and push when donne."
+
+**Assistant interpretation:** Create a comprehensive implementation report before continuing runtime work, document all current PBUI layers and generated outputs, then commit and push the report.
+
+**Inferred user intent:** Preserve a complete system understanding of the PBUI compiler path before the scaffold is filled with more application behavior.
+
+**Commit (code):** pending at time of diary entry
+
+### What I did
+- Loaded the textbook-authoring skill and followed its style guidance.
+- Reviewed the global PBUI IR files, concrete Street Deli PBUI profile files, Go PBUI packages, profile packages, and PBUI CLI commands.
+- Ran command-output counting checks for:
+  - `lower-pbui`
+  - `plan-pbui-react`
+  - `instantiate-pbui`
+  - `plan-pbui-react-app`
+- Added the report document:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/analysis/01-pbui-metadesignsystem-implementation-report.md`
+- Related the report to the central IR, Go implementation, command, profile, and generated app files.
+
+### Why
+- The PBUI implementation now spans several layers and output paths. Without a report, future work on the scaffold would require reconstructing context from commits and tickets.
+- The user explicitly asked for an exhaustive report before continuing implementation.
+- The report provides a shared vocabulary for the distinction between abstract PBUI, generic PBUI React scaffold, concrete Street Deli profile, and concrete `www/clim-react` app scaffold.
+
+### What worked
+- The report now gives a complete end-to-end path from app idea to generated PBUI React results.
+- It captures actual row counts from current command outputs:
+  - 41 PBUI lowering rows.
+  - 41 generic PBUI React plan rows.
+  - 15 concrete profile instantiation rows.
+  - 63 concrete React app plan rows.
+- The report identifies the generated app as a buildable scaffold and lists the missing runtime/data/view work.
+
+### What didn't work
+- N/A. This was documentation/report work; no implementation blockers were encountered.
+
+### What I learned
+- The system now has two distinct React outputs that must be explained carefully:
+  - `generated/pbui-react` as a generic PBUI proof package.
+  - `www/clim-react` as the concrete profile-applied app scaffold.
+- The report benefits from treating command row counts as evidence, because they show how obligations collapse or expand as they move through lowering, profile instantiation, and app planning.
+
+### What was tricky to build
+- The main challenge was covering the full implementation without flattening the layers together. The report had to keep Semantic IR, Interaction IR, PBUI IR, concrete profile data, generic React target, and concrete app target separate while also showing how they connect.
+- Another care point was describing generated scaffold status accurately. The `www/clim-react` app builds and has Storybook stories, but it is not the final interactive CLIM runtime.
+
+### What warrants a second pair of eyes
+- Review whether the report should be copied into an Obsidian article later for broader project knowledge.
+- Review whether the file index and workflow sections should become a shorter README in `pkg/dmeta/metadesign/pbui/`.
+- Review whether the report overstates or understates the maturity of the concrete app scaffold.
+
+### What should be done in the future
+- Update the report after real runtime behavior is added to `www/clim-react`.
+- Consider adding diagrams generated from the actual plan JSON if the report becomes a long-term reference artifact.
+
+### Code review instructions
+- Start with the report:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/analysis/01-pbui-metadesignsystem-implementation-report.md`
+- Validate ticket metadata with:
+  - `docmgr doctor --ticket DMETA-PBUI-PRESENTATION-PROFILE --stale-after 30`
+
+### Technical details
+- The report links to the global PBUI IR, concrete Street Deli profile, Go packages, command wrappers, and generated app package.
+- It uses the current validated command outputs as factual evidence rather than restating architecture from memory.
