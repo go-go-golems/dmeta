@@ -18,6 +18,8 @@ RelatedFiles:
         CLI registration for lower-pbui
         CLI registration for plan-pbui-react
         CLI registration for scaffold-pbui-react
+    - Path: examples/street-deli-ordering/generated/pbui-react/README.md
+      Note: Generated PBUI package entry documentation
     - Path: pkg/dmeta/cmds/lower_pbui.go
       Note: lower-pbui CLI command
     - Path: pkg/dmeta/cmds/plan_pbui_react.go
@@ -45,7 +47,9 @@ RelatedFiles:
     - Path: pkg/dmeta/metadesign/pbui/react_plan_test.go
       Note: PBUI React plan test for registries
     - Path: pkg/dmeta/metadesign/pbui/react_render.go
-      Note: PBUI React scaffold renderer
+      Note: |-
+        PBUI React scaffold renderer
+        PBUI renderer now emits buildable package files
     - Path: pkg/dmeta/metadesign/pbui/react_render_test.go
       Note: Renderer and metadata JSON validation tests
     - Path: pkg/dmeta/metadesign/pbui/react_write.go
@@ -60,6 +64,7 @@ RelatedFiles:
       Note: |-
         First-pass interaction-to-PBUI lowering rule catalog
         PBUI lowering rules and explanatory rationale
+        Action chooser lowering adjusted for current Street Deli obligations
     - Path: sources/dmeta-ir/meta-design-systems/pbui/meta-design-system.yaml
       Note: PBUI package entrypoint with natural-language intent
     - Path: sources/dmeta-ir/meta-design-systems/pbui/presentation-types.yaml
@@ -68,6 +73,8 @@ RelatedFiles:
       Note: PBUI React target strategy and file-kind metadata
     - Path: ttmp/2026/05/24/DMETA-CLIM-MDS--design-clim-presentation-metadesignsystem-and-react-target-lowering/design-doc/01-clim-presentation-metadesignsystem-architecture-and-first-pass-implementation-guide.md
       Note: Design guide that the task plan implements
+    - Path: ttmp/2026/05/24/DMETA-CLIM-MDS--design-clim-presentation-metadesignsystem-and-react-target-lowering/design-doc/02-street-deli-pbui-dogfooding-review.md
+      Note: Dogfooding review and gap analysis
     - Path: ttmp/2026/05/24/DMETA-CLIM-MDS--design-clim-presentation-metadesignsystem-and-react-target-lowering/sources/local/01-aitr-794.md
       Note: Primary source thesis for CLIM/presentation-system analysis
     - Path: ttmp/2026/05/24/DMETA-CLIM-MDS--design-clim-presentation-metadesignsystem-and-react-target-lowering/tasks.md
@@ -78,6 +85,7 @@ LastUpdated: 2026-05-24T16:30:06.156039781-04:00
 WhatFor: Record the source import, thesis analysis, design interpretation, and future implementation work for the CLIM MetaDesignSystem ticket.
 WhenToUse: Read before resuming CLIM MetaDesignSystem research or implementation.
 ---
+
 
 
 
@@ -899,3 +907,81 @@ The result is a compact review fixture for the new PBUI path. If future changes 
 ### Technical details
 - Golden fixtures can be intentionally refreshed with:
   - `UPDATE_GOLDEN=1 go test ./pkg/dmeta/metadesign/pbui -count=1`
+
+## Step 11: Dogfood Street Deli PBUI generated React output as a buildable package
+
+This step completed the first Street Deli PBUI/CLIM dogfooding pass that had been started before the separate presentation-profile ticket was created. The generated PBUI output now lives in a separate buildable package under `examples/street-deli-ordering/generated/pbui-react/`, with `package.json` and `tsconfig.json` emitted by the PBUI React scaffold. The generated package builds with TypeScript, and the promoted Street Deli mobile React app still builds afterward.
+
+The generated package remains a compiler proof, not the final CLIM-looking app. It is intentionally distinct from the future `www/clim-react` promoted app path. The dogfooding review records the gap: the generated package proves registries, descriptors, metadata, and skeleton components, while the new presentation-profile ticket will define how to instantiate the prototype-clim look and Readwise-style runtime as an actual app.
+
+### Prompt Context
+
+**User prompt (verbatim):** "go ahead"
+
+**Assistant interpretation:** Continue from PBUI golden tests into the Street Deli dogfooding phase by writing generated PBUI output, making it buildable, and validating that existing promoted app behavior is not broken.
+
+**Inferred user intent:** Prove the PBUI compiler path against a concrete generated Street Deli output before moving on to the missing presentation-profile pass.
+
+**Commit (code):** pending at time of diary entry
+
+### What I did
+- Added `package_json` and `tsconfig` planned/generated file kinds to the PBUI React target.
+- Updated the PBUI React renderer to emit `package.json` and `tsconfig.json` for generated packages.
+- Extended Street Deli instance manifests with `meta_design_systems.pbui` and `targets.pbui_react` entries.
+- Extended the instance target model with `PBUIReact`.
+- Added a `cart_summary` elaboration rule for order-like subjects so cart/order submission flows are represented in PBUI dogfooding.
+- Adjusted the PBUI action chooser lowering rule so current Street Deli compact-reference subjects emit `pbui.action_chooser` without requiring a separate universal `select_subject` obligation.
+- Regenerated the Street Deli PBUI React output under:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/generated/pbui-react/`
+- Wrote a dogfooding review document:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-CLIM-MDS--design-clim-presentation-metadesignsystem-and-react-target-lowering/design-doc/02-street-deli-pbui-dogfooding-review.md`
+- Added `.gitignore` entries for generated dependency/build noise.
+
+### Why
+- Street Deli is the concrete proof that PBUI can generate something real and buildable.
+- The output path must remain separate from both `www/mobile-react/` and the existing Web React generated output.
+- The generated scaffold needs a package wrapper before TypeScript validation is meaningful.
+
+### What worked
+- `go test ./pkg/dmeta/... ./cmd/dmeta -count=1` passes.
+- `cd examples/street-deli-ordering/generated/pbui-react && npm ci --no-audit --no-fund && npm run build` passes.
+- `cd examples/street-deli-ordering/www/mobile-react && npm run build` passes.
+- The generated package now emits 42 tracked files and builds without committing `node_modules`.
+
+### What didn't work
+- The first generated PBUI package did not have a TypeScript package wrapper, so it could not satisfy the Phase 5 compile validation gate. I added `package_json` and `tsconfig` file kinds to the PBUI React target and renderer.
+- The first PBUI lowering did not emit `pbui.action_chooser` for Street Deli because the rule required `select_subject`, which the current Interaction IR elaboration did not emit for compact-reference subjects. I changed the rule to key off `copy_reference` plus `inspect_subject`, and documented that v1 rationale in the YAML.
+
+### What I learned
+- The generated PBUI target can be a useful buildable artifact, but it is not the same thing as a concrete app. That distinction led directly to the new `DMETA-PBUI-PRESENTATION-PROFILE` ticket.
+- A concrete graphical presentation profile is needed before the React output can look like `prototype-clim`.
+
+### What was tricky to build
+- The main tricky point was keeping generated output reviewable without committing dependency noise. `npm ci` creates `node_modules`, so I removed it after validation and added `.gitignore` rules.
+- Another tricky point was deciding whether to bend PBUI lowering or Interaction IR to get action chooser coverage. I chose a documented v1 PBUI lowering adjustment because current Street Deli-specific selection exists as domain actions such as `select_menu_item`, not a universal `select_subject` obligation.
+
+### What warrants a second pair of eyes
+- Review whether adding `targets.pbui_react` to the existing instance manifests is the right schema shape or whether PBUI profile/app targets should eventually have their own instance target family.
+- Review whether `order_to_cart_summary` belongs in the global Interaction IR or should eventually become a more precise domain/local elaboration.
+- Review generated metadata JSON key casing before treating it as stable external schema.
+
+### What should be done in the future
+- Implement the concrete presentation-profile pass in `DMETA-PBUI-PRESENTATION-PROFILE`.
+- Use the generated package as input/evidence, but build the actual CLIM-looking app under `www/clim-react`.
+
+### Code review instructions
+- Start with:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/generated/pbui-react/README.md`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/generated/pbui-react/registries/presentationTypes.ts`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/generated/pbui-react/presentations/PbuiActionChooser/PbuiActionChooser.metadata.json`
+- Then review generator changes:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_plan.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_render.go`
+- Validate with:
+  - `go test ./pkg/dmeta/... ./cmd/dmeta -count=1`
+  - `cd examples/street-deli-ordering/generated/pbui-react && npm ci --no-audit --no-fund && npm run build`
+  - `cd examples/street-deli-ordering/www/mobile-react && npm run build`
+
+### Technical details
+- Generated dependency directory was removed after validation:
+  - `examples/street-deli-ordering/generated/pbui-react/node_modules`

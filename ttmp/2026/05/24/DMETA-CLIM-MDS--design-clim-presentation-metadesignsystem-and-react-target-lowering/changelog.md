@@ -105,3 +105,13 @@ Added Phase 6 golden tests for PBUI validation, Street Deli PBUI lowering, and r
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/golden_test.go — Golden test harness
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/testdata/lower_street_deli_pbui.golden.json — Street Deli PBUI lowering fixture
 
+
+## 2026-05-24
+
+Completed Street Deli PBUI dogfooding by generating a buildable pbui-react package, validating it with TypeScript, and documenting gaps toward the concrete presentation-profile pass.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/generated/pbui-react/package.json — Generated buildable PBUI React package
+- /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-CLIM-MDS--design-clim-presentation-metadesignsystem-and-react-target-lowering/design-doc/02-street-deli-pbui-dogfooding-review.md — Dogfooding review
+

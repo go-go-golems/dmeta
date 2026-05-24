@@ -34,6 +34,10 @@ func RenderReactPlan(plan ReactPlan) ([]ReactRenderedFile, error) {
 
 func renderReactFile(plan ReactPlan, presentationByComponent map[string]PresentationPlan, planned ReactPlannedFile) (string, error) {
 	switch planned.Kind {
+	case "package_json":
+		return renderPackageJSON(plan), nil
+	case "tsconfig":
+		return renderTSConfig(), nil
 	case "object_type_registry":
 		return renderConstJSON("objectTypeDescriptors", plan.ObjectDescriptors)
 	case "action_descriptor_registry":
@@ -68,6 +72,53 @@ func renderReactFile(plan ReactPlan, presentationByComponent map[string]Presenta
 	default:
 		return fmt.Sprintf("// Planned PBUI React file kind %q for symbol %q.\n", planned.Kind, planned.Symbol), nil
 	}
+}
+
+func renderPackageJSON(plan ReactPlan) string {
+	return fmt.Sprintf(`{
+  "name": %q,
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "~6.0.2"
+  }
+}
+`, plan.PackageName)
+}
+
+func renderTSConfig() string {
+	return `{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["**/*.stories.tsx", "node_modules"]
+}
+`
 }
 
 func renderConstJSON(symbol string, value any) (string, error) {

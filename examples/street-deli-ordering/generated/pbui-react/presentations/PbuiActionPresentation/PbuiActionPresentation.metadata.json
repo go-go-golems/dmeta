@@ -1,0 +1,40 @@
+{
+  "MetaDesignSystem": "pbui",
+  "CodegenTarget": "react",
+  "PresentationTypeID": "pbui.action_presentation",
+  "ComponentName": "PbuiActionPresentation",
+  "Representations": [
+    "compact_reference",
+    "substitution_candidate"
+  ],
+  "Actions": [
+    "apply_substitution",
+    "copy_reference",
+    "inspect_subject",
+    "reject_substitution",
+    "see_alternatives"
+  ],
+  "DomainTypes": [
+    "Customer",
+    "Ingredient",
+    "MenuItem",
+    "Order",
+    "OrderItem",
+    "PrepEvent",
+    "Station",
+    "SubstitutionRule"
+  ],
+  "SourceRules": [
+    "pbui.action_choices_for_reference",
+    "pbui.substitution_actions_for_composition_parts"
+  ],
+  "PresenterIntent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+  "RecognizerIntent": "Interpret choosing an action as an action request or transition into argument selection/confirmation.",
+  "LoweringRationale": "CLIM-style systems make available commands visible and selectable. When an object has a compact reference plus inspection/copy affordances, PBUI should be able to present compatible actions as first-class objects without waiting for a specific target menu or toolbar design. The v1 rule intentionally keys off the currently emitted `copy_reference` and `inspect_subject` actions instead of requiring a separate `select_subject` obligation, because Street Deli domain-specific selection currently appears as actions such as `select_menu_item` rather than a universal selection obligation.",
+  "Passes": [
+    "semantic-ir",
+    "interaction-elaboration",
+    "pbui-lowering",
+    "pbui-react-planning"
+  ]
+}

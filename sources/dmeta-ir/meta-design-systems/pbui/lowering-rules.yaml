@@ -54,18 +54,23 @@ rules:
       Delegate nested action and object reference interactions back into typed
       action requests.
 
-  - id: pbui.action_choices_for_selectable_reference
-    description: Lower selectable/copyable object references into an action chooser presentation.
+  - id: pbui.action_choices_for_reference
+    description: Lower compact inspectable/copyable object references into an action chooser presentation.
     rationale: >-
       CLIM-style systems make available commands visible and selectable. When
-      an object is selectable and inspectable, PBUI should be able to present
-      compatible actions as first-class objects without waiting for a specific
-      target menu or toolbar design.
+      an object has a compact reference plus inspection/copy affordances, PBUI
+      should be able to present compatible actions as first-class objects
+      without waiting for a specific target menu or toolbar design. The v1 rule
+      intentionally keys off the currently emitted `copy_reference` and
+      `inspect_subject` actions instead of requiring a separate `select_subject`
+      obligation, because Street Deli domain-specific selection currently
+      appears as actions such as `select_menu_item` rather than a universal
+      selection obligation.
     when:
       representations:
         - compact_reference
       actions:
-        - select_subject
+        - copy_reference
         - inspect_subject
     emits:
       presentation_types:

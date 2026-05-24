@@ -156,6 +156,8 @@ func planRegistryAndRuntimeFiles(plan ReactPlan, target ReactTargetFile) []React
 		Passes:           append([]string{}, target.Provenance.SourcePasses...),
 	}
 	kindToPathSymbol := map[string][2]string{
+		"package_json":               {"package.json", plan.PackageName},
+		"tsconfig":                   {"tsconfig.json", "tsconfig"},
 		"object_type_registry":       {"registries/objectTypes.ts", "objectTypeDescriptors"},
 		"action_descriptor_registry": {"registries/actions.ts", "actionDescriptors"},
 		"presentation_type_registry": {"registries/presentationTypes.ts", "presentationTypeDescriptors"},

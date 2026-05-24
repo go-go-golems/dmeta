@@ -57,9 +57,19 @@ rules:
       representations: [substitution_price_delta]
       actions: []
   - id: order_to_lifecycle_progress
+    description: Derive lifecycle tracking affordances for stateful temporal orders.
     when:
       any_archetypes: [Order]
       all_capabilities: [stateful, temporal]
     emits:
       representations: [order_lifecycle_progress]
       actions: [return_to_menu]
+  - id: order_to_cart_summary
+    description: >-
+      Derive cart review and submission affordances for order-like subjects so
+      PBUI dogfooding can exercise confirmation-requiring backend actions.
+    when:
+      any_archetypes: [Order]
+    emits:
+      representations: [cart_summary]
+      actions: [remove_cart_item, submit_order]

@@ -23,7 +23,8 @@ type MetaDesignSystemRef struct {
 }
 
 type Targets struct {
-	React ReactTarget `yaml:"react"`
+	React     ReactTarget `yaml:"react"`
+	PBUIReact ReactTarget `yaml:"pbui_react"`
 }
 
 type ReactTarget struct {
