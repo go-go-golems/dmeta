@@ -23,6 +23,10 @@ topics:
       description: Static site packaging, hosting, and publishing workflows
     - slug: dmeta
       description: DMETA design-system factory and example artifacts
+    - slug: compiler-ir
+      description: Compiler-style intermediate representation, passes, lowering, elaboration, and code generation architecture
+    - slug: metadesignsystem
+      description: DMETA target-family layer that realizes interaction representations/actions into concrete UI/tooling IRs
 docTypes:
     - slug: design-doc
       description: Structured rationale and architecture notes
