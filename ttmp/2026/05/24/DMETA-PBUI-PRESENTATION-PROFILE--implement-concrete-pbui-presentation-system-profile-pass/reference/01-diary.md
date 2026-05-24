@@ -18,6 +18,7 @@ RelatedFiles:
       Note: |-
         Registers validate-pbui-profile
         Registers instantiate-pbui
+        Registers plan-pbui-react-app
     - Path: examples/street-deli-ordering/meta-design-systems/pbui/presentation-bindings.yaml
       Note: PBUI presentation type to concrete renderer binding profile
     - Path: examples/street-deli-ordering/meta-design-systems/pbui/presentation-system.yaml
@@ -32,6 +33,8 @@ RelatedFiles:
       Note: Concrete menu/detail/substitution/cart/help/tracker view model profile
     - Path: pkg/dmeta/cmds/instantiate_pbui.go
       Note: CLI command for producing concrete PBUI presentation plans
+    - Path: pkg/dmeta/cmds/plan_pbui_react_app.go
+      Note: CLI command for planning the concrete React CLIM app target
     - Path: pkg/dmeta/cmds/validate_pbui_profile.go
       Note: CLI command for validating concrete PBUI profiles
     - Path: pkg/dmeta/metadesign/pbui/profile/instantiate.go
@@ -44,6 +47,10 @@ RelatedFiles:
       Note: Street Deli concrete profile validation tests
     - Path: pkg/dmeta/metadesign/pbui/profile/model.go
       Note: Concrete PBUI profile data model
+    - Path: pkg/dmeta/metadesign/pbui/profile/react_app_plan.go
+      Note: Concrete PBUI React app planner
+    - Path: pkg/dmeta/metadesign/pbui/profile/react_app_plan_test.go
+      Note: Street Deli React app plan tests
     - Path: pkg/dmeta/metadesign/pbui/profile/validate.go
       Note: Concrete PBUI profile validator
     - Path: ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/design-doc/01-concrete-pbui-presentation-profile-pass-guide.md
@@ -56,6 +63,7 @@ LastUpdated: 2026-05-24T17:58:00-04:00
 WhatFor: Record ticket setup, evidence gathering, design decisions, implementation steps, failures, validation, and handoff notes for the PBUI concrete presentation profile pass.
 WhenToUse: Read before resuming work on DMETA-PBUI-PRESENTATION-PROFILE or implementing profile schemas, validators, instantiation, or the Street Deli clim-react app.
 ---
+
 
 
 
@@ -493,3 +501,106 @@ I also added the `dmeta instantiate-pbui` command. This command runs the upstrea
   - source representations/actions;
   - presenter and recognizer intent;
   - style profile id.
+
+## Step 6: Plan the concrete React CLIM app target
+
+This step implemented Phase 4 by turning the target-neutral `ConcretePresentationPlan` into a React app file plan. The new planner is intentionally separate from the earlier generic `plan-pbui-react` path: it plans an actual Street Deli CLIM app shape with app shell files, Readwise-inspired runtime modules, CSS/font assets, command surface components, presentation components, generated registry integration, metadata, and concrete menu/detail/substitution/cart/help/tracker view components.
+
+The result is still a plan, not scaffolding. That is the right boundary for this phase: we can now review exactly which files `www/clim-react` should contain before Phase 5 creates or promotes the app.
+
+### Prompt Context
+
+**User prompt (verbatim):** (see Step 5)
+
+**Assistant interpretation:** Continue implementing the next phase after concrete profile instantiation: plan the React CLIM app target without writing app files yet.
+
+**Inferred user intent:** Keep moving through the ticket in reviewable commits and preserve a clear diary of the compiler pipeline boundary between profile instantiation and app scaffolding.
+
+**Commit (code):** eded683261a579beab822b6cb60d45ed8dda485c — "DMETA-PBUI-PRESENTATION-PROFILE: plan React CLIM app target"
+
+### What I did
+- Added React app planning model and planner:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/react_app_plan.go`
+- Added Street Deli React app plan tests:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/react_app_plan_test.go`
+- Added CLI command:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/plan_pbui_react_app.go`
+- Registered the CLI command in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+- Planned these file families from `targets/react-app.yaml` and the concrete plan:
+  - package/config/bootstrap files;
+  - CLIM runtime modules;
+  - style profile CSS;
+  - Berkeley Mono font assets;
+  - shell and command surface components;
+  - concrete presentation components;
+  - menu/detail/substitution/cart/help/tracker views;
+  - generated registry/metadata files.
+- Ran validation:
+  - `go test ./pkg/dmeta/... ./cmd/dmeta -count=1`
+  - `go run ./cmd/dmeta plan-pbui-react-app --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output table`
+
+### Why
+- Phase 5 should scaffold a concrete app from a reviewed plan, not invent file layout directly in a writer.
+- The planner makes the distinction clear:
+  - generic PBUI scaffold remains under `generated/pbui-react`;
+  - concrete app target is planned for `www/clim-react`.
+- React app planning needs information from the concrete profile, not only from abstract PBUI obligations.
+
+### What worked
+- The plan includes the expected default output directory:
+  - `../../www/clim-react`
+- The plan includes Readwise-inspired runtime files:
+  - `src/clim/types.ts`
+  - `src/clim/store.ts`
+  - `src/clim/actions.ts`
+  - `src/clim/commands.ts`
+  - `src/clim/selectors.ts`
+  - `src/clim/runtime.ts`
+- The plan includes prototype-clim style/font artifacts:
+  - `src/styles/clim.css`
+  - `fonts/BerkeleyMono-Regular.woff2`
+  - `fonts/BerkeleyMono-Bold.woff2`
+  - `fonts/BerkeleyMono-Oblique.woff2`
+- The plan includes concrete view components for all six Street Deli CLIM views.
+
+### What didn't work
+- The first planner draft emitted the same `ActionPresentationInline.tsx` path twice: once as a generic presentation component and once as the action-presentation component kind.
+- Fix:
+  - `presentation_component` planning now skips `pbui.action_presentation` and lets `action_presentation_component` own that file.
+
+### What I learned
+- `targets/react-app.yaml` is expressive enough for first-pass app planning: file kinds plus planned component groups can drive a useful file manifest without hardcoding every app file.
+- The plan still needs concrete writers in Phase 5; however, its table output already provides a good review artifact for app shape.
+
+### What was tricky to build
+- The main challenge was avoiding duplication between component groups and presentation bindings. Some components, such as `ActionHintBar`, appear both as a command surface idea and as the concrete binding for `pbui.action_chooser`. The planner currently permits distinct planned files when they are conceptually different and deduplicates by path/kind.
+- Another care point was font planning. The style profile stores font paths as style token values, so the planner extracts those from the open token map rather than a rigid font struct.
+
+### What warrants a second pair of eyes
+- Review whether output paths should be normalized now. The profile's default `../../www/clim-react` is relative to the profile root, while the table currently preserves that literal path.
+- Review whether component path conventions should separate command-surface components from presentation components more aggressively.
+- Review whether the plan should output YAML golden fixtures before scaffolding begins.
+
+### What should be done in the future
+- Implement Phase 5: scaffold or promote `examples/street-deli-ordering/www/clim-react` from the React app plan.
+- Decide whether the Phase 5 writer should generate minimal buildable placeholders first or immediately port prototype-clim behavior.
+
+### Code review instructions
+- Start with:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/react_app_plan.go`
+- Then review CLI wiring:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/plan_pbui_react_app.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+- Validate with:
+  - `go test ./pkg/dmeta/... ./cmd/dmeta -count=1`
+  - `go run ./cmd/dmeta plan-pbui-react-app --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output table`
+
+### Technical details
+- `ReactAppPlan` contains target id, output dir, package name, profile id, style profile id, and planned files.
+- Planned files carry:
+  - path;
+  - kind;
+  - symbol;
+  - optional view/component/presentation/surface context;
+  - provenance with MetaDesignSystem, presentation system, target, style profile, source passes, and source category.
