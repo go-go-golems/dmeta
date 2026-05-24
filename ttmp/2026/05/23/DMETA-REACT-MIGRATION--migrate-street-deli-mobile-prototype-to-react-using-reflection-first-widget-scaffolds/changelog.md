@@ -19,3 +19,8 @@ Step 2: Initialized React app with all 8 promoted widgets, state management, sub
 
 Step 3: Wrote 65KB Obsidian vault article 'DMETA Design System Factory: From Semantic Schemas to Generated React Widgets' covering concept, architecture, implementation, and Street Deli domain walkthrough. Added 4 screenshots. Committed and pushed to go-go-parc vault.
 
+
+## 2026-05-24
+
+Step 4: Added Storybook stories for all 8 promoted widgets. 36 stories total covering atoms, molecules, and organisms. Storybook builds. (commit a685708)
+
