@@ -1,0 +1,141 @@
+.screenHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--divider, #E8E2DA);
+  background: var(--surface, #FFFFFF);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.screenTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.backBtn {
+  border: none;
+  background: transparent;
+  color: var(--accent, #5B8C3E);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.cartItems {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cartItem {
+  background: var(--surface, #FFFFFF);
+  border: 1px solid var(--divider, #E8E2DA);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.cartItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.cartItemName {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cartItemPrice {
+  font-family: var(--font-mono, monospace);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.cartItemConfig {
+  font-size: 12px;
+  color: var(--text-muted, #A69E94);
+  margin-top: 2px;
+  font-family: var(--font-mono, monospace);
+}
+
+.cartItemSubs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.cartSubLine {
+  font-size: 12px;
+  color: var(--accent, #5B8C3E);
+  font-weight: 500;
+}
+
+.cartSubLineRemoved {
+  font-size: 12px;
+  color: var(--danger, #C43B3B);
+  text-decoration: line-through;
+}
+
+.cartRemoveBtn {
+  margin-top: 8px;
+  border: none;
+  background: transparent;
+  color: var(--danger, #C43B3B);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.cartFooter {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface, #FFFFFF);
+  border-top: 1px solid var(--divider, #E8E2DA);
+  padding: 16px;
+  z-index: 10;
+}
+
+.cartTotalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.cartTotalPrice {
+  font-family: var(--font-mono, monospace);
+}
+
+.placeOrderBtn {
+  width: 100%;
+  height: 54px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent, #5B8C3E);
+  color: #fff;
+  font-family: var(--font-sans, sans-serif);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.placeOrderBtn:active {
+  opacity: 0.9;
+}

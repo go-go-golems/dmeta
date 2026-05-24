@@ -1,0 +1,74 @@
+.subCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--surface, #FFFFFF);
+  border-radius: var(--r-md, 10px);
+  border: 1.5px solid var(--divider, #E8E2DA);
+  cursor: pointer;
+  min-height: 44px;
+  transition: all 0.15s;
+}
+
+.subCard:active {
+  transform: scale(0.98);
+}
+
+.autoSuggest {
+  border-color: var(--accent, #5B8C3E);
+}
+
+.subArrow {
+  font-size: 20px;
+  color: var(--accent, #5B8C3E);
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+.subOriginal {
+  font-size: 14px;
+  color: var(--text-muted, #A69E94);
+  text-decoration: line-through;
+  flex-shrink: 0;
+}
+
+.subReplacement {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text, #2C2520);
+  flex: 1;
+}
+
+.subMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.subRolesMini {
+  display: flex;
+  gap: 2px;
+}
+
+.subRolesMini span {
+  height: 15px;
+  font-size: 8px;
+  padding: 0 4px;
+}
+
+.pricePositive {
+  font-family: var(--font-mono, monospace);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--warning, #C4860B);
+}
+
+.priceZero {
+  font-family: var(--font-mono, monospace);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--success, #3A8A5C);
+}
