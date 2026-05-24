@@ -1127,7 +1127,7 @@ No React files are written yet. This is a planning pass only: it proves that Rea
 
 **Inferred user intent:** Advance the React target work while preserving the new Semantic IR -> Interaction IR -> Web -> React layering.
 
-**Commit (code):** pending at time of diary entry — React scaffold planning changes.
+**Commit (code):** 47c78639a1975d8cd0da16e4b0a38a9d28788b36 — "DMETA-COMPILER-MDS: plan react scaffolds from web obligations"
 
 ### What I did
 
