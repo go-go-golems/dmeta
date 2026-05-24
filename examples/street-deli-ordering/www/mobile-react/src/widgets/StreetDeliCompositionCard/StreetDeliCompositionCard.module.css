@@ -1,0 +1,72 @@
+.menuCard {
+  background: var(--surface, #FFFFFF);
+  border-radius: var(--r-md, 10px);
+  border: 1px solid var(--divider, #E8E2DA);
+  padding: var(--space-4, 16px);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.menuCard:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.menuCardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.menuCardName {
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text, #2C2520);
+}
+
+.menuCardPrice {
+  font-family: var(--font-mono, 'SF Mono', monospace);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text, #2C2520);
+  white-space: nowrap;
+}
+
+.menuCardDesc {
+  font-size: 13px;
+  color: var(--text-secondary, #7A7067);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.menuCardIngredients {
+  font-size: 12px;
+  color: var(--text-muted, #A69E94);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.menuCardDietary {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.dietaryBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 100px;
+  font-family: var(--font-mono, 'SF Mono', monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid;
+}

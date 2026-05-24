@@ -1,0 +1,9 @@
+.roleTag {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 100px;
+  white-space: nowrap;
+  pointer-events: none;
+}

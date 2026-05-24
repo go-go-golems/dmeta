@@ -1,0 +1,78 @@
+:root {
+  /* Neutrals */
+  --bg: #FAF8F5;
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --text: #2C2520;
+  --text-secondary: #7A7067;
+  --text-muted: #A69E94;
+  --divider: #E8E2DA;
+  --divider-strong: #D4CBC0;
+
+  /* Semantic */
+  --info: #3B7DD8;
+  --success: #3A8A5C;
+  --warning: #C4860B;
+  --danger: #C43B3B;
+  --pending: #8A8A8A;
+  --active: #2B6CB0;
+
+  /* Accent — warm avocado green */
+  --accent: #5B8C3E;
+  --accent-light: #EAF2E3;
+
+  /* Role colors */
+  --role-structural: #C49A3C;
+  --role-protein: #8B5E3C;
+  --role-richness: #6B8E4E;
+  --role-moisture: #5B8DB8;
+  --role-acidity: #9AB844;
+  --role-crunch: #7AB648;
+  --role-heat: #C85A3A;
+  --role-umami: #7A5A3E;
+  --role-garnish: #6B9E6B;
+
+  /* Typography */
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', 'Berkeley Mono', 'IBM Plex Mono', monospace;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Radius */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-full: 100px;
+
+  /* Touch */
+  --touch-min: 44px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}

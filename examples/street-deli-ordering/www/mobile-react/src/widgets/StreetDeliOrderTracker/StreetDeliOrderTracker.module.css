@@ -1,0 +1,115 @@
+.screenHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--divider, #E8E2DA);
+  background: var(--surface, #FFFFFF);
+}
+
+.screenTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.trackerContent {
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.trackerStatus {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  position: relative;
+  padding: 0 8px;
+}
+
+.trackerLine {
+  position: absolute;
+  top: 14px;
+  left: 24px;
+  right: 24px;
+  height: 2px;
+  background: var(--divider, #E8E2DA);
+  z-index: 0;
+}
+
+.trackerStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 1;
+  position: relative;
+}
+
+.stepDot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface, #FFFFFF);
+  border: 2px solid var(--divider-strong, #D4CBC0);
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.completed .stepDot {
+  background: var(--accent, #5B8C3E);
+  border-color: var(--accent, #5B8C3E);
+}
+
+.active .stepDot {
+  border-color: var(--accent, #5B8C3E);
+  box-shadow: 0 0 0 4px rgba(91,140,62,0.2);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.stepCheck {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.stepLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted, #A69E94);
+}
+
+.completed .stepLabel {
+  color: var(--accent, #5B8C3E);
+}
+
+.active .stepLabel {
+  color: var(--text, #2C2520);
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(91,140,62,0.2); }
+  50% { box-shadow: 0 0 0 8px rgba(91,140,62,0.1); }
+}
+
+.trackerDetail {
+  font-size: 15px;
+  color: var(--text-secondary, #7A7067);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.backToMenuBtn {
+  border: 2px solid var(--text, #2C2520);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text, #2C2520);
+  font-size: 15px;
+  font-weight: 600;
+  height: 50px;
+  padding: 0 32px;
+  cursor: pointer;
+}
