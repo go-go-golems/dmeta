@@ -753,7 +753,7 @@ For now, write a detailed project report on the implementation of PBUI MetaDesig
 
 **Inferred user intent:** Preserve a complete system understanding of the PBUI compiler path before the scaffold is filled with more application behavior.
 
-**Commit (code):** pending at time of diary entry
+**Commit (code):** 0785f2585d4f8ed3160922ebbd4f0eb3ff2fd746 — "DMETA-PBUI-PRESENTATION-PROFILE: add PBUI implementation report"
 
 ### What I did
 - Loaded the textbook-authoring skill and followed its style guidance.
