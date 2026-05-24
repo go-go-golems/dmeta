@@ -104,3 +104,14 @@ Added React target scaffold planning under the Web MetaDesignSystem. plan-scaffo
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/plan.go — React target planning from Web obligations
 - /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/web/targets/react.yaml — React target metadata and file-kind catalog
 
+
+## 2026-05-24
+
+Added React metadata sidecar rendering and a focused provenance test. The renderer emits JSON sidecars with metaDesignSystem, codegenTarget, realized representations/actions, Web slots/states/events, React files, and source pass provenance.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/model.go — GeneratedFile and scaffold plan structures used by renderer
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render.go — React metadata sidecar renderer
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render_test.go — Metadata sidecar provenance test
+

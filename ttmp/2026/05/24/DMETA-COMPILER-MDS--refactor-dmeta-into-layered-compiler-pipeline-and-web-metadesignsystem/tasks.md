@@ -178,7 +178,7 @@ Goal: React becomes a concrete codegen target of the Web MetaDesignSystem, not t
 - [x] Add `pkg/dmeta/generator/react/plan.go`.
 - [x] Implement Web widget IR -> React scaffold plan.
 - [x] Add Street Deli lowering rule for `deli.menu_browser` so all eight selected widgets receive React plan provenance.
-- [ ] Add `pkg/dmeta/generator/react/render.go`.
+- [x] Add `pkg/dmeta/generator/react/render.go`.
 - [ ] Move useful rendering logic out of `pkg/dmeta/generator/widgets/render.go` into React-specific rendering.
 - [ ] Delete generic widget scaffold rendering once React rendering is in place.
 - [x] Add `pkg/dmeta/cmds/plan_scaffold.go`.
@@ -187,7 +187,8 @@ Goal: React becomes a concrete codegen target of the Web MetaDesignSystem, not t
 - [x] Add metadata fields: `metaDesignSystem`, `codegenTarget`, `realizes.representations`, `realizes.actions`, pass versions.
 - [ ] Add generated component data attributes for MetaDesignSystem and representation ids.
 - [ ] Add Storybook docs text that names representations/actions.
-- [ ] Add golden tests for React scaffold plan and one rendered metadata sidecar.
+- [x] Add golden tests for React scaffold plan and one rendered metadata sidecar.
+- [x] Add `pkg/dmeta/generator/react/render_test.go` for metadata sidecar provenance.
 
 Validation gate:
 

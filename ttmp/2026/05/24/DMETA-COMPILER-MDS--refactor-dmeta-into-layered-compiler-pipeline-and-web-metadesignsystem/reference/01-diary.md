@@ -1235,3 +1235,141 @@ The React plan file kinds are currently:
 - `package_index`
 
 The command is intentionally a planner, not a writer. It does not touch promoted React code or generated output directories.
+
+## Step 10: Render React metadata sidecars from scaffold plans
+
+This step added the first React renderer, deliberately starting with metadata sidecars instead of component source. The renderer consumes the React scaffold plan created from Web obligations and emits JSON metadata that records the Web/React boundary and the provenance chain.
+
+The implementation still does not write files to disk or overwrite generated/promoted React code. It is a small renderable artifact that reviewers can validate before we add component, types, Storybook, CSS, or write-path behavior.
+
+### Prompt Context
+
+**User prompt (verbatim):** "go ahead."
+
+**Assistant interpretation:** Continue with the next safe React-target implementation slice after adding the scaffold planner.
+
+**Inferred user intent:** Move from planning toward target rendering while keeping the new compiler layers and diary discipline intact.
+
+**Commit (code):** pending at time of diary entry — React metadata sidecar renderer changes.
+
+### What I did
+
+- Added `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render.go`.
+- Added `GeneratedFile` for React target rendered artifacts.
+- Added `MetadataSidecar` and nested metadata structs for:
+  - `generatedBy`
+  - `metaDesignSystem`
+  - `codegenTarget`
+  - component/template/variant identity
+  - `realizes.representations`
+  - `realizes.actions`
+  - Web slots, visual states, and event bindings
+  - React package/files
+  - source domain types, Web lowering rules, and compiler passes
+- Added `RenderMetadataSidecar(component ComponentPlan)`.
+- Added `GenerateMetadataSidecars(plan ScaffoldPlan)`.
+- Added `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render_test.go`.
+- Ran:
+
+```bash
+go test ./pkg/dmeta/generator/react/... ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output yaml
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+go run ./cmd/dmeta lower-web --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --web-root ./examples/street-deli-ordering/meta-design-systems/web --output table
+```
+
+### Why
+
+- Metadata sidecars are the safest first rendered React artifact: they carry architecture/provenance data but do not yet make UI implementation choices.
+- The sidecar proves that React rendering consumes Web obligations rather than old universal widget scaffolds.
+- A focused JSON test establishes the shape before any writer starts creating files under `generated/react`.
+
+### What worked
+
+- The new renderer produced valid JSON.
+- The test verified the key boundary fields:
+  - `metaDesignSystem: web`
+  - `codegenTarget: react`
+  - `realizes.representations`
+  - `realizes.actions`
+  - Web `slots`, `visualStates`, and `eventBindings`
+  - provenance `domainTypes`, `sourceRules`, and `passes`
+- Existing package tests still passed.
+- `plan-scaffold` still produced eight component plans for Street Deli.
+
+### What didn't work
+
+- N/A. This was intentionally narrow and did not require changing command behavior or writing files.
+
+### What I learned
+
+- The planned file provenance already contains enough pass information to populate rendered metadata without consulting the old generic renderer.
+- Keeping metadata as JSON instead of a TypeScript module makes it target output rather than runtime code, and it is easy to validate with standard JSON tooling.
+- Starting with sidecars keeps the next renderer steps incremental: component/types/story/CSS renderers can reuse the same `ComponentPlan` input.
+
+### What was tricky to build
+
+- The sidecar must represent three concepts separately: Interaction obligations (`realizes`), Web obligations (`web`), and React file outputs (`react`). Mixing those would blur the new layer boundaries.
+- Package-level files do not have component-specific provenance. For this step I only render component metadata sidecars; package-level metadata can be added later if needed.
+- The renderer derives pass provenance from planned files, because file provenance is already the target-facing provenance record.
+
+### What warrants a second pair of eyes
+
+- Review whether sidecars should include absolute file paths, relative file paths, or both. The current plan stores paths exactly as planned.
+- Review whether `generatedBy` should name `plan-scaffold` or a future write command once one exists.
+- Review whether metadata sidecars should include target defaults such as style mode and Storybook enablement.
+
+### What should be done in the future
+
+- Add a writer/dry-run path for metadata sidecars.
+- Render React types and component shells from the same `ComponentPlan` input.
+- Render Storybook docs text that names the source representations/actions.
+- Add a golden file fixture once the sidecar schema stabilizes.
+
+### Code review instructions
+
+Start with:
+
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render_test.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/model.go`
+
+Validate with:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+go test ./pkg/dmeta/generator/react/... ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output yaml
+```
+
+### Technical details
+
+The rendered JSON sidecar has this high-level shape:
+
+```json
+{
+  "generatedBy": "dmeta plan-scaffold --target react",
+  "metaDesignSystem": "web",
+  "codegenTarget": "react",
+  "componentName": "StreetDeliCompositionCard",
+  "templateId": "deli.composition_card",
+  "realizes": {
+    "representations": ["composition_summary", "dietary_summary"],
+    "actions": ["inspect_subject"]
+  },
+  "web": {
+    "slots": ["description", "dietary_tags", "price", "title"],
+    "visualStates": ["default", "selected", "unavailable"],
+    "eventBindings": ["inspect_subject"]
+  },
+  "react": {
+    "packageName": "dmeta-web-react",
+    "files": []
+  },
+  "provenance": {
+    "domainTypes": ["MenuItem", "OrderItem"],
+    "sourceRules": ["composition_summary_to_deli_card"],
+    "passes": ["semantic-ir", "interaction-elaboration", "web-lowering", "react-planning"]
+  }
+}
+```
