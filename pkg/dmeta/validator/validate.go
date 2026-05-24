@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var knownArgumentModes = map[string]bool{
@@ -43,7 +44,7 @@ func ValidatePackage(pkg *Package) []Finding {
 	findings = append(findings, validateIndex(pkg)...)
 	findings = append(findings, validateCoreModel(pkg, resolved)...)
 	findings = append(findings, validateDesignLanguage(pkg)...)
-	findings = append(findings, validateWidgets(pkg)...)
+	findings = append(findings, validateWidgets(pkg, resolved)...)
 	return findings
 }
 
@@ -307,7 +308,7 @@ func validateDesignLanguage(pkg *Package) []Finding {
 	return findings
 }
 
-func validateWidgets(pkg *Package) []Finding {
+func validateWidgets(pkg *Package, resolved *ResolvedCoreModel) []Finding {
 	var findings []Finding
 	seenIDs := map[string]bool{}
 	seenOutputs := map[string]string{}
@@ -338,6 +339,9 @@ func validateWidgets(pkg *Package) []Finding {
 				findings = append(findings, Error("widgets", path+".consumes.archetypes", "unknown_archetype", fmt.Sprintf("widget %q consumes unknown archetype %q", widget.ID, archID), "Define the archetype or update the widget."))
 			}
 		}
+		findings = append(findings, validateWidgetSemanticContext(pkg, widget, path)...)
+		findings = append(findings, validateWidgetProjectionHints(widget, path, resolved)...)
+		findings = append(findings, validateWidgetGenerationPolicy(widget, path)...)
 		if _, ok := widget.Outputs["metadata"]; !ok {
 			findings = append(findings, Error("widgets", path+".outputs.metadata", "missing_metadata_output", fmt.Sprintf("widget %q has no metadata output", widget.ID), "Add a metadata sidecar output path."))
 		}
@@ -354,6 +358,75 @@ func validateWidgets(pkg *Package) []Finding {
 		}
 	}
 	return findings
+}
+
+func validateWidgetSemanticContext(pkg *Package, widget Widget, path string) []Finding {
+	var findings []Finding
+	ctx := widget.SemanticContext
+	for _, presID := range ctx.Presentations {
+		if _, ok := pkg.CoreModel.Presentations[presID]; !ok {
+			findings = append(findings, Error("widgets", path+".semantic_context.presentations", "unknown_semantic_context_presentation", fmt.Sprintf("widget %q semantic_context references unknown presentation %q", widget.ID, presID), "Define the presentation or update semantic_context."))
+		}
+	}
+	for _, capID := range ctx.Capabilities {
+		if _, ok := pkg.CoreModel.Capabilities[capID]; !ok {
+			findings = append(findings, Error("widgets", path+".semantic_context.capabilities", "unknown_semantic_context_capability", fmt.Sprintf("widget %q semantic_context references unknown capability %q", widget.ID, capID), "Define the capability or update semantic_context."))
+		}
+	}
+	for _, archID := range ctx.Archetypes {
+		if _, ok := pkg.CoreModel.Archetypes[archID]; !ok {
+			findings = append(findings, Error("widgets", path+".semantic_context.archetypes", "unknown_semantic_context_archetype", fmt.Sprintf("widget %q semantic_context references unknown archetype %q", widget.ID, archID), "Define the archetype or update semantic_context."))
+		}
+	}
+	return findings
+}
+
+func validateWidgetProjectionHints(widget Widget, path string, resolved *ResolvedCoreModel) []Finding {
+	var findings []Finding
+	strict := widget.Generation.IsStrictProjectionAdapter()
+	for _, hint := range widget.ProjectionHints.Required {
+		if _, ok := resolveProjectionHint(hint, resolved); !ok {
+			if strict {
+				findings = append(findings, Error("widgets", path+".projection_hints.required", "unknown_required_projection_hint", fmt.Sprintf("widget %q requires unknown projection hint %q", widget.ID, hint), "Use capability.projection with a known effective projection, or disable strict projection adapter generation."))
+			} else {
+				findings = append(findings, Warning("widgets", path+".projection_hints.required", "unknown_required_projection_hint", fmt.Sprintf("widget %q has unresolved required projection hint %q", widget.ID, hint), "Use capability.projection with a known effective projection, or enable strict mode only after resolving it."))
+			}
+		}
+	}
+	for _, hint := range widget.ProjectionHints.Recommended {
+		if _, ok := resolveProjectionHint(hint, resolved); !ok {
+			findings = append(findings, Warning("widgets", path+".projection_hints.recommended", "unknown_recommended_projection_hint", fmt.Sprintf("widget %q recommends unknown projection hint %q", widget.ID, hint), "Recommended hints should usually use capability.projection with a known effective projection."))
+		}
+	}
+	for _, hint := range widget.ProjectionHints.Optional {
+		if _, ok := resolveProjectionHint(hint, resolved); !ok {
+			findings = append(findings, Warning("widgets", path+".projection_hints.optional", "unknown_optional_projection_hint", fmt.Sprintf("widget %q lists unknown optional projection hint %q", widget.ID, hint), "Optional hints should use capability.projection when they are meant to reference executable projections."))
+		}
+	}
+	return findings
+}
+
+func validateWidgetGenerationPolicy(widget Widget, path string) []Finding {
+	mode := widget.Generation.EffectiveScaffoldMode()
+	switch mode {
+	case "reflective", "adapter_todos", "strict":
+		return nil
+	default:
+		return []Finding{Error("widgets", path+".generation.scaffold_mode", "unknown_scaffold_mode", fmt.Sprintf("widget %q uses unknown scaffold mode %q", widget.ID, mode), "Use reflective, adapter_todos, or strict.")}
+	}
+}
+
+func resolveProjectionHint(hint string, resolved *ResolvedCoreModel) (Projection, bool) {
+	capabilityID, projectionID, ok := strings.Cut(hint, ".")
+	if !ok || capabilityID == "" || projectionID == "" || resolved == nil {
+		return Projection{}, false
+	}
+	capability, ok := resolved.Capabilities[capabilityID]
+	if !ok {
+		return Projection{}, false
+	}
+	projection, ok := capability.EffectiveProjections[projectionID]
+	return projection, ok
 }
 
 func knownPresentationLayer(layer string) bool {
