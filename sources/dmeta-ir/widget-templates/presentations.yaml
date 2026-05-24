@@ -161,6 +161,29 @@ templates:
     - default
     avoid_when:
     - The concrete instance has no workflow matching this template role.
+  semantic_context:
+    capabilities:
+    - stateful
+    presentations:
+    - status_badge
+    - state_cell
+    intent: Render stateful semantic state as a compact visual token. The inherited stateful projection contract is useful
+      scaffold guidance, but concrete widgets still decide tone, label, and density.
+    inherited_context_note: Any descendant capability of stateful can satisfy this context through capability inheritance.
+  projection_hints:
+    recommended:
+    - stateful.state
+    optional:
+    - stateful.state_label
+    - stateful.state_tone
+    adapter_todos:
+    - Decide whether the concrete variant receives a precomputed tone or derives tone from state.
+  generation:
+    scaffold_mode: adapter_todos
+    emit_semantic_metadata: true
+    emit_doc_comments: true
+    emit_adapter_todos: true
+    strict_projection_adapter: false
 - id: dmeta.compact_reference
   name: CompactReference
   status: template
@@ -243,6 +266,30 @@ templates:
     - default
     avoid_when:
     - The concrete instance has no workflow matching this template role.
+  semantic_context:
+    capabilities:
+    - identifiable
+    - labelable
+    presentations:
+    - compact_id
+    - compact_ref
+    - relation_link
+    intent: Render a compact reference for a semantic subject. Identifier and label projections are strong hints, but the
+      final reference surface may choose only label, id, or both.
+  projection_hints:
+    recommended:
+    - identifiable.id
+    - labelable.label
+    optional:
+    - labelable.subtitle
+    adapter_todos:
+    - Choose whether this instance renders ids visibly or only uses them for copy/actions.
+  generation:
+    scaffold_mode: reflective
+    emit_semantic_metadata: true
+    emit_doc_comments: true
+    emit_adapter_todos: false
+    strict_projection_adapter: false
 - id: dmeta.metric_cell
   name: MetricCell
   status: template

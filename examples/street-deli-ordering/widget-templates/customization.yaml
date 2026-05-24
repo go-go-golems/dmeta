@@ -95,6 +95,41 @@ templates:
     metadata: src/street-deli/widgets/CompositionCustomizer/CompositionCustomizer.metadata.ts
     stories: src/street-deli/widgets/CompositionCustomizer/CompositionCustomizer.stories.tsx
     barrel: src/street-deli/widgets/CompositionCustomizer/index.ts
+  semantic_context:
+    archetypes:
+    - ProductComposition
+    capabilities:
+    - ingredient_composable
+    - role_preserving_substitutable
+    - configurable
+    - dietary
+    presentations:
+    - composition_detail
+    - ingredient_list
+    - substitution_badge
+    intent: Render the full customization surface where ingredient roles, configuration options, and substitution suggestions
+      are visible. Projection hints should scaffold adapter work without forcing one universal customizer prop shape.
+    inherited_context_note: OrderItem and MenuItem can both satisfy ProductComposition, but the customizer usually starts
+      from a MenuItem and produces an OrderItem.
+  projection_hints:
+    recommended:
+    - ingredient_composable.parts
+    - ingredient_composable.ingredient_roles
+    - configurable.config_options
+    - dietary.dietary_tags
+    - substitutable.replacement_candidates
+    optional:
+    - role_preserving_substitutable.role_overlap_score
+    - dietary.allergen_contains
+    adapter_todos:
+    - Map removed ingredient state separately from static ingredient projections.
+    - Decide which substitution projections are displayed inline versus in a detail sheet.
+  generation:
+    scaffold_mode: adapter_todos
+    emit_semantic_metadata: true
+    emit_doc_comments: true
+    emit_adapter_todos: true
+    strict_projection_adapter: false
 - id: deli.build_your_own_customizer
   name: BuildYourOwnCustomizer
   status: template

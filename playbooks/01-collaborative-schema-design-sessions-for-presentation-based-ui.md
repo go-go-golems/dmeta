@@ -144,6 +144,17 @@ Authoring rules:
 - Multiple inheritance is allowed when it models a real semantic intersection, but parent order is meaningful because inherited arrays are merged in stable parent order.
 - Domain examples are validated against the effective inherited model, so required projections inherited from parent capabilities must be mapped.
 
+### Widget semantic context vs rigid widget generation
+
+Widget templates may reference archetypes and capabilities, but those references should usually act as semantic context rather than mandatory UI code generation. The scaffold should preserve inherited descriptions, projection hints, action context, and implementation notes for humans and LLMs. Generate strict projection adapters only when the template explicitly opts in and the projection contract is truly required for that widget surface.
+
+When reviewing a widget template, distinguish:
+
+- semantic context: what this widget is about;
+- projection hints: fields that may help an adapter or implementor;
+- hard requirements: fields the widget cannot function without;
+- documentation-only hints: annotations that help reasoning but should not become runtime obligations.
+
 ### Capability-level presentation vs archetype-level presentation
 
 A presentation belongs to a capability when it represents one reusable affordance:
