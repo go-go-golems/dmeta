@@ -1388,7 +1388,7 @@ The old generic widget renderer is still present in the repository for the legac
 
 **Inferred user intent:** Move from React planning/metadata-only rendering toward a usable target-specific scaffold command while preserving the new layer boundaries.
 
-**Commit (code):** pending at time of diary entry — React scaffold writer/rendering changes.
+**Commit (code):** ac86631f8786bdafb9105e725f248bdfb09947e1 — "DMETA-COMPILER-MDS: scaffold react target files"
 
 ### What I did
 
