@@ -269,3 +269,5 @@ Final validation gate:
 - [ ] `cd examples/street-deli-ordering/www/mobile-react && npm run build`
 - [ ] `cd examples/street-deli-ordering/www/mobile-react && npm run build-storybook`
 - [ ] `docmgr doctor --ticket DMETA-COMPILER-MDS --stale-after 30`
+
+- [x] Load singular `files.domain_example` entries in split core-model manifests.

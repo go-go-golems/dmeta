@@ -854,3 +854,137 @@ gofmt -w pkg/dmeta/interaction/model.go pkg/dmeta/interaction/load.go pkg/dmeta/
 go test ./pkg/dmeta/... ./cmd/dmeta -count=1
 go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table
 ```
+
+## Step 7: Add semantic-to-interaction elaboration
+
+This step connected the Semantic IR to the new Interaction IR. The code now loads a semantic package, resolves archetype/capability inheritance, builds fact sets for each domain type, applies the interaction elaboration rules, and emits modality-neutral action/representation obligations.
+
+A loader gap surfaced during this work: Street Deli declared its example with the singular `files.domain_example` key, but the split core-model loader only loaded the plural `files.examples` list. Fixing that made validation stricter and exposed stale abstract mappings in the Street Deli example, which were then updated to concrete archetypes/capabilities.
+
+### Prompt Context
+
+**User prompt (verbatim):** (same as Step 3)
+
+**Assistant interpretation:** Continue the compiler refactor by implementing the first actual elaboration pass from Semantic IR into Interaction IR.
+
+**Inferred user intent:** Prove that Actions and Representations are usable as a compiler layer before Web widget lowering begins.
+
+**Commit (code):** pending at time of diary entry — semantic-to-interaction elaboration changes.
+
+### What I did
+
+- Added `pkg/dmeta/interaction/elaborate.go` with:
+  - `DomainFacts`
+  - `Obligation`
+  - `ElaborateInteractions`
+  - `BuildDomainFacts`
+  - `SelectorMatches`
+- Added `pkg/dmeta/cmds/elaborate_interactions.go`.
+- Registered `elaborate-interactions` in `cmd/dmeta/main.go`.
+- Updated `pkg/dmeta/validator/model.go` and `pkg/dmeta/validator/load.go` so split core-model manifests load singular `files.domain_example` entries as well as plural `files.examples` entries.
+- Updated `examples/street-deli-ordering/core-model/street-deli-ordering.yaml` so loaded domain examples validate under the existing abstract/concrete rules:
+  - `MenuItem` now maps to concrete `MenuItem` and `ingredient_composable`.
+  - `OrderItem` now maps to concrete `OrderItem` and `ingredient_composable`.
+  - `SubstitutionRule` now maps to `IngredientSubstitutionRule` and `role_preserving_substitutable`.
+  - `OrderItem.configurable` now includes the required `config_options` projection.
+- Ran:
+
+```bash
+go test ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --output table
+go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table
+```
+
+### Why
+
+- The Interaction IR must be produced from semantic facts, not hand-associated with widgets.
+- Web lowering needs a clean input: domain types plus derived action/representation obligations.
+- Loading `files.domain_example` makes validation honest for existing example manifests.
+
+### What worked
+
+- Street Deli elaboration now emits expected obligations such as:
+  - `composition_summary`, `composition_breakdown`, `remove_part`, `add_part` for composable menu/order items;
+  - `substitution_candidate`, `substitution_price_delta`, `apply_substitution`, `reject_substitution`, `see_alternatives` for substitution rules;
+  - `state_indicator` and `filter_by_state` for stateful orders/stations/prep events;
+  - `dietary_summary` and `filter_by_dietary` for dietary-aware domain types.
+- `validate-ir` now passes even after loading the Street Deli domain example.
+- Existing instance planning still passes.
+
+### What didn't work
+
+- The first elaboration run produced no rows because the semantic loader had not loaded Street Deli's singular `files.domain_example` entry.
+- After fixing the loader, `validate-ir` failed as expected with stale abstract mappings:
+
+```text
+abstract_archetype_mapping: domain type "MenuItem" maps abstract archetype "Composition"
+abstract_capability_mapping: domain type "MenuItem" maps abstract capability "composable"
+abstract_archetype_mapping: domain type "SubstitutionRule" maps abstract archetype "Substitution"
+abstract_capability_mapping: domain type "SubstitutionRule" maps abstract capability "substitutable"
+abstract_archetype_mapping: domain type "OrderItem" maps abstract archetype "Composition"
+abstract_capability_mapping: domain type "OrderItem" maps abstract capability "composable"
+missing_required_projection_mapping: domain type "OrderItem" capability "configurable" is missing required projection "config_options"
+```
+
+- The fix was to update the Street Deli domain example to concrete descendants and to add the missing required projection mapping.
+
+### What I learned
+
+- The existing validation rules were correct, but part of the Street Deli example was not being loaded by the split package loader.
+- Once domain examples are loaded consistently, the abstract/concrete discipline applies cleanly to the Street Deli model.
+- Interaction elaboration can stay small at first: inherited archetype/capability facts plus rule selectors are enough to produce a useful obligation table.
+
+### What was tricky to build
+
+- Domain type facts need inherited ancestors, not only direct mappings. A `MenuItem` mapped to concrete `MenuItem` should still satisfy rules that select `Composition`; a concrete `ingredient_composable` should still satisfy rules that select abstract `composable`.
+- Capability facts also need inherited capabilities from archetype default capabilities. Otherwise a domain type that relies on archetype defaults would not elaborate correctly.
+- The loader fix changed validation coverage. That was intentional, but it meant the domain example had to be cleaned up immediately instead of hiding behind the old loader behavior.
+
+### What warrants a second pair of eyes
+
+- Review `BuildDomainFacts` to confirm it captures the desired inheritance semantics and default capability semantics.
+- Review the concrete replacements in `street-deli-ordering.yaml`; `MenuItem`, `OrderItem`, and `IngredientSubstitutionRule` are the intended concrete descendants, but the domain vocabulary may want more precise names later.
+- Review whether `elaborate-interactions` should eventually emit grouped obligations per domain type or a structured JSON document rather than only rows.
+
+### What should be done in the future
+
+- Add tests for `files.domain_example` loading.
+- Add tests for inherited selector matching.
+- Add a stable structured output type for elaboration results so Web lowering can consume it directly.
+- Validate semantic selectors in elaboration rules against known archetypes/capabilities/domain types.
+
+### Code review instructions
+
+Start with:
+
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/interaction/elaborate.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/elaborate_interactions.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/load.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/model.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/core-model/street-deli-ordering.yaml`
+
+Validate with:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+go test ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --output table
+```
+
+### Technical details
+
+The elaboration command output is intentionally still target-neutral. It emits rows with:
+
+- `example`
+- `domain_type`
+- `kind` (`action` or `representation`)
+- `id`
+- `source_rule`
+- `summary`
+
+It does not mention Web widgets, React components, CSS classes, Storybook stories, slots, surfaces, or visual states.

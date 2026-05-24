@@ -38,6 +38,13 @@ func main() {
 	}
 	addGlazedCommand(rootCmd, "validate-interactions", validateInteractions)
 
+	elaborateInteractions, err := dmetacmds.NewElaborateInteractionsCommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating elaborate-interactions command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "elaborate-interactions", elaborateInteractions)
+
 	planInstance, err := dmetacmds.NewPlanInstanceCommand()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error creating plan-instance command: %v\n", err)

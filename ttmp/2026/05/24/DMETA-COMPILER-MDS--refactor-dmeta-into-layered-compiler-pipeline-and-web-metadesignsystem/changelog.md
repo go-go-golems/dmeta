@@ -68,3 +68,15 @@ Added first Go Interaction IR loader/validator and validate-interactions command
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/interaction/model.go — Interaction IR Go model
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/interaction/validate.go — Interaction IR validator
 
+
+## 2026-05-24
+
+Added semantic-to-interaction elaboration command and fixed split core-model loading for singular domain examples. Street Deli now validates domain mappings and emits modality-neutral action/representation obligations.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/core-model/street-deli-ordering.yaml — Updated domain mappings to concrete archetypes/capabilities
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/elaborate_interactions.go — CLI command for interaction elaboration
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/interaction/elaborate.go — Semantic-to-interaction elaboration implementation
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/load.go — Split core-model loader now reads files.domain_example
+

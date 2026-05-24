@@ -50,7 +50,7 @@ domain_example:
     MenuItem:
       description: Composable food item on the menu (sandwich, bowl, platter, combo).
       archetypes:
-        - Composition
+        - MenuItem
         - ActionSpec
       capabilities:
         identifiable:
@@ -58,7 +58,7 @@ domain_example:
         labelable:
           label: item_name
           subtitle: description
-        composable:
+        ingredient_composable:
           parts: ingredients
           part_count: ingredient_count
           required_roles:
@@ -70,6 +70,7 @@ domain_example:
             - acidity
             - crunch
             - garnish
+          ingredient_roles: ingredient_roles
         configurable:
           config_options:
             - name: size
@@ -104,7 +105,7 @@ domain_example:
     SubstitutionRule:
       description: Declared replacement rule mapping a removed ingredient to ranked alternatives based on role, dietary, and flavor constraints.
       archetypes:
-        - Substitution
+        - IngredientSubstitutionRule
         - Relation
       capabilities:
         identifiable:
@@ -112,7 +113,7 @@ domain_example:
         labelable:
           label: rule_name
           subtitle: rule_description
-        substitutable:
+        role_preserving_substitutable:
           replaces: original_ingredient_id
           replacement_candidates: ranked_alternatives
           role_preservation: preserved_roles
@@ -121,6 +122,7 @@ domain_example:
           flavor_fit: flavor_compatibility
           price_delta_cents: price_change
           auto_suggest: is_auto_suggest
+          role_overlap_score: role_overlap_score
         relatable:
           relation_refs:
             - original_ingredient_id
@@ -151,7 +153,7 @@ domain_example:
       description: Line item within an order, referencing a MenuItem with applied customizations and substitutions.
       archetypes:
         - WorkItem
-        - Composition
+        - OrderItem
       capabilities:
         identifiable:
           id: order_item_id
@@ -160,11 +162,13 @@ domain_example:
           subtitle: config_summary
         stateful:
           state: prep_status
-        composable:
+        ingredient_composable:
           parts: current_ingredients
           part_count: ingredient_count
           required_roles: required_roles
+          ingredient_roles: ingredient_roles
         configurable:
+          config_options: available_options
           current_config: selected_options
         relatable:
           work_item_ref: order_id

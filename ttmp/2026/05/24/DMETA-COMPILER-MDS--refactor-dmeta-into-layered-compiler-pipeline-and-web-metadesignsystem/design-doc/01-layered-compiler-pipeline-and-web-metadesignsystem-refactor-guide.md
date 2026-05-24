@@ -14,7 +14,9 @@ Intent: long-term
 Owners: []
 RelatedFiles:
     - Path: examples/street-deli-ordering/core-model/street-deli-ordering.yaml
-      Note: Street Deli domain mapping used to elaborate interaction obligations
+      Note: |-
+        Street Deli domain mapping used to elaborate interaction obligations
+        Street Deli domain example now maps to concrete semantic archetypes/capabilities
     - Path: examples/street-deli-ordering/instantiations/street-deli-ordering.yaml
       Note: |-
         Concrete instance manifest used as the migration acceptance test
@@ -23,12 +25,16 @@ RelatedFiles:
       Note: Street Deli local Web MetaDesignSystem entrypoint created in Phase 1
     - Path: examples/street-deli-ordering/widget-templates/customization.yaml
       Note: Representative local web widget template to migrate from consumes.presentations to realizes.representations/actions
+    - Path: pkg/dmeta/cmds/elaborate_interactions.go
+      Note: CLI command exposing interaction elaboration
     - Path: pkg/dmeta/cmds/validate_interactions.go
       Note: CLI command exposing Interaction IR validation
     - Path: pkg/dmeta/generator/widgets/load.go
       Note: Current instance/catalog planner validation to extend for abstract/selectable/realizes rules
     - Path: pkg/dmeta/generator/widgets/render.go
       Note: Current React scaffold rendering and metadata sidecars to evolve into React target scaffold plans
+    - Path: pkg/dmeta/interaction/elaborate.go
+      Note: First semantic-to-interaction elaboration pass
     - Path: pkg/dmeta/interaction/model.go
       Note: Interaction IR Go model created for Actions
     - Path: pkg/dmeta/interaction/validate.go
@@ -53,6 +59,7 @@ LastUpdated: 2026-05-24T18:15:00-04:00
 WhatFor: 'Use when implementing the next DMETA architecture step: Actions/Representations, MetaDesignSystem schemas, web-style UI lowering, React scaffold tooling, and migration of Street Deli templates.'
 WhenToUse: Read before changing pkg/dmeta/validator, pkg/dmeta/generator/widgets, sources/dmeta-ir widget templates, or examples/street-deli-ordering instance manifests for the compiler-pipeline refactor.
 ---
+
 
 
 
