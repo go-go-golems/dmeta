@@ -37,6 +37,9 @@ func Generate(instance InstanceManifest, resolved []ResolvedTemplate, outDir str
 			GeneratedFile{Path: filepath.Join(base, name+".stories.tsx"), Content: []byte(renderStories(name, instance, rt))},
 			GeneratedFile{Path: filepath.Join(base, "index.ts"), Content: []byte(renderBarrel(name))},
 		)
+		if rt.Template.Generation.ShouldEmitAdapterTODOs() {
+			files = append(files, GeneratedFile{Path: filepath.Join(base, name+".adapter.todo.ts"), Content: []byte(renderAdapterTODO(name, rt))})
+		}
 		index.WriteString(fmt.Sprintf("export * from \"./%s\";\n", name))
 	}
 	files = append(files, GeneratedFile{Path: filepath.Join(outDir, "index.ts"), Content: index.Bytes()})
@@ -79,9 +82,13 @@ func renderTypes(name string, rt ResolvedTemplate) string {
 }
 
 func renderComponent(name string, rt ResolvedTemplate) string {
+	docComment := ""
+	if rt.Template.Generation.ShouldEmitDocComments() {
+		docComment = renderSemanticDocComment(name, rt) + "\n"
+	}
 	return fmt.Sprintf(`%simport type { %sProps } from "./%s.types";
 
-export function %s(props: %sProps) {
+%sexport function %s(props: %sProps) {
   return (
     <section data-dmeta-widget=%q data-dmeta-template=%q data-dmeta-variant=%q>
       <header>
@@ -94,7 +101,52 @@ export function %s(props: %sProps) {
 }
 
 export default %s;
-`, generatedHeader, name, name, name, name, rt.Template.ID, rt.Template.ID, rt.Selected.Variant, name, rt.Template.ID, name)
+`, generatedHeader, name, name, docComment, name, name, rt.Template.ID, rt.Template.ID, rt.Selected.Variant, name, rt.Template.ID, name)
+}
+
+func renderSemanticDocComment(name string, rt ResolvedTemplate) string {
+	var b strings.Builder
+	b.WriteString("/**\n")
+	b.WriteString(fmt.Sprintf(" * %s\n", name))
+	b.WriteString(" *\n")
+	b.WriteString(fmt.Sprintf(" * Reflection-first scaffold generated from `%s`.\n", rt.Template.ID))
+	if rt.Selected.Reason != "" {
+		b.WriteString(fmt.Sprintf(" * Selected because: %s\n", rt.Selected.Reason))
+	}
+	ctx := rt.Template.SemanticContext
+	if hasSemanticContext(ctx) {
+		b.WriteString(" *\n")
+		b.WriteString(" * Semantic context:\n")
+		for _, arch := range ctx.Archetypes {
+			b.WriteString(fmt.Sprintf(" * - Archetype: %s\n", arch))
+		}
+		for _, cap := range ctx.Capabilities {
+			b.WriteString(fmt.Sprintf(" * - Capability: %s\n", cap))
+		}
+		for _, pres := range ctx.Presentations {
+			b.WriteString(fmt.Sprintf(" * - Presentation: %s\n", pres))
+		}
+		if ctx.Intent != "" {
+			b.WriteString(" *\n")
+			b.WriteString(" * Intent:\n")
+			writeWrappedDocLines(&b, ctx.Intent)
+		}
+		if ctx.InheritedContextNote != "" {
+			b.WriteString(" *\n")
+			b.WriteString(" * Inherited context note:\n")
+			writeWrappedDocLines(&b, ctx.InheritedContextNote)
+		}
+	}
+	if hasProjectionHints(rt.Template.ProjectionHints) {
+		b.WriteString(" *\n")
+		b.WriteString(" * Projection hints are scaffold guidance, not rigid layout requirements unless strict mode is enabled.\n")
+		writeDocList(&b, "Required", rt.Template.ProjectionHints.Required)
+		writeDocList(&b, "Recommended", rt.Template.ProjectionHints.Recommended)
+		writeDocList(&b, "Optional", rt.Template.ProjectionHints.Optional)
+		writeDocList(&b, "Documentation-only", rt.Template.ProjectionHints.DocumentationOnly)
+	}
+	b.WriteString(" */")
+	return b.String()
 }
 
 func renderMetadata(name string, instance InstanceManifest, rt ResolvedTemplate) string {
@@ -107,6 +159,21 @@ func renderMetadata(name string, instance InstanceManifest, rt ResolvedTemplate)
 		"reason":      rt.Selected.Reason,
 		"category":    rt.Template.Template.Category,
 		"adaptations": rt.Selected.Adaptations,
+		"generation": map[string]any{
+			"scaffoldMode":            rt.Template.Generation.EffectiveScaffoldMode(),
+			"emitSemanticMetadata":    rt.Template.Generation.ShouldEmitSemanticMetadata(),
+			"emitDocComments":         rt.Template.Generation.ShouldEmitDocComments(),
+			"emitAdapterTODOs":        rt.Template.Generation.ShouldEmitAdapterTODOs(),
+			"strictProjectionAdapter": rt.Template.Generation.IsStrictProjectionAdapter(),
+		},
+	}
+	if rt.Template.Generation.ShouldEmitSemanticMetadata() {
+		if hasSemanticContext(rt.Template.SemanticContext) {
+			payload["semanticContext"] = semanticContextPayload(rt.Template.SemanticContext)
+		}
+		if hasProjectionHints(rt.Template.ProjectionHints) {
+			payload["projectionHints"] = projectionHintsPayload(rt.Template.ProjectionHints)
+		}
 	}
 	jsonPayload, _ := json.MarshalIndent(payload, "", "  ")
 	return fmt.Sprintf("%sexport const %sMetadata = %s as const;\n", generatedHeader, name, string(jsonPayload))
@@ -117,21 +184,91 @@ func renderStories(name string, instance InstanceManifest, rt ResolvedTemplate) 
 	if len(rt.Template.Stories) > 0 {
 		storyName = exportName(rt.Template.Stories[0])
 	}
+	description := storyDescription(rt)
 	return fmt.Sprintf(`%simport { %s } from "./%s";
 
 export default {
   title: %q,
   component: %s,
+  parameters: {
+    docs: {
+      description: {
+        component: %s,
+      },
+    },
+  },
 };
 
 export const %s = {
   args: {},
 };
-`, generatedHeader, name, name, instance.Name+"/"+name, name, storyName)
+`, generatedHeader, name, name, instance.Name+"/"+name, name, tsString(description), storyName)
+}
+
+func storyDescription(rt ResolvedTemplate) string {
+	parts := []string{fmt.Sprintf("Generated scaffold for `%s`.", rt.Template.ID)}
+	if hasSemanticContext(rt.Template.SemanticContext) {
+		ctx := rt.Template.SemanticContext
+		semantic := []string{}
+		semantic = append(semantic, ctx.Archetypes...)
+		semantic = append(semantic, ctx.Capabilities...)
+		semantic = append(semantic, ctx.Presentations...)
+		if len(semantic) > 0 {
+			parts = append(parts, "Semantic context: "+strings.Join(semantic, ", ")+".")
+		}
+	}
+	if hasProjectionHints(rt.Template.ProjectionHints) {
+		parts = append(parts, "Projection hints are scaffold guidance, not mandatory layout.")
+	}
+	return strings.Join(parts, " ")
 }
 
 func renderBarrel(name string) string {
 	return fmt.Sprintf("%sexport * from \"./%s\";\nexport * from \"./%s.types\";\nexport * from \"./%s.metadata\";\n", generatedHeader, name, name, name)
+}
+
+func renderAdapterTODO(name string, rt ResolvedTemplate) string {
+	var b strings.Builder
+	b.WriteString(generatedHeader)
+	b.WriteString("// This file is an implementation scaffold. Promote and edit intentionally.\n")
+	b.WriteString("// It is not exported from the component barrel to avoid accidental runtime imports.\n\n")
+	b.WriteString(fmt.Sprintf("import type { %sProps } from \"./%s.types\";\n\n", name, name))
+	b.WriteString("/**\n")
+	b.WriteString(fmt.Sprintf(" * TODO adapter for `%s`.\n", rt.Template.ID))
+	if hasSemanticContext(rt.Template.SemanticContext) {
+		b.WriteString(" *\n")
+		b.WriteString(" * Semantic context:\n")
+		writeDocList(&b, "Archetypes", rt.Template.SemanticContext.Archetypes)
+		writeDocList(&b, "Capabilities", rt.Template.SemanticContext.Capabilities)
+		writeDocList(&b, "Presentations", rt.Template.SemanticContext.Presentations)
+	}
+	if hasProjectionHints(rt.Template.ProjectionHints) {
+		b.WriteString(" *\n")
+		b.WriteString(" * Projection hints:\n")
+		writeDocList(&b, "Required", rt.Template.ProjectionHints.Required)
+		writeDocList(&b, "Recommended", rt.Template.ProjectionHints.Recommended)
+		writeDocList(&b, "Optional", rt.Template.ProjectionHints.Optional)
+		writeDocList(&b, "Documentation-only", rt.Template.ProjectionHints.DocumentationOnly)
+	}
+	b.WriteString(" */\n")
+	b.WriteString(fmt.Sprintf("export function mapDomainTo%sProps(input: unknown): %sProps {\n", name, name))
+	b.WriteString("  return {\n")
+	for _, hint := range rt.Template.ProjectionHints.Required {
+		b.WriteString(fmt.Sprintf("    // TODO: map required projection hint %s\n", hint))
+	}
+	for _, hint := range rt.Template.ProjectionHints.Recommended {
+		b.WriteString(fmt.Sprintf("    // TODO: consider mapping recommended projection hint %s\n", hint))
+	}
+	for _, hint := range rt.Template.ProjectionHints.Optional {
+		b.WriteString(fmt.Sprintf("    // TODO: optionally map projection hint %s when this variant needs it\n", hint))
+	}
+	for _, todo := range rt.Template.ProjectionHints.AdapterTODOs {
+		b.WriteString(fmt.Sprintf("    // TODO: %s\n", todo))
+	}
+	b.WriteString("    subject: input,\n")
+	b.WriteString("  } as unknown as " + name + "Props;\n")
+	b.WriteString("}\n")
+	return b.String()
 }
 
 func renderReadme(instance InstanceManifest, resolved []ResolvedTemplate) string {
@@ -148,6 +285,15 @@ func renderReadme(instance InstanceManifest, resolved []ResolvedTemplate) string
 			b.WriteString(fmt.Sprintf(": %s", rt.Selected.Reason))
 		}
 		b.WriteString("\n")
+		if hasSemanticContext(rt.Template.SemanticContext) {
+			b.WriteString(fmt.Sprintf("  - Semantic context: %s\n", semanticContextSummary(rt.Template.SemanticContext)))
+		}
+		if hasProjectionHints(rt.Template.ProjectionHints) {
+			b.WriteString(fmt.Sprintf("  - Projection hints: %s\n", projectionHintSummary(rt.Template.ProjectionHints)))
+		}
+		if rt.Template.Generation.ShouldEmitAdapterTODOs() {
+			b.WriteString(fmt.Sprintf("  - Adapter TODO scaffold: `%s.adapter.todo.ts`\n", componentName(rt)))
+		}
 	}
 	if len(instance.ExcludedTemplates) > 0 {
 		b.WriteString("\n## Explicitly excluded templates\n\n")
@@ -243,6 +389,98 @@ func exportName(s string) string {
 		return "Default"
 	}
 	return out
+}
+
+func hasSemanticContext(ctx validator.WidgetSemanticContext) bool {
+	return len(ctx.Archetypes) > 0 || len(ctx.Capabilities) > 0 || len(ctx.Presentations) > 0 || ctx.Intent != "" || ctx.InheritedContextNote != ""
+}
+
+func hasProjectionHints(hints validator.WidgetProjectionHints) bool {
+	return len(hints.Required) > 0 || len(hints.Recommended) > 0 || len(hints.Optional) > 0 || len(hints.DocumentationOnly) > 0 || len(hints.AdapterTODOs) > 0
+}
+
+func semanticContextPayload(ctx validator.WidgetSemanticContext) map[string]any {
+	return map[string]any{
+		"archetypes":           ctx.Archetypes,
+		"capabilities":         ctx.Capabilities,
+		"presentations":        ctx.Presentations,
+		"intent":               ctx.Intent,
+		"inheritedContextNote": ctx.InheritedContextNote,
+	}
+}
+
+func projectionHintsPayload(hints validator.WidgetProjectionHints) map[string]any {
+	return map[string]any{
+		"required":          hints.Required,
+		"recommended":       hints.Recommended,
+		"optional":          hints.Optional,
+		"documentationOnly": hints.DocumentationOnly,
+		"adapterTODOs":      hints.AdapterTODOs,
+	}
+}
+
+func semanticContextSummary(ctx validator.WidgetSemanticContext) string {
+	parts := []string{}
+	parts = append(parts, prefixedValues("archetypes", ctx.Archetypes)...)
+	parts = append(parts, prefixedValues("capabilities", ctx.Capabilities)...)
+	parts = append(parts, prefixedValues("presentations", ctx.Presentations)...)
+	if len(parts) == 0 && ctx.Intent != "" {
+		return "intent-only"
+	}
+	return strings.Join(parts, ", ")
+}
+
+func projectionHintSummary(hints validator.WidgetProjectionHints) string {
+	parts := []string{}
+	if len(hints.Required) > 0 {
+		parts = append(parts, fmt.Sprintf("%d required", len(hints.Required)))
+	}
+	if len(hints.Recommended) > 0 {
+		parts = append(parts, fmt.Sprintf("%d recommended", len(hints.Recommended)))
+	}
+	if len(hints.Optional) > 0 {
+		parts = append(parts, fmt.Sprintf("%d optional", len(hints.Optional)))
+	}
+	if len(hints.DocumentationOnly) > 0 {
+		parts = append(parts, fmt.Sprintf("%d documentation-only", len(hints.DocumentationOnly)))
+	}
+	if len(hints.AdapterTODOs) > 0 {
+		parts = append(parts, fmt.Sprintf("%d adapter TODOs", len(hints.AdapterTODOs)))
+	}
+	return strings.Join(parts, ", ")
+}
+
+func prefixedValues(prefix string, values []string) []string {
+	out := make([]string, 0, len(values))
+	for _, value := range values {
+		out = append(out, prefix+":"+value)
+	}
+	return out
+}
+
+func writeDocList(b *strings.Builder, label string, values []string) {
+	if len(values) == 0 {
+		return
+	}
+	b.WriteString(fmt.Sprintf(" * %s:\n", label))
+	for _, value := range values {
+		b.WriteString(fmt.Sprintf(" * - %s\n", value))
+	}
+}
+
+func writeWrappedDocLines(b *strings.Builder, text string) {
+	for _, line := range strings.Split(text, "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		b.WriteString(fmt.Sprintf(" * %s\n", line))
+	}
+}
+
+func tsString(s string) string {
+	b, _ := json.Marshal(s)
+	return string(b)
 }
 
 func sortedKeys[V any](m map[string]V) []string {
