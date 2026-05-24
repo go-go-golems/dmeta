@@ -10,77 +10,140 @@ Before writing any code, I read all the referenced documentation to build a thor
 
 ### Prompt Context
 
-**User prompt (verbatim):** "Read these playbooks/docs first: playbooks/02-dmeta-design-system-factory-runthrough-playbook.md, playbooks/01-collaborative-schema-design-sessions-for-presentation-based-ui.md, design-docs/07-generated-instance-widget-review-guide.md, and the ticket guide ttmp/2026/05/23/DMETA-WIDGET-REFLECTIVE-SCAFFOLDS--reflection-first-widget-scaffolds/design-doc/01-reflection-first-widget-scaffold-implementation-guide.md. Then migrate examples/street-deli-ordering/www/mobile to React by treating the static prototype as the UX reference and examples/street-deli-ordering/generated/widgets as semantic scaffolds to promote, not finished components. Use examples/street-deli-ordering/instantiations/street-deli-ordering.yaml to see the selected widgets, inspect each widget's .metadata.ts and .adapter.todo.ts for semantic context/projection hints, and update/add templates under examples/street-deli-ordering/widget-templates only if the chosen widgets do not fit. Validate with go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table and go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table. Create a new docmgr ticket for it, keep a diary as you work. Commit at appropriate intervals. Before starting: Create a detailed analysis / design / implementation guide that is for a new intern, explaining all the parts of the system needed to understand what it is, with prose paragraphs and bullet points and pseudocode and diagrams and api references and file references. It should be very clear and technical. Store in the ticket and then upload to remarkable."
+**User prompt (verbatim):** "Read these playbooks/docs first: playbooks/02-dmeta-design-system-factory-runthrough-playbook.md, playbooks/01-collaborative-schema-design-sessions-for-presentation-based-ui.md, design-docs/07-generated-instance-widget-review-guide.md, and the ticket guide ttmp/2026/05/23/DMETA-WIDGET-REFLECTIVE-SCAFFOLDS--reflection-first-widget-scaffolds/design-doc/01-reflection-first-widget-scaffold-implementation-guide.md. Then migrate examples/street-deli-ordering/www/mobile to React..."
 
 **Assistant interpretation:** Read all reference docs, understand the DMETA system, the Street Deli domain, the static prototype, the generated widget scaffolds, and the reflection-first philosophy. Then write an exhaustive intern-ready guide and create a docmgr ticket before beginning the React migration work.
 
-**Inferred user intent:** Have a comprehensive, self-contained technical document that a new team member can read to understand the entire system and start implementing React widgets, without needing to piece together information from dozens of scattered files.
+**Inferred user intent:** Have a comprehensive, self-contained technical document that a new team member can read to understand the entire system and start implementing React widgets.
 
 ### What I did
 
-- Read all 4 referenced documents (2 playbooks, 1 design-doc, 1 implementation guide)
-- Located the dmeta repo at `/home/manuel/code/wesen/go-go-golems/dmeta/`
-- Read the entire static prototype: `index.html` (130 lines), `styles.css` (700 lines), `app.js` (1117 lines)
-- Read the instance manifest `street-deli-ordering.yaml`
-- Read all generated widget scaffolds (metadata, types, adapter TODOs, tsx files)
-- Read all widget template YAML files (item-cards, menu-browsing, customization, substitutions, ordering, tracking)
-- Read the design-language IR (02-design-language.yaml)
-- Read the domain example mapping (core-model/street-deli-ordering.yaml)
-- Ran `validate-ir` and `plan-instance` — both pass cleanly with no errors
+- Read all 4 referenced documents
+- Read the entire static prototype (HTML, CSS, JS)
+- Read the instance manifest, generated widget scaffolds, widget template YAML, design-language IR, domain example
+- Ran `validate-ir` and `plan-instance` — both pass cleanly
 - Created docmgr ticket `DMETA-REACT-MIGRATION`
-- Created design doc `01-street-deli-react-migration-system-guide-and-implementation-plan.md` (65KB)
-- Created diary doc
-- Related 8 key files to the ticket
-
-### Why
-
-The system guide is the foundation for all subsequent work. Without it, an implementor would need to read ~15 separate files, understand Go codegen, YAML IR schemas, and the reflection-first philosophy before being able to write a single React component. The guide consolidates everything into one document with prose, tables, pseudocode, diagrams, and file references.
+- Wrote 65KB intern-ready system guide with 25 sections
+- Uploaded guide to reMarkable at `/ai/2026/05/23/DMETA-REACT-MIGRATION`
+- Created diary doc, related 8 key files
+- Committed (2216784)
 
 ### What worked
 
-- All four reference docs were well-structured and cross-referenced, making it straightforward to build a unified picture
-- The generated `.metadata.ts` files already contain resolved semantic context, which is very helpful for understanding why each widget was selected
-- Both `validate-ir` and `plan-instance` pass cleanly, confirming the IR is in good shape before migration
+- All four reference docs were well-structured and cross-referenced
+- The generated `.metadata.ts` files already contain resolved semantic context
+- reMarkable upload succeeded on first attempt
 
 ### What didn't work
 
-- Initially searched for files under the wrong directory (pi-agent-dashboard workspace vs dmeta repo) — resolved by finding the correct path
+- Initially searched for files under the wrong directory
 
 ### What I learned
 
-- The reflection-first philosophy is the key design decision: scaffolds are semantic guides, not rigid component specifications
-- The static prototype is extremely detailed and well-structured — it serves as an almost pixel-perfect UX reference
-- The substitution engine is the domain's core innovation and maps directly to `role_preserving_substitutable` capability projections
-- The design-language IR has hard lint rules (error severity) for touch targets, dietary visibility, allergen warnings, and keyboard focus — these are not optional
-
-### What was tricky to build
-
-- Mapping the 3-level presentation hierarchy (capability → archetype → domain) onto concrete React component props requires judgment: a `composition_card` is an archetype-level presentation, but the widget may choose to show only some of its recommended projections
-- The adapter TODO files are intentionally incomplete — they list what to think about but not the final mapping, which requires domain knowledge
+- The reflection-first philosophy is the key design decision
+- The substitution engine maps directly to `role_preserving_substitutable` capability
 
 ### What warrants a second pair of eyes
 
-- Whether the proposed state management (React context + useReducer) is sufficient or whether Zustand would be better for the customizer draft
-- Whether the widget prop shapes I proposed in the guide match the prototype's actual rendering behavior closely enough
-- Whether the file layout (promoted widgets in `www/mobile-react/src/widgets/`) is the right choice vs working in-place in `generated/widgets/`
+- Whether React context + useReducer is sufficient for customizer draft
+- Whether promoted widget prop shapes match prototype rendering behavior
 
 ### What should be done in the future
 
-- Next: Initialize the Vite + React + TypeScript project
-- Then: Extract design tokens from the static CSS
-- Then: Port menu data and substitution engine
-- Then: Implement widgets from atoms to organisms
-- Upload the design guide to reMarkable
+- Implement the React application
+- Add Storybook stories for each widget
+
+---
+
+## Step 2: Initialize React project and promote all 8 widgets
+
+Created the full React application with all 8 promoted widgets, state management, substitution engine, and design tokens.
+
+### Prompt Context
+
+**User prompt (verbatim):** (see Step 1)
+
+**Assistant interpretation:** After writing the guide, proceed with the actual React migration by implementing the full application.
+
+**Inferred user intent:** Produce a working React application that matches the static prototype's UX.
+
+**Commit (code):** efd2ccd — "DMETA-REACT-MIGRATION: initialize React app with all 8 promoted widgets"
+
+### What I did
+
+- Initialized Vite + React + TypeScript project at `www/mobile-react/`
+- Created design-tokens module (`tokens.ts`, `dataAttributes.ts`)
+- Ported all menu data (12 items), substitution rules (25+ ingredient rules), and config options from static prototype
+- Ported substitution engine (`resolveSubKey`, `getAutoSuggestCandidates`, `formatPrice`)
+- Implemented state management (`DeliContext`, `deliReducer` with 17 action types)
+- Promoted all 8 widgets:
+  - `StreetDeliRoleTag` — role tag pill with role color lookup
+  - `StreetDeliCompositionCard` — menu item card with name, price, description, ingredients, dietary badges, `data-dmeta-*` attributes
+  - `StreetDeliIngredientRow` — ingredient with remove/undo/substituted states, role tags, dietary badges
+  - `StreetDeliSubstitutionChip` — replacement suggestion card with original→replacement, roles, price delta
+  - `StreetDeliCompositionCustomizer` — full bottom-sheet customization with ingredient list, substitution zone, config selectors, dietary summary, allergen warning, add-to-order button
+  - `StreetDeliMenuBrowser` — header + category tabs + filtered card list
+  - `StreetDeliOrderCart` — cart items with substitutions/config, totals, place order
+  - `StreetDeliOrderTracker` — step indicator with auto-advancing timer
+- Created shared surfaces: `DietaryFilterBar` (sticky), `BottomSheet` (overlay primitive), `CartFab` (floating button)
+- Wired all screens in `App.tsx` with state-based routing
+- Full CSS module styling matching the static prototype design tokens
+- `npm run build` passes cleanly
+- `validate-ir` and `plan-instance` both pass
+
+### Why
+
+The static prototype is the UX reference. The generated scaffolds provide semantic context. The React app must match the prototype's visual behavior while using the scaffold's metadata for provenance and testing.
+
+### What worked
+
+- Vite project setup was fast and clean
+- CSS custom properties in `index.css` + CSS Modules per widget worked well
+- The substitution engine ported cleanly from JS to TypeScript
+- The reducer pattern maps well to the prototype's state object
+
+### What didn't work
+
+- Em-dash unicode characters (`—`) in JSDoc comments caused `tsc -b` to fail with `erasableSyntaxOnly` — fixed by replacing with `--`
+- `verbatimModuleSyntax` requires `import type` for type-only imports — had to fix several files
+- `noUnusedLocals`/`noUnusedParameters` caught several unused imports — had to clean up
+
+### What I learned
+
+- The Vite tsconfig.app.json has strict defaults (`erasableSyntaxOnly`, `verbatimModuleSyntax`, `noUnusedLocals`) that differ from a typical TS config — need to account for these
+- CSS Modules are a good fit for the DMETA design token system: each widget gets scoped styles that reference the `:root` CSS custom properties
+
+### What was tricky to build
+
+- The CompositionCustomizer is the most complex widget — it composes IngredientRow, SubstitutionChip, config selectors, dietary summary, allergen warning, and add-to-order button all in one surface
+- The substitution zone logic (show when ingredient removed, show top 2 auto-suggest candidates, "see all N options") requires careful state tracking
+
+### What warrants a second pair of eyes
+
+- The SubstitutionChip `onApply` callback passes the auto-suggest index which may not match the full candidate list index — this could be a bug when the "see all N options" flow is implemented
+- The tracker step advancement timer in `App.tsx` uses `useEffect` with `setTimeout` — should verify it doesn't accumulate timers if the component re-renders
+
+### What should be done in the future
+
+- Add Storybook stories for each widget
+- Implement the "See all N options" substitution detail sheet
+- Add visual comparison screenshots with the static prototype
+- Add unit tests for the substitution engine
+- Add integration tests for the full ordering flow
+- Verify all `data-dmeta-*` attributes render correctly
 
 ### Code review instructions
 
-- Start with the design guide at `ttmp/2026/05/23/DMETA-REACT-MIGRATION.../design/01-street-deli-react-migration-system-guide-and-implementation-plan.md`
-- Validate: `go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table` (should show no errors)
-- Validate: `go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table` (should show 8 selected, 6 excluded)
+- Start with `www/mobile-react/src/App.tsx` — the top-level screen router
+- Then `src/state/deliReducer.ts` — the core state logic
+- Then `src/engine/substitutionEngine.ts` — the replacement engine
+- Then `src/widgets/StreetDeliCompositionCustomizer/` — the most complex widget
+- Verify: `cd www/mobile-react && npm run build` (should succeed)
+- Verify: `cd ../.. && go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table` (no errors)
+- Verify: `cd ../.. && go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table` (8 selected, 6 excluded)
 
 ### Technical details
 
-- dmeta repo: `/home/manuel/code/wesen/go-go-golems/dmeta/`
-- Ticket path: `ttmp/2026/05/23/DMETA-REACT-MIGRATION--migrate-street-deli-mobile-prototype-to-react-using-reflection-first-widget-scaffolds/`
-- Design doc: `design/01-street-deli-react-migration-system-guide-and-implementation-plan.md` (65KB, ~1200 lines)
-- Related files: 8 key source files related to ticket index
+- React app: `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/www/mobile-react/`
+- 56 files created in commit efd2ccd
+- Build output: 231.91 KB JS + 14.99 KB CSS (gzipped: 69.93 KB + 3.63 KB)
