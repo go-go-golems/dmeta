@@ -36,3 +36,14 @@ Implemented reflection-first widget scaffold support: schema fields, validation,
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/model.go — Added semantic_context/projection_hints/generation schema
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/validate.go — Added reference and projection hint validation
 
+
+## 2026-05-23
+
+Added resolved inherited semantic reflection to widget scaffolds, including ancestors/effective projections/descriptions in metadata, doc comments, README output, and adapter TODOs (commit e2148a9).
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/generated/widgets/StreetDeliCompositionCard/StreetDeliCompositionCard.metadata.ts — Generated resolved semantic context example
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/load.go — Threads local/core package and resolved inheritance into template reflection
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/render.go — Emits resolvedSemanticContext and inherited docs
+

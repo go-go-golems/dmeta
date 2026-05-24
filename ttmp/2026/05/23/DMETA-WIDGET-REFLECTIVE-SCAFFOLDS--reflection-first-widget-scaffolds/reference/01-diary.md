@@ -379,3 +379,119 @@ go run ./cmd/dmeta scaffold-instance --instance ./examples/street-deli-ordering/
 - New validator test: `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/widget_reflection_test.go`
 - New generator test: `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/render_test.go`
 - Example generated adapter TODO: `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/generated/widgets/StreetDeliCompositionCard/StreetDeliCompositionCard.adapter.todo.ts`
+
+## Step 4: Add Resolved Inherited Semantic Reflection to Generated Widgets
+
+I implemented the follow-up improvement: generated widget scaffolds now include resolved inherited semantic documentation, not just the raw `semantic_context` ids from YAML. The generator threads the relevant core model through template resolution, calls the existing inheritance resolver, and emits `resolvedSemanticContext` in metadata plus inherited context lines in component doc comments and adapter TODO files.
+
+This keeps the reflection-first philosophy intact. The output still does not force a rigid prop shape, but it gives implementors the useful inherited context: ancestors, descriptions, effective capabilities, effective projection names, required projections, presentations, actions, and filters.
+
+### Prompt Context
+
+**User prompt (verbatim):**
+
+```text
+yes
+```
+
+**Assistant interpretation:** Implement the previously proposed next step: enrich widget scaffolds with resolved inherited semantic reflection metadata and documentation.
+
+**Inferred user intent:** The user wants generated widget scaffolds to become more useful for humans and LLMs by expanding raw semantic ids into inherited context.
+
+**Commit (code):** `e2148a9275897e736876ff6fce73c196b0700c7d` — "Add resolved semantic widget reflection"
+
+### What I did
+
+- Added `CoreModelRoot` to the instance manifest model so future instances can explicitly identify their semantic root.
+- Extended `TemplateCatalog` with package/resolved-core reflection fields.
+- Loaded the instance root package for reflection when possible, falling back to the global package.
+- Added `WidgetReflection` structures for resolved archetypes, capabilities, and presentations.
+- Built reflection data from `semantic_context`, falling back to `consumes` when `semantic_context` is omitted.
+- Included resolved data such as:
+  - archetype ancestors;
+  - archetype descriptions and long descriptions;
+  - effective default capabilities;
+  - effective recommended presentations;
+  - capability ancestors;
+  - effective projection names;
+  - required projection names;
+  - effective presentations/actions/filters;
+  - presentation descriptions, roles, and required fields.
+- Emitted `resolvedSemanticContext` in generated metadata.
+- Added inherited context summaries to generated `.tsx` doc comments.
+- Added inherited context summaries to generated `.adapter.todo.ts` files.
+- Added resolved context summaries to generated widget README output.
+- Updated generator tests and regenerated Street Deli widget scaffolds.
+
+### Why
+
+- Raw ids like `ingredient_composable` are useful but require readers to manually jump to YAML to understand inherited projections.
+- Generated scaffolds should give implementors and LLMs the inherited semantic context at the point of use.
+- This is a high-value improvement that does not make widget generation rigid.
+
+### What worked
+
+- Full tests passed:
+
+```bash
+go test ./... -count=1
+```
+
+- Base and Street Deli validation passed:
+
+```bash
+go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+```
+
+- Regenerated Street Deli scaffolds now contain resolved semantic context. For example, `StreetDeliCompositionCard.metadata.ts` includes `resolvedSemanticContext`, and the component doc comment shows:
+
+```text
+Archetype ProductComposition (ancestors: Archetype -> Composition)
+effective capabilities: identifiable, labelable, composable, inspectable, ingredient_composable, dietary
+Capability ingredient_composable (ancestors: Capability -> composable -> role_composable)
+effective projections: ingredient_roles, optional_roles, part_count, parts, required_roles, role_profile
+```
+
+### What didn't work
+
+- No command failed in this step.
+
+### What I learned
+
+- Using `instance_root` as the reflection package root makes Street Deli local semantic ids resolve correctly. The global package alone would not know local ids such as `ProductComposition`.
+- Fallback from `semantic_context` to `consumes` gives older templates useful reflection without requiring immediate YAML edits.
+
+### What was tricky to build
+
+- The tricky part was choosing the correct reflection root. Instance manifests may select global and local widget templates, but local templates can reference local archetypes/capabilities. Loading the instance root for reflection gives the generator the complete local semantic package.
+- Another subtle point is avoiding hard failure when reflection cannot be built. Validation is responsible for package correctness; scaffold reflection should enrich output when resolved context is available.
+
+### What warrants a second pair of eyes
+
+- Review whether `core_model_root` should be honored before `instance_root` or vice versa. The current implementation prefers `instance_root` and falls back to `core_model_root`/global behavior.
+- Review metadata size: long descriptions are now available in `resolvedSemanticContext`, which is useful but can make sidecars larger.
+- Review whether fallback from `semantic_context` to `consumes` is desirable for all templates.
+
+### What should be done in the future
+
+- Add a compact/verbose switch if metadata size becomes a problem.
+- Surface a short resolved semantic summary in `plan-instance` output.
+- Consider linking generated metadata back to source YAML line/file provenance.
+
+### Code review instructions
+
+- Start with `pkg/dmeta/generator/widgets/load.go` and review how reflection packages are loaded and how `buildWidgetReflection` works.
+- Then inspect `pkg/dmeta/generator/widgets/render.go` for `resolvedSemanticContext`, doc comments, and adapter TODO output.
+- Finally inspect generated Street Deli examples, especially:
+  - `examples/street-deli-ordering/generated/widgets/StreetDeliCompositionCard/StreetDeliCompositionCard.metadata.ts`
+  - `examples/street-deli-ordering/generated/widgets/StreetDeliCompositionCard/StreetDeliCompositionCard.tsx`
+  - `examples/street-deli-ordering/generated/widgets/StreetDeliCompositionCard/StreetDeliCompositionCard.adapter.todo.ts`
+
+### Technical details
+
+- Main commit: `e2148a9275897e736876ff6fce73c196b0700c7d`
+- Key files:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/model.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/load.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/render.go`
