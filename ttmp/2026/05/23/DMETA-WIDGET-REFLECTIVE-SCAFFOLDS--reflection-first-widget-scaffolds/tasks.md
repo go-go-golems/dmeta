@@ -12,3 +12,4 @@
 - [x] Phase 3: Emit reflective metadata, component doc comments, README context, and adapter TODO files
 - [x] Phase 4: Update global and Street Deli widget-template YAML examples
 - [x] Phase 5: Validate/test/scaffold, update diary/changelog, and commit implementation
+- [x] Phase 6: Enrich generated widget scaffolds with resolved inherited archetype/capability documentation
