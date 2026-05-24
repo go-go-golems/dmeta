@@ -1,0 +1,28 @@
+@font-face { font-family: 'Berkeley Mono'; src: url('/fonts/BerkeleyMono-Regular.woff2') format('woff2'); font-weight: 400; }
+@font-face { font-family: 'Berkeley Mono'; src: url('/fonts/BerkeleyMono-Bold.woff2') format('woff2'); font-weight: 700; }
+@font-face { font-family: 'Berkeley Mono'; src: url('/fonts/BerkeleyMono-Oblique.woff2') format('woff2'); font-style: oblique; }
+:root { --bg:#000; --fg:#ccc; --fg-dim:#666; --fg-bright:#fff; --highlight-bg:#333; --selection-bg:#444; --border:#333; --select:#ff4444; font-family:'Berkeley Mono', monospace; }
+body { margin:0; background:var(--bg); color:var(--fg); font:13px/1.5 'Berkeley Mono', monospace; }
+.clim-shell { min-height:100vh; background:var(--bg); color:var(--fg); display:grid; grid-template-rows:auto 1fr auto; }
+.header { display:flex; justify-content:space-between; padding:4px 8px; border-bottom:1px solid var(--border); }
+.brand, .mode, .section-label { color:var(--fg-bright); font-weight:700; }
+.main { padding:8px; }
+.view { display:grid; gap:12px; }
+.pres, .action { cursor:default; }
+.pres-block { display:block; padding:2px 0; }
+.selected { background:var(--selection-bg); color:var(--fg-bright); }
+.selectable { color:var(--select); }
+.select-disabled { color:var(--fg-dim); }
+.pres-type { color:var(--fg-bright); }
+.pres-id, .role, .cmd-hint { color:var(--fg-dim); }
+.cmd-bar { border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:4px 0; display:flex; gap:12px; flex-wrap:wrap; }
+.action { color:var(--fg-bright); text-decoration:underline dotted; }
+.pres-danger { color:var(--select); }
+.command-line { border-top:1px solid var(--border); padding:4px 8px; }
+.prompt { color:var(--fg-bright); margin-right:4px; }
+.cmd-cursor { color:var(--fg-bright); }
+.context-menu, .confirm-prompt { border:1px solid var(--border); padding:8px; background:#050505; }
+.tracker-step.done { color:var(--fg-dim); }
+.tracker-step.active { color:var(--fg-bright); background:var(--highlight-bg); }
+.tracker-step.pending { color:var(--fg); }
+.story-card { padding:8px; border:1px solid var(--border); }

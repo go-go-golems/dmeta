@@ -1,0 +1,560 @@
+{
+  "ProfileID": "street_deli_clim",
+  "ProfileName": "Hudson Street Deli CLIM Presentation System",
+  "StyleProfileID": "street_deli_clim_mono",
+  "ReactTargetID": "react_app",
+  "RuntimeStates": [
+    "normal",
+    "select",
+    "confirm"
+  ],
+  "Views": [
+    {
+      "ID": "cart",
+      "ModeLabel": "CART",
+      "SurfaceID": "view",
+      "SurfaceComponent": "ClimViewFrame",
+      "Summary": "Review order items, totals, substitutions, and submit/remove/edit actions.",
+      "Presentations": [
+        {
+          "ViewID": "cart",
+          "ModeLabel": "CART",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.composition_presentation",
+          "Component": "CompositionPresentationBlock",
+          "DomainTypes": [
+            "MenuItem",
+            "OrderItem",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.composition_for_editable_deli_item",
+            "pbui.substitution_actions_for_composition_parts"
+          ],
+          "SourceRepresentations": [
+            "composition_breakdown",
+            "composition_summary",
+            "substitution_candidate"
+          ],
+          "SourceActions": [
+            "add_part",
+            "apply_substitution",
+            "reject_substitution",
+            "remove_part",
+            "see_alternatives"
+          ],
+          "PresenterIntent": "Show cart items as order-item presentations with nested substitution and removal summaries, plus a total and order submission action.\n\nThis is the richest Street Deli binding. It turns one abstract composition presentation into a concrete family of CLIM text-object subpresentations: menu-item header, ingredient rows, removed/substituted states, substitution candidates, role labels, cart summaries, and order actions.\n\nProject a composed item and its parts into role-aware sections with local action presentations near each actionable part.",
+          "RecognizerIntent": "Cart-item clicks select an order item; PLACE-ORDER should use confirmation semantics once dangerous/backend action handling is wired.\n\nThis is the richest Street Deli binding. It turns one abstract composition presentation into a concrete family of CLIM text-object subpresentations: menu-item header, ingredient rows, removed/substituted states, substitution candidates, role labels, cart summaries, and order actions.\n\nBuild typed action requests for part removal, addition, substitution, configuration, and order/cart actions.",
+          "StyleProfileID": "street_deli_clim_mono"
+        },
+        {
+          "ViewID": "cart",
+          "ModeLabel": "CART",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.action_presentation",
+          "Component": "ActionPresentationInline",
+          "DomainTypes": [
+            "Customer",
+            "Ingredient",
+            "MenuItem",
+            "Order",
+            "OrderItem",
+            "PrepEvent",
+            "Station",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.action_choices_for_reference",
+            "pbui.substitution_actions_for_composition_parts"
+          ],
+          "SourceRepresentations": [
+            "compact_reference",
+            "substitution_candidate"
+          ],
+          "SourceActions": [
+            "apply_substitution",
+            "copy_reference",
+            "inspect_subject",
+            "reject_substitution",
+            "see_alternatives"
+          ],
+          "PresenterIntent": "Show cart items as order-item presentations with nested substitution and removal summaries, plus a total and order submission action.\n\nMake actions visible and selectable as interface objects, following the Readwise ActionPresentation pattern and prototype-clim action link style.\n\nDerive compatible action presentations from the selected object, action descriptors, and interaction state.",
+          "RecognizerIntent": "Cart-item clicks select an order item; PLACE-ORDER should use confirmation semantics once dangerous/backend action handling is wired.\n\nMake actions visible and selectable as interface objects, following the Readwise ActionPresentation pattern and prototype-clim action link style.\n\nInterpret choosing an action as an action request or transition into argument selection/confirmation.",
+          "StyleProfileID": "street_deli_clim_mono"
+        },
+        {
+          "ViewID": "cart",
+          "ModeLabel": "CART",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.presentation_ref",
+          "Component": "PresentationRefLine",
+          "DomainTypes": [
+            "Customer",
+            "Ingredient",
+            "MenuItem",
+            "Order",
+            "OrderItem",
+            "PrepEvent",
+            "Station",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.reference_for_compact_inspectable_subject"
+          ],
+          "SourceRepresentations": [
+            "compact_reference",
+            "inspection_entrypoint"
+          ],
+          "SourceActions": [
+            "inspect_subject"
+          ],
+          "PresenterIntent": "Show cart items as order-item presentations with nested substitution and removal summaries, plus a total and order submission action.\n\nPreserve the prototype pattern `\u003cType\u003e label #id role/meta` while using PBUI/Readwise PresentationRef data as the runtime model.\n\nProject identity, label, type, and capability hints into a compact selectable presentation model.",
+          "RecognizerIntent": "Cart-item clicks select an order item; PLACE-ORDER should use confirmation semantics once dangerous/backend action handling is wired.\n\nPreserve the prototype pattern `\u003cType\u003e label #id role/meta` while using PBUI/Readwise PresentationRef data as the runtime model.\n\nTreat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject.",
+          "StyleProfileID": "street_deli_clim_mono"
+        }
+      ]
+    },
+    {
+      "ID": "detail",
+      "ModeLabel": "DETAIL",
+      "SurfaceID": "view",
+      "SurfaceComponent": "ClimViewFrame",
+      "Summary": "Customize a selected menu item as a composition with ingredient, role, and substitution presentations.",
+      "Presentations": [
+        {
+          "ViewID": "detail",
+          "ModeLabel": "DETAIL",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.composition_presentation",
+          "Component": "CompositionPresentationBlock",
+          "DomainTypes": [
+            "MenuItem",
+            "OrderItem",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.composition_for_editable_deli_item",
+            "pbui.substitution_actions_for_composition_parts"
+          ],
+          "SourceRepresentations": [
+            "composition_breakdown",
+            "composition_summary",
+            "substitution_candidate"
+          ],
+          "SourceActions": [
+            "add_part",
+            "apply_substitution",
+            "reject_substitution",
+            "remove_part",
+            "see_alternatives"
+          ],
+          "PresenterIntent": "Show the selected menu item, its composition parts, removed/substituted ingredient states, role labels, auto-suggested substitutions, and add-to-order affordances.\n\nThis is the richest Street Deli binding. It turns one abstract composition presentation into a concrete family of CLIM text-object subpresentations: menu-item header, ingredient rows, removed/substituted states, substitution candidates, role labels, cart summaries, and order actions.\n\nProject a composed item and its parts into role-aware sections with local action presentations near each actionable part.",
+          "RecognizerIntent": "Ingredient clicks select a part; typed or clicked actions build requests such as remove ingredient, restore ingredient, show substitutions, apply substitution, or add to order.\n\nThis is the richest Street Deli binding. It turns one abstract composition presentation into a concrete family of CLIM text-object subpresentations: menu-item header, ingredient rows, removed/substituted states, substitution candidates, role labels, cart summaries, and order actions.\n\nBuild typed action requests for part removal, addition, substitution, configuration, and order/cart actions.",
+          "StyleProfileID": "street_deli_clim_mono"
+        },
+        {
+          "ViewID": "detail",
+          "ModeLabel": "DETAIL",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.action_presentation",
+          "Component": "ActionPresentationInline",
+          "DomainTypes": [
+            "Customer",
+            "Ingredient",
+            "MenuItem",
+            "Order",
+            "OrderItem",
+            "PrepEvent",
+            "Station",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.action_choices_for_reference",
+            "pbui.substitution_actions_for_composition_parts"
+          ],
+          "SourceRepresentations": [
+            "compact_reference",
+            "substitution_candidate"
+          ],
+          "SourceActions": [
+            "apply_substitution",
+            "copy_reference",
+            "inspect_subject",
+            "reject_substitution",
+            "see_alternatives"
+          ],
+          "PresenterIntent": "Show the selected menu item, its composition parts, removed/substituted ingredient states, role labels, auto-suggested substitutions, and add-to-order affordances.\n\nMake actions visible and selectable as interface objects, following the Readwise ActionPresentation pattern and prototype-clim action link style.\n\nDerive compatible action presentations from the selected object, action descriptors, and interaction state.",
+          "RecognizerIntent": "Ingredient clicks select a part; typed or clicked actions build requests such as remove ingredient, restore ingredient, show substitutions, apply substitution, or add to order.\n\nMake actions visible and selectable as interface objects, following the Readwise ActionPresentation pattern and prototype-clim action link style.\n\nInterpret choosing an action as an action request or transition into argument selection/confirmation.",
+          "StyleProfileID": "street_deli_clim_mono"
+        },
+        {
+          "ViewID": "detail",
+          "ModeLabel": "DETAIL",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.presentation_ref",
+          "Component": "PresentationRefLine",
+          "DomainTypes": [
+            "Customer",
+            "Ingredient",
+            "MenuItem",
+            "Order",
+            "OrderItem",
+            "PrepEvent",
+            "Station",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.reference_for_compact_inspectable_subject"
+          ],
+          "SourceRepresentations": [
+            "compact_reference",
+            "inspection_entrypoint"
+          ],
+          "SourceActions": [
+            "inspect_subject"
+          ],
+          "PresenterIntent": "Show the selected menu item, its composition parts, removed/substituted ingredient states, role labels, auto-suggested substitutions, and add-to-order affordances.\n\nPreserve the prototype pattern `\u003cType\u003e label #id role/meta` while using PBUI/Readwise PresentationRef data as the runtime model.\n\nProject identity, label, type, and capability hints into a compact selectable presentation model.",
+          "RecognizerIntent": "Ingredient clicks select a part; typed or clicked actions build requests such as remove ingredient, restore ingredient, show substitutions, apply substitution, or add to order.\n\nPreserve the prototype pattern `\u003cType\u003e label #id role/meta` while using PBUI/Readwise PresentationRef data as the runtime model.\n\nTreat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject.",
+          "StyleProfileID": "street_deli_clim_mono"
+        }
+      ]
+    },
+    {
+      "ID": "help",
+      "ModeLabel": "HELP",
+      "SurfaceID": "view",
+      "SurfaceComponent": "ClimViewFrame",
+      "Summary": "Present action registry, presentation vocabulary, and keyboard grammar as documentation.",
+      "Presentations": [
+        {
+          "ViewID": "help",
+          "ModeLabel": "HELP",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.action_presentation",
+          "Component": "ActionPresentationInline",
+          "DomainTypes": [
+            "Customer",
+            "Ingredient",
+            "MenuItem",
+            "Order",
+            "OrderItem",
+            "PrepEvent",
+            "Station",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.action_choices_for_reference",
+            "pbui.substitution_actions_for_composition_parts"
+          ],
+          "SourceRepresentations": [
+            "compact_reference",
+            "substitution_candidate"
+          ],
+          "SourceActions": [
+            "apply_substitution",
+            "copy_reference",
+            "inspect_subject",
+            "reject_substitution",
+            "see_alternatives"
+          ],
+          "PresenterIntent": "Render actions, argument types, presentation types, and keyboard rules as readable CLIM presentations so the interface can describe itself.\n\nMake actions visible and selectable as interface objects, following the Readwise ActionPresentation pattern and prototype-clim action link style.\n\nDerive compatible action presentations from the selected object, action descriptors, and interaction state.",
+          "RecognizerIntent": "Help presentations are mostly read-only; action links such as MENU should navigate without requiring object selection.\n\nMake actions visible and selectable as interface objects, following the Readwise ActionPresentation pattern and prototype-clim action link style.\n\nInterpret choosing an action as an action request or transition into argument selection/confirmation.",
+          "StyleProfileID": "street_deli_clim_mono"
+        },
+        {
+          "ViewID": "help",
+          "ModeLabel": "HELP",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.inspector_panel",
+          "Component": "InspectorPanelBlock",
+          "DomainTypes": [
+            "Customer",
+            "Ingredient",
+            "MenuItem",
+            "Order",
+            "OrderItem",
+            "PrepEvent",
+            "Station",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.inspector_for_inspectable_subject"
+          ],
+          "SourceRepresentations": [
+            "inspection_entrypoint"
+          ],
+          "SourceActions": [
+            "inspect_subject"
+          ],
+          "PresenterIntent": "Render actions, argument types, presentation types, and keyboard rules as readable CLIM presentations so the interface can describe itself.\n\nPresent metadata about selected objects, object types, projections, compatible actions, and provenance. This binding supports both DESCRIBE style results and future richer inspector surfaces.\n\nGather object facts, type descriptors, and available actions into a readable inspection structure.",
+          "RecognizerIntent": "Help presentations are mostly read-only; action links such as MENU should navigate without requiring object selection.\n\nPresent metadata about selected objects, object types, projections, compatible actions, and provenance. This binding supports both DESCRIBE style results and future richer inspector surfaces.\n\nDelegate nested action and object reference interactions back into typed action requests.",
+          "StyleProfileID": "street_deli_clim_mono"
+        }
+      ]
+    },
+    {
+      "ID": "menu",
+      "ModeLabel": "MENU",
+      "SurfaceID": "view",
+      "SurfaceComponent": "ClimViewFrame",
+      "Summary": "Browse menu items grouped by category as compact selectable presentation references.",
+      "Presentations": [
+        {
+          "ViewID": "menu",
+          "ModeLabel": "MENU",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.presentation_ref",
+          "Component": "PresentationRefLine",
+          "DomainTypes": [
+            "Customer",
+            "Ingredient",
+            "MenuItem",
+            "Order",
+            "OrderItem",
+            "PrepEvent",
+            "Station",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.reference_for_compact_inspectable_subject"
+          ],
+          "SourceRepresentations": [
+            "compact_reference",
+            "inspection_entrypoint"
+          ],
+          "SourceActions": [
+            "inspect_subject"
+          ],
+          "PresenterIntent": "Show menu items as `\u003cMenuItem\u003e` presentation lines grouped by category, including price, stable id, dietary tags, and ingredient summaries.\n\nPreserve the prototype pattern `\u003cType\u003e label #id role/meta` while using PBUI/Readwise PresentationRef data as the runtime model.\n\nProject identity, label, type, and capability hints into a compact selectable presentation model.",
+          "RecognizerIntent": "Clicking a menu-item presentation selects it and exposes compatible actions. Typing an action such as CUSTOMIZE should enter select mode and make compatible menu items visually selectable.\n\nPreserve the prototype pattern `\u003cType\u003e label #id role/meta` while using PBUI/Readwise PresentationRef data as the runtime model.\n\nTreat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject.",
+          "StyleProfileID": "street_deli_clim_mono"
+        },
+        {
+          "ViewID": "menu",
+          "ModeLabel": "MENU",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.action_chooser",
+          "Component": "ActionHintBar",
+          "DomainTypes": [
+            "Customer",
+            "Ingredient",
+            "MenuItem",
+            "Order",
+            "OrderItem",
+            "PrepEvent",
+            "Station",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.action_choices_for_reference"
+          ],
+          "SourceRepresentations": [
+            "compact_reference"
+          ],
+          "SourceActions": [
+            "copy_reference",
+            "inspect_subject"
+          ],
+          "PresenterIntent": "Show menu items as `\u003cMenuItem\u003e` presentation lines grouped by category, including price, stable id, dietary tags, and ingredient summaries.\n\nPreserve the CLIM rhythm where selecting a presentation exposes compatible actions nearby. In prototype-clim this is the lower per-view command bar; in Readwise this is a hint bar containing Action presentations.\n\nDerive compatible action presentations from the selected object, action descriptors, and interaction state.",
+          "RecognizerIntent": "Clicking a menu-item presentation selects it and exposes compatible actions. Typing an action such as CUSTOMIZE should enter select mode and make compatible menu items visually selectable.\n\nPreserve the CLIM rhythm where selecting a presentation exposes compatible actions nearby. In prototype-clim this is the lower per-view command bar; in Readwise this is a hint bar containing Action presentations.\n\nInterpret choosing an action as an action request or transition into argument selection/confirmation.",
+          "StyleProfileID": "street_deli_clim_mono"
+        },
+        {
+          "ViewID": "menu",
+          "ModeLabel": "MENU",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.action_presentation",
+          "Component": "ActionPresentationInline",
+          "DomainTypes": [
+            "Customer",
+            "Ingredient",
+            "MenuItem",
+            "Order",
+            "OrderItem",
+            "PrepEvent",
+            "Station",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.action_choices_for_reference",
+            "pbui.substitution_actions_for_composition_parts"
+          ],
+          "SourceRepresentations": [
+            "compact_reference",
+            "substitution_candidate"
+          ],
+          "SourceActions": [
+            "apply_substitution",
+            "copy_reference",
+            "inspect_subject",
+            "reject_substitution",
+            "see_alternatives"
+          ],
+          "PresenterIntent": "Show menu items as `\u003cMenuItem\u003e` presentation lines grouped by category, including price, stable id, dietary tags, and ingredient summaries.\n\nMake actions visible and selectable as interface objects, following the Readwise ActionPresentation pattern and prototype-clim action link style.\n\nDerive compatible action presentations from the selected object, action descriptors, and interaction state.",
+          "RecognizerIntent": "Clicking a menu-item presentation selects it and exposes compatible actions. Typing an action such as CUSTOMIZE should enter select mode and make compatible menu items visually selectable.\n\nMake actions visible and selectable as interface objects, following the Readwise ActionPresentation pattern and prototype-clim action link style.\n\nInterpret choosing an action as an action request or transition into argument selection/confirmation.",
+          "StyleProfileID": "street_deli_clim_mono"
+        }
+      ]
+    },
+    {
+      "ID": "substitution",
+      "ModeLabel": "SUBSTITUTION",
+      "SurfaceID": "view",
+      "SurfaceComponent": "ClimViewFrame",
+      "Summary": "Present substitution candidates as action-bearing replacement presentations.",
+      "Presentations": [
+        {
+          "ViewID": "substitution",
+          "ModeLabel": "SUBSTITUTION",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.action_presentation",
+          "Component": "ActionPresentationInline",
+          "DomainTypes": [
+            "Customer",
+            "Ingredient",
+            "MenuItem",
+            "Order",
+            "OrderItem",
+            "PrepEvent",
+            "Station",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.action_choices_for_reference",
+            "pbui.substitution_actions_for_composition_parts"
+          ],
+          "SourceRepresentations": [
+            "compact_reference",
+            "substitution_candidate"
+          ],
+          "SourceActions": [
+            "apply_substitution",
+            "copy_reference",
+            "inspect_subject",
+            "reject_substitution",
+            "see_alternatives"
+          ],
+          "PresenterIntent": "Show replacement candidates with role preservation, dietary compatibility, price delta, auto-suggest status, reasoning, and allergen warnings.\n\nMake actions visible and selectable as interface objects, following the Readwise ActionPresentation pattern and prototype-clim action link style.\n\nDerive compatible action presentations from the selected object, action descriptors, and interaction state.",
+          "RecognizerIntent": "Selecting a candidate and invoking APPLY should build an action request carrying composition, original part, and replacement candidate references.\n\nMake actions visible and selectable as interface objects, following the Readwise ActionPresentation pattern and prototype-clim action link style.\n\nInterpret choosing an action as an action request or transition into argument selection/confirmation.",
+          "StyleProfileID": "street_deli_clim_mono"
+        },
+        {
+          "ViewID": "substitution",
+          "ModeLabel": "SUBSTITUTION",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.composition_presentation",
+          "Component": "CompositionPresentationBlock",
+          "DomainTypes": [
+            "MenuItem",
+            "OrderItem",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.composition_for_editable_deli_item",
+            "pbui.substitution_actions_for_composition_parts"
+          ],
+          "SourceRepresentations": [
+            "composition_breakdown",
+            "composition_summary",
+            "substitution_candidate"
+          ],
+          "SourceActions": [
+            "add_part",
+            "apply_substitution",
+            "reject_substitution",
+            "remove_part",
+            "see_alternatives"
+          ],
+          "PresenterIntent": "Show replacement candidates with role preservation, dietary compatibility, price delta, auto-suggest status, reasoning, and allergen warnings.\n\nThis is the richest Street Deli binding. It turns one abstract composition presentation into a concrete family of CLIM text-object subpresentations: menu-item header, ingredient rows, removed/substituted states, substitution candidates, role labels, cart summaries, and order actions.\n\nProject a composed item and its parts into role-aware sections with local action presentations near each actionable part.",
+          "RecognizerIntent": "Selecting a candidate and invoking APPLY should build an action request carrying composition, original part, and replacement candidate references.\n\nThis is the richest Street Deli binding. It turns one abstract composition presentation into a concrete family of CLIM text-object subpresentations: menu-item header, ingredient rows, removed/substituted states, substitution candidates, role labels, cart summaries, and order actions.\n\nBuild typed action requests for part removal, addition, substitution, configuration, and order/cart actions.",
+          "StyleProfileID": "street_deli_clim_mono"
+        }
+      ]
+    },
+    {
+      "ID": "tracker",
+      "ModeLabel": "TRACKER",
+      "SurfaceID": "view",
+      "SurfaceComponent": "ClimViewFrame",
+      "Summary": "Track order lifecycle progress as stateful temporal presentations.",
+      "Presentations": [
+        {
+          "ViewID": "tracker",
+          "ModeLabel": "TRACKER",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.lifecycle_status",
+          "Component": "LifecycleStatusBlock",
+          "DomainTypes": [
+            "MenuItem",
+            "Order",
+            "OrderItem",
+            "PrepEvent",
+            "Station"
+          ],
+          "SourceRules": [
+            "pbui.lifecycle_for_order_progress"
+          ],
+          "SourceRepresentations": [
+            "state_indicator"
+          ],
+          "SourceActions": [
+            "inspect_subject"
+          ],
+          "PresenterIntent": "Show order number, lifecycle phases, active/done/pending state, and pickup status in the same monochrome CLIM presentation grammar.\n\nPreserve the prototype tracker view's ordered Received/Preparing/Ready/Picked Up progression while allowing PBUI lifecycle metadata to drive the view.\n\nConvert stateful and temporal facts into ordered lifecycle display data.",
+          "RecognizerIntent": "Tracker actions should remain navigation/inspection oriented unless an Interaction IR action explicitly marks a mutation.\n\nPreserve the prototype tracker view's ordered Received/Preparing/Ready/Picked Up progression while allowing PBUI lifecycle metadata to drive the view.\n\nTreat lifecycle controls as navigation or inspection unless an explicit mutating action is selected.",
+          "StyleProfileID": "street_deli_clim_mono"
+        },
+        {
+          "ViewID": "tracker",
+          "ModeLabel": "TRACKER",
+          "SurfaceID": "view",
+          "SurfaceComponent": "ClimViewFrame",
+          "PresentationTypeID": "pbui.action_presentation",
+          "Component": "ActionPresentationInline",
+          "DomainTypes": [
+            "Customer",
+            "Ingredient",
+            "MenuItem",
+            "Order",
+            "OrderItem",
+            "PrepEvent",
+            "Station",
+            "SubstitutionRule"
+          ],
+          "SourceRules": [
+            "pbui.action_choices_for_reference",
+            "pbui.substitution_actions_for_composition_parts"
+          ],
+          "SourceRepresentations": [
+            "compact_reference",
+            "substitution_candidate"
+          ],
+          "SourceActions": [
+            "apply_substitution",
+            "copy_reference",
+            "inspect_subject",
+            "reject_substitution",
+            "see_alternatives"
+          ],
+          "PresenterIntent": "Show order number, lifecycle phases, active/done/pending state, and pickup status in the same monochrome CLIM presentation grammar.\n\nMake actions visible and selectable as interface objects, following the Readwise ActionPresentation pattern and prototype-clim action link style.\n\nDerive compatible action presentations from the selected object, action descriptors, and interaction state.",
+          "RecognizerIntent": "Tracker actions should remain navigation/inspection oriented unless an Interaction IR action explicitly marks a mutation.\n\nMake actions visible and selectable as interface objects, following the Readwise ActionPresentation pattern and prototype-clim action link style.\n\nInterpret choosing an action as an action request or transition into argument selection/confirmation.",
+          "StyleProfileID": "street_deli_clim_mono"
+        }
+      ]
+    }
+  ]
+}

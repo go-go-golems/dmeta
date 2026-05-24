@@ -1,0 +1,1 @@
+export const presentationTypeIds = ["pbui.composition_presentation", "pbui.action_presentation", "pbui.presentation_ref", "pbui.inspector_panel", "pbui.action_chooser", "pbui.lifecycle_status"] as const;
