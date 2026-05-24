@@ -73,6 +73,13 @@ func main() {
 	}
 	addGlazedCommand(rootCmd, "lower-pbui", lowerPBUI)
 
+	instantiatePBUI, err := dmetacmds.NewInstantiatePBUICommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating instantiate-pbui command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "instantiate-pbui", instantiatePBUI)
+
 	planPBUIReact, err := dmetacmds.NewPlanPBUIReactCommand()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error creating plan-pbui-react command: %v\n", err)
