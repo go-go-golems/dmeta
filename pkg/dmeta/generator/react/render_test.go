@@ -41,7 +41,7 @@ func TestRenderMetadataSidecarIncludesWebAndReactProvenance(t *testing.T) {
 		t.Fatalf("metadata sidecar is not valid JSON: %v\n%s", err, string(content))
 	}
 
-	assertEqual(t, payload["generatedBy"], "dmeta plan-scaffold --target react")
+	assertEqual(t, payload["generatedBy"], "dmeta scaffold-react")
 	assertEqual(t, payload["metaDesignSystem"], "web")
 	assertEqual(t, payload["codegenTarget"], "react")
 	assertEqual(t, payload["componentName"], "StreetDeliCompositionCard")

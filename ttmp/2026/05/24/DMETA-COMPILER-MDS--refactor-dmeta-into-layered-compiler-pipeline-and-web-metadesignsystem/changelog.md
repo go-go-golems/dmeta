@@ -115,3 +115,15 @@ Added React metadata sidecar rendering and a focused provenance test. The render
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render.go — React metadata sidecar renderer
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render_test.go — Metadata sidecar provenance test
 
+
+## 2026-05-24
+
+Added scaffold-react writer and full React target renderers. The new command renders component, types, metadata, stories, CSS module, barrel, adapter TODO, README, and package index files from Web obligations with dry-run/force/metadata-only modes.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go — Register scaffold-react command
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_react.go — scaffold-react CLI command
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render.go — React target renderer for components
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/write.go — React target write/dry-run support
+
