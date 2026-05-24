@@ -59,6 +59,13 @@ func main() {
 	}
 	addGlazedCommand(rootCmd, "validate-pbui", validatePBUI)
 
+	validatePBUIProfile, err := dmetacmds.NewValidatePBUIProfileCommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating validate-pbui-profile command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "validate-pbui-profile", validatePBUIProfile)
+
 	lowerPBUI, err := dmetacmds.NewLowerPBUICommand()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error creating lower-pbui command: %v\n", err)
