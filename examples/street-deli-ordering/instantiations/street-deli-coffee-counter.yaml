@@ -18,11 +18,17 @@ meta_design_systems:
       - ../meta-design-systems/web/widgets/ordering.yaml
       - ../meta-design-systems/web/widgets/availability.yaml
       - ../meta-design-systems/web/widgets/tracking.yaml
+  pbui:
+    root: ../../../sources/dmeta-ir/meta-design-systems/pbui
 targets:
   react:
     target_file: ../../../sources/dmeta-ir/meta-design-systems/web/targets/react.yaml
     output_dir: ../generated/coffee-counter-react
     package_name: street-deli-coffee-counter-react
+  pbui_react:
+    target_file: ../../../sources/dmeta-ir/meta-design-systems/pbui/targets/react.yaml
+    output_dir: ../generated/pbui-react
+    package_name: dmeta-pbui-react
 selected_templates:
 - template: deli.menu_browser
   as: CoffeeCounterMenuBrowser

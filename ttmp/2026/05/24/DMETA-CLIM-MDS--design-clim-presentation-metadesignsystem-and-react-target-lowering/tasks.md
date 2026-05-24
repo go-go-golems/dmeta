@@ -156,7 +156,7 @@ Goal: render a small but coherent target scaffold that demonstrates the thesis-a
 Validation gate:
 
 - [x] Scaffold command dry-run succeeds.
-- [ ] Rendered files compile or pass TypeScript syntax checks if a package is emitted. (Deferred until the generated PBUI output is wrapped as a buildable package in the Street Deli dogfooding phase.)
+- [x] Rendered files compile or pass TypeScript syntax checks if a package is emitted. (Validated through the Street Deli generated PBUI package.)
 
 ## Phase 6: Add a focused example and golden tests
 
@@ -181,11 +181,11 @@ Validation gate:
 
 Goal: use Street Deli as the concrete end-to-end proving ground for the new PBUI/CLIM MetaDesignSystem. The existing promoted Street Deli React app remains maintained code, but we should also generate/rescaffold a PBUI/CLIM-flavored target from DMETA and rebuild it to verify that the new design system is not just schema-valid but usable.
 
-- [ ] Decide the Street Deli PBUI output location, keeping it separate from the existing promoted Web/React app and existing Web React scaffold output.
+- [x] Decide the Street Deli PBUI output location, keeping it separate from the existing promoted Web/React app and existing Web React scaffold output.
   - Candidate: `examples/street-deli-ordering/generated/pbui-react/`.
   - Candidate: `examples/street-deli-ordering/www/mobile-clim-react/` if it becomes a runnable promoted experiment.
-- [ ] Add or extend the Street Deli instance manifest so it can opt into the PBUI/CLIM React target without reintroducing generic widget generation.
-- [ ] Add Street Deli PBUI lowering coverage for the important domain flows:
+- [x] Add or extend the Street Deli instance manifest so it can opt into the PBUI/CLIM React target without reintroducing generic widget generation.
+- [x] Add Street Deli PBUI lowering coverage for the important domain flows:
   - menu item compact/object presentation;
   - menu item action choices;
   - composition/card presentation;
@@ -194,21 +194,21 @@ Goal: use Street Deli as the concrete end-to-end proving ground for the new PBUI
   - cart/order summary presentation;
   - order lifecycle/status presentation;
   - inspector/details presentation.
-- [ ] Ensure generated PBUI metadata sidecars explain, in natural language, which Semantic IR facts and Interaction IR obligations caused each presentation/component to exist.
-- [ ] Regenerate/rescaffold the Street Deli PBUI React target from the new PBUI MetaDesignSystem.
-- [ ] Compare generated PBUI React artifacts against the existing promoted Street Deli mobile React widgets to identify missing presenter/recognizer concepts.
-- [ ] If a runnable Street Deli CLIM/PBUI app is created, wire it into a separate package so it can be built without disturbing `www/mobile-react/`.
-- [ ] Rebuild the generated or promoted Street Deli PBUI React target.
-- [ ] Add Storybook or documentation examples for generated PBUI presentation widgets where practical.
-- [ ] Record any gaps as follow-up schema tasks rather than patching around them in the target.
+- [x] Ensure generated PBUI metadata sidecars explain, in natural language, which Semantic IR facts and Interaction IR obligations caused each presentation/component to exist.
+- [x] Regenerate/rescaffold the Street Deli PBUI React target from the new PBUI MetaDesignSystem.
+- [x] Compare generated PBUI React artifacts against the existing promoted Street Deli mobile React widgets to identify missing presenter/recognizer concepts.
+- [x] Wire the generated Street Deli CLIM/PBUI output as a separate buildable package without disturbing `www/mobile-react/`.
+- [x] Rebuild the generated or promoted Street Deli PBUI React target.
+- [x] Add Storybook or documentation examples for generated PBUI presentation widgets where practical.
+- [x] Record any gaps as follow-up schema tasks rather than patching around them in the target.
 
 Validation gate:
 
-- [ ] `go run ./cmd/dmeta lower-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table`
-- [ ] PBUI React scaffold command dry-run emits Street Deli files.
-- [ ] PBUI React scaffold command writes files to the chosen Street Deli output path.
-- [ ] If generated under a buildable package: run the relevant `npm run build` command.
-- [ ] Existing promoted app still builds: `cd examples/street-deli-ordering/www/mobile-react && npm run build`.
+- [x] `go run ./cmd/dmeta lower-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table`
+- [x] PBUI React scaffold command dry-run emits Street Deli files.
+- [x] PBUI React scaffold command writes files to the chosen Street Deli output path.
+- [x] If generated under a buildable package: run the relevant `npm run build` command.
+- [x] Existing promoted app still builds: `cd examples/street-deli-ordering/www/mobile-react && npm run build`.
 
 ## Phase 8: Documentation, reMarkable refresh, and handoff
 

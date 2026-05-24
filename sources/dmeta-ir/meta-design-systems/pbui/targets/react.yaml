@@ -24,6 +24,8 @@ defaults:
   metadata_sidecars: true
   dry_run_first: true
 file_kinds:
+  - package_json
+  - tsconfig
   - object_type_registry
   - action_descriptor_registry
   - presentation_type_registry

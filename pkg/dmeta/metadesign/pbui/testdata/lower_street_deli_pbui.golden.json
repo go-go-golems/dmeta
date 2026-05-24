@@ -2,6 +2,36 @@
   {
     "example_id": "street_deli_ordering",
     "domain_type_id": "Customer",
+    "presentation_type_id": "pbui.action_chooser",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Customer",
+    "presentation_type_id": "pbui.action_presentation",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Customer",
     "presentation_type_id": "pbui.inspector_panel",
     "source_rule_id": "pbui.inspector_for_inspectable_subject",
     "representations": [
@@ -31,6 +61,36 @@
   {
     "example_id": "street_deli_ordering",
     "domain_type_id": "Ingredient",
+    "presentation_type_id": "pbui.action_chooser",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Ingredient",
+    "presentation_type_id": "pbui.action_presentation",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Ingredient",
     "presentation_type_id": "pbui.inspector_panel",
     "source_rule_id": "pbui.inspector_for_inspectable_subject",
     "representations": [
@@ -60,6 +120,36 @@
   {
     "example_id": "street_deli_ordering",
     "domain_type_id": "MenuItem",
+    "presentation_type_id": "pbui.action_chooser",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "MenuItem",
+    "presentation_type_id": "pbui.action_presentation",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "MenuItem",
     "presentation_type_id": "pbui.composition_presentation",
     "source_rule_id": "pbui.composition_for_editable_deli_item",
     "representations": [
@@ -119,6 +209,36 @@
   {
     "example_id": "street_deli_ordering",
     "domain_type_id": "Order",
+    "presentation_type_id": "pbui.action_chooser",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Order",
+    "presentation_type_id": "pbui.action_presentation",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Order",
     "presentation_type_id": "pbui.inspector_panel",
     "source_rule_id": "pbui.inspector_for_inspectable_subject",
     "representations": [
@@ -158,6 +278,36 @@
     ],
     "presenter_intent": "Project identity, label, type, and capability hints into a compact selectable presentation model.",
     "recognizer_intent": "Treat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "OrderItem",
+    "presentation_type_id": "pbui.action_chooser",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "OrderItem",
+    "presentation_type_id": "pbui.action_presentation",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
   },
   {
     "example_id": "street_deli_ordering",
@@ -221,6 +371,36 @@
   {
     "example_id": "street_deli_ordering",
     "domain_type_id": "PrepEvent",
+    "presentation_type_id": "pbui.action_chooser",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "PrepEvent",
+    "presentation_type_id": "pbui.action_presentation",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "PrepEvent",
     "presentation_type_id": "pbui.inspector_panel",
     "source_rule_id": "pbui.inspector_for_inspectable_subject",
     "representations": [
@@ -264,6 +444,36 @@
   {
     "example_id": "street_deli_ordering",
     "domain_type_id": "Station",
+    "presentation_type_id": "pbui.action_chooser",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Station",
+    "presentation_type_id": "pbui.action_presentation",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Station",
     "presentation_type_id": "pbui.inspector_panel",
     "source_rule_id": "pbui.inspector_for_inspectable_subject",
     "representations": [
@@ -303,6 +513,36 @@
     ],
     "presenter_intent": "Project identity, label, type, and capability hints into a compact selectable presentation model.",
     "recognizer_intent": "Treat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "SubstitutionRule",
+    "presentation_type_id": "pbui.action_chooser",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "SubstitutionRule",
+    "presentation_type_id": "pbui.action_presentation",
+    "source_rule_id": "pbui.action_choices_for_reference",
+    "representations": [
+      "compact_reference"
+    ],
+    "actions": [
+      "copy_reference",
+      "inspect_subject"
+    ],
+    "presenter_intent": "Derive compatible action presentations from the selected object, action descriptors, and interaction state.",
+    "recognizer_intent": "Interpret choosing an action as an action request or transition into argument selection/confirmation."
   },
   {
     "example_id": "street_deli_ordering",
