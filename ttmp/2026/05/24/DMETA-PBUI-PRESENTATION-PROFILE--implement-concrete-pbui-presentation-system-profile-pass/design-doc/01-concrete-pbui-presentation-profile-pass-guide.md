@@ -40,10 +40,16 @@ RelatedFiles:
       Note: Street Deli CLIM interaction grammar and view rendering reference
     - Path: examples/street-deli-ordering/prototype-clim/styles.css
       Note: Street Deli CLIM visual style and class grammar reference
+    - Path: examples/street-deli-ordering/www/clim-react/.storybook/main.ts
+      Note: Generated Storybook configuration for the concrete app
+    - Path: examples/street-deli-ordering/www/clim-react/src/components/storybook/ClimStoryShell.tsx
+      Note: Generated CLIM Storybook harness
     - Path: pkg/dmeta/cmds/instantiate_pbui.go
       Note: Phase 3 instantiate-pbui CLI implementation
     - Path: pkg/dmeta/cmds/plan_pbui_react_app.go
       Note: Phase 4 plan-pbui-react-app CLI implementation
+    - Path: pkg/dmeta/cmds/scaffold_pbui_react_app.go
+      Note: Implements Storybook-first scaffold command described in addendum
     - Path: pkg/dmeta/cmds/validate_pbui_profile.go
       Note: Phase 2 validate-pbui-profile CLI implementation
     - Path: pkg/dmeta/metadesign/pbui/profile/instantiate.go
@@ -70,6 +76,7 @@ LastUpdated: 2026-05-24T17:55:00-04:00
 WhatFor: Use this guide to implement the missing pass that turns abstract PBUI presentation obligations into a concrete CLIM-like graphical presentation system, using Street Deli prototype-clim as the visual reference and Readwise Viewer as the runtime architecture reference.
 WhenToUse: Read before implementing PBUI presentation-system profile schemas, validators, instantiation passes, or a real Street Deli clim-react app.
 ---
+
 
 
 
@@ -1255,3 +1262,189 @@ Do not start by generating React. Start by modeling the concrete presentation sy
 If you find yourself writing a CSS class directly in `ClimShell.tsx`, ask whether that class belongs in `style-profile.yaml`. If you find yourself hardcoding a view name in a generator, ask whether it belongs in `view-models.yaml`. If you find yourself mapping `pbui.action_presentation` to a component by convention, ask whether it belongs in `presentation-bindings.yaml`.
 
 The purpose of this pass is to make the graphical and interaction design explicit. Once that exists, React is only one target that realizes it.
+
+## Addendum: Storybook-first concrete React app scaffolding
+
+The concrete PBUI React app target should scaffold Storybook as a first-class output, not as a manual follow-up. The reason is simple: the profile pass is about presentation systems. A presentation system needs a review surface where engineers can inspect every renderer, state, and view without driving the full application runtime.
+
+For Street Deli, Storybook is the review bench for the CLIM visual grammar:
+
+- normal, selected, selectable, and disabled presentation states;
+- command bar and command-line surfaces;
+- action presentations, including dangerous/confirmation-oriented actions;
+- lifecycle tracker states;
+- concrete view-level compositions for menu, detail, substitution, cart, help, and tracker;
+- shell modes such as `MENU`, `DETAIL`, select mode, and confirm mode.
+
+### Scaffold layout
+
+The scaffolded app should live at:
+
+```text
+examples/street-deli-ordering/www/clim-react/
+```
+
+It should include both app files and Storybook files:
+
+```text
+www/clim-react/
+  package.json
+  tsconfig.json
+  vite.config.ts
+  index.html
+  .storybook/
+    main.ts
+    preview.tsx
+    preview.css
+  fonts/
+    BerkeleyMono-Regular.woff2
+    BerkeleyMono-Bold.woff2
+    BerkeleyMono-Oblique.woff2
+  src/
+    main.tsx
+    App.tsx
+    clim/
+      types.ts
+      store.ts
+      actions.ts
+      commands.ts
+      selectors.ts
+      runtime.ts
+    generated/
+      pbuiRegistries.ts
+      concretePresentationPlan.metadata.json
+    fixtures/
+      presentationFixtures.ts
+    styles/
+      clim.css
+    components/
+      storybook/
+        ClimStoryShell.tsx
+      shell/
+        ClimShell.tsx
+        ClimShell.stories.tsx
+        ClimHeader.tsx
+        ClimHeader.stories.tsx
+        ClimMain.tsx
+        ClimMain.stories.tsx
+      command/
+        ClimCommandBar.tsx
+        ClimCommandBar.stories.tsx
+        ClimCommandLine.tsx
+        ClimCommandLine.stories.tsx
+        ActionHintBar.tsx
+        ActionHintBar.stories.tsx
+        ClimContextMenu.tsx
+        ClimContextMenu.stories.tsx
+        ClimConfirmPrompt.tsx
+        ClimConfirmPrompt.stories.tsx
+      presentations/
+        PresentationRefLine.tsx
+        PresentationRefLine.stories.tsx
+        ActionPresentationInline.tsx
+        ActionPresentationInline.stories.tsx
+        CompositionPresentationBlock.tsx
+        CompositionPresentationBlock.stories.tsx
+        InspectorPanelBlock.tsx
+        InspectorPanelBlock.stories.tsx
+        LifecycleStatusBlock.tsx
+        LifecycleStatusBlock.stories.tsx
+      views/
+        MenuView.tsx
+        MenuView.stories.tsx
+        DetailView.tsx
+        DetailView.stories.tsx
+        SubstitutionView.tsx
+        SubstitutionView.stories.tsx
+        CartView.tsx
+        CartView.stories.tsx
+        HelpView.tsx
+        HelpView.stories.tsx
+        TrackerView.tsx
+        TrackerView.stories.tsx
+```
+
+### Target metadata
+
+`examples/street-deli-ordering/meta-design-systems/pbui/targets/react-app.yaml` should include explicit Storybook file kinds. The important new kinds are:
+
+```yaml
+file_kinds:
+  - storybook_main
+  - storybook_preview
+  - storybook_preview_css
+  - storybook_story_shell
+  - storybook_fixtures
+  - shell_story
+  - command_line_story
+  - command_bar_story
+  - context_menu_story
+  - confirm_prompt_story
+  - presentation_story
+  - action_presentation_story
+  - view_story
+```
+
+These should be planned by `dmeta plan-pbui-react-app` and written by `dmeta scaffold-pbui-react-app`. They belong to the concrete React app target because Storybook stories are not abstract PBUI concepts; they are review artifacts for a specific rendered target.
+
+### Story shell
+
+Stories should not duplicate shell markup. The scaffold should generate a `ClimStoryShell` helper:
+
+```tsx
+export function ClimStoryShell({ mode = 'normal', modeLabel = 'MENU', children }) {
+  return (
+    <div className="clim-shell" data-mode={mode}>
+      <header className="header">
+        <div className="brand">HUDSON STREET DELI</div>
+        <div className="mode">{modeLabel}</div>
+      </header>
+      <main className="main">{children}</main>
+      <footer className="command-line">...</footer>
+    </div>
+  );
+}
+```
+
+Every component story should render inside this shell so the CLIM typography, black background, command-line footer, and mode labels are always visible.
+
+### Fixtures
+
+Storybook should use deterministic local fixtures rather than live runtime state. The scaffold should generate `src/fixtures/presentationFixtures.ts` with examples such as:
+
+- `menuItemPresentation`;
+- `ingredientPresentation`;
+- `removeIngredientAction`;
+- `placeOrderAction`;
+- `trackerSteps`.
+
+Later, richer fixtures can be generated from object descriptors, action descriptors, and the concrete presentation plan. The first pass only needs readable fixtures that make every component visible in Storybook.
+
+### Commands and validation
+
+The intended workflow is:
+
+```bash
+go run ./cmd/dmeta plan-pbui-react-app \
+  --root ./examples/street-deli-ordering \
+  --interactions-root ./sources/dmeta-ir \
+  --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui \
+  --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui \
+  --output-dir ./examples/street-deli-ordering/www/clim-react \
+  --output table
+
+go run ./cmd/dmeta scaffold-pbui-react-app \
+  --root ./examples/street-deli-ordering \
+  --interactions-root ./sources/dmeta-ir \
+  --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui \
+  --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui \
+  --output-dir ./examples/street-deli-ordering/www/clim-react \
+  --output table
+
+cd examples/street-deli-ordering/www/clim-react
+npm install --no-audit --no-fund
+npm run build
+npm run build-storybook
+```
+
+Validation is not complete until both the app and Storybook build. The generated app should also keep `node_modules/`, `dist/`, and `storybook-static/` out of Git.

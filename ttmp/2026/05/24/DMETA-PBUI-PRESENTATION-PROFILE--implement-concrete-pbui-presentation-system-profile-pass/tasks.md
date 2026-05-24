@@ -78,23 +78,39 @@ Validation gate:
 
 - [x] Planning command emits stable table/YAML output for the Street Deli CLIM React app.
 
+
+## Phase 4.5: Storybook-first app scaffold planning
+
+Goal: make Storybook stories a first-class part of the concrete React app target before writing the real app.
+
+- [x] Add guide section explaining Storybook-first app scaffolding.
+- [x] Add Storybook file kinds to `examples/street-deli-ordering/meta-design-systems/pbui/targets/react-app.yaml`.
+- [x] Plan `.storybook/main.ts`, `.storybook/preview.tsx`, and `.storybook/preview.css`.
+- [x] Plan `ClimStoryShell` and deterministic fixture files.
+- [x] Plan stories for shell, command, presentation, action-presentation, and view components.
+
+Validation gate:
+
+- [x] `go run ./cmd/dmeta plan-pbui-react-app --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output-dir ./examples/street-deli-ordering/www/clim-react --output table`
+
 ## Phase 5: Scaffold or promote `www/clim-react`
 
 Goal: create the actual React CLIM app that visually follows `prototype-clim` and architecturally follows Readwise.
 
-- [ ] Create `examples/street-deli-ordering/www/clim-react/`.
-- [ ] Port Berkeley Mono fonts.
-- [ ] Port `prototype-clim` CSS into tokenized React app CSS.
-- [ ] Implement CLIM runtime state machine.
-- [ ] Implement presentation selection, select mode, confirm mode, command buffer, command history, context menu, and action result line.
-- [ ] Implement menu/detail/substitution/cart/help/tracker views.
-- [ ] Consume generated PBUI registries/metadata.
-- [ ] Add Storybook or screenshot review if practical.
+- [x] Create `examples/street-deli-ordering/www/clim-react/`.
+- [x] Port Berkeley Mono fonts.
+- [x] Port `prototype-clim` CSS into tokenized React app CSS.
+- [x] Scaffold CLIM runtime state machine placeholder modules.
+- [x] Scaffold presentation selection/select-mode/confirm-mode/command/context-menu surfaces as buildable placeholders.
+- [x] Scaffold menu/detail/substitution/cart/help/tracker views.
+- [x] Scaffold generated PBUI registries/metadata.
+- [x] Add Storybook stories and fixtures for shell, command, presentation, and view components.
 
 Validation gate:
 
-- [ ] `cd examples/street-deli-ordering/www/clim-react && npm run build`
-- [ ] Existing app still builds: `cd examples/street-deli-ordering/www/mobile-react && npm run build`
+- [x] `cd examples/street-deli-ordering/www/clim-react && npm run build`
+- [x] Existing app still builds: `cd examples/street-deli-ordering/www/mobile-react && npm run build`
+- [x] `cd examples/street-deli-ordering/www/clim-react && npm run build-storybook`
 
 ## Phase 6: Visual and interaction parity review
 

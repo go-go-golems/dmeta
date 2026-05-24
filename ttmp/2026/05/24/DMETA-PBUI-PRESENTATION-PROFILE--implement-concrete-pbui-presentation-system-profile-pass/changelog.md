@@ -64,3 +64,14 @@ Implemented Phase 4 by adding React CLIM app planning and the plan-pbui-react-ap
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/plan_pbui_react_app.go — Exposes concrete React CLIM app planning as dmeta plan-pbui-react-app
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/react_app_plan.go — Plans app shell
 
+
+## 2026-05-24
+
+Added Storybook-first scaffold guidance, implemented scaffold-pbui-react-app, and generated a buildable Street Deli www/clim-react app with Storybook stories (commit 454db4f1023b06477f57c5d8b99ddde05bf396f5).
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/www/clim-react/package.json — Generated app package with build and Storybook scripts
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/www/clim-react/src/components/storybook/ClimStoryShell.tsx — Storybook harness
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_pbui_react_app.go — New scaffold command
+
