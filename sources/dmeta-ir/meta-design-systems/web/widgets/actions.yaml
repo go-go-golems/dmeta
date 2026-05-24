@@ -1,7 +1,7 @@
 schema_version: 0
-artifact_type: dmeta_widget_templates
+artifact_type: dmeta_web_widget_templates
 category: actions
-summary: DMETA actions widget templates.
+summary: DMETA actions Web widget templates.
 long_summary: Templates in this file are selectable/adaptable actions starting points for concrete DMETA instances.
 templates:
 - id: dmeta.action_palette

@@ -1,7 +1,7 @@
 schema_version: 0
-artifact_type: dmeta_widget_templates
+artifact_type: dmeta_web_widget_templates
 category: streams
-summary: DMETA streams widget templates.
+summary: DMETA streams Web widget templates.
 long_summary: Templates in this file are selectable/adaptable streams starting points for concrete DMETA instances.
 templates:
 - id: dmeta.record_stream

@@ -22,22 +22,27 @@
 
 Goal: stop treating widgets as universal DMETA concepts. Move web/visual widget templates under a Web MetaDesignSystem package and delete the old top-level widget-template layout.
 
-- [ ] Create `sources/dmeta-ir/meta-design-systems/web/` as the canonical Web MetaDesignSystem root.
-- [ ] Create `sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml`.
-- [ ] Create `sources/dmeta-ir/meta-design-systems/web/widgets/`.
-- [ ] Move all files from `sources/dmeta-ir/widget-templates/` into `sources/dmeta-ir/meta-design-systems/web/widgets/`.
-- [ ] Delete the old `sources/dmeta-ir/widget-templates/` directory after the move.
-- [ ] Replace `sources/dmeta-ir/03-widgets.yaml` with a Web MetaDesignSystem entrypoint or remove it if the root index no longer needs a widget package.
-- [ ] Update `sources/dmeta-ir/00-index.yaml` or equivalent package index to point at `meta-design-systems/web/meta-design-system.yaml` instead of top-level widgets.
+- [x] Create `sources/dmeta-ir/meta-design-systems/web/` as the canonical Web MetaDesignSystem root.
+- [x] Create `sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml`.
+- [x] Create `sources/dmeta-ir/meta-design-systems/web/widgets/`.
+- [x] Move all files from `sources/dmeta-ir/widget-templates/` into `sources/dmeta-ir/meta-design-systems/web/widgets/`.
+- [x] Delete the old `sources/dmeta-ir/widget-templates/` directory after the move.
+- [x] Replace `sources/dmeta-ir/03-widgets.yaml` with a Web MetaDesignSystem entrypoint or remove it if the root index no longer needs a widget package.
+- [x] Update `sources/dmeta-ir/00-index.yaml` or equivalent package index to point at `meta-design-systems/web/meta-design-system.yaml` instead of top-level widgets.
+- [x] Run `validate-ir`, `plan-instance`, and `scaffold-instance --dry-run` after the path cutover.
+- [x] Update loaders/validators to read `meta-design-systems/web/meta-design-system.yaml` and `dmeta_web_widget_templates` files.
+- [x] Update Street Deli instance manifests to reference local Web widget template files.
+- [x] Update `examples/street-deli-ordering/00-index.yaml` to point at the local Web MetaDesignSystem.
+- [x] Move local Street Deli files from `examples/street-deli-ordering/widget-templates/` into `examples/street-deli-ordering/meta-design-systems/web/widgets/`.
 - [ ] Rename top-level docs/labels from “widget template package” to “Web MetaDesignSystem widget templates”.
 - [ ] Decide canonical id prefix: use `web.*` for generic web widgets and `deli.web.*` for Street Deli web widgets.
 - [ ] Update global template ids if needed to use the new prefix.
 - [ ] Remove any plan for compatibility aliases or wrapper loaders.
-- [ ] Update design docs to state the hard-cut rule: old paths are invalid after this phase.
+- [x] Update design docs to state the hard-cut rule: old paths are invalid after this phase.
 
 Validation gate:
 
-- [ ] `rg "sources/dmeta-ir/widget-templates|widget-template package|compatibility alias|legacy widget" sources examples pkg ttmp/2026/05/24/DMETA-COMPILER-MDS*` returns no unintended references.
+- [x] `rg "sources/dmeta-ir/widget-templates|widget-template package|compatibility alias|legacy widget" sources examples pkg ttmp/2026/05/24/DMETA-COMPILER-MDS*` returns no unintended references.
 
 ## Phase 2: Define the top-level compiler source packages
 

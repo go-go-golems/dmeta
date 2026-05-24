@@ -1,22 +1,22 @@
 schema_version: 0
-artifact_type: dmeta_widget_templates
-category: availability
-summary: Availability, specials, sold-out, and schedule templates.
-long_summary: Street Deli local availability templates. These are selectable menu-ordering templates; concrete instantiations
+artifact_type: dmeta_web_widget_templates
+category: tracking
+summary: Preparation and pickup-tracking templates.
+long_summary: Street Deli local tracking templates. These are selectable menu-ordering templates; concrete instantiations
   choose only the families they need.
 templates:
-- id: deli.availability_badge
-  name: AvailabilityBadge
+- id: deli.order_tracker
+  name: OrderTracker
   status: template
   classification:
-    level: atom
-    role: availability_badge
+    level: organism
+    role: prep_tracking
   intent:
-    purpose: Render availability state such as available, sold out, limited, breakfast only, or unavailable until time.
+    purpose: Render order preparation status, timeline events, pickup instructions, and related order references.
     adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
       parse raw source YAML or own trusted side effects.
   template:
-    category: availability
+    category: tracking
     selection: optional
     maturity: draft
     default_importance: common
@@ -49,48 +49,240 @@ templates:
         required: false
         description: Instance-specific adaptation for story examples.
     common_variants:
-    - available
-    - sold_out
-    - limited
-    - scheduled
+    - compact_status
+    - timeline
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    archetypes:
+    - WorkItem
+    - TimelineSpan
+    - Event
+    presentations:
+    - prep_status_indicator
+    - timeline_marker
+    - dense_row
+    capabilities:
+    - stateful
+    - temporal
+    - relatable
+  contract:
+    props:
+      OrderTrackerProps:
+        fields:
+          order:
+            type: OrderTrackingViewModel
+            required: true
+    action_slots:
+      onInspectOrder:
+        accepts: PresentationRef
+      onOpenEvent:
+        accepts: PresentationRef
+  stories:
+  - received
+  - in_prep
+  - ready_for_pickup
+  outputs:
+    component: src/street-deli/widgets/OrderTracker/OrderTracker.tsx
+    types: src/street-deli/widgets/OrderTracker/OrderTracker.types.ts
+    metadata: src/street-deli/widgets/OrderTracker/OrderTracker.metadata.ts
+    stories: src/street-deli/widgets/OrderTracker/OrderTracker.stories.tsx
+    barrel: src/street-deli/widgets/OrderTracker/index.ts
+  semantic_context:
+    archetypes:
+    - Order
+    - WorkItem
+    - TimelineSpan
+    capabilities:
+    - stateful
+    - temporal
+    - relatable
+    presentations:
+    - prep_status_indicator
+    - timeline_marker
+    - dense_row
+    intent: Render order preparation progress using work-item state and timeline semantics. Inheritance helps explain why
+      Order and PrepTask can share tracking presentations while still using different layouts.
+    inherited_context_note: Order extends WorkItem and TimelineSpan; PrepTask extends WorkItem and can appear as a station-level
+      child in tracking views.
+  projection_hints:
+    recommended:
+    - stateful.state
+    - temporal.start_time
+    - temporal.end_time
+    optional:
+    - temporal.duration_ms
+    - relatable.actor_ref
+    - relatable.work_item_ref
+    adapter_todos:
+    - Decide whether tracker steps are derived from order state, prep tasks, or both.
+  generation:
+    scaffold_mode: adapter_todos
+    emit_semantic_metadata: true
+    emit_doc_comments: true
+    emit_adapter_todos: true
+    strict_projection_adapter: false
+- id: deli.prep_status_badge
+  name: PrepStatusBadge
+  status: template
+  classification:
+    level: atom
+    role: prep_status_badge
+  intent:
+    purpose: Render order preparation status such as received, in prep, ready, delayed, or picked up.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: tracking
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      mobile_layout:
+        type: any
+        required: false
+        description: Mobile-specific layout, surface, and touch target choices.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      copy_and_labels:
+        type: any
+        required: false
+        description: Instance-specific labels, helper text, and operator-facing copy.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
+      story_examples:
+        type: any
+        required: false
+        description: Instance-specific adaptation for story examples.
+    common_variants:
+    - mobile_default
     avoid_when:
     - The menu type does not expose this interaction.
     - A simpler selected template covers the flow without extra UI surface.
   consumes:
     capabilities:
     - stateful
-    - temporal
-    - available
+    presentations:
+    - prep_status_indicator
   contract:
     props:
-      AvailabilityBadgeProps:
+      PrepStatusBadgeProps:
         fields:
-          availability:
-            type: AvailabilityViewModel
+          status:
+            type: string
             required: true
+          tone:
+            type: tone
+            required: false
   stories:
-  - available
-  - sold_out
-  - limited
-  - scheduled
+  - received
+  - in_prep
+  - ready
   outputs:
-    component: src/street-deli/widgets/AvailabilityBadge/AvailabilityBadge.tsx
-    types: src/street-deli/widgets/AvailabilityBadge/AvailabilityBadge.types.ts
-    metadata: src/street-deli/widgets/AvailabilityBadge/AvailabilityBadge.metadata.ts
-    stories: src/street-deli/widgets/AvailabilityBadge/AvailabilityBadge.stories.tsx
-    barrel: src/street-deli/widgets/AvailabilityBadge/index.ts
-- id: deli.sold_out_state
-  name: SoldOutState
+    component: src/street-deli/widgets/PrepStatusBadge/PrepStatusBadge.tsx
+    types: src/street-deli/widgets/PrepStatusBadge/PrepStatusBadge.types.ts
+    metadata: src/street-deli/widgets/PrepStatusBadge/PrepStatusBadge.metadata.ts
+    stories: src/street-deli/widgets/PrepStatusBadge/PrepStatusBadge.stories.tsx
+    barrel: src/street-deli/widgets/PrepStatusBadge/index.ts
+- id: deli.prep_timeline
+  name: PrepTimeline
   status: template
   classification:
     level: molecule
-    role: sold_out_state
+    role: prep_timeline
   intent:
-    purpose: Render sold-out messaging and optional related substitutions/alternatives.
+    purpose: Render preparation events and estimated pickup progression.
     adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
       parse raw source YAML or own trusted side effects.
   template:
-    category: availability
+    category: tracking
+    selection: optional
+    maturity: draft
+    default_importance: common
+    selection_questions:
+    - Which menu archetypes in this concrete ordering system require this widget?
+    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
+    adaptation_points:
+      component_name:
+        type: any
+        required: false
+        description: Concrete component name selected by the instance manifest.
+      mobile_layout:
+        type: any
+        required: false
+        description: Mobile-specific layout, surface, and touch target choices.
+      presentation_mapping:
+        type: any
+        required: false
+        description: Mapping from semantic presentations to rendered slots/cells/regions.
+      copy_and_labels:
+        type: any
+        required: false
+        description: Instance-specific labels, helper text, and operator-facing copy.
+      action_slots:
+        type: any
+        required: false
+        description: Typed callbacks/actions exposed by the concrete widget.
+      story_examples:
+        type: any
+        required: false
+        description: Instance-specific adaptation for story examples.
+    common_variants:
+    - mobile_default
+    avoid_when:
+    - The menu type does not expose this interaction.
+    - A simpler selected template covers the flow without extra UI surface.
+  consumes:
+    archetypes:
+    - Event
+    - TimelineSpan
+    capabilities:
+    - temporal
+    - stateful
+  contract:
+    props:
+      PrepTimelineProps:
+        fields:
+          events:
+            type: PrepEventViewModel[]
+            required: true
+    action_slots:
+      onSelectEvent:
+        accepts: PresentationRef
+  stories:
+  - short
+  - delayed
+  - ready
+  outputs:
+    component: src/street-deli/widgets/PrepTimeline/PrepTimeline.tsx
+    types: src/street-deli/widgets/PrepTimeline/PrepTimeline.types.ts
+    metadata: src/street-deli/widgets/PrepTimeline/PrepTimeline.metadata.ts
+    stories: src/street-deli/widgets/PrepTimeline/PrepTimeline.stories.tsx
+    barrel: src/street-deli/widgets/PrepTimeline/index.ts
+- id: deli.pickup_ready_notice
+  name: PickupReadyNotice
+  status: template
+  classification:
+    level: molecule
+    role: pickup_ready_notice
+  intent:
+    purpose: Render prominent pickup-ready state, pickup shelf/location, and order reference.
+    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
+      parse raw source YAML or own trusted side effects.
+  template:
+    category: tracking
     selection: optional
     maturity: draft
     default_importance: common
@@ -133,161 +325,21 @@ templates:
     - relatable
   contract:
     props:
-      SoldOutStateProps:
+      PickupReadyNoticeProps:
         fields:
-          item:
-            type: PresentationRef
+          order:
+            type: OrderTrackingViewModel
             required: true
-          alternatives:
-            type: PresentationRef[]
-            required: false
     action_slots:
-      onChooseAlternative:
-        accepts: PresentationRef
+      onConfirmPickup:
+        accepts: PresentationActionRequest
   stories:
-  - no_alternatives
-  - with_alternatives
+  - ready
+  - picked_up
+  - late
   outputs:
-    component: src/street-deli/widgets/SoldOutState/SoldOutState.tsx
-    types: src/street-deli/widgets/SoldOutState/SoldOutState.types.ts
-    metadata: src/street-deli/widgets/SoldOutState/SoldOutState.metadata.ts
-    stories: src/street-deli/widgets/SoldOutState/SoldOutState.stories.tsx
-    barrel: src/street-deli/widgets/SoldOutState/index.ts
-- id: deli.menu_schedule_notice
-  name: MenuScheduleNotice
-  status: template
-  classification:
-    level: molecule
-    role: menu_schedule_notice
-  intent:
-    purpose: Render menu availability windows such as breakfast until 11am or specials available weekdays.
-    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
-      parse raw source YAML or own trusted side effects.
-  template:
-    category: availability
-    selection: optional
-    maturity: draft
-    default_importance: common
-    selection_questions:
-    - Which menu archetypes in this concrete ordering system require this widget?
-    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
-    adaptation_points:
-      component_name:
-        type: any
-        required: false
-        description: Concrete component name selected by the instance manifest.
-      mobile_layout:
-        type: any
-        required: false
-        description: Mobile-specific layout, surface, and touch target choices.
-      presentation_mapping:
-        type: any
-        required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
-      copy_and_labels:
-        type: any
-        required: false
-        description: Instance-specific labels, helper text, and operator-facing copy.
-      action_slots:
-        type: any
-        required: false
-        description: Typed callbacks/actions exposed by the concrete widget.
-      story_examples:
-        type: any
-        required: false
-        description: Instance-specific adaptation for story examples.
-    common_variants:
-    - mobile_default
-    avoid_when:
-    - The menu type does not expose this interaction.
-    - A simpler selected template covers the flow without extra UI surface.
-  consumes:
-    capabilities:
-    - temporal
-    - stateful
-  contract:
-    props:
-      MenuScheduleNoticeProps:
-        fields:
-          schedule:
-            type: MenuScheduleViewModel
-            required: true
-  stories:
-  - breakfast_until
-  - closed
-  - special_window
-  outputs:
-    component: src/street-deli/widgets/MenuScheduleNotice/MenuScheduleNotice.tsx
-    types: src/street-deli/widgets/MenuScheduleNotice/MenuScheduleNotice.types.ts
-    metadata: src/street-deli/widgets/MenuScheduleNotice/MenuScheduleNotice.metadata.ts
-    stories: src/street-deli/widgets/MenuScheduleNotice/MenuScheduleNotice.stories.tsx
-    barrel: src/street-deli/widgets/MenuScheduleNotice/index.ts
-- id: deli.specials_badge
-  name: SpecialsBadge
-  status: template
-  classification:
-    level: atom
-    role: specials_badge
-  intent:
-    purpose: Render compact labels for specials, featured items, limited run, or soup of the day.
-    adapter_boundary: Receives normalized menu-ordering view models and emits typed presentation/action callbacks; does not
-      parse raw source YAML or own trusted side effects.
-  template:
-    category: availability
-    selection: optional
-    maturity: draft
-    default_importance: common
-    selection_questions:
-    - Which menu archetypes in this concrete ordering system require this widget?
-    - Should this be generated from the shared menu-ordering template or replaced with a more specific local template?
-    adaptation_points:
-      component_name:
-        type: any
-        required: false
-        description: Concrete component name selected by the instance manifest.
-      mobile_layout:
-        type: any
-        required: false
-        description: Mobile-specific layout, surface, and touch target choices.
-      presentation_mapping:
-        type: any
-        required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
-      copy_and_labels:
-        type: any
-        required: false
-        description: Instance-specific labels, helper text, and operator-facing copy.
-      action_slots:
-        type: any
-        required: false
-        description: Typed callbacks/actions exposed by the concrete widget.
-      story_examples:
-        type: any
-        required: false
-        description: Instance-specific adaptation for story examples.
-    common_variants:
-    - mobile_default
-    avoid_when:
-    - The menu type does not expose this interaction.
-    - A simpler selected template covers the flow without extra UI surface.
-  consumes:
-    capabilities:
-    - labelable
-    - temporal
-  contract:
-    props:
-      SpecialsBadgeProps:
-        fields:
-          label:
-            type: string
-            required: true
-  stories:
-  - soup_of_day
-  - limited
-  - featured
-  outputs:
-    component: src/street-deli/widgets/SpecialsBadge/SpecialsBadge.tsx
-    types: src/street-deli/widgets/SpecialsBadge/SpecialsBadge.types.ts
-    metadata: src/street-deli/widgets/SpecialsBadge/SpecialsBadge.metadata.ts
-    stories: src/street-deli/widgets/SpecialsBadge/SpecialsBadge.stories.tsx
-    barrel: src/street-deli/widgets/SpecialsBadge/index.ts
+    component: src/street-deli/widgets/PickupReadyNotice/PickupReadyNotice.tsx
+    types: src/street-deli/widgets/PickupReadyNotice/PickupReadyNotice.types.ts
+    metadata: src/street-deli/widgets/PickupReadyNotice/PickupReadyNotice.metadata.ts
+    stories: src/street-deli/widgets/PickupReadyNotice/PickupReadyNotice.stories.tsx
+    barrel: src/street-deli/widgets/PickupReadyNotice/index.ts

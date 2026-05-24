@@ -1,0 +1,26 @@
+schema_version: 0
+artifact_type: dmeta_meta_design_system
+id: web
+name: Web MetaDesignSystem
+summary: Web/visual UI MetaDesignSystem package for DMETA v0.
+long_summary: Defines Web-specific widget templates, surfaces, layout families, and future React target lowering inputs. Widgets are target-family artifacts here, not universal DMETA semantic concepts.
+status: draft
+files:
+  index: ./widgets/00-index.yaml
+  presentations: ./widgets/presentations.yaml
+  streams: ./widgets/streams.yaml
+  tables: ./widgets/tables.yaml
+  surfaces: ./widgets/surfaces.yaml
+  actions: ./widgets/actions.yaml
+  filters: ./widgets/filters.yaml
+  layout: ./widgets/layout.yaml
+  dashboards: ./widgets/dashboards.yaml
+  forms: ./widgets/forms.yaml
+  states: ./widgets/states.yaml
+  data_display: ./widgets/data-display.yaml
+validation:
+  require_unique_template_ids: true
+  require_known_representations: false
+  require_known_actions: false
+  reject_abstract_selected_templates: true
+  require_realizes: false

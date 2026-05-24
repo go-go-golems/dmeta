@@ -104,24 +104,25 @@ func loadSplitCoreModel(root string, core *CoreModelFile) error {
 }
 
 func loadWidgetTemplates(root string) (WidgetIRFile, error) {
-	widgets, err := loadYAML[WidgetIRFile](filepath.Join(root, "03-widgets.yaml"))
+	webRoot := filepath.Join(root, "meta-design-systems", "web")
+	widgets, err := loadYAML[WidgetIRFile](filepath.Join(webRoot, "meta-design-system.yaml"))
 	if err != nil {
-		return widgets, errors.Wrap(err, "load 03-widgets.yaml")
+		return widgets, errors.Wrap(err, "load Web MetaDesignSystem")
 	}
-	if widgets.ArtifactType != "dmeta_widget_template_package" {
-		return widgets, errors.Errorf("03-widgets.yaml artifact_type is %q, expected dmeta_widget_template_package", widgets.ArtifactType)
+	if widgets.ArtifactType != "dmeta_meta_design_system" {
+		return widgets, errors.Errorf("Web MetaDesignSystem artifact_type is %q, expected dmeta_meta_design_system", widgets.ArtifactType)
 	}
 	widgets.Widgets = nil
 	for key, templatePath := range widgets.Files {
 		if key == "index" || templatePath == "" {
 			continue
 		}
-		templateFile, err := loadYAML[WidgetTemplatesFile](filepath.Join(root, templatePath))
+		templateFile, err := loadYAML[WidgetTemplatesFile](filepath.Join(webRoot, templatePath))
 		if err != nil {
-			return widgets, errors.Wrapf(err, "load widget template file %s", templatePath)
+			return widgets, errors.Wrapf(err, "load Web widget template file %s", templatePath)
 		}
-		if templateFile.ArtifactType != "dmeta_widget_templates" {
-			return widgets, errors.Errorf("widget template file %s artifact_type is %q, expected dmeta_widget_templates", templatePath, templateFile.ArtifactType)
+		if templateFile.ArtifactType != "dmeta_web_widget_templates" {
+			return widgets, errors.Errorf("Web widget template file %s artifact_type is %q, expected dmeta_web_widget_templates", templatePath, templateFile.ArtifactType)
 		}
 		widgets.Widgets = append(widgets.Widgets, templateFile.Templates...)
 	}

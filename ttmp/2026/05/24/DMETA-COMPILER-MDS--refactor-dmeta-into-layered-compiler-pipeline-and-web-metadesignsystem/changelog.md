@@ -33,3 +33,15 @@ Reframed implementation strategy as a hard top-down cutover: move widgets under 
 - /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/design-doc/01-layered-compiler-pipeline-and-web-metadesignsystem-refactor-guide.md — Updated hard-cut design policy and phases
 - /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/tasks.md — Updated hard-cut phased task list
 
+
+## 2026-05-24
+
+Phase 1 partial hard cutover: moved global and Street Deli widget templates under meta-design-systems/web, removed old 03-widgets.yaml files, updated indexes/manifests/loaders for dmeta_meta_design_system + dmeta_web_widget_templates, and verified validate/plan/scaffold dry-run.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/web/meta-design-system.yaml — New Street Deli Web MetaDesignSystem extension entrypoint
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/load.go — Loads Web MetaDesignSystem instead of top-level 03-widgets.yaml
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/validate.go — Validates web_meta_design_system index artifact type
+- /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml — New global Web MetaDesignSystem package entrypoint
+
