@@ -56,3 +56,15 @@ Phase 2 seed: added top-level Interaction IR package with initial modality-neutr
 - /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/interactions/elaboration-rules.yaml — Initial rules mapping semantic facts to interaction obligations
 - /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/interactions/representations.yaml — Initial modality-neutral representation catalog
 
+
+## 2026-05-24
+
+Added first Go Interaction IR loader/validator and validate-interactions command. Validation now checks roots, extends, cycles, supported actions, and elaboration rule emissions.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/validate_interactions.go — validate-interactions command
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/interaction/load.go — Interaction IR package loader
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/interaction/model.go — Interaction IR Go model
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/interaction/validate.go — Interaction IR validator
+

@@ -724,3 +724,133 @@ PY
 
 go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
 ```
+
+## Step 6: Add the first Interaction IR Go loader and validator
+
+This step made the new Interaction IR package executable. The repository now has Go structs for actions, representations, semantic selectors, action effects, representation projection exposure, and elaboration rules. It also has a loader for `sources/dmeta-ir/interactions/` and a `validate-interactions` CLI command.
+
+This is not the full elaboration engine yet. It is the first validation layer: the command checks artifact loading, abstract roots, parent references, inheritance cycles, representation-supported action references, and elaboration rule emissions. This makes the new YAML package safer before it is wired into semantic elaboration or Web lowering.
+
+### Prompt Context
+
+**User prompt (verbatim):** (same as Step 3)
+
+**Assistant interpretation:** Continue implementing the top-down hard-cut plan by adding tool support for the Interaction IR source package.
+
+**Inferred user intent:** Turn the Interaction IR from documentation/YAML into a validated compiler layer.
+
+**Commit (code):** pending at time of diary entry — Interaction IR loader/validator changes.
+
+### What I did
+
+- Added `pkg/dmeta/interaction/model.go` with:
+  - `Package`
+  - `IndexFile`
+  - `ActionsFile`
+  - `RepresentationsFile`
+  - `ElaborationRulesFile`
+  - `SemanticSelector`
+  - `Action`
+  - `Representation`
+  - `ElaborationRule`
+- Added `pkg/dmeta/interaction/load.go` to load:
+  - `interactions/00-index.yaml`
+  - `actions.yaml`
+  - `representations.yaml`
+  - `elaboration-rules.yaml`
+- Added `pkg/dmeta/interaction/validate.go` to validate:
+  - abstract `Action` root;
+  - abstract `Representation` root;
+  - missing `extends` on non-root definitions;
+  - unknown parent references;
+  - action inheritance cycles;
+  - representation inheritance cycles;
+  - representations that support unknown or abstract actions;
+  - elaboration rules that emit unknown or abstract actions/representations.
+- Added `pkg/dmeta/cmds/validate_interactions.go`.
+- Registered `validate-interactions` in `cmd/dmeta/main.go`.
+- Ran Go formatting and package tests.
+- Ran the new command:
+
+```bash
+go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table
+```
+
+### Why
+
+- The Interaction IR should have its own validation boundary before it participates in downstream passes.
+- The hard-cut architecture depends on Actions and Representations being real compiler IRs, not only prose in a design guide.
+- Validating abstract roots and emissions now sets up the same abstract/concrete discipline that already exists for archetypes and capabilities.
+
+### What worked
+
+- `go test ./pkg/dmeta/... ./cmd/dmeta -count=1` passed.
+- `validate-interactions` returned:
+
+```text
+DMETA Interaction IR has no error-severity findings
+```
+
+- Existing validation and planning still passed:
+  - `validate-ir --root ./sources/dmeta-ir`
+  - `validate-ir --root ./examples/street-deli-ordering`
+  - `plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml`
+
+### What didn't work
+
+- N/A. The loader and validator compiled and passed on the seeded catalogs.
+
+### What I learned
+
+- The Interaction IR can use `validator.Finding` without creating an import cycle because `validator` does not import `interaction`.
+- A separate `validate-interactions` command is useful even before `validate-ir` orchestrates all layers.
+- Cycle detection and abstract emission checks are small but important guardrails for the new layer.
+
+### What was tricky to build
+
+- The current action definitions use inheritance but do not yet have fully defined merge semantics. The validator checks graph shape and emissions, but it does not yet compute resolved effective action/representation definitions.
+- The root package is named `interaction.Package` while the YAML package is `dmeta_interaction_package`. This is fine for now, but future code should avoid confusion between Go package and IR package terminology in comments.
+- `submit_order` currently has `subjects.any_archetypes: [Order]`, but the global source package does not validate those selectors against a semantic model yet. That cross-layer validation should happen when `validate-interactions` receives or loads a semantic package.
+
+### What warrants a second pair of eyes
+
+- Review whether `Representation.SupportsActions` should allow abstract action parents as documentation, or whether concrete-only is the right rule. I implemented concrete-only because elaborated/realized obligations should not point at abstract actions.
+- Review selector shape before elaboration work starts. `SemanticSelector` is likely to become a central API.
+- Review whether action inheritance and representation inheritance should merge fields or use explicit override semantics.
+
+### What should be done in the future
+
+- Add a resolver that computes effective inherited action and representation fields.
+- Validate semantic selectors against the resolved semantic model.
+- Implement `elaborate-interactions` using the rule catalog.
+- Add unit tests for invalid cycles, unknown parents, and abstract emissions.
+
+### Code review instructions
+
+Start with:
+
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/interaction/model.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/interaction/load.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/interaction/validate.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/validate_interactions.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+
+Validate with:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+go test ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+```
+
+### Technical details
+
+Commands run during this step:
+
+```bash
+gofmt -w pkg/dmeta/interaction/model.go pkg/dmeta/interaction/load.go pkg/dmeta/interaction/validate.go pkg/dmeta/cmds/validate_interactions.go cmd/dmeta/main.go
+go test ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table
+```

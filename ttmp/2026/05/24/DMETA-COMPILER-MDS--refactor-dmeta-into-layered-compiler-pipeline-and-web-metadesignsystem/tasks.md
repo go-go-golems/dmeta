@@ -89,30 +89,31 @@ Validation gate:
 
 Goal: make Actions and Representations first-class validated IRs.
 
-- [ ] Add `pkg/dmeta/interaction/model.go`.
-- [ ] Define `InteractionCatalog`.
-- [ ] Define `InteractionAction`.
-- [ ] Define `Representation`.
-- [ ] Define `SemanticSelector` with explicit `all_*` and `any_*` fields.
-- [ ] Define `RepresentationExposes` with required/recommended/optional projection lists.
-- [ ] Define `ActionEffects`, `ActionSafety`, and action input models.
-- [ ] Add `pkg/dmeta/interaction/load.go`.
-- [ ] Add `pkg/dmeta/interaction/validate.go`.
-- [ ] Add `pkg/dmeta/interaction/inheritance.go`.
-- [ ] Validate root definitions exist and are abstract.
-- [ ] Validate non-root definitions declare `extends`.
-- [ ] Validate unknown parent references.
-- [ ] Validate inheritance cycles.
+- [x] Add `pkg/dmeta/interaction/model.go`.
+- [x] Define `InteractionCatalog`.
+- [x] Define `InteractionAction`.
+- [x] Define `Representation`.
+- [x] Define `SemanticSelector` with explicit `all_*` and `any_*` fields.
+- [x] Define `RepresentationExposes` with required/recommended/optional projection lists.
+- [x] Define `ActionEffects`, `ActionSafety`, and action input models.
+- [x] Add `pkg/dmeta/interaction/load.go`.
+- [x] Add `pkg/dmeta/interaction/validate.go`.
+- [x] Register `validate-interactions` in `cmd/dmeta/main.go`.
+- [x] Add `pkg/dmeta/interaction/inheritance.go`.
+- [x] Validate root definitions exist and are abstract.
+- [x] Validate non-root definitions declare `extends`.
+- [x] Validate unknown parent references.
+- [x] Validate inheritance cycles.
 - [ ] Merge inherited fields deterministically.
-- [ ] Reject abstract actions/representations when emitted as concrete obligations.
+- [x] Reject abstract actions/representations when emitted as concrete obligations.
 - [ ] Add parser tests for minimal action and representation files.
 - [ ] Add inheritance tests for action and representation definitions.
-- [ ] Add `dmeta validate-interactions` or integrate interaction validation into the new top-level validator.
+- [x] Add `dmeta validate-interactions` or integrate interaction validation into the new top-level validator.
 
 Validation gate:
 
-- [ ] `go test ./pkg/dmeta/interaction/... -count=1`
-- [ ] `go run ./cmd/dmeta validate-interactions --root ./examples/street-deli-ordering --output table` or equivalent.
+- [x] `go test ./pkg/dmeta/interaction/... -count=1`
+- [x] `go run ./cmd/dmeta validate-interactions --root ./examples/street-deli-ordering --output table` or equivalent.
 
 ## Phase 5: Implement semantic-to-interaction elaboration
 
