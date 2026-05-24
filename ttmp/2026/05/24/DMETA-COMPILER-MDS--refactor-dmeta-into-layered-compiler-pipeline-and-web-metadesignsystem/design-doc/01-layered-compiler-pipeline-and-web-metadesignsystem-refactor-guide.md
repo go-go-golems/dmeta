@@ -33,6 +33,12 @@ RelatedFiles:
       Note: Loader now reads Web MetaDesignSystem instead of root 03-widgets.yaml
     - Path: pkg/dmeta/validator/model.go
       Note: Current semantic/widget schema structs and the main place to add Interaction IR and Web MetaDesignSystem fields
+    - Path: sources/dmeta-ir/interactions/actions.yaml
+      Note: Initial Interaction IR action catalog
+    - Path: sources/dmeta-ir/interactions/elaboration-rules.yaml
+      Note: Initial semantic-to-interaction elaboration rule catalog
+    - Path: sources/dmeta-ir/interactions/representations.yaml
+      Note: Initial Interaction IR representation catalog
     - Path: sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml
       Note: Global Web MetaDesignSystem package entrypoint created in Phase 1
 ExternalSources: []
@@ -41,6 +47,7 @@ LastUpdated: 2026-05-24T18:15:00-04:00
 WhatFor: 'Use when implementing the next DMETA architecture step: Actions/Representations, MetaDesignSystem schemas, web-style UI lowering, React scaffold tooling, and migration of Street Deli templates.'
 WhenToUse: Read before changing pkg/dmeta/validator, pkg/dmeta/generator/widgets, sources/dmeta-ir widget templates, or examples/street-deli-ordering instance manifests for the compiler-pipeline refactor.
 ---
+
 
 
 

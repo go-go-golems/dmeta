@@ -581,3 +581,146 @@ git rm sources/dmeta-ir/03-widgets.yaml examples/street-deli-ordering/03-widgets
 gofmt -w pkg/dmeta/validator/load.go pkg/dmeta/validator/validate.go pkg/dmeta/generator/widgets/load.go pkg/dmeta/cmds/validate_ir.go
 go test ./pkg/dmeta/... -count=1
 ```
+
+## Step 5: Seed the top-level Interaction IR package
+
+This step added the first top-level Interaction IR source package. The new package defines modality-neutral actions, representations, and elaboration rules. It does not yet have a Go loader or validator, but the YAML now exists in the canonical source tree and can be used as the contract for the next implementation phase.
+
+The important boundary is that these definitions do not mention React components, Web widgets, chips, cards, sheets, or CLIM presentation types. They describe interaction obligations such as `substitution_candidate`, `composition_breakdown`, `apply_substitution`, and `inspect_subject` before any MetaDesignSystem realizes them.
+
+### Prompt Context
+
+**User prompt (verbatim):** (same as Step 3)
+
+**Assistant interpretation:** Continue the hard-cut top-down implementation by defining the universal Interaction IR source package before target-specific lowering.
+
+**Inferred user intent:** Establish the clean upper layer that Web and future CLIM MetaDesignSystems will share.
+
+**Commit (code):** pending at time of diary entry — Interaction IR seed changes.
+
+### What I did
+
+- Created `sources/dmeta-ir/interactions/00-index.yaml`.
+- Created `sources/dmeta-ir/interactions/actions.yaml`.
+- Created `sources/dmeta-ir/interactions/representations.yaml`.
+- Created `sources/dmeta-ir/interactions/elaboration-rules.yaml`.
+- Added `interactions` to `sources/dmeta-ir/00-index.yaml`.
+- Seeded abstract roots:
+  - `Action`
+  - `Representation`
+- Seeded initial shared actions including:
+  - `inspect_subject`
+  - `copy_reference`
+  - `select_subject`
+  - `select_menu_item`
+  - `filter_by_state`
+  - `filter_by_dietary`
+  - `remove_part`
+  - `undo_remove_part`
+  - `add_part`
+  - `change_config`
+  - `apply_substitution`
+  - `reject_substitution`
+  - `see_alternatives`
+  - `add_to_order`
+  - `remove_cart_item`
+  - `submit_order`
+  - `return_to_menu`
+- Seeded initial shared representations including:
+  - `compact_reference`
+  - `state_indicator`
+  - `inspection_entrypoint`
+  - `composition_summary`
+  - `composition_breakdown`
+  - `ingredient_composition_row`
+  - `role_label`
+  - `dietary_summary`
+  - `configuration_summary`
+  - `substitution_candidate`
+  - `substitution_price_delta`
+  - `order_lifecycle_progress`
+  - `cart_summary`
+- Seeded initial elaboration rules from semantic capability/archetype selectors to interaction obligations.
+- Parsed the YAML files with Python/PyYAML.
+- Re-ran global `validate-ir` to ensure the new index entry did not break current validation.
+- Updated the ticket tasks, changelog, and related files.
+
+### Why
+
+- The Interaction IR is the layer that prevents Web widgets from becoming universal DMETA concepts.
+- Actions and representations must exist before Web lowering can be implemented cleanly.
+- The initial catalogs give concrete names to concepts that were previously mixed into capabilities and presentations.
+
+### What worked
+
+- All new YAML files parsed successfully with PyYAML.
+- `go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table` still passed.
+- The Interaction IR names map cleanly onto Street Deli concepts without referencing Web-specific widgets.
+
+### What didn't work
+
+- N/A. This step only added source YAML catalogs and did not yet add Go loading/validation code.
+
+### What I learned
+
+- Many current presentation names have a clean representation-level equivalent. For example, `status_badge` becomes `state_indicator`, and `substitution_badge`/`substitution_pair` become `substitution_candidate` plus target-specific Web realization later.
+- Some Street Deli actions are domain-local but still useful in the shared initial catalog because they exercise the system well. These may be split into global vs local catalogs later.
+
+### What was tricky to build
+
+- The main tricky part was keeping representation names modality-neutral. It is easy to slip into Web names such as chip, badge, row, or card. I used names such as `composition_summary`, `composition_breakdown`, and `substitution_candidate` instead.
+- Another tricky part was action inheritance. The YAML includes roots and parent action concepts such as `mutate_composition`, but the Go resolver does not exist yet. The next phase must decide exact merge/override semantics.
+
+### What warrants a second pair of eyes
+
+- Review whether `select_menu_item`, `add_to_order`, and `return_to_menu` belong in the shared catalog or should become Street Deli local actions.
+- Review whether `ingredient_composition_row` is too Web-shaped because of the word `row`. It may need a more neutral name such as `composition_part_entry`.
+- Review the initial elaboration rules before implementing the Go matcher.
+
+### What should be done in the future
+
+- Implement the Go Interaction IR model and parser.
+- Implement action/representation inheritance validation.
+- Add `validate-interactions`.
+- Implement `elaborate-interactions` over Street Deli semantic mappings.
+
+### Code review instructions
+
+Start with:
+
+- `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/interactions/actions.yaml`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/interactions/representations.yaml`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/interactions/elaboration-rules.yaml`
+
+Validate with:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+python3 - <<'PY'
+from pathlib import Path
+import yaml
+for p in Path('sources/dmeta-ir/interactions').glob('*.yaml'):
+    yaml.safe_load(p.read_text())
+    print('ok', p)
+PY
+go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+```
+
+### Technical details
+
+Commands run during this step:
+
+```bash
+mkdir -p sources/dmeta-ir/interactions
+# wrote 00-index.yaml, actions.yaml, representations.yaml, elaboration-rules.yaml
+python3 - <<'PY'
+from pathlib import Path
+import yaml
+for p in Path('sources/dmeta-ir/interactions').glob('*.yaml'):
+    with p.open() as f:
+        yaml.safe_load(f)
+    print('ok', p)
+PY
+
+go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+```

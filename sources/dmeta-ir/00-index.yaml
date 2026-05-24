@@ -20,6 +20,14 @@ artifacts:
       - validate-dmeta-ir
       - generate-design-language
       - lint-dmeta-design-system
+  interactions:
+    path: ./interactions/00-index.yaml
+    artifact_type: dmeta_interaction_package
+    description: Modality-neutral actions, representations, and elaboration rules shared by MetaDesignSystems.
+    consumers:
+      - validate-dmeta-ir
+      - elaborate-dmeta-interactions
+      - lower-dmeta-metadesign
   web_meta_design_system:
     path: ./meta-design-systems/web/meta-design-system.yaml
     artifact_type: dmeta_meta_design_system
