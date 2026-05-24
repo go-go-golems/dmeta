@@ -869,7 +869,7 @@ A loader gap surfaced during this work: Street Deli declared its example with th
 
 **Inferred user intent:** Prove that Actions and Representations are usable as a compiler layer before Web widget lowering begins.
 
-**Commit (code):** pending at time of diary entry — semantic-to-interaction elaboration changes.
+**Commit (code):** acc409f66b839f0e7b674aa97a94669e7d742128 — "DMETA-COMPILER-MDS: elaborate semantic facts into interactions"
 
 ### What I did
 
