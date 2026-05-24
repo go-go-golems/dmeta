@@ -79,18 +79,21 @@ rules:
       argument selection/confirmation.
 
   - id: pbui.lifecycle_for_order_progress
-    description: Lower order lifecycle progress into a lifecycle status presentation.
+    description: Lower state and lifecycle obligations into a lifecycle status presentation.
     rationale: >-
       Lifecycle progress has enough structure to deserve a presentation type:
       current state, phase ordering, temporal hints, and navigation/inspection
       actions. Street Deli order tracking is the first concrete dogfooding case.
+      The v1 rule intentionally matches the more common `state_indicator`
+      obligation rather than requiring the narrower `order_lifecycle_progress`
+      obligation, because current Street Deli semantic data exposes state for
+      orders and prep entities even when temporal lifecycle projections are not
+      yet complete.
     when:
       representations:
-        - order_lifecycle_progress
         - state_indicator
       actions:
         - inspect_subject
-        - return_to_menu
     emits:
       presentation_types:
         - pbui.lifecycle_status

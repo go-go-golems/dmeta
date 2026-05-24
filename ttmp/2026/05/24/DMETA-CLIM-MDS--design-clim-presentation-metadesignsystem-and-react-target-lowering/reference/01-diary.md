@@ -13,17 +13,27 @@ Intent: long-term
 Owners: []
 RelatedFiles:
     - Path: cmd/dmeta/main.go
-      Note: CLI registration for validate-pbui
+      Note: |-
+        CLI registration for validate-pbui
+        CLI registration for lower-pbui
+    - Path: pkg/dmeta/cmds/lower_pbui.go
+      Note: lower-pbui CLI command
     - Path: pkg/dmeta/cmds/validate_pbui.go
       Note: validate-pbui CLI command
     - Path: pkg/dmeta/metadesign/pbui/load.go
       Note: PBUI loader with duplicate presentation key scan
+    - Path: pkg/dmeta/metadesign/pbui/lower.go
+      Note: PBUI lowering pass from Interaction IR obligations to presentation obligations
+    - Path: pkg/dmeta/metadesign/pbui/lower_test.go
+      Note: Street Deli PBUI lowering test
     - Path: pkg/dmeta/metadesign/pbui/model.go
       Note: PBUI Go model
     - Path: pkg/dmeta/metadesign/pbui/validate.go
       Note: PBUI validator against Interaction IR
     - Path: sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml
-      Note: First-pass interaction-to-PBUI lowering rule catalog
+      Note: |-
+        First-pass interaction-to-PBUI lowering rule catalog
+        PBUI lowering rules and explanatory rationale
     - Path: sources/dmeta-ir/meta-design-systems/pbui/meta-design-system.yaml
       Note: PBUI package entrypoint with natural-language intent
     - Path: sources/dmeta-ir/meta-design-systems/pbui/presentation-types.yaml
@@ -42,6 +52,7 @@ LastUpdated: 2026-05-24T16:30:06.156039781-04:00
 WhatFor: Record the source import, thesis analysis, design interpretation, and future implementation work for the CLIM MetaDesignSystem ticket.
 WhenToUse: Read before resuming CLIM MetaDesignSystem research or implementation.
 ---
+
 
 
 
@@ -493,3 +504,80 @@ The first validation command is `dmeta validate-pbui`. It checks that PBUI prese
   - `dmeta validate-pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
 - Current successful validation output:
   - `validation_ok` for artifact `pbui_meta_design_system`.
+
+## Step 6: Implement Phase 2 PBUI lowering and validate against Street Deli
+
+This step added the first PBUI lowering pass. The new `lower-pbui` command starts from the same semantic and Interaction IR elaboration pipeline as `lower-web`, but emits PBUI presentation obligations instead of Web widget obligations. Each output row intentionally carries explanation fields: source representations, source actions, lowering description, rationale, presenter intent, and recognizer intent.
+
+The Street Deli validation exposed a useful schema mismatch: the initial lifecycle lowering rule required `order_lifecycle_progress`, but the current Street Deli semantic model only elaborates the broader `state_indicator` obligation for orders and prep entities. Rather than forcing the example to claim temporal lifecycle completeness prematurely, I changed the PBUI v1 lifecycle rule to match `state_indicator` plus `inspect_subject`, and documented that choice in the rule rationale.
+
+### Prompt Context
+
+**User prompt (verbatim):** (see Step 4)
+
+**Assistant interpretation:** Continue implementing the phased CLIM/PBUI plan by adding a lowering command that proves PBUI presentation obligations can be derived from existing Semantic and Interaction IR.
+
+**Inferred user intent:** Move beyond schema validation into a real compiler pass, with Street Deli acting as the first concrete fixture.
+
+**Commit (code):** pending at time of diary entry
+
+### What I did
+- Added PBUI lowering model and algorithm:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/lower.go`
+- Added CLI command:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/lower_pbui.go`
+- Registered `lower-pbui` in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+- Added test coverage for Street Deli lowering:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/lower_test.go`
+- Updated the lifecycle PBUI lowering rule in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml`
+- Updated the task checklist to mark Phase 2 complete.
+
+### Why
+- PBUI needs its own lowering pass before descriptor derivation or React target planning can be meaningful.
+- The command output must preserve natural-language rationale so generated metadata and docs can explain why a presentation exists.
+- Street Deli needs to exercise the new path early, per the dogfooding plan.
+
+### What worked
+- `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... ./cmd/dmeta -count=1` passes.
+- `go run ./cmd/dmeta lower-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table` now emits Street Deli PBUI obligations.
+- The output includes `pbui.presentation_ref`, `pbui.inspector_panel`, `pbui.lifecycle_status`, `pbui.composition_presentation`, and `pbui.action_presentation` rows.
+
+### What didn't work
+- First test run failed with:
+  - command: `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... ./cmd/dmeta -count=1`
+  - error: `expected lowered PBUI obligations to include pbui.lifecycle_status; got map[string]bool{"pbui.action_presentation":true, "pbui.composition_presentation":true, "pbui.inspector_panel":true, "pbui.presentation_ref":true}`
+- Root cause: the PBUI lifecycle lowering rule required `order_lifecycle_progress`, but Street Deli elaboration currently emits `state_indicator` for `Order`, `OrderItem`, `PrepEvent`, `Station`, and `MenuItem` rather than `order_lifecycle_progress`.
+- Fix: changed the v1 lifecycle lowering selector to match `state_indicator` plus `inspect_subject`, and expanded the rationale to explain why.
+
+### What I learned
+- Lowering rules are a good place to record pragmatic v1 choices. The lifecycle rule now explains that current Street Deli state data is not the same as a complete temporal lifecycle projection.
+- PBUI table output is already useful as design review material because it makes presenter and recognizer intent visible next to formal ids.
+
+### What was tricky to build
+- The lowering implementation itself mirrors Web lowering, but the tricky part was choosing output fields. PBUI obligations must be more explanatory than Web widget obligations because they will feed descriptors, selectors, event adapters, and docs.
+- Another tricky part was not overfitting the test to one exact row count. The test checks important presentation types and explanation preservation rather than asserting every row.
+
+### What warrants a second pair of eyes
+- Review the lifecycle lowering relaxation from `order_lifecycle_progress` to `state_indicator`.
+- Review whether the action chooser rule should be broadened; current Street Deli output does not yet emit many `pbui.action_chooser` rows because existing elaboration does not combine all generic selected-object obligations in the way the rule expects.
+
+### What should be done in the future
+- Implement Phase 3 descriptor derivation from Semantic IR and Interaction IR.
+- Later add golden lower-pbui output for Street Deli once the schema stabilizes.
+
+### Code review instructions
+- Start with:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/lower.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/lower_pbui.go`
+- Then inspect the lifecycle rule in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml`
+- Validate with:
+  - `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... ./cmd/dmeta -count=1`
+  - `go run ./cmd/dmeta lower-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table`
+
+### Technical details
+- New command:
+  - `dmeta lower-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table`
+- PBUI obligations are stable-sorted by example, domain type, presentation type, and source rule.

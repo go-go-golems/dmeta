@@ -65,8 +65,8 @@ Validation gate:
 
 Goal: prove that PBUI presentation obligations can be derived from semantic facts plus Interaction IR obligations, just as Web obligations are currently derived for the Web MetaDesignSystem.
 
-- [ ] Add `pkg/dmeta/metadesign/pbui/lower.go`.
-- [ ] Define PBUI presentation obligation output fields:
+- [x] Add `pkg/dmeta/metadesign/pbui/lower.go`.
+- [x] Define PBUI presentation obligation output fields:
   - example id;
   - domain type id;
   - presentation type id;
@@ -76,16 +76,16 @@ Goal: prove that PBUI presentation obligations can be derived from semantic fact
   - presenter intent;
   - recognizer intent;
   - rationale/description.
-- [ ] Implement rule matching by domain type, representation id, and action id.
-- [ ] Keep lowering deterministic and stable-sorted.
-- [ ] Add `pkg/dmeta/cmds/lower_pbui.go`.
-- [ ] Register `dmeta lower-pbui` in `cmd/dmeta/main.go`.
-- [ ] Ensure table output includes natural-language explanation columns, not only ids.
-- [ ] Run against `examples/street-deli-ordering` and global PBUI root.
+- [x] Implement rule matching by domain type, representation id, and action id.
+- [x] Keep lowering deterministic and stable-sorted.
+- [x] Add `pkg/dmeta/cmds/lower_pbui.go`.
+- [x] Register `dmeta lower-pbui` in `cmd/dmeta/main.go`.
+- [x] Ensure table output includes natural-language explanation columns, not only ids.
+- [x] Run against `examples/street-deli-ordering` and global PBUI root.
 
 Validation gate:
 
-- [ ] `go run ./cmd/dmeta lower-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table`
+- [x] `go run ./cmd/dmeta lower-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table`
 
 ## Phase 3: Derive object and action descriptors for PBUI React targets
 

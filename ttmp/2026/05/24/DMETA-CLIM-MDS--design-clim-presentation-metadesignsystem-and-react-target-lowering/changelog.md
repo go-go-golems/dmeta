@@ -54,3 +54,14 @@ Implemented Phase 1 PBUI MetaDesignSystem source catalogs, Go loader/validator, 
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/validate.go — PBUI validation logic
 - /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/pbui/presentation-types.yaml — First PBUI presentation catalog
 
+
+## 2026-05-24
+
+Implemented Phase 2 lower-pbui pass, preserving presenter/recognizer intent and validating Street Deli PBUI obligations.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/lower_pbui.go — PBUI lowering CLI command
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/lower.go — PBUI lowering algorithm
+- /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml — Lifecycle rule adjusted for current Street Deli state obligations
+

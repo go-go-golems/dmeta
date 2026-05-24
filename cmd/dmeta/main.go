@@ -59,6 +59,13 @@ func main() {
 	}
 	addGlazedCommand(rootCmd, "validate-pbui", validatePBUI)
 
+	lowerPBUI, err := dmetacmds.NewLowerPBUICommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating lower-pbui command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "lower-pbui", lowerPBUI)
+
 	planInstance, err := dmetacmds.NewPlanInstanceCommand()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error creating plan-instance command: %v\n", err)
