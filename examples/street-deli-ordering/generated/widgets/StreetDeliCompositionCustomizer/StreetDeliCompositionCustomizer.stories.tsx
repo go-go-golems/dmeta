@@ -5,6 +5,13 @@ import { StreetDeliCompositionCustomizer } from "./StreetDeliCompositionCustomiz
 export default {
   title: "Street Deli Ordering/StreetDeliCompositionCustomizer",
   component: StreetDeliCompositionCustomizer,
+  parameters: {
+    docs: {
+      description: {
+        component: "Generated scaffold for `deli.composition_customizer`. Semantic context: ProductComposition, ingredient_composable, role_preserving_substitutable, configurable, dietary, composition_detail, ingredient_list, substitution_badge. Projection hints are scaffold guidance, not mandatory layout.",
+      },
+    },
+  },
 };
 
 export const Default = {

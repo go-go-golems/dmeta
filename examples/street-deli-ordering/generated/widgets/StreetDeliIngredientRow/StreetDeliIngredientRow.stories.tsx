@@ -5,6 +5,13 @@ import { StreetDeliIngredientRow } from "./StreetDeliIngredientRow";
 export default {
   title: "Street Deli Ordering/StreetDeliIngredientRow",
   component: StreetDeliIngredientRow,
+  parameters: {
+    docs: {
+      description: {
+        component: "Generated scaffold for `deli.ingredient_row`.",
+      },
+    },
+  },
 };
 
 export const RequiredIngredient = {

@@ -2,6 +2,39 @@
 
 import type { StreetDeliOrderCartProps } from "./StreetDeliOrderCart.types";
 
+/**
+ * StreetDeliOrderCart
+ *
+ * Reflection-first scaffold generated from `deli.order_cart`.
+ * Selected because: Ordering flow needs cart review, totals, and submit actions.
+ *
+ * Semantic context:
+ * - Archetype: OrderItem
+ * - Archetype: WorkItem
+ * - Archetype: ProductComposition
+ * - Capability: ingredient_composable
+ * - Capability: configurable
+ * - Capability: measurable
+ * - Capability: stateful
+ * - Presentation: order_item_row
+ * - Presentation: compact_ref
+ *
+ * Intent:
+ * Render the order review surface after menu items become customized order items. The inherited work-item and product-composition context should guide metadata and adapter TODOs, not force cart layout.
+ *
+ * Inherited context note:
+ * OrderItem extends WorkItem and ProductComposition, so it combines lifecycle/work semantics with final ingredient composition state.
+ *
+ * Projection hints are scaffold guidance, not rigid layout requirements unless strict mode is enabled.
+ * Recommended:
+ * - labelable.label
+ * - measurable.value
+ * - ingredient_composable.parts
+ * - configurable.current_config
+ * Optional:
+ * - stateful.state
+ * - relatable.work_item_ref
+ */
 export function StreetDeliOrderCart(props: StreetDeliOrderCartProps) {
   return (
     <section data-dmeta-widget="deli.order_cart" data-dmeta-template="deli.order_cart" data-dmeta-variant="mobile_bottom_sheet">

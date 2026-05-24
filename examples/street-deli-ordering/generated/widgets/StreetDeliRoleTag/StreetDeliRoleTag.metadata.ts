@@ -4,6 +4,13 @@ export const StreetDeliRoleTagMetadata = {
   "adaptations": null,
   "category": "substitutions",
   "generatedBy": "dmeta scaffold-instance",
+  "generation": {
+    "emitAdapterTODOs": false,
+    "emitDocComments": true,
+    "emitSemanticMetadata": true,
+    "scaffoldMode": "reflective",
+    "strictProjectionAdapter": false
+  },
   "instanceId": "street_deli_ordering",
   "reason": "Ingredient roles are central to explaining substitutions and composition structure.",
   "selectedAs": "StreetDeliRoleTag",

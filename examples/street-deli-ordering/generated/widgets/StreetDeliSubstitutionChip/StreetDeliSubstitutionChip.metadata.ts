@@ -4,9 +4,50 @@ export const StreetDeliSubstitutionChipMetadata = {
   "adaptations": null,
   "category": "substitutions",
   "generatedBy": "dmeta scaffold-instance",
+  "generation": {
+    "emitAdapterTODOs": true,
+    "emitDocComments": true,
+    "emitSemanticMetadata": true,
+    "scaffoldMode": "adapter_todos",
+    "strictProjectionAdapter": false
+  },
   "instanceId": "street_deli_ordering",
+  "projectionHints": {
+    "adapterTODOs": [
+      "Choose whether the chip shows only top replacement or opens alternatives.",
+      "Do not hide allergen warnings when the selected candidate introduces risk."
+    ],
+    "documentationOnly": null,
+    "optional": [
+      "dietary_substitutable.dietary_explanation",
+      "price_aware_substitutable.price_delta_label",
+      "dietary.dietary_tags"
+    ],
+    "recommended": [
+      "substitutable.replaces",
+      "substitutable.replacement_candidates",
+      "role_preserving_substitutable.role_overlap_score"
+    ],
+    "required": null
+  },
   "reason": "Replacement suggestions need a compact reusable action presentation.",
   "selectedAs": "StreetDeliSubstitutionChip",
+  "semanticContext": {
+    "archetypes": [
+      "Substitution"
+    ],
+    "capabilities": [
+      "role_preserving_substitutable",
+      "dietary_substitutable",
+      "price_aware_substitutable"
+    ],
+    "inheritedContextNote": "SubstitutionSuggestion and AppliedSubstitution extend Substitution and can carry role-preserving, dietary, and price-aware substitution capabilities.",
+    "intent": "Render a compact replacement suggestion or applied substitution. Descendant capabilities may add dietary and price information, but each variant decides what fits in the chip.",
+    "presentations": [
+      "substitution_badge",
+      "substitution_pair"
+    ]
+  },
   "templateId": "deli.substitution_chip",
   "variant": "mobile_default"
 } as const;

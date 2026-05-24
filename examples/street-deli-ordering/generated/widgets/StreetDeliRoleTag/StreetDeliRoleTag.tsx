@@ -2,6 +2,12 @@
 
 import type { StreetDeliRoleTagProps } from "./StreetDeliRoleTag.types";
 
+/**
+ * StreetDeliRoleTag
+ *
+ * Reflection-first scaffold generated from `deli.role_tag`.
+ * Selected because: Ingredient roles are central to explaining substitutions and composition structure.
+ */
 export function StreetDeliRoleTag(props: StreetDeliRoleTagProps) {
   return (
     <section data-dmeta-widget="deli.role_tag" data-dmeta-template="deli.role_tag" data-dmeta-variant="compact_mode">

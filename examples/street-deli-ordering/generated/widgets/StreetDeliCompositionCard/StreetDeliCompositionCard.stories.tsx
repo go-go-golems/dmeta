@@ -5,6 +5,13 @@ import { StreetDeliCompositionCard } from "./StreetDeliCompositionCard";
 export default {
   title: "Street Deli Ordering/StreetDeliCompositionCard",
   component: StreetDeliCompositionCard,
+  parameters: {
+    docs: {
+      description: {
+        component: "Generated scaffold for `deli.composition_card`. Semantic context: ProductComposition, ingredient_composable, dietary, measurable, available, composition_card. Projection hints are scaffold guidance, not mandatory layout.",
+      },
+    },
+  },
 };
 
 export const SandwichCard = {

@@ -5,6 +5,13 @@ import { StreetDeliOrderCart } from "./StreetDeliOrderCart";
 export default {
   title: "Street Deli Ordering/StreetDeliOrderCart",
   component: StreetDeliOrderCart,
+  parameters: {
+    docs: {
+      description: {
+        component: "Generated scaffold for `deli.order_cart`. Semantic context: OrderItem, WorkItem, ProductComposition, ingredient_composable, configurable, measurable, stateful, order_item_row, compact_ref. Projection hints are scaffold guidance, not mandatory layout.",
+      },
+    },
+  },
 };
 
 export const EmptyCart = {

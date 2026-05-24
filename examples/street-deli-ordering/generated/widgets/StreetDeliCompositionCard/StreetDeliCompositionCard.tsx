@@ -2,6 +2,39 @@
 
 import type { StreetDeliCompositionCardProps } from "./StreetDeliCompositionCard.types";
 
+/**
+ * StreetDeliCompositionCard
+ *
+ * Reflection-first scaffold generated from `deli.composition_card`.
+ * Selected because: Sandwiches and bowls need compact composition summaries with dietary and price data.
+ *
+ * Semantic context:
+ * - Archetype: ProductComposition
+ * - Capability: ingredient_composable
+ * - Capability: dietary
+ * - Capability: measurable
+ * - Capability: available
+ * - Presentation: composition_card
+ *
+ * Intent:
+ * Render a mobile menu card for a sellable ingredient composition. The semantic model explains why MenuItem fits here without requiring every variant to render the full ingredient role graph.
+ *
+ * Inherited context note:
+ * MenuItem extends ProductSpec and ProductComposition, so it satisfies both product browsing and composition customization context.
+ *
+ * Projection hints are scaffold guidance, not rigid layout requirements unless strict mode is enabled.
+ * Recommended:
+ * - labelable.label
+ * - measurable.value
+ * - ingredient_composable.parts
+ * - dietary.dietary_tags
+ * Optional:
+ * - available.availability_state
+ * - ingredient_composable.required_roles
+ * - ingredient_composable.ingredient_roles
+ * Documentation-only:
+ * - ingredient_composable.role_profile
+ */
 export function StreetDeliCompositionCard(props: StreetDeliCompositionCardProps) {
   return (
     <section data-dmeta-widget="deli.composition_card" data-dmeta-template="deli.composition_card" data-dmeta-variant="mobile_default">
