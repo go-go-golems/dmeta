@@ -65,18 +65,18 @@ Validation gate:
 
 Goal: plan a real app target, not just generic PBUI scaffold files.
 
-- [ ] Add React app planning model.
-- [ ] Plan Vite/React package files.
-- [ ] Plan CSS/font files from style profile.
-- [ ] Plan `ClimShell`, `ClimHeader`, `ClimCommandBar`, `ClimCommandLine`, `Presentation`, `ActionPresentation`, `ContextMenu`, and `ConfirmPrompt`.
-- [ ] Plan runtime files inspired by Readwise: `types.ts`, `store.ts`, `actions.ts`, `commands.ts`, `selectors.ts`, `runtime.ts`.
-- [ ] Plan view files for menu/detail/substitution/cart/help/tracker.
-- [ ] Plan generated registry imports or copies.
-- [ ] Add `dmeta plan-pbui-react-app`.
+- [x] Add React app planning model.
+- [x] Plan Vite/React package files.
+- [x] Plan CSS/font files from style profile.
+- [x] Plan `ClimShell`, `ClimHeader`, `ClimCommandBar`, `ClimCommandLine`, `Presentation`, `ActionPresentation`, `ContextMenu`, and `ConfirmPrompt`.
+- [x] Plan runtime files inspired by Readwise: `types.ts`, `store.ts`, `actions.ts`, `commands.ts`, `selectors.ts`, `runtime.ts`.
+- [x] Plan view files for menu/detail/substitution/cart/help/tracker.
+- [x] Plan generated registry imports or copies.
+- [x] Add `dmeta plan-pbui-react-app`.
 
 Validation gate:
 
-- [ ] Planning command emits stable table/YAML output for the Street Deli CLIM React app.
+- [x] Planning command emits stable table/YAML output for the Street Deli CLIM React app.
 
 ## Phase 5: Scaffold or promote `www/clim-react`
 

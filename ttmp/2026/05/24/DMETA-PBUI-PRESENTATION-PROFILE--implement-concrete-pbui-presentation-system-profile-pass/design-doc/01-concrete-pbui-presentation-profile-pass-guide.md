@@ -42,6 +42,8 @@ RelatedFiles:
       Note: Street Deli CLIM visual style and class grammar reference
     - Path: pkg/dmeta/cmds/instantiate_pbui.go
       Note: Phase 3 instantiate-pbui CLI implementation
+    - Path: pkg/dmeta/cmds/plan_pbui_react_app.go
+      Note: Phase 4 plan-pbui-react-app CLI implementation
     - Path: pkg/dmeta/cmds/validate_pbui_profile.go
       Note: Phase 2 validate-pbui-profile CLI implementation
     - Path: pkg/dmeta/metadesign/pbui/profile/instantiate.go
@@ -50,6 +52,8 @@ RelatedFiles:
       Note: Phase 2 concrete profile loader implementation
     - Path: pkg/dmeta/metadesign/pbui/profile/model.go
       Note: Phase 2 concrete profile model implementation
+    - Path: pkg/dmeta/metadesign/pbui/profile/react_app_plan.go
+      Note: Phase 4 React CLIM app planning implementation
     - Path: pkg/dmeta/metadesign/pbui/profile/validate.go
       Note: Phase 2 concrete profile validator implementation
     - Path: pkg/dmeta/metadesign/pbui/react_plan.go
@@ -66,6 +70,7 @@ LastUpdated: 2026-05-24T17:55:00-04:00
 WhatFor: Use this guide to implement the missing pass that turns abstract PBUI presentation obligations into a concrete CLIM-like graphical presentation system, using Street Deli prototype-clim as the visual reference and Readwise Viewer as the runtime architecture reference.
 WhenToUse: Read before implementing PBUI presentation-system profile schemas, validators, instantiation passes, or a real Street Deli clim-react app.
 ---
+
 
 
 
