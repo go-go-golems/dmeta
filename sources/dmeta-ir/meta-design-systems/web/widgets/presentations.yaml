@@ -178,12 +178,6 @@ templates:
     - stateful.state_tone
     adapter_todos:
     - Decide whether the concrete variant receives a precomputed tone or derives tone from state.
-  generation:
-    scaffold_mode: adapter_todos
-    emit_semantic_metadata: true
-    emit_doc_comments: true
-    emit_adapter_todos: true
-    strict_projection_adapter: false
 - id: dmeta.compact_reference
   name: CompactReference
   status: template
@@ -284,12 +278,6 @@ templates:
     - labelable.subtitle
     adapter_todos:
     - Choose whether this instance renders ids visibly or only uses them for copy/actions.
-  generation:
-    scaffold_mode: reflective
-    emit_semantic_metadata: true
-    emit_doc_comments: true
-    emit_adapter_todos: false
-    strict_projection_adapter: false
 - id: dmeta.metric_cell
   name: MetricCell
   status: template

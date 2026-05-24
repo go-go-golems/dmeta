@@ -117,12 +117,6 @@ templates:
     - relatable.work_item_ref
     adapter_todos:
     - Decide whether tracker steps are derived from order state, prep tasks, or both.
-  generation:
-    scaffold_mode: adapter_todos
-    emit_semantic_metadata: true
-    emit_doc_comments: true
-    emit_adapter_todos: true
-    strict_projection_adapter: false
 - id: deli.prep_status_badge
   name: PrepStatusBadge
   status: template

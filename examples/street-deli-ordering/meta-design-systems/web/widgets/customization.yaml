@@ -124,12 +124,6 @@ templates:
     adapter_todos:
     - Map removed ingredient state separately from static ingredient projections.
     - Decide which substitution projections are displayed inline versus in a detail sheet.
-  generation:
-    scaffold_mode: adapter_todos
-    emit_semantic_metadata: true
-    emit_doc_comments: true
-    emit_adapter_todos: true
-    strict_projection_adapter: false
 - id: deli.build_your_own_customizer
   name: BuildYourOwnCustomizer
   status: template

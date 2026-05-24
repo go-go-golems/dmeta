@@ -321,19 +321,18 @@ type WidgetTemplatesFile struct {
 }
 
 type Widget struct {
-	ID              string                 `yaml:"id"`
-	Name            string                 `yaml:"name"`
-	Status          string                 `yaml:"status"`
-	Classification  map[string]any         `yaml:"classification"`
-	Intent          WidgetIntent           `yaml:"intent"`
-	Template        TemplateMetadata       `yaml:"template"`
-	Consumes        Consumes               `yaml:"consumes"`
-	SemanticContext WidgetSemanticContext  `yaml:"semantic_context"`
-	ProjectionHints WidgetProjectionHints  `yaml:"projection_hints"`
-	Generation      WidgetGenerationPolicy `yaml:"generation"`
-	Contract        WidgetContract         `yaml:"contract"`
-	Stories         []string               `yaml:"stories"`
-	Outputs         map[string]string      `yaml:"outputs"`
+	ID              string                `yaml:"id"`
+	Name            string                `yaml:"name"`
+	Status          string                `yaml:"status"`
+	Classification  map[string]any        `yaml:"classification"`
+	Intent          WidgetIntent          `yaml:"intent"`
+	Template        TemplateMetadata      `yaml:"template"`
+	Consumes        Consumes              `yaml:"consumes"`
+	SemanticContext WidgetSemanticContext `yaml:"semantic_context"`
+	ProjectionHints WidgetProjectionHints `yaml:"projection_hints"`
+	Contract        WidgetContract        `yaml:"contract"`
+	Stories         []string              `yaml:"stories"`
+	Outputs         map[string]string     `yaml:"outputs"`
 }
 
 type TemplateMetadata struct {
@@ -379,44 +378,6 @@ type WidgetProjectionHints struct {
 	Optional          []string `yaml:"optional"`
 	DocumentationOnly []string `yaml:"documentation_only"`
 	AdapterTODOs      []string `yaml:"adapter_todos"`
-}
-
-type WidgetGenerationPolicy struct {
-	ScaffoldMode            string `yaml:"scaffold_mode"`
-	EmitSemanticMetadata    *bool  `yaml:"emit_semantic_metadata"`
-	EmitDocComments         *bool  `yaml:"emit_doc_comments"`
-	EmitAdapterTODOs        *bool  `yaml:"emit_adapter_todos"`
-	StrictProjectionAdapter *bool  `yaml:"strict_projection_adapter"`
-}
-
-func (p WidgetGenerationPolicy) EffectiveScaffoldMode() string {
-	if p.ScaffoldMode == "" {
-		return "reflective"
-	}
-	return p.ScaffoldMode
-}
-
-func (p WidgetGenerationPolicy) ShouldEmitSemanticMetadata() bool {
-	return boolDefault(p.EmitSemanticMetadata, true)
-}
-
-func (p WidgetGenerationPolicy) ShouldEmitDocComments() bool {
-	return boolDefault(p.EmitDocComments, true)
-}
-
-func (p WidgetGenerationPolicy) ShouldEmitAdapterTODOs() bool {
-	return boolDefault(p.EmitAdapterTODOs, p.EffectiveScaffoldMode() == "adapter_todos" || p.EffectiveScaffoldMode() == "strict")
-}
-
-func (p WidgetGenerationPolicy) IsStrictProjectionAdapter() bool {
-	return boolDefault(p.StrictProjectionAdapter, p.EffectiveScaffoldMode() == "strict")
-}
-
-func boolDefault(value *bool, fallback bool) bool {
-	if value == nil {
-		return fallback
-	}
-	return *value
 }
 
 type WidgetContract struct {

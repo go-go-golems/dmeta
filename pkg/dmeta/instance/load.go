@@ -1,4 +1,4 @@
-package widgets
+package instance
 
 import (
 	"context"

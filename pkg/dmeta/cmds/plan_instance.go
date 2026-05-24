@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	widgetgen "github.com/go-go-golems/dmeta/pkg/dmeta/generator/widgets"
+	instancegen "github.com/go-go-golems/dmeta/pkg/dmeta/instance"
 	"github.com/go-go-golems/glazed/pkg/cli"
 	"github.com/go-go-golems/glazed/pkg/cmds"
 	"github.com/go-go-golems/glazed/pkg/cmds/fields"
@@ -77,16 +77,16 @@ func (c *PlanInstanceCommand) RunIntoGlazeProcessor(ctx context.Context, vals *v
 	if s.Instance == "" {
 		return errors.New("--instance is required")
 	}
-	instance, instanceDir, err := widgetgen.LoadInstance(s.Instance)
+	instance, instanceDir, err := instancegen.LoadInstance(s.Instance)
 	if err != nil {
 		return err
 	}
-	catalog, err := widgetgen.LoadTemplateCatalog(ctx, s.Root, instanceDir, instance)
+	catalog, err := instancegen.LoadTemplateCatalog(ctx, s.Root, instanceDir, instance)
 	if err != nil {
 		return err
 	}
 
-	findings := widgetgen.ValidateInstanceAgainstCatalog(instance, catalog)
+	findings := instancegen.ValidateInstanceAgainstCatalog(instance, catalog)
 	for _, selected := range instance.SelectedTemplates {
 		widget, ok := catalog.Templates[selected.Template]
 		status := "selected"
@@ -150,7 +150,7 @@ func (c *PlanInstanceCommand) RunIntoGlazeProcessor(ctx context.Context, vals *v
 	return nil
 }
 
-func hasPlanErrors(findings []widgetgen.PlanFinding) bool {
+func hasPlanErrors(findings []instancegen.PlanFinding) bool {
 	for _, finding := range findings {
 		if finding.Severity == "error" {
 			return true

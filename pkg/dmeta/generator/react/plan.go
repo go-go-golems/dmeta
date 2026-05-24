@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	widgetgen "github.com/go-go-golems/dmeta/pkg/dmeta/generator/widgets"
+	instancegen "github.com/go-go-golems/dmeta/pkg/dmeta/instance"
 	"github.com/go-go-golems/dmeta/pkg/dmeta/interaction"
 	webmds "github.com/go-go-golems/dmeta/pkg/dmeta/metadesign/web"
 	"github.com/go-go-golems/dmeta/pkg/dmeta/validator"
@@ -43,7 +43,7 @@ func BuildScaffoldPlan(ctx context.Context, opts PlanOptions) (ScaffoldPlan, err
 	if opts.InstancePath == "" {
 		return ScaffoldPlan{}, errors.New("instance path is required")
 	}
-	instance, instanceDir, err := widgetgen.LoadInstance(opts.InstancePath)
+	instance, instanceDir, err := instancegen.LoadInstance(opts.InstancePath)
 	if err != nil {
 		return ScaffoldPlan{}, err
 	}

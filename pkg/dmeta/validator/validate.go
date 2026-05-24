@@ -341,7 +341,6 @@ func validateWidgets(pkg *Package, resolved *ResolvedCoreModel) []Finding {
 		}
 		findings = append(findings, validateWidgetSemanticContext(pkg, widget, path)...)
 		findings = append(findings, validateWidgetProjectionHints(widget, path, resolved)...)
-		findings = append(findings, validateWidgetGenerationPolicy(widget, path)...)
 		if _, ok := widget.Outputs["metadata"]; !ok {
 			findings = append(findings, Error("widgets", path+".outputs.metadata", "missing_metadata_output", fmt.Sprintf("widget %q has no metadata output", widget.ID), "Add a metadata sidecar output path."))
 		}
@@ -383,14 +382,9 @@ func validateWidgetSemanticContext(pkg *Package, widget Widget, path string) []F
 
 func validateWidgetProjectionHints(widget Widget, path string, resolved *ResolvedCoreModel) []Finding {
 	var findings []Finding
-	strict := widget.Generation.IsStrictProjectionAdapter()
 	for _, hint := range widget.ProjectionHints.Required {
 		if _, ok := resolveProjectionHint(hint, resolved); !ok {
-			if strict {
-				findings = append(findings, Error("widgets", path+".projection_hints.required", "unknown_required_projection_hint", fmt.Sprintf("widget %q requires unknown projection hint %q", widget.ID, hint), "Use capability.projection with a known effective projection, or disable strict projection adapter generation."))
-			} else {
-				findings = append(findings, Warning("widgets", path+".projection_hints.required", "unknown_required_projection_hint", fmt.Sprintf("widget %q has unresolved required projection hint %q", widget.ID, hint), "Use capability.projection with a known effective projection, or enable strict mode only after resolving it."))
-			}
+			findings = append(findings, Warning("widgets", path+".projection_hints.required", "unknown_required_projection_hint", fmt.Sprintf("widget %q has unresolved required projection hint %q", widget.ID, hint), "Use capability.projection with a known effective projection."))
 		}
 	}
 	for _, hint := range widget.ProjectionHints.Recommended {
@@ -404,16 +398,6 @@ func validateWidgetProjectionHints(widget Widget, path string, resolved *Resolve
 		}
 	}
 	return findings
-}
-
-func validateWidgetGenerationPolicy(widget Widget, path string) []Finding {
-	mode := widget.Generation.EffectiveScaffoldMode()
-	switch mode {
-	case "reflective", "adapter_todos", "strict":
-		return nil
-	default:
-		return []Finding{Error("widgets", path+".generation.scaffold_mode", "unknown_scaffold_mode", fmt.Sprintf("widget %q uses unknown scaffold mode %q", widget.ID, mode), "Use reflective, adapter_todos, or strict.")}
-	}
 }
 
 func resolveProjectionHint(hint string, resolved *ResolvedCoreModel) (Projection, bool) {

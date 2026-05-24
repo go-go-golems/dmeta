@@ -119,12 +119,6 @@ templates:
     adapter_todos:
     - Decide whether the selected variant shows a short ingredient summary or full ingredient rows.
     - Keep dietary/allergen information visible when safety-relevant.
-  generation:
-    scaffold_mode: adapter_todos
-    emit_semantic_metadata: true
-    emit_doc_comments: true
-    emit_adapter_todos: true
-    strict_projection_adapter: false
 - id: deli.simple_menu_item_card
   name: SimpleMenuItemCard
   status: template
