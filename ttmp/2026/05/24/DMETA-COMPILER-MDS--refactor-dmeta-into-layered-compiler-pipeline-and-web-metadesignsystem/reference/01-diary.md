@@ -739,7 +739,7 @@ This is not the full elaboration engine yet. It is the first validation layer: t
 
 **Inferred user intent:** Turn the Interaction IR from documentation/YAML into a validated compiler layer.
 
-**Commit (code):** pending at time of diary entry — Interaction IR loader/validator changes.
+**Commit (code):** ce60506792d0bd3a478ae6d59e21958d57194f24 — "DMETA-COMPILER-MDS: add interaction IR validation"
 
 ### What I did
 
