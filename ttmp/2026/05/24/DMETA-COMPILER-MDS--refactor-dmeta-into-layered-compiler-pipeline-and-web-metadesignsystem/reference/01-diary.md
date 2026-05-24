@@ -447,7 +447,7 @@ The implementation intentionally did not add compatibility aliases for the old p
 
 **Inferred user intent:** Make the repository architecture match the refined model instead of adding transitional compatibility around the old widget-template package.
 
-**Commit (code):** pending at time of diary entry — Phase 1 cutover changes.
+**Commit (code):** 7a86716e6f322a4b62141403a9068a2d14db6e83 — "DMETA-COMPILER-MDS: move widgets under web metadesign system"
 
 ### What I did
 
