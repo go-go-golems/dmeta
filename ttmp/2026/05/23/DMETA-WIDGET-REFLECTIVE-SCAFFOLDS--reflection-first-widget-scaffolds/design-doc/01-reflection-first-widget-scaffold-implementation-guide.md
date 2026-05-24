@@ -15,6 +15,8 @@ RelatedFiles:
       Note: |-
         Durable review guide that should teach reflection-first scaffold review
         Review guide to update for reflection-first scaffold review
+    - Path: examples/street-deli-ordering/generated/widgets/StreetDeliCompositionCard/StreetDeliCompositionCard.adapter.todo.ts
+      Note: Generated adapter TODO example after implementation
     - Path: examples/street-deli-ordering/widget-templates/item-cards.yaml
       Note: |-
         Good pressure test for composition-card reflection and projection hints
@@ -39,6 +41,8 @@ RelatedFiles:
       Note: |-
         Current scaffold renderer; extend with metadata, doc comments, adapter TODOs, and optional projection helper output
         Renderer for metadata
+    - Path: pkg/dmeta/generator/widgets/render_test.go
+      Note: Generator tests for metadata
     - Path: pkg/dmeta/validator/inheritance.go
       Note: |-
         Existing archetype/capability inheritance resolver that reflective widget tooling should reuse
@@ -51,6 +55,8 @@ RelatedFiles:
       Note: |-
         Current widget reference validation; extend with soft/strict validation for reflective widget fields
         Validator integration point for semantic context and projection hint severity
+    - Path: pkg/dmeta/validator/widget_reflection_test.go
+      Note: Validation tests for semantic context
     - Path: sources/dmeta-ir/widget-templates/00-index.yaml
       Note: |-
         Base widget-template catalog policy; add reflection-first authoring guidance/defaults
@@ -65,6 +71,7 @@ LastUpdated: 2026-05-23T00:00:00-04:00
 WhatFor: Use when updating widget template YAML, scaffold generation, widget review docs, or instance planning to leverage archetype/capability inheritance without overconstraining widget design.
 WhenToUse: Read before changing pkg/dmeta/generator/widgets, widget-template YAML schemas, generated widget metadata, adapter TODOs, or Street Deli widget templates.
 ---
+
 
 
 # Reflection First Widget Scaffold Implementation Guide
