@@ -29,12 +29,16 @@ RelatedFiles:
       Note: Street Deli local Web MetaDesignSystem entrypoint created in Phase 1
     - Path: examples/street-deli-ordering/widget-templates/customization.yaml
       Note: Representative local web widget template to migrate from consumes.presentations to realizes.representations/actions
+    - Path: go.mod
+      Note: go mod tidy updated indirect x/net and x/sys while validating new command imports
     - Path: pkg/dmeta/cmds/elaborate_interactions.go
       Note: CLI command exposing interaction elaboration
     - Path: pkg/dmeta/cmds/lower_web.go
       Note: CLI command for Web lowering
     - Path: pkg/dmeta/cmds/plan_scaffold.go
       Note: React scaffold planning CLI
+    - Path: pkg/dmeta/cmds/scaffold_react.go
+      Note: React target scaffold writer command
     - Path: pkg/dmeta/cmds/validate_interactions.go
       Note: CLI command exposing Interaction IR validation
     - Path: pkg/dmeta/generator/react/model.go
@@ -45,6 +49,8 @@ RelatedFiles:
       Note: React metadata sidecar rendering from planned Web/React provenance
     - Path: pkg/dmeta/generator/react/render_test.go
       Note: Focused test for rendered sidecar provenance
+    - Path: pkg/dmeta/generator/react/write.go
+      Note: React target write/dry-run behavior
     - Path: pkg/dmeta/generator/widgets/load.go
       Note: Current instance/catalog planner validation to extend for abstract/selectable/realizes rules
     - Path: pkg/dmeta/generator/widgets/render.go
@@ -85,6 +91,7 @@ LastUpdated: 2026-05-24T18:15:00-04:00
 WhatFor: 'Use when implementing the next DMETA architecture step: Actions/Representations, MetaDesignSystem schemas, web-style UI lowering, React scaffold tooling, and migration of Street Deli templates.'
 WhenToUse: Read before changing pkg/dmeta/validator, pkg/dmeta/generator/widgets, sources/dmeta-ir widget templates, or examples/street-deli-ordering instance manifests for the compiler-pipeline refactor.
 ---
+
 
 
 

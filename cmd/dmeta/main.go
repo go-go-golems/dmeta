@@ -66,6 +66,13 @@ func main() {
 	}
 	addGlazedCommand(rootCmd, "plan-scaffold", planScaffold)
 
+	scaffoldReact, err := dmetacmds.NewScaffoldReactCommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating scaffold-react command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "scaffold-react", scaffoldReact)
+
 	scaffoldInstance, err := dmetacmds.NewScaffoldInstanceCommand()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error creating scaffold-instance command: %v\n", err)

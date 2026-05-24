@@ -1373,3 +1373,152 @@ The rendered JSON sidecar has this high-level shape:
   }
 }
 ```
+
+## Step 11: Add scaffold-react writing and full React target rendering
+
+This step completed both requested follow-ups: a write/dry-run path for React target artifacts and renderer support beyond metadata sidecars. The new `scaffold-react` command follows the hard-cut compiler path: Semantic IR -> Interaction IR -> Web MetaDesignSystem obligations -> React target plan -> rendered React files.
+
+The old generic widget renderer is still present in the repository for the legacy `scaffold-instance` command, but this step does not call it. The React renderer lives in `pkg/dmeta/generator/react` and consumes `ComponentPlan` data produced from Web obligations.
+
+### Prompt Context
+
+**User prompt (verbatim):** "go ahead, do both."
+
+**Assistant interpretation:** Implement both the React write/dry-run path and the React component/types/story rendering path.
+
+**Inferred user intent:** Move from React planning/metadata-only rendering toward a usable target-specific scaffold command while preserving the new layer boundaries.
+
+**Commit (code):** pending at time of diary entry — React scaffold writer/rendering changes.
+
+### What I did
+
+- Extended `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render.go` to render:
+  - package index;
+  - component `.tsx`;
+  - props/types `.types.ts`;
+  - metadata sidecar `.metadata.json`;
+  - Storybook `.stories.tsx`;
+  - CSS module `.module.css`;
+  - component barrel `index.ts`;
+  - adapter TODO file;
+  - README.
+- Added `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/write.go` with force/dry-run behavior matching the existing generator write style.
+- Added `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_react.go`.
+- Registered `scaffold-react` in `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`.
+- Kept `--metadata-only` for the narrow sidecar flow.
+- Added generated React component data attributes for:
+  - `data-dmeta-meta-design-system="web"`
+  - `data-dmeta-codegen-target="react"`
+  - `data-dmeta-widget-template`
+  - `data-dmeta-representations`
+  - `data-dmeta-actions`
+  - `data-dmeta-visual-state`
+- Added Storybook docs descriptions that name source representations/actions.
+- Ran `go mod tidy`; it updated indirect `golang.org/x/net` and `golang.org/x/sys` entries while validating the new command imports.
+
+### Why
+
+- React rendering should now happen through a React target package, not through the old generic widget renderer.
+- A dry-run writer lets reviewers inspect planned writes before touching generated output.
+- Rendering component/types/story/CSS shells proves the target pipeline can produce practical scaffolds while preserving provenance.
+
+### What worked
+
+- `go test ./pkg/dmeta/generator/react/... ./pkg/dmeta/... ./cmd/dmeta -count=1` passed.
+- Full dry-run worked:
+
+```bash
+go run ./cmd/dmeta scaffold-react \
+  --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml \
+  --dry-run \
+  --output table
+```
+
+- Metadata-only dry-run worked and planned eight metadata sidecars:
+
+```bash
+go run ./cmd/dmeta scaffold-react \
+  --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml \
+  --metadata-only \
+  --dry-run \
+  --output table
+```
+
+- Actual metadata writing was tested in `/tmp/dmeta-react-scaffold-test`, validated with `python3 -m json.tool`, and then removed.
+- Existing validation still passed:
+  - global `validate-ir`;
+  - Street Deli `validate-ir`;
+  - local `lower-web`;
+  - `plan-scaffold` still reports eight component rows.
+
+### What didn't work
+
+- The first Go compile failed because raw Go string literals in `render.go` contained Markdown backticks around template IDs. Those backticks prematurely ended the raw string literal. I removed those backticks from generated comments/README text.
+- The first TypeScript component renderer would have indexed `slots` with a plain `string` from an inferred string array. I changed the generated JSX to cast the slot list to the generated `ComponentSlotName[]` type and imported that type alongside props.
+- `go test ./pkg/dmeta/... ./cmd/dmeta` initially requested `go mod tidy`; after running it, indirect `x/net` and `x/sys` versions were updated.
+
+### What I learned
+
+- The React target can now render useful scaffolds entirely from Web obligations and component aliases.
+- The renderer naturally separates Interaction provenance (`realizes`), Web obligations (`slots`, `visualStates`, `eventBindings`), and React file shape.
+- The old generic renderer is no longer needed for the new target path, but removing it should wait until `scaffold-instance` is replaced or deprecated.
+
+### What was tricky to build
+
+- Raw Go strings are convenient for TSX templates, but generated comments/README snippets cannot include unescaped backticks inside them.
+- Generated TSX needs enough type precision that Storybook/TypeScript users do not immediately hit avoidable errors. The slot-name union and cast are a minimal first pass.
+- The command has to provide both safe dry-run behavior and actual file writing without accidentally writing into the promoted React app. The default React target output remains `examples/street-deli-ordering/generated/react`, separate from `www/mobile-react`.
+
+### What warrants a second pair of eyes
+
+- Review generated TypeScript ergonomics, especially whether `slots?: Partial<Record<SlotName, unknown>>` should become `React.ReactNode` once target runtime dependencies are explicit.
+- Review whether `@storybook/react-vite` is the right import for generated stories or whether target config should make this selectable.
+- Review the `go.mod`/`go.sum` tidy changes; they are indirect dependency updates triggered by validation.
+
+### What should be done in the future
+
+- Add golden tests for one fully rendered component file and story file.
+- Wire `scaffold-instance` to point users at `scaffold-react` or replace it with the target-aware path.
+- Compile a temporary generated React package with TypeScript once a minimal generated package config exists.
+- Migrate the instance manifest away from old `generation`/`template_sources` names and toward explicit `targets.react` metadata.
+
+### Code review instructions
+
+Start with:
+
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/write.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_react.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+
+Validate with:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+go test ./pkg/dmeta/generator/react/... ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta scaffold-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --dry-run --output table
+go run ./cmd/dmeta scaffold-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --metadata-only --dry-run --output table
+go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output yaml
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+```
+
+### Technical details
+
+`scaffold-react` supports:
+
+- `--dry-run`
+- `--force`
+- `--metadata-only`
+- `--output-dir`
+- `--target-file`
+- `--interactions-root`
+- `--web-root`
+- `--semantic-root`
+
+The generated React default output path is target-owned:
+
+```text
+examples/street-deli-ordering/generated/react/
+```
+
+not the old generic widget output path.

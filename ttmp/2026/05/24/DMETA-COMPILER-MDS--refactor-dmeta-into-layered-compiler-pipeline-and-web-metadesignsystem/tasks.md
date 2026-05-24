@@ -179,14 +179,17 @@ Goal: React becomes a concrete codegen target of the Web MetaDesignSystem, not t
 - [x] Implement Web widget IR -> React scaffold plan.
 - [x] Add Street Deli lowering rule for `deli.menu_browser` so all eight selected widgets receive React plan provenance.
 - [x] Add `pkg/dmeta/generator/react/render.go`.
-- [ ] Move useful rendering logic out of `pkg/dmeta/generator/widgets/render.go` into React-specific rendering.
+- [x] Render React component, types, stories, CSS module, barrel, adapter TODO, README, metadata sidecar, and package index files.
+- [x] Add `pkg/dmeta/generator/react/write.go`.
+- [x] Move useful rendering logic out of `pkg/dmeta/generator/widgets/render.go` into React-specific rendering.
 - [ ] Delete generic widget scaffold rendering once React rendering is in place.
 - [x] Add `pkg/dmeta/cmds/plan_scaffold.go`.
 - [x] Add `dmeta plan-scaffold --target react` command.
+- [x] Add `dmeta scaffold-react` command with `--dry-run`, `--force`, and `--metadata-only`.
 - [ ] Rewrite `scaffold-instance` to call the React target path or replace it with a clearer command name.
 - [x] Add metadata fields: `metaDesignSystem`, `codegenTarget`, `realizes.representations`, `realizes.actions`, pass versions.
-- [ ] Add generated component data attributes for MetaDesignSystem and representation ids.
-- [ ] Add Storybook docs text that names representations/actions.
+- [x] Add generated component data attributes for MetaDesignSystem and representation ids.
+- [x] Add Storybook docs text that names representations/actions.
 - [x] Add golden tests for React scaffold plan and one rendered metadata sidecar.
 - [x] Add `pkg/dmeta/generator/react/render_test.go` for metadata sidecar provenance.
 
@@ -194,6 +197,8 @@ Validation gate:
 
 - [x] `go test ./pkg/dmeta/generator/react/... -count=1`
 - [x] `go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output yaml`
+- [x] `go run ./cmd/dmeta scaffold-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --dry-run --output table`
+- [x] `go run ./cmd/dmeta scaffold-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --metadata-only --dry-run --output table`
 
 ## Phase 8: Move and rewrite Street Deli Web templates and instance metadata
 
