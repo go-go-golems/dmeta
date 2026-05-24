@@ -1003,7 +1003,7 @@ The important boundary is that this still does not produce React components. Rea
 
 **Inferred user intent:** Advance the compiler cutover without losing the chronological implementation record or leaving a large uncommitted working tree.
 
-**Commit (code):** pending at time of diary entry — Web lowering changes.
+**Commit (code):** b7b1c94575fe4912146cd8db87745ee1181bd907 — "DMETA-COMPILER-MDS: lower interactions into web obligations"
 
 ### What I did
 
