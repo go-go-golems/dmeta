@@ -1,0 +1,63 @@
+schema_version: 0
+artifact_type: dmeta_pbui_react_target
+id: react
+name: React target for the PBUI MetaDesignSystem
+summary: React code-generation target for PBUI presentation-system obligations.
+long_summary: >-
+  The PBUI React target compiles presentation-system obligations into concrete
+  TypeScript and React artifacts while keeping PBUI concepts visible in
+  generated metadata. Object type descriptors should be derived from Semantic
+  IR, action descriptors from Interaction IR, and presentation descriptors from
+  PBUI lowering. Presenter intent should compile primarily into selectors,
+  projection functions, and useSelector-style hooks. Recognizer intent should
+  compile primarily into event adapters, action request builders, command
+  parser stubs, and confirmation/argument-selection state transitions.
+intent: >-
+  Produce a target scaffold that is useful for inspection and dogfooding before
+  it becomes a polished app. Generated files should be explicit, richly
+  commented, and traceable back to semantic facts, interaction obligations, PBUI
+  presentation types, and lowering rules.
+defaults:
+  output_dir: ./generated/pbui-react
+  package_name: dmeta-pbui-react
+  storybook: true
+  metadata_sidecars: true
+  dry_run_first: true
+file_kinds:
+  - object_type_registry
+  - action_descriptor_registry
+  - presentation_type_registry
+  - session_slice
+  - selectors
+  - presenter_hook
+  - action_request_builder
+  - event_adapter
+  - command_parser
+  - component
+  - metadata
+  - stories
+  - README
+provenance:
+  meta_design_system: pbui
+  codegen_target: react
+  source_passes:
+    - semantic-ir
+    - interaction-elaboration
+    - pbui-lowering
+    - pbui-react-planning
+runtime_notes:
+  state_strategy: >-
+    Use Redux/RTK slices for domain state and PBUI session/interaction state,
+    but keep most presentation database objects derived through selectors and
+    hooks until a concrete use case proves they need persistence.
+  presenter_strategy: >-
+    Compile presenter intent into selector bundles, pure projection functions,
+    and hooks named after the presentation type.
+  recognizer_strategy: >-
+    Compile recognizer intent into event adapters and action request builders.
+    Command parsing can start as a target utility rather than a universal PBUI
+    command-table schema.
+  documentation_strategy: >-
+    Preserve the natural language `intent`, `description`, `presenter_intent`,
+    `recognizer_intent`, and lowering rationale in generated metadata and
+    Storybook/docs output.

@@ -1,0 +1,173 @@
+schema_version: 0
+artifact_type: dmeta_pbui_lowering_rules
+summary: First-pass rules that lower Interaction IR obligations into PBUI presentation obligations.
+long_summary: >-
+  PBUI lowering rules choose typed presentation-system obligations after
+  Semantic IR has been elaborated into Interaction IR actions and
+  representations. These rules are intentionally explanatory. Their descriptions
+  and rationale fields should survive into generated metadata so reviewers can
+  understand why a presentation exists, which semantic facts caused it, and how
+  a target should compile presenter and recognizer behavior.
+rules:
+  - id: pbui.reference_for_compact_inspectable_subject
+    description: Lower compact reference and inspection obligations into a selectable presentation reference.
+    rationale: >-
+      If an object can be compactly referenced and inspected, the PBUI layer
+      needs a first-class presentation object that can be selected, copied, or
+      used as the subject of later commands. This rule is the generic bridge
+      from Interaction IR object references into CLIM-style presentation refs.
+    when:
+      representations:
+        - compact_reference
+        - inspection_entrypoint
+      actions:
+        - inspect_subject
+    emits:
+      presentation_types:
+        - pbui.presentation_ref
+    presenter_intent: >-
+      Project identity, label, type, and capability hints into a compact
+      selectable presentation model.
+    recognizer_intent: >-
+      Treat selecting, copying, or opening the presentation as typed action
+      requests over the underlying semantic subject.
+
+  - id: pbui.inspector_for_inspectable_subject
+    description: Lower inspection obligations into an inspector panel presentation.
+    rationale: >-
+      The thesis emphasizes that object types and interface state should be
+      inspectable. When Interaction IR says a subject supports inspection, PBUI
+      should expose a structured presentation that can show object descriptors,
+      projections, compatible actions, and provenance.
+    when:
+      representations:
+        - inspection_entrypoint
+      actions:
+        - inspect_subject
+    emits:
+      presentation_types:
+        - pbui.inspector_panel
+    presenter_intent: >-
+      Gather object facts, type descriptors, and available actions into a
+      readable inspection structure.
+    recognizer_intent: >-
+      Delegate nested action and object reference interactions back into typed
+      action requests.
+
+  - id: pbui.action_choices_for_selectable_reference
+    description: Lower selectable/copyable object references into an action chooser presentation.
+    rationale: >-
+      CLIM-style systems make available commands visible and selectable. When
+      an object is selectable and inspectable, PBUI should be able to present
+      compatible actions as first-class objects without waiting for a specific
+      target menu or toolbar design.
+    when:
+      representations:
+        - compact_reference
+      actions:
+        - select_subject
+        - inspect_subject
+    emits:
+      presentation_types:
+        - pbui.action_chooser
+        - pbui.action_presentation
+    presenter_intent: >-
+      Derive compatible action presentations from the selected object, action
+      descriptors, and interaction state.
+    recognizer_intent: >-
+      Interpret choosing an action as an action request or transition into
+      argument selection/confirmation.
+
+  - id: pbui.lifecycle_for_order_progress
+    description: Lower order lifecycle progress into a lifecycle status presentation.
+    rationale: >-
+      Lifecycle progress has enough structure to deserve a presentation type:
+      current state, phase ordering, temporal hints, and navigation/inspection
+      actions. Street Deli order tracking is the first concrete dogfooding case.
+    when:
+      representations:
+        - order_lifecycle_progress
+        - state_indicator
+      actions:
+        - inspect_subject
+        - return_to_menu
+    emits:
+      presentation_types:
+        - pbui.lifecycle_status
+    presenter_intent: >-
+      Convert stateful and temporal facts into ordered lifecycle display data.
+    recognizer_intent: >-
+      Treat lifecycle controls as navigation or inspection unless an explicit
+      mutating action is selected.
+
+  - id: pbui.composition_for_editable_deli_item
+    description: Lower composition and substitution obligations into a structured composition presentation.
+    rationale: >-
+      Street Deli composition editing is the richest current fixture for PBUI.
+      A single target component is not enough to explain it; the PBUI obligation
+      should preserve part roles, substitutions, configuration, local edit
+      actions, and cart actions as presentation-system concepts that React can
+      compile into selectors, hooks, components, and event adapters.
+    when:
+      representations:
+        - composition_summary
+        - composition_breakdown
+      actions:
+        - remove_part
+        - add_part
+    emits:
+      presentation_types:
+        - pbui.composition_presentation
+    presenter_intent: >-
+      Project a composed item and its parts into role-aware sections with local
+      action presentations near each actionable part.
+    recognizer_intent: >-
+      Build typed action requests for part removal, addition, substitution,
+      configuration, and order/cart actions.
+
+  - id: pbui.substitution_actions_for_composition_parts
+    description: Add action presentations for substitution candidates and alternatives.
+    rationale: >-
+      Substitution choices are actions over a composition context, not merely
+      chips or buttons. PBUI should make candidate replacement actions
+      inspectable and explainable before the React target chooses chip/list UI.
+    when:
+      representations:
+        - substitution_candidate
+      actions:
+        - apply_substitution
+        - reject_substitution
+        - see_alternatives
+    emits:
+      presentation_types:
+        - pbui.action_presentation
+        - pbui.composition_presentation
+    presenter_intent: >-
+      Present replacement candidates as documented action choices with role,
+      dietary, flavor, and price rationale when available.
+    recognizer_intent: >-
+      Convert candidate selection, rejection, or expansion into explicit typed
+      action requests with composition and candidate references.
+
+  - id: pbui.cart_summary_for_order_submission
+    description: Lower cart summary and submit/remove actions into composition/action presentations.
+    rationale: >-
+      Cart review combines object presentation, action choices, safety metadata,
+      and backend mutation. PBUI should preserve the distinction between local
+      remove actions and confirmation-requiring order submission.
+    when:
+      representations:
+        - cart_summary
+      actions:
+        - remove_cart_item
+        - submit_order
+    emits:
+      presentation_types:
+        - pbui.composition_presentation
+        - pbui.action_presentation
+    presenter_intent: >-
+      Summarize cart items and expose compatible cart actions with confirmation
+      metadata for backend submission.
+    recognizer_intent: >-
+      Route local cart edits directly while moving submit-order actions through
+      confirmation because Interaction IR marks the action as irreversible.

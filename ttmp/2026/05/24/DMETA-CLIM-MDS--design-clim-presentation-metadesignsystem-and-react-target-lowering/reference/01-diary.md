@@ -12,6 +12,24 @@ DocType: reference
 Intent: long-term
 Owners: []
 RelatedFiles:
+    - Path: cmd/dmeta/main.go
+      Note: CLI registration for validate-pbui
+    - Path: pkg/dmeta/cmds/validate_pbui.go
+      Note: validate-pbui CLI command
+    - Path: pkg/dmeta/metadesign/pbui/load.go
+      Note: PBUI loader with duplicate presentation key scan
+    - Path: pkg/dmeta/metadesign/pbui/model.go
+      Note: PBUI Go model
+    - Path: pkg/dmeta/metadesign/pbui/validate.go
+      Note: PBUI validator against Interaction IR
+    - Path: sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml
+      Note: First-pass interaction-to-PBUI lowering rule catalog
+    - Path: sources/dmeta-ir/meta-design-systems/pbui/meta-design-system.yaml
+      Note: PBUI package entrypoint with natural-language intent
+    - Path: sources/dmeta-ir/meta-design-systems/pbui/presentation-types.yaml
+      Note: First-pass typed presentation catalog
+    - Path: sources/dmeta-ir/meta-design-systems/pbui/targets/react.yaml
+      Note: PBUI React target strategy and file-kind metadata
     - Path: ttmp/2026/05/24/DMETA-CLIM-MDS--design-clim-presentation-metadesignsystem-and-react-target-lowering/design-doc/01-clim-presentation-metadesignsystem-architecture-and-first-pass-implementation-guide.md
       Note: Design guide that the task plan implements
     - Path: ttmp/2026/05/24/DMETA-CLIM-MDS--design-clim-presentation-metadesignsystem-and-react-target-lowering/sources/local/01-aitr-794.md
@@ -24,6 +42,7 @@ LastUpdated: 2026-05-24T16:30:06.156039781-04:00
 WhatFor: Record the source import, thesis analysis, design interpretation, and future implementation work for the CLIM MetaDesignSystem ticket.
 WhenToUse: Read before resuming CLIM MetaDesignSystem research or implementation.
 ---
+
 
 
 
@@ -386,3 +405,91 @@ Then continue"
 ### Technical details
 - No Go code changed in this step.
 - The next step should be a focused implementation commit for PBUI source YAML plus loader/validator code.
+
+## Step 5: Implement Phase 1 PBUI source package, loader, validator, and CLI command
+
+This step began the implementation work. It added the first real PBUI/CLIM MetaDesignSystem source package under `sources/dmeta-ir/meta-design-systems/pbui/` and introduced a Go package that can load and validate it. The YAML catalogs are intentionally rich in prose: each presentation type and lowering rule carries summary, intent, description, rationale, presenter intent, recognizer intent, notes, and target strategy fields so the formal IR remains readable to humans.
+
+The first validation command is `dmeta validate-pbui`. It checks that PBUI presentation types and lowering rules reference known concrete Interaction IR actions and representations, that lowering rules emit known PBUI presentation types, that duplicate lowering and presentation ids are rejected, and that key natural-language fields are present. This gives PBUI a real compiler entry point before adding lowering or React target generation.
+
+### Prompt Context
+
+**User prompt (verbatim):** (see Step 4)
+
+**Assistant interpretation:** Start executing the phased plan by adding the minimal PBUI MetaDesignSystem package and validating it against existing Interaction IR.
+
+**Inferred user intent:** Establish a real, schema-backed CLIM/PBUI layer with human-readable intent before implementing downstream lowering and scaffolding.
+
+**Commit (code):** pending at time of diary entry
+
+### What I did
+- Added PBUI source YAML:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/pbui/meta-design-system.yaml`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/pbui/presentation-types.yaml`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/pbui/targets/react.yaml`
+- Seeded first-pass PBUI presentation types:
+  - `pbui.presentation_ref`
+  - `pbui.action_presentation`
+  - `pbui.inspector_panel`
+  - `pbui.action_chooser`
+  - `pbui.lifecycle_status`
+  - `pbui.composition_presentation`
+- Added PBUI Go package:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/model.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/load.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/validate.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/load_validate_test.go`
+- Added CLI command:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/validate_pbui.go`
+- Registered `validate-pbui` in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+- Updated task checklist for completed Phase 1 work.
+
+### Why
+- PBUI needs a first compiler-visible package before any lowering or target generation can be implemented.
+- Rich natural-language fields are required by the user and are architecturally useful because this IR encodes intent that would otherwise disappear into terse ids.
+- Validating PBUI against Interaction IR protects the layer boundary: PBUI realizes Interaction IR obligations but does not redefine them.
+
+### What worked
+- `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... ./cmd/dmeta -count=1` passes.
+- `go run ./cmd/dmeta validate-pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table` emits `validation_ok`.
+- The duplicate presentation type id check is implemented by scanning the raw YAML node before unmarshalling into a Go map, avoiding silent duplicate-key overwrites.
+
+### What didn't work
+- Initially the validator could not truly detect duplicate presentation type ids because the YAML was unmarshalled directly into a map. That would make duplicates structurally invisible after parsing. I corrected this by scanning the YAML node for duplicate keys before normal unmarshalling.
+
+### What I learned
+- PBUI validation needs to enforce human-readable fields as warnings, not errors. Missing prose should not necessarily break experimentation, but it should show up clearly because the IR is intended to preserve design intent.
+- For map-based YAML catalogs, duplicate-key detection must happen before normal typed unmarshalling.
+
+### What was tricky to build
+- The biggest sharp edge was keeping the PBUI layer small while still expressive. The YAML had to describe presentations, presenters, recognizers, target strategy, and Street Deli dogfooding without prematurely introducing full standalone presenter and recognizer catalogs.
+- Another tricky detail was validating references to concrete Interaction IR actions and representations without pulling semantic validation into PBUI Phase 1. Semantic object type checks can wait until descriptor derivation and/or lowering phases.
+
+### What warrants a second pair of eyes
+- Review whether `pbui.composition_presentation` is too Street-Deli-specific for the global PBUI package. It is intentionally included for dogfooding, but may later split into a generic composition presentation plus local Street Deli specialization.
+- Review whether `validate-pbui` should become a subcommand of a future generic `validate-metadesign` command once more MetaDesignSystems exist.
+- Review whether warnings for missing intent fields should become errors in strict mode only or always remain warnings.
+
+### What should be done in the future
+- Implement Phase 2: `lower-pbui`.
+- Add PBUI lowering output rows that preserve presenter intent, recognizer intent, rationale, source representations, and source actions.
+- Later derive object and action descriptors for React target planning.
+
+### Code review instructions
+- Start with the YAML catalogs to review conceptual scope and prose quality:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/pbui/presentation-types.yaml`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml`
+- Then review the loader/validator:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/load.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/validate.go`
+- Validate with:
+  - `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... ./cmd/dmeta -count=1`
+  - `go run ./cmd/dmeta validate-pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
+
+### Technical details
+- New CLI command:
+  - `dmeta validate-pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
+- Current successful validation output:
+  - `validation_ok` for artifact `pbui_meta_design_system`.
