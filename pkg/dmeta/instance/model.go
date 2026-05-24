@@ -1,4 +1,4 @@
-package widgets
+package instance
 
 import "github.com/go-go-golems/dmeta/pkg/dmeta/validator"
 

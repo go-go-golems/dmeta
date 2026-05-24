@@ -3,7 +3,6 @@ package validator
 import "testing"
 
 func TestValidateWidgetReflectionFields(t *testing.T) {
-	strictTrue := true
 	pkg := &Package{CoreModel: CoreModelFile{
 		Archetypes: map[string]Archetype{
 			RootArchetypeID: {Abstract: true, Extends: []string{}},
@@ -55,10 +54,9 @@ func TestValidateWidgetReflectionFields(t *testing.T) {
 			Outputs:         map[string]string{"metadata": "bad.metadata.ts"},
 		},
 		{
-			ID:         "strict-bad-hint",
-			Name:       "StrictBadHintWidget",
-			Outputs:    map[string]string{"metadata": "strict.metadata.ts"},
-			Generation: WidgetGenerationPolicy{ScaffoldMode: "strict", StrictProjectionAdapter: &strictTrue},
+			ID:      "bad-required-hint",
+			Name:    "BadRequiredHintWidget",
+			Outputs: map[string]string{"metadata": "required.metadata.ts"},
 			ProjectionHints: WidgetProjectionHints{
 				Required: []string{"available.missing"},
 			},
@@ -71,21 +69,14 @@ func TestValidateWidgetReflectionFields(t *testing.T) {
 				Recommended: []string{"available.missing"},
 			},
 		},
-		{
-			ID:         "bad-mode",
-			Name:       "BadModeWidget",
-			Outputs:    map[string]string{"metadata": "mode.metadata.ts"},
-			Generation: WidgetGenerationPolicy{ScaffoldMode: "magic"},
-		},
 	}
 
 	findings := validateWidgets(pkg, resolved)
 	assertFinding(t, findings, "unknown_semantic_context_capability", SeverityError)
 	assertFinding(t, findings, "unknown_semantic_context_archetype", SeverityError)
 	assertFinding(t, findings, "unknown_semantic_context_presentation", SeverityError)
-	assertFinding(t, findings, "unknown_required_projection_hint", SeverityError)
+	assertFinding(t, findings, "unknown_required_projection_hint", SeverityWarning)
 	assertFinding(t, findings, "unknown_recommended_projection_hint", SeverityWarning)
-	assertFinding(t, findings, "unknown_scaffold_mode", SeverityError)
 }
 
 func assertFinding(t *testing.T, findings []Finding, code, severity string) {

@@ -194,12 +194,6 @@ templates:
     adapter_todos:
     - Choose whether the chip shows only top replacement or opens alternatives.
     - Do not hide allergen warnings when the selected candidate introduces risk.
-  generation:
-    scaffold_mode: adapter_todos
-    emit_semantic_metadata: true
-    emit_doc_comments: true
-    emit_adapter_todos: true
-    strict_projection_adapter: false
 - id: deli.substitution_detail_sheet
   name: SubstitutionDetailSheet
   status: template

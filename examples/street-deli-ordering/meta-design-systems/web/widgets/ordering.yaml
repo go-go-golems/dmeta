@@ -118,12 +118,6 @@ templates:
     adapter_todos:
     - Map applied substitutions as cart-line annotations, not as raw ingredient rows only.
     - Decide whether stateful prep status appears in cart or only in tracker.
-  generation:
-    scaffold_mode: adapter_todos
-    emit_semantic_metadata: true
-    emit_doc_comments: true
-    emit_adapter_todos: true
-    strict_projection_adapter: false
 - id: deli.cart_line_item
   name: CartLineItem
   status: template
