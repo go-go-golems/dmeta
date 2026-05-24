@@ -41,6 +41,10 @@ RelatedFiles:
       Note: React target scaffold plan and provenance model
     - Path: pkg/dmeta/generator/react/plan.go
       Note: Planning pass from Web obligations to React files
+    - Path: pkg/dmeta/generator/react/render.go
+      Note: React metadata sidecar rendering from planned Web/React provenance
+    - Path: pkg/dmeta/generator/react/render_test.go
+      Note: Focused test for rendered sidecar provenance
     - Path: pkg/dmeta/generator/widgets/load.go
       Note: Current instance/catalog planner validation to extend for abstract/selectable/realizes rules
     - Path: pkg/dmeta/generator/widgets/render.go
@@ -81,6 +85,7 @@ LastUpdated: 2026-05-24T18:15:00-04:00
 WhatFor: 'Use when implementing the next DMETA architecture step: Actions/Representations, MetaDesignSystem schemas, web-style UI lowering, React scaffold tooling, and migration of Street Deli templates.'
 WhenToUse: Read before changing pkg/dmeta/validator, pkg/dmeta/generator/widgets, sources/dmeta-ir widget templates, or examples/street-deli-ordering instance manifests for the compiler-pipeline refactor.
 ---
+
 
 
 
