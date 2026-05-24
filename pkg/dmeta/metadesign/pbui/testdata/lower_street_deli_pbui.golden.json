@@ -1,0 +1,368 @@
+[
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Customer",
+    "presentation_type_id": "pbui.inspector_panel",
+    "source_rule_id": "pbui.inspector_for_inspectable_subject",
+    "representations": [
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Gather object facts, type descriptors, and available actions into a readable inspection structure.",
+    "recognizer_intent": "Delegate nested action and object reference interactions back into typed action requests."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Customer",
+    "presentation_type_id": "pbui.presentation_ref",
+    "source_rule_id": "pbui.reference_for_compact_inspectable_subject",
+    "representations": [
+      "compact_reference",
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Project identity, label, type, and capability hints into a compact selectable presentation model.",
+    "recognizer_intent": "Treat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Ingredient",
+    "presentation_type_id": "pbui.inspector_panel",
+    "source_rule_id": "pbui.inspector_for_inspectable_subject",
+    "representations": [
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Gather object facts, type descriptors, and available actions into a readable inspection structure.",
+    "recognizer_intent": "Delegate nested action and object reference interactions back into typed action requests."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Ingredient",
+    "presentation_type_id": "pbui.presentation_ref",
+    "source_rule_id": "pbui.reference_for_compact_inspectable_subject",
+    "representations": [
+      "compact_reference",
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Project identity, label, type, and capability hints into a compact selectable presentation model.",
+    "recognizer_intent": "Treat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "MenuItem",
+    "presentation_type_id": "pbui.composition_presentation",
+    "source_rule_id": "pbui.composition_for_editable_deli_item",
+    "representations": [
+      "composition_summary",
+      "composition_breakdown"
+    ],
+    "actions": [
+      "remove_part",
+      "add_part"
+    ],
+    "presenter_intent": "Project a composed item and its parts into role-aware sections with local action presentations near each actionable part.",
+    "recognizer_intent": "Build typed action requests for part removal, addition, substitution, configuration, and order/cart actions."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "MenuItem",
+    "presentation_type_id": "pbui.inspector_panel",
+    "source_rule_id": "pbui.inspector_for_inspectable_subject",
+    "representations": [
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Gather object facts, type descriptors, and available actions into a readable inspection structure.",
+    "recognizer_intent": "Delegate nested action and object reference interactions back into typed action requests."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "MenuItem",
+    "presentation_type_id": "pbui.lifecycle_status",
+    "source_rule_id": "pbui.lifecycle_for_order_progress",
+    "representations": [
+      "state_indicator"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Convert stateful and temporal facts into ordered lifecycle display data.",
+    "recognizer_intent": "Treat lifecycle controls as navigation or inspection unless an explicit mutating action is selected."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "MenuItem",
+    "presentation_type_id": "pbui.presentation_ref",
+    "source_rule_id": "pbui.reference_for_compact_inspectable_subject",
+    "representations": [
+      "compact_reference",
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Project identity, label, type, and capability hints into a compact selectable presentation model.",
+    "recognizer_intent": "Treat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Order",
+    "presentation_type_id": "pbui.inspector_panel",
+    "source_rule_id": "pbui.inspector_for_inspectable_subject",
+    "representations": [
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Gather object facts, type descriptors, and available actions into a readable inspection structure.",
+    "recognizer_intent": "Delegate nested action and object reference interactions back into typed action requests."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Order",
+    "presentation_type_id": "pbui.lifecycle_status",
+    "source_rule_id": "pbui.lifecycle_for_order_progress",
+    "representations": [
+      "state_indicator"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Convert stateful and temporal facts into ordered lifecycle display data.",
+    "recognizer_intent": "Treat lifecycle controls as navigation or inspection unless an explicit mutating action is selected."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Order",
+    "presentation_type_id": "pbui.presentation_ref",
+    "source_rule_id": "pbui.reference_for_compact_inspectable_subject",
+    "representations": [
+      "compact_reference",
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Project identity, label, type, and capability hints into a compact selectable presentation model.",
+    "recognizer_intent": "Treat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "OrderItem",
+    "presentation_type_id": "pbui.composition_presentation",
+    "source_rule_id": "pbui.composition_for_editable_deli_item",
+    "representations": [
+      "composition_summary",
+      "composition_breakdown"
+    ],
+    "actions": [
+      "remove_part",
+      "add_part"
+    ],
+    "presenter_intent": "Project a composed item and its parts into role-aware sections with local action presentations near each actionable part.",
+    "recognizer_intent": "Build typed action requests for part removal, addition, substitution, configuration, and order/cart actions."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "OrderItem",
+    "presentation_type_id": "pbui.inspector_panel",
+    "source_rule_id": "pbui.inspector_for_inspectable_subject",
+    "representations": [
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Gather object facts, type descriptors, and available actions into a readable inspection structure.",
+    "recognizer_intent": "Delegate nested action and object reference interactions back into typed action requests."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "OrderItem",
+    "presentation_type_id": "pbui.lifecycle_status",
+    "source_rule_id": "pbui.lifecycle_for_order_progress",
+    "representations": [
+      "state_indicator"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Convert stateful and temporal facts into ordered lifecycle display data.",
+    "recognizer_intent": "Treat lifecycle controls as navigation or inspection unless an explicit mutating action is selected."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "OrderItem",
+    "presentation_type_id": "pbui.presentation_ref",
+    "source_rule_id": "pbui.reference_for_compact_inspectable_subject",
+    "representations": [
+      "compact_reference",
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Project identity, label, type, and capability hints into a compact selectable presentation model.",
+    "recognizer_intent": "Treat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "PrepEvent",
+    "presentation_type_id": "pbui.inspector_panel",
+    "source_rule_id": "pbui.inspector_for_inspectable_subject",
+    "representations": [
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Gather object facts, type descriptors, and available actions into a readable inspection structure.",
+    "recognizer_intent": "Delegate nested action and object reference interactions back into typed action requests."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "PrepEvent",
+    "presentation_type_id": "pbui.lifecycle_status",
+    "source_rule_id": "pbui.lifecycle_for_order_progress",
+    "representations": [
+      "state_indicator"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Convert stateful and temporal facts into ordered lifecycle display data.",
+    "recognizer_intent": "Treat lifecycle controls as navigation or inspection unless an explicit mutating action is selected."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "PrepEvent",
+    "presentation_type_id": "pbui.presentation_ref",
+    "source_rule_id": "pbui.reference_for_compact_inspectable_subject",
+    "representations": [
+      "compact_reference",
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Project identity, label, type, and capability hints into a compact selectable presentation model.",
+    "recognizer_intent": "Treat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Station",
+    "presentation_type_id": "pbui.inspector_panel",
+    "source_rule_id": "pbui.inspector_for_inspectable_subject",
+    "representations": [
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Gather object facts, type descriptors, and available actions into a readable inspection structure.",
+    "recognizer_intent": "Delegate nested action and object reference interactions back into typed action requests."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Station",
+    "presentation_type_id": "pbui.lifecycle_status",
+    "source_rule_id": "pbui.lifecycle_for_order_progress",
+    "representations": [
+      "state_indicator"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Convert stateful and temporal facts into ordered lifecycle display data.",
+    "recognizer_intent": "Treat lifecycle controls as navigation or inspection unless an explicit mutating action is selected."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "Station",
+    "presentation_type_id": "pbui.presentation_ref",
+    "source_rule_id": "pbui.reference_for_compact_inspectable_subject",
+    "representations": [
+      "compact_reference",
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Project identity, label, type, and capability hints into a compact selectable presentation model.",
+    "recognizer_intent": "Treat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "SubstitutionRule",
+    "presentation_type_id": "pbui.action_presentation",
+    "source_rule_id": "pbui.substitution_actions_for_composition_parts",
+    "representations": [
+      "substitution_candidate"
+    ],
+    "actions": [
+      "apply_substitution",
+      "reject_substitution",
+      "see_alternatives"
+    ],
+    "presenter_intent": "Present replacement candidates as documented action choices with role, dietary, flavor, and price rationale when available.",
+    "recognizer_intent": "Convert candidate selection, rejection, or expansion into explicit typed action requests with composition and candidate references."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "SubstitutionRule",
+    "presentation_type_id": "pbui.composition_presentation",
+    "source_rule_id": "pbui.substitution_actions_for_composition_parts",
+    "representations": [
+      "substitution_candidate"
+    ],
+    "actions": [
+      "apply_substitution",
+      "reject_substitution",
+      "see_alternatives"
+    ],
+    "presenter_intent": "Present replacement candidates as documented action choices with role, dietary, flavor, and price rationale when available.",
+    "recognizer_intent": "Convert candidate selection, rejection, or expansion into explicit typed action requests with composition and candidate references."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "SubstitutionRule",
+    "presentation_type_id": "pbui.inspector_panel",
+    "source_rule_id": "pbui.inspector_for_inspectable_subject",
+    "representations": [
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Gather object facts, type descriptors, and available actions into a readable inspection structure.",
+    "recognizer_intent": "Delegate nested action and object reference interactions back into typed action requests."
+  },
+  {
+    "example_id": "street_deli_ordering",
+    "domain_type_id": "SubstitutionRule",
+    "presentation_type_id": "pbui.presentation_ref",
+    "source_rule_id": "pbui.reference_for_compact_inspectable_subject",
+    "representations": [
+      "compact_reference",
+      "inspection_entrypoint"
+    ],
+    "actions": [
+      "inspect_subject"
+    ],
+    "presenter_intent": "Project identity, label, type, and capability hints into a compact selectable presentation model.",
+    "recognizer_intent": "Treat selecting, copying, or opening the presentation as typed action requests over the underlying semantic subject."
+  }
+]
