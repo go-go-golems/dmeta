@@ -16,18 +16,18 @@
 
 Goal: create an explicit local profile package that captures the Street Deli CLIM look and interaction grammar.
 
-- [ ] Create `examples/street-deli-ordering/meta-design-systems/pbui/presentation-system.yaml`.
-- [ ] Create `examples/street-deli-ordering/meta-design-systems/pbui/style-profile.yaml` from `prototype-clim/styles.css`.
-- [ ] Create `examples/street-deli-ordering/meta-design-systems/pbui/surfaces.yaml` from `prototype-clim/index.html` shell regions.
-- [ ] Create `examples/street-deli-ordering/meta-design-systems/pbui/view-models.yaml` for menu/detail/substitution/cart/help/tracker.
-- [ ] Create `examples/street-deli-ordering/meta-design-systems/pbui/presentation-bindings.yaml` mapping PBUI presentation types to concrete CLIM renderer components.
-- [ ] Create `examples/street-deli-ordering/meta-design-systems/pbui/targets/react-app.yaml`.
-- [ ] Include rich `summary`, `intent`, `description`, `rationale`, and reference fields in every profile catalog.
+- [x] Create `examples/street-deli-ordering/meta-design-systems/pbui/presentation-system.yaml`.
+- [x] Create `examples/street-deli-ordering/meta-design-systems/pbui/style-profile.yaml` from `prototype-clim/styles.css`.
+- [x] Create `examples/street-deli-ordering/meta-design-systems/pbui/surfaces.yaml` from `prototype-clim/index.html` shell regions.
+- [x] Create `examples/street-deli-ordering/meta-design-systems/pbui/view-models.yaml` for menu/detail/substitution/cart/help/tracker.
+- [x] Create `examples/street-deli-ordering/meta-design-systems/pbui/presentation-bindings.yaml` mapping PBUI presentation types to concrete CLIM renderer components.
+- [x] Create `examples/street-deli-ordering/meta-design-systems/pbui/targets/react-app.yaml`.
+- [x] Include rich `summary`, `intent`, `description`, `rationale`, and reference fields in every profile catalog.
 
 Validation gate:
 
-- [ ] YAML files parse.
-- [ ] Profile references the global PBUI MetaDesignSystem and local prototype/runtime references.
+- [x] YAML files parse.
+- [x] Profile references the global PBUI MetaDesignSystem and local prototype/runtime references.
 
 ## Phase 2: Load and validate concrete PBUI profile packages
 

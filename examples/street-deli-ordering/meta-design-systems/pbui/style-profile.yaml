@@ -1,0 +1,106 @@
+schema_version: 0
+artifact_type: dmeta_pbui_style_profile
+id: street_deli_clim_mono
+name: Street Deli Monochrome CLIM Style
+summary: Monochrome text-object graphical style extracted from the Street Deli prototype-clim CSS.
+intent: >-
+  Preserve the concrete visual grammar of prototype-clim as data. Targets should
+  render black background, gray and white text, Berkeley Mono typography, compact
+  command bars, text-object presentations, selected-object highlighting, red
+  select-mode compatible targets, dimmed incompatible targets, and dotted action
+  affordances from this profile rather than inventing target-local styling.
+source:
+  file: ../../prototype-clim/styles.css
+  rationale: >-
+    The static prototype already encodes the desired visual feel. The profile
+    copies the stable design decisions and class semantics so React app
+    generation can be compared directly against the prototype.
+tokens:
+  color:
+    background: "#000000"
+    foreground: "#CCCCCC"
+    foreground_dim: "#666666"
+    foreground_bright: "#FFFFFF"
+    accent: "#CCCCCC"
+    highlight_bg: "#333333"
+    selection_bg: "#444444"
+    removed_fg: "#555555"
+    substitution_fg: "#FFFFFF"
+    border: "#333333"
+    select_mode_target: "#ff4444"
+  typography:
+    family: Berkeley Mono
+    fallback: monospace
+    size: 13px
+    line_height: 1.5
+    weights:
+      regular: 400
+      bold: 700
+    fonts:
+      regular: /fonts/BerkeleyMono-Regular.woff2
+      bold: /fonts/BerkeleyMono-Bold.woff2
+      oblique: /fonts/BerkeleyMono-Oblique.woff2
+  spacing:
+    page_padding_x: 8px
+    main_padding_bottom: 8px
+    header_padding: 4px 8px
+    command_bar_padding: 4px 0 2px
+    presentation_block_padding: 2px 0
+    indent: 16px
+    indent2: 32px
+  motion:
+    hover_transition: border-color 0.05s
+classes:
+  shell: clim-shell
+  header: header
+  brand: brand
+  mode: mode
+  main: main
+  view: view
+  view_active: active
+  command_bar: cmd-bar
+  prompt: prompt
+  command_text: cmd-text
+  presentations: presentations
+  presentation: pres
+  presentation_block: pres-block
+  presentation_selected: selected
+  presentation_selectable: selectable
+  presentation_select_disabled: select-disabled
+  presentation_type: pres-type
+  presentation_id: pres-id
+  section_label: section-label
+  role: role
+  action: action
+  action_disabled: disabled
+  command_line: command-line
+  action_result: action-result
+  command_input_area: cmd-input-area
+  command_buffer: cmd-buffer
+  command_cursor: cmd-cursor
+  command_hint: cmd-hint
+  context_menu: context-menu
+  context_item: ctx-item
+  context_item_disabled: disabled
+  danger: pres-danger
+  ingredient_removed: ing-removed
+  ingredient_substituted: ing-substituted
+  substitution_candidate: sub-candidate
+  substitution_candidate_auto: auto
+  tracker_step: tracker-step
+  tracker_step_done: done
+  tracker_step_active: active
+  tracker_step_pending: pending
+state_styles:
+  normal:
+    summary: Default mode. Presentations are clickable, selected presentation is highlighted, and actions appear in the command/action bar.
+  select:
+    summary: Pending-action mode. Compatible presentations use `presentation_selectable` and incompatible presentations use `presentation_select_disabled`.
+    compatible_color_token: select_mode_target
+  confirm:
+    summary: Dangerous action confirmation mode. Target should show an explicit confirm prompt or command-line confirmation text.
+notes: >-
+  The profile intentionally keeps class names close to prototype-clim because
+  visual parity is more important than inventing a new naming convention. A
+  later cleanup can map these class names into CSS modules if the promoted React
+  app needs stricter local scoping.

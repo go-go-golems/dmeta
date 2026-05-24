@@ -1,0 +1,132 @@
+schema_version: 0
+artifact_type: dmeta_pbui_view_models
+summary: Concrete Street Deli CLIM view model definitions.
+intent: >-
+  Define the concrete views that make up the Street Deli CLIM presentation
+  system. These views come from prototype-clim and organize abstract PBUI
+  presentation types into menu browsing, item customization, substitution,
+  cart, help, and tracker flows. View models describe presentation organization;
+  they do not own domain data.
+source:
+  file: ../../prototype-clim/js/app-main.js
+  rationale: >-
+    The prototype already defines the view set and the command/action rhythm for
+    each view. This catalog turns that implicit JavaScript structure into a
+    declarative profile that targets can instantiate.
+views:
+  menu:
+    mode_label: MENU
+    source_view_id: view-menu
+    source_renderer: renderMenu
+    summary: Browse menu items grouped by category as compact selectable presentation references.
+    presenter_intent: >-
+      Show menu items as `<MenuItem>` presentation lines grouped by category,
+      including price, stable id, dietary tags, and ingredient summaries.
+    recognizer_intent: >-
+      Clicking a menu-item presentation selects it and exposes compatible
+      actions. Typing an action such as CUSTOMIZE should enter select mode and
+      make compatible menu items visually selectable.
+    primary_presentations:
+      - pbui.presentation_ref
+      - pbui.action_chooser
+      - pbui.action_presentation
+    command_echo: LIST MENU
+    default_actions:
+      - CART
+      - FILTER-DIETARY
+      - FILTER-BY-CATEGORY
+      - HELP
+  detail:
+    mode_label: DETAIL
+    source_view_id: view-detail
+    source_renderer: renderDetail
+    summary: Customize a selected menu item as a composition with ingredient, role, and substitution presentations.
+    presenter_intent: >-
+      Show the selected menu item, its composition parts, removed/substituted
+      ingredient states, role labels, auto-suggested substitutions, and add-to-order affordances.
+    recognizer_intent: >-
+      Ingredient clicks select a part; typed or clicked actions build requests
+      such as remove ingredient, restore ingredient, show substitutions, apply
+      substitution, or add to order.
+    primary_presentations:
+      - pbui.composition_presentation
+      - pbui.action_presentation
+      - pbui.presentation_ref
+    command_echo_template: "CUSTOMIZE {menu_item_name}"
+    default_actions:
+      - ADD-TO-ORDER
+      - BACK
+      - CART
+      - HELP
+  substitution:
+    mode_label: SUBSTITUTION
+    source_view_id: view-substitution
+    summary: Present substitution candidates as action-bearing replacement presentations.
+    presenter_intent: >-
+      Show replacement candidates with role preservation, dietary compatibility,
+      price delta, auto-suggest status, reasoning, and allergen warnings.
+    recognizer_intent: >-
+      Selecting a candidate and invoking APPLY should build an action request
+      carrying composition, original part, and replacement candidate references.
+    primary_presentations:
+      - pbui.action_presentation
+      - pbui.composition_presentation
+    default_actions:
+      - APPLY
+      - DESCRIBE
+      - BACK
+  cart:
+    mode_label: CART
+    source_view_id: view-cart
+    source_renderer: renderCart
+    summary: Review order items, totals, substitutions, and submit/remove/edit actions.
+    presenter_intent: >-
+      Show cart items as order-item presentations with nested substitution and
+      removal summaries, plus a total and order submission action.
+    recognizer_intent: >-
+      Cart-item clicks select an order item; PLACE-ORDER should use confirmation
+      semantics once dangerous/backend action handling is wired.
+    primary_presentations:
+      - pbui.composition_presentation
+      - pbui.action_presentation
+      - pbui.presentation_ref
+    default_actions:
+      - PLACE-ORDER
+      - MENU
+      - HELP
+  help:
+    mode_label: HELP
+    source_view_id: view-help
+    source_renderer: renderHelp
+    summary: Present action registry, presentation vocabulary, and keyboard grammar as documentation.
+    presenter_intent: >-
+      Render actions, argument types, presentation types, and keyboard rules as
+      readable CLIM presentations so the interface can describe itself.
+    recognizer_intent: >-
+      Help presentations are mostly read-only; action links such as MENU should
+      navigate without requiring object selection.
+    primary_presentations:
+      - pbui.action_presentation
+      - pbui.inspector_panel
+    default_actions:
+      - MENU
+  tracker:
+    mode_label: TRACKER
+    source_view_id: view-tracker
+    source_renderer: renderTracker
+    summary: Track order lifecycle progress as stateful temporal presentations.
+    presenter_intent: >-
+      Show order number, lifecycle phases, active/done/pending state, and pickup
+      status in the same monochrome CLIM presentation grammar.
+    recognizer_intent: >-
+      Tracker actions should remain navigation/inspection oriented unless an
+      Interaction IR action explicitly marks a mutation.
+    primary_presentations:
+      - pbui.lifecycle_status
+      - pbui.action_presentation
+    default_actions:
+      - MENU
+      - HELP
+notes: >-
+  The view list is concrete to Street Deli. A different PBUI app may have
+  documents, sources, tags, and runs like Readwise instead of menu/detail/cart.

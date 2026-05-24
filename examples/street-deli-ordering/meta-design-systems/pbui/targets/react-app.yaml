@@ -1,0 +1,105 @@
+schema_version: 0
+artifact_type: dmeta_pbui_react_app_target
+id: react_app
+name: React CLIM app target for Street Deli PBUI profile
+summary: Concrete React app target that realizes the Street Deli PBUI presentation profile as a Vite React application.
+intent: >-
+  Generate or promote a real React CLIM app, not just a generic PBUI scaffold.
+  The target should produce a shell, runtime state machine, command parser,
+  presentation components, view components, CSS, fonts, and generated registry
+  integration that together resemble prototype-clim and follow the Readwise
+  CLIM runtime architecture.
+status: planned
+defaults:
+  output_dir: ../../www/clim-react
+  package_name: street-deli-clim-react
+  vite: true
+  storybook: true
+  metadata_sidecars: true
+  dry_run_first: true
+file_kinds:
+  - package_json
+  - tsconfig
+  - vite_config
+  - index_html
+  - main_tsx
+  - app_shell
+  - clim_types
+  - clim_store
+  - clim_actions
+  - clim_commands
+  - clim_selectors
+  - clim_runtime
+  - style_profile_css
+  - font_assets
+  - generated_registry_copy
+  - shell_component
+  - command_line_component
+  - command_bar_component
+  - presentation_component
+  - action_presentation_component
+  - context_menu_component
+  - confirm_prompt_component
+  - view_component
+  - metadata
+planned_components:
+  shell:
+    - ClimShell
+    - ClimHeader
+    - ClimMain
+  command_surfaces:
+    - ClimCommandBar
+    - ClimCommandLine
+    - ActionHintBar
+    - ClimContextMenu
+    - ClimConfirmPrompt
+  presentations:
+    - PresentationRefLine
+    - ActionPresentationInline
+    - CompositionPresentationBlock
+    - IngredientPresentationRow
+    - SubstitutionCandidateLine
+    - LifecycleStatusBlock
+    - InspectorPanelBlock
+  views:
+    - MenuView
+    - DetailView
+    - SubstitutionView
+    - CartView
+    - HelpView
+    - TrackerView
+runtime_contract:
+  state_model: readwise_style_react_state_machine
+  interaction_states:
+    - normal
+    - select
+    - confirm
+  required_hooks:
+    - useClimState
+    - useSelectedPresentation
+    - useCompatibleActions
+    - useActionPresentations
+    - useCommandBuffer
+    - usePresentationClasses
+  required_runtime_modules:
+    - types.ts
+    - store.ts
+    - actions.ts
+    - commands.ts
+    - selectors.ts
+    - runtime.ts
+provenance:
+  meta_design_system: pbui
+  presentation_system: street_deli_clim
+  codegen_target: react_app
+  source_passes:
+    - semantic-ir
+    - interaction-elaboration
+    - pbui-lowering
+    - pbui-presentation-profile-instantiation
+    - pbui-react-app-planning
+notes: >-
+  The first implementation may scaffold a promoted app rather than generating
+  every line. That is intentional. The target should create a buildable app
+  shape, then repeated hand-authored patterns can be moved back into generation
+  once the actual CLIM React app is proven.

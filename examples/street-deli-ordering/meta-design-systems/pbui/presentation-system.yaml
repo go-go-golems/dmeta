@@ -1,0 +1,53 @@
+schema_version: 0
+artifact_type: dmeta_pbui_presentation_system
+id: street_deli_clim
+name: Hudson Street Deli CLIM Presentation System
+summary: Concrete monochrome command-oriented PBUI presentation system for the Hudson Street Deli ordering flow.
+intent: >-
+  Instantiate abstract PBUI presentation obligations as the actual Street Deli
+  CLIM-like browser interface. This profile follows the existing prototype-clim
+  user experience: a black monochrome shell, Berkeley Mono typography, text
+  object presentations, selected presentations, red select-mode compatible
+  targets, context menus, command bars, and a persistent command-line footer.
+long_summary: >-
+  The global PBUI MetaDesignSystem defines abstract presentation types such as
+  presentation references, action presentations, inspector panels, action
+  choosers, lifecycle status presentations, and composition presentations. This
+  local profile says how those abstract types become one concrete presentation
+  system for Street Deli. It does not redefine semantic objects or Interaction
+  IR actions. It binds PBUI obligations to a concrete shell, visual style,
+  view model set, presentation renderer family, and React app target.
+status: experimental
+inherits:
+  meta_design_system: pbui
+  pbui_root: ../../../sources/dmeta-ir/meta-design-systems/pbui
+references:
+  visual_reference: ../../prototype-clim
+  visual_reference_index: ../../prototype-clim/index.html
+  visual_reference_styles: ../../prototype-clim/styles.css
+  visual_reference_runtime: ../../prototype-clim/js/app-main.js
+  runtime_reference: /home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim
+  runtime_types: /home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim/types.ts
+  runtime_store: /home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim/store.ts
+  runtime_actions: /home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim/actions.ts
+  runtime_commands: /home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim/commands.ts
+  runtime_renderer: /home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim/render.ts
+  runtime_wiring: /home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim/app.ts
+files:
+  style_profile: ./style-profile.yaml
+  surfaces: ./surfaces.yaml
+  view_models: ./view-models.yaml
+  presentation_bindings: ./presentation-bindings.yaml
+  react_app_target: ./targets/react-app.yaml
+validation:
+  require_style_tokens: true
+  require_surface_components: true
+  require_view_mode_labels: true
+  require_known_pbui_presentation_types: true
+  require_binding_components: true
+  require_prose_intent_fields: true
+notes: >-
+  This profile is deliberately local to Street Deli. If another app adopts the
+  same monochrome command-oriented CLIM idiom, extract a global reusable profile
+  later. For v1, locality keeps the profile honest to prototype-clim and avoids
+  pretending that all PBUI systems share this graphical design.
