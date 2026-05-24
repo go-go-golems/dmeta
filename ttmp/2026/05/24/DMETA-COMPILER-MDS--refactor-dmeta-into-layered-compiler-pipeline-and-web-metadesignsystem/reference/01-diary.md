@@ -1649,3 +1649,118 @@ targets:
     output_dir: ../generated/react
     package_name: street-deli-ordering-react
 ```
+
+## Step 13: Rename instance planning and remove universal widget generation policy
+
+This step cleaned up the remaining generic-widget scaffolding names after the hard CLI cutover. The package that still handled instance manifests and selected-template planning moved from `pkg/dmeta/generator/widgets` to `pkg/dmeta/instance`, which better describes its remaining responsibility.
+
+The step also removed React/scaffold generation policy from the universal validator widget model. Web widget templates no longer carry `generation` blocks, and projection-hint validation no longer depends on scaffold modes such as `strict`, `reflective`, or `adapter_todos`.
+
+### Prompt Context
+
+**User prompt (verbatim):** "go ahead"
+
+**Assistant interpretation:** Continue with the follow-up implied by the previous summary: rename the remaining instance/catalog planning package and remove/migrate the leftover generic widget generation policy fields.
+
+**Inferred user intent:** Complete the hard cutover cleanup so old package names and universal generation-policy schema no longer suggest generic widget codegen is still the intended architecture.
+
+**Commit (code):** d81c4529c2dfecd4348dbfefa5462bc1f7bbf751 — "DMETA-COMPILER-MDS: rename instance planning and remove widget generation policy"
+
+### What I did
+
+- Moved:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/model.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/load.go`
+- To:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/instance/model.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/instance/load.go`
+- Updated imports in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/plan_instance.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/plan.go`
+- Removed `WidgetGenerationPolicy` from `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/model.go`.
+- Removed widget-generation-policy validation from `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/validate.go`.
+- Changed required projection-hint validation to warning-level validation because there is no longer a universal strict scaffold mode.
+- Removed `generation` blocks from Web widget-template YAML files in global and Street Deli Web MetaDesignSystem catalogs.
+- Updated validator tests to reflect warning-level required projection hints and removed the old invalid scaffold-mode case.
+
+### Why
+
+- `pkg/dmeta/generator/widgets` was misleading after the renderer/writer were deleted. The remaining code is an instance manifest/catalog planner.
+- React generation policy belongs to the React target, not the universal validator widget model.
+- Keeping `generation.scaffold_mode` in Web templates would imply that Web templates still directly own React scaffold behavior.
+
+### What worked
+
+- `go test ./pkg/dmeta/generator/react/... ./pkg/dmeta/... ./cmd/dmeta -count=1` passed.
+- Global `validate-ir` passed.
+- Street Deli `validate-ir` passed.
+- `plan-instance` still works for the main Street Deli instance.
+- `plan-scaffold --target react` still emits eight component rows.
+- `scaffold-react --dry-run` still plans 65 files.
+- Searches for active code/example references to `generator/widgets`, `template_sources`, `generation.output_dir`, `generation:`, and `scaffold-instance` under current code/example paths returned no matches.
+
+### What didn't work
+
+- N/A. The package rename and schema cleanup compiled after updating imports and the validator test.
+
+### What I learned
+
+- Once rendering/writing moved to React, the old widgets package had become pure instance planning.
+- Removing universal strict scaffold policy simplifies projection-hint validation: unresolved hints are authoring warnings, not target codegen errors.
+- The remaining `generation` strings in historical docmgr archives are historical records, not active code paths.
+
+### What was tricky to build
+
+- The package rename had to preserve the existing public types used by `plan-instance` and `react.BuildScaffoldPlan` while changing the import path and Go package name.
+- Removing `WidgetGenerationPolicy` required changing validation semantics. There is no longer a universal place to decide whether unresolved projection hints are fatal; target-specific renderers can add stricter checks later.
+- YAML cleanup needed to remove only top-level template `generation` blocks without disturbing surrounding template data.
+
+### What warrants a second pair of eyes
+
+- Review whether unresolved required projection hints should remain warnings globally or whether React target planning should enforce stricter checks for generated components.
+- Review whether `pkg/dmeta/instance` is the right final home or if this should live under a broader compiler package later.
+- Review the Web widget YAML after removing `generation` blocks to ensure no authoring context was lost that should move into `targets/react.yaml`.
+
+### What should be done in the future
+
+- Add explicit React target policy fields if the renderer needs configurable strictness.
+- Add manifest-schema validation for the hard-cut fields.
+- Update current design docs to remove stale transitional language about keeping old commands temporarily.
+
+### Code review instructions
+
+Start with:
+
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/instance/model.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/instance/load.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/plan.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/model.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/validate.go`
+
+Validate with:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+go test ./pkg/dmeta/generator/react/... ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table
+go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output yaml
+go run ./cmd/dmeta scaffold-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --dry-run --output table
+```
+
+### Technical details
+
+The active instance/planning package is now:
+
+```text
+pkg/dmeta/instance
+```
+
+The active React target policy source is:
+
+```text
+sources/dmeta-ir/meta-design-systems/web/targets/react.yaml
+```
+
+The universal validator no longer recognizes or validates `generation.scaffold_mode` on Web widgets.

@@ -62,6 +62,10 @@ RelatedFiles:
         Plan-instance catalog loading now reads hard-cut manifest fields
     - Path: pkg/dmeta/generator/widgets/render.go
       Note: Current React scaffold rendering and metadata sidecars to evolve into React target scaffold plans
+    - Path: pkg/dmeta/instance/load.go
+      Note: Instance catalog loading/validation after package rename
+    - Path: pkg/dmeta/instance/model.go
+      Note: Hard-cut instance manifest model after package rename
     - Path: pkg/dmeta/interaction/elaborate.go
       Note: First semantic-to-interaction elaboration pass
     - Path: pkg/dmeta/interaction/model.go
@@ -81,7 +85,9 @@ RelatedFiles:
     - Path: pkg/dmeta/validator/load.go
       Note: Loader now reads Web MetaDesignSystem instead of root 03-widgets.yaml
     - Path: pkg/dmeta/validator/model.go
-      Note: Current semantic/widget schema structs and the main place to add Interaction IR and Web MetaDesignSystem fields
+      Note: |-
+        Current semantic/widget schema structs and the main place to add Interaction IR and Web MetaDesignSystem fields
+        Universal widget model no longer carries React scaffold generation policy
     - Path: sources/dmeta-ir/interactions/actions.yaml
       Note: Initial Interaction IR action catalog
     - Path: sources/dmeta-ir/interactions/elaboration-rules.yaml
@@ -92,12 +98,15 @@ RelatedFiles:
       Note: Global Web MetaDesignSystem package entrypoint created in Phase 1
     - Path: sources/dmeta-ir/meta-design-systems/web/targets/react.yaml
       Note: React target definition under Web MetaDesignSystem
+    - Path: sources/dmeta-ir/meta-design-systems/web/widgets/presentations.yaml
+      Note: Web templates no longer declare generation policy
 ExternalSources: []
 Summary: Design and implementation guide for refactoring DMETA from semantic schemas plus widget templates into a layered compiler pipeline with Interaction IR, a Web MetaDesignSystem, and a React code-generation target.
 LastUpdated: 2026-05-24T18:15:00-04:00
 WhatFor: 'Use when implementing the next DMETA architecture step: Actions/Representations, MetaDesignSystem schemas, web-style UI lowering, React scaffold tooling, and migration of Street Deli templates.'
 WhenToUse: Read before changing pkg/dmeta/validator, pkg/dmeta/generator/widgets, sources/dmeta-ir widget templates, or examples/street-deli-ordering instance manifests for the compiler-pipeline refactor.
 ---
+
 
 
 

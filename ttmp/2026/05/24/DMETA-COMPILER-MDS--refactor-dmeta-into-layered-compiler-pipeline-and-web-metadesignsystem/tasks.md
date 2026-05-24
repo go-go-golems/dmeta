@@ -77,7 +77,7 @@ Goal: update Go types to match the new architecture instead of extending the old
 - [ ] Replace `Consumes.Presentations` with `Realizes.Representations` and `Realizes.Actions` in the Web widget model.
 - [ ] Add `Abstract`, `Selectable`, and `Extends` to Web widget templates.
 - [ ] Add `TargetContracts` or `ReactContract` fields only under the React target layer, not the universal semantic layer.
-- [ ] Remove `WidgetGenerationPolicy` from the universal validator model; move React generation policy under the React target package.
+- [x] Remove `WidgetGenerationPolicy` from the universal validator model; move React generation policy under the React target package.
 - [ ] Update tests to parse the new Web widget schema from `meta-design-systems/web/widgets/`.
 - [ ] Delete or rewrite tests that assume top-level generic widget templates.
 
@@ -284,3 +284,6 @@ Final validation gate:
 - [ ] `docmgr doctor --ticket DMETA-COMPILER-MDS --stale-after 30`
 
 - [x] Load singular `files.domain_example` entries in split core-model manifests.
+
+- [x] Rename remaining instance/catalog planner from `pkg/dmeta/generator/widgets` to `pkg/dmeta/instance`.
+- [x] Remove `generation` policy blocks from Web widget template YAML files.
