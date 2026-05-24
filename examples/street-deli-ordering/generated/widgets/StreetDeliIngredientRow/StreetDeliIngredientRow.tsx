@@ -7,6 +7,14 @@ import type { StreetDeliIngredientRowProps } from "./StreetDeliIngredientRow.typ
  *
  * Reflection-first scaffold generated from `deli.ingredient_row`.
  * Selected because: Customizer needs explicit ingredient rows with remove/substitute actions.
+ *
+ * Resolved inherited context:
+ * - Capability dietary (ancestors: Capability)
+ *   effective projections: allergen_contains, allergen_may_contain, dietary_tags
+ * - Capability substitutable (ancestors: Capability)
+ *   effective projections: allergen_flags, auto_suggest, dietary_compatibility, flavor_fit, price_delta_cents, replacement_candidates, replaces, role_preservation
+ * - Presentation ingredient_list (role: composition_list)
+ * - Presentation compact_ref (role: compact_reference)
  */
 export function StreetDeliIngredientRow(props: StreetDeliIngredientRowProps) {
   return (

@@ -24,6 +24,21 @@ import type { StreetDeliCompositionCustomizerProps } from "./StreetDeliCompositi
  * Inherited context note:
  * OrderItem and MenuItem can both satisfy ProductComposition, but the customizer usually starts from a MenuItem and produces an OrderItem.
  *
+ * Resolved inherited context:
+ * - Archetype ProductComposition (ancestors: Archetype -> Composition)
+ *   effective capabilities: identifiable, labelable, composable, inspectable, ingredient_composable, dietary
+ * - Capability ingredient_composable (ancestors: Capability -> composable -> role_composable)
+ *   effective projections: ingredient_roles, optional_roles, part_count, parts, required_roles, role_profile
+ * - Capability role_preserving_substitutable (ancestors: Capability -> substitutable)
+ *   effective projections: allergen_flags, auto_suggest, dietary_compatibility, flavor_fit, price_delta_cents, replacement_candidates, replaces, role_overlap_score, role_preservation
+ * - Capability configurable (ancestors: Capability)
+ *   effective projections: config_options, current_config
+ * - Capability dietary (ancestors: Capability)
+ *   effective projections: allergen_contains, allergen_may_contain, dietary_tags
+ * - Presentation composition_detail (role: detail_panel)
+ * - Presentation ingredient_list (role: composition_list)
+ * - Presentation substitution_badge (role: badge)
+ *
  * Projection hints are scaffold guidance, not rigid layout requirements unless strict mode is enabled.
  * Recommended:
  * - ingredient_composable.parts

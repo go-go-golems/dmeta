@@ -7,6 +7,6 @@ export type PresentationRef = unknown;
 export type StreetDeliMenuBrowserProps = {
   categories: MenuCategoryViewModel[];
   selectedItemId?: string;
-  onFilterDietary?: (payload: PresentationRef) => void;
   onSelectItem?: (payload: PresentationRef) => void;
+  onFilterDietary?: (payload: PresentationRef) => void;
 };

@@ -9,6 +9,7 @@ type InstanceManifest struct {
 	Name              string          `yaml:"name"`
 	Summary           string          `yaml:"summary"`
 	InstanceRoot      string          `yaml:"instance_root"`
+	CoreModelRoot     string          `yaml:"core_model_root"`
 	TemplateSources   TemplateSources `yaml:"template_sources"`
 	Generation        Generation      `yaml:"generation"`
 	SelectedTemplates []Selected      `yaml:"selected_templates"`
@@ -39,8 +40,49 @@ type Excluded struct {
 }
 
 type ResolvedTemplate struct {
-	Selected Selected
-	Template validator.Widget
+	Selected   Selected
+	Template   validator.Widget
+	Reflection WidgetReflection
+}
+
+type WidgetReflection struct {
+	Archetypes    []ResolvedArchetypeReflection    `json:"archetypes,omitempty"`
+	Capabilities  []ResolvedCapabilityReflection   `json:"capabilities,omitempty"`
+	Presentations []ResolvedPresentationReflection `json:"presentations,omitempty"`
+}
+
+type ResolvedArchetypeReflection struct {
+	ID                                string   `json:"id"`
+	Description                       string   `json:"description,omitempty"`
+	LongDescription                   string   `json:"longDescription,omitempty"`
+	Abstract                          bool     `json:"abstract"`
+	Ancestors                         []string `json:"ancestors,omitempty"`
+	EffectiveDefaultCapabilities      []string `json:"effectiveDefaultCapabilities,omitempty"`
+	EffectiveRecommendedPresentations []string `json:"effectiveRecommendedPresentations,omitempty"`
+}
+
+type ResolvedCapabilityReflection struct {
+	ID                       string   `json:"id"`
+	Description              string   `json:"description,omitempty"`
+	LongDescription          string   `json:"longDescription,omitempty"`
+	Abstract                 bool     `json:"abstract"`
+	Ancestors                []string `json:"ancestors,omitempty"`
+	EffectiveProjectionNames []string `json:"effectiveProjectionNames,omitempty"`
+	RequiredProjectionNames  []string `json:"requiredProjectionNames,omitempty"`
+	EffectivePresentations   []string `json:"effectivePresentations,omitempty"`
+	EffectiveActions         []string `json:"effectiveActions,omitempty"`
+	EffectiveFilters         []string `json:"effectiveFilters,omitempty"`
+}
+
+type ResolvedPresentationReflection struct {
+	ID              string   `json:"id"`
+	Description     string   `json:"description,omitempty"`
+	LongDescription string   `json:"longDescription,omitempty"`
+	Layer           string   `json:"layer,omitempty"`
+	Role            string   `json:"role,omitempty"`
+	Requires        []string `json:"requires,omitempty"`
+	RequiresAny     []string `json:"requiresAny,omitempty"`
+	Optional        []string `json:"optional,omitempty"`
 }
 
 type GeneratedFile struct {

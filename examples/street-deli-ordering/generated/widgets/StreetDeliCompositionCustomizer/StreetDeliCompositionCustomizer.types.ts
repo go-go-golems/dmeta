@@ -8,7 +8,7 @@ export type PresentationRef = unknown;
 export type StreetDeliCompositionCustomizerProps = {
   draft: CustomizationDraft;
   item: MenuItemDetailViewModel;
-  onRemoveIngredient?: (payload: PresentationRef) => void;
   onApplySubstitution?: (payload: PresentationActionRequest) => void;
   onAddToOrder?: (payload: PresentationActionRequest) => void;
+  onRemoveIngredient?: (payload: PresentationRef) => void;
 };

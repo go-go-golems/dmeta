@@ -22,6 +22,23 @@ import type { StreetDeliOrderTrackerProps } from "./StreetDeliOrderTracker.types
  * - timeline_marker
  * - dense_row
  *
+ * Resolved inherited context:
+ * - Archetype Order (ancestors: Archetype -> Entity -> WorkItem -> TimelineSpan)
+ *   effective capabilities: identifiable, labelable, inspectable, relatable, stateful, temporal, actionable, aggregatable, filterable, searchable
+ * - Archetype WorkItem (ancestors: Archetype -> Entity)
+ *   effective capabilities: identifiable, labelable, inspectable, relatable, stateful, temporal, actionable
+ * - Archetype TimelineSpan (ancestors: Archetype -> Entity)
+ *   effective capabilities: identifiable, labelable, inspectable, relatable, temporal, stateful, aggregatable
+ * - Capability stateful (ancestors: Capability)
+ *   effective projections: state, state_label, state_tone
+ * - Capability temporal (ancestors: Capability)
+ *   effective projections: duration_ms, end_time, start_time, timestamp
+ * - Capability relatable (ancestors: Capability)
+ *   effective projections: actor_ref, relation_refs, resource_ref, work_item_ref
+ * - Presentation prep_status_indicator (role: badge)
+ * - Presentation timeline_marker (role: timeline_marker)
+ * - Presentation dense_row (role: dense_row)
+ *
  * Projection hints:
  * Recommended:
  * - stateful.state

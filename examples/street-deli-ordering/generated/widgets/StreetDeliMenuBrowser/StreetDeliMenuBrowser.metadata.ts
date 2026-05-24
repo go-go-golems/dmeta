@@ -13,6 +13,140 @@ export const StreetDeliMenuBrowserMetadata = {
   },
   "instanceId": "street_deli_ordering",
   "reason": "Primary mobile ordering entrypoint needs category browsing and menu-item cards.",
+  "resolvedSemanticContext": {
+    "archetypes": [
+      {
+        "id": "Composition",
+        "description": "Abstract whole assembled from parts with functional roles and integrity constraints.",
+        "longDescription": "Composition represents a whole that is assembled from parts with defined functional roles. In the deli domain, a sandwich is a Composition: it has structural parts (bread), richness parts (cheese, avocado), moisture parts (sauce, dressing), acidity parts (pickle, mustard), crunch parts (lettuce, onion), protein parts (meat, tofu), and garnish parts. The intelligent replacement system operates on Compositions: when a customer removes a part, the system finds replacements that preserve the composition's functional integrity by matching on role overlap. A Composition is not merely a list of ingredients—it is an assemblage with role-based constraints. A BLT without bacon is not just \"a BLT minus bacon\"; it is a composition that has lost its primary protein and smoky umami role, and the replacement engine should suggest something that fills those roles (e.g., smoked tofu, tempeh bacon, or grilled portobello).\n",
+        "abstract": true,
+        "ancestors": [
+          "Archetype"
+        ],
+        "effectiveDefaultCapabilities": [
+          "identifiable",
+          "labelable",
+          "composable",
+          "inspectable"
+        ],
+        "effectiveRecommendedPresentations": [
+          "composition_card",
+          "composition_detail",
+          "ingredient_list"
+        ]
+      },
+      {
+        "id": "Resource",
+        "description": "Thing used, moved, consumed, stored, referenced, or inspected by work.",
+        "longDescription": "Resource represents a thing that is used, moved, consumed, stored, referenced, or inspected by operational work. Resources can be physical objects such as packages or inventory items, digital objects such as files or endpoints, or infrastructure objects such as machines and locations. Resources often appear as related objects inside WorkItems and Events. Their presentations should emphasize compact reference, copyable identity, relation traversal, and inspection.",
+        "abstract": false,
+        "ancestors": [
+          "Archetype",
+          "Entity"
+        ],
+        "effectiveDefaultCapabilities": [
+          "identifiable",
+          "labelable",
+          "inspectable",
+          "relatable"
+        ],
+        "effectiveRecommendedPresentations": [
+          "compact_ref",
+          "detail_panel",
+          "summary_card"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "dietary",
+        "description": "Subject carries dietary constraint tags that filter valid substitutions and display options.",
+        "longDescription": "Dietary means a subject carries dietary constraint metadata. In the deli domain, dietary tags are central to the ordering experience: customers with dairy-free, gluten-free, nut-free, vegan, or other constraints need to see which menu items and substitutions are safe. The dietary capability is used by the replacement engine to filter substitutions (a dairy-free customer removing cheese should not be offered more cheese as a replacement) and by the UI to display dietary badges and allergen warnings. Allergen tracking is split into \"contains\" (definite) and \"may_contain\" (possible cross-contamination) because street delis often share preparation surfaces and the distinction matters for severe allergies.\n",
+        "abstract": false,
+        "ancestors": [
+          "Capability"
+        ],
+        "effectiveProjectionNames": [
+          "allergen_contains",
+          "allergen_may_contain",
+          "dietary_tags"
+        ],
+        "requiredProjectionNames": [
+          "dietary_tags"
+        ],
+        "effectivePresentations": [
+          "dietary_badge",
+          "allergen_warning"
+        ],
+        "effectiveActions": [
+          "filter_by_dietary"
+        ],
+        "effectiveFilters": [
+          "has_dietary_tag",
+          "allergen_free"
+        ]
+      },
+      {
+        "id": "filter_source",
+        "description": "Subject presentation can derive one or more filter expressions for compatible targets.",
+        "longDescription": "Filter_source means a visible semantic presentation can be turned into a constraint for a compatible filterable target. It is deliberately separate from filterable. An Agent, Session, Client, StatusBadge, timestamp, relation link, or metric cell may supply a filter value, while an EventStream ResultSet or DenseTable ResultSet receives the resulting expression. The runtime matches sources to targets through filter keys, dimensions, relation paths, or adapter-provided mappings.",
+        "abstract": false,
+        "ancestors": [
+          "Capability"
+        ],
+        "effectiveProjectionNames": [
+          "filter_keys",
+          "filter_label",
+          "filter_value"
+        ],
+        "effectivePresentations": [
+          "filter_value_token"
+        ],
+        "effectiveActions": [
+          "filter_by_value",
+          "filter_by_relation"
+        ],
+        "effectiveFilters": [
+          "equals",
+          "in",
+          "relation_equals"
+        ]
+      }
+    ],
+    "presentations": [
+      {
+        "id": "composition_card",
+        "description": "Compact menu item card showing name, price, key ingredients, and dietary tags.",
+        "longDescription": "Use composition_card as the primary browsing surface for menu items. It should show the item name, a compact ingredient summary (not the full list), price, and dietary badges. Tapping the card opens the composition_detail for full customization. The card should be thumb-friendly on mobile and visually distinct from the dense-row style used for order items.\n",
+        "layer": "archetype",
+        "role": "summary_card",
+        "requiresAny": [
+          "id",
+          "label"
+        ],
+        "optional": [
+          "parts",
+          "dietary_tags",
+          "price"
+        ]
+      },
+      {
+        "id": "compact_ref",
+        "description": "Compact reference combining id and label.",
+        "longDescription": "Use compact_ref as the default compact representation of an identifiable and labelable semantic object. It combines stable identity with a readable label and may optionally include state tone or state indicator. It is the workhorse presentation for Actors, WorkItems, Resources, ActionSpecs, and related subjects when they appear inside rows, chips, detail panels, filters, and context menus. It should be dense, copyable, inspectable, and consistent across domains.",
+        "layer": "archetype",
+        "role": "compact_reference",
+        "requires": [
+          "id",
+          "label"
+        ],
+        "optional": [
+          "state",
+          "state_tone"
+        ]
+      }
+    ]
+  },
   "selectedAs": "StreetDeliMenuBrowser",
   "templateId": "deli.menu_browser",
   "variant": "mobile_cards"

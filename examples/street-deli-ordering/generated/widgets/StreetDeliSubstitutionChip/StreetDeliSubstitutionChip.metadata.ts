@@ -31,6 +31,211 @@ export const StreetDeliSubstitutionChipMetadata = {
     "required": null
   },
   "reason": "Replacement suggestions need a compact reusable action presentation.",
+  "resolvedSemanticContext": {
+    "archetypes": [
+      {
+        "id": "Substitution",
+        "description": "Abstract replacement relationship between an original ingredient/part and compatible alternatives.",
+        "longDescription": "Substitution represents the core intelligence of the replacement engine. Each substitution declares what is being removed (or reduced), what can replace it, under what constraints the replacement is valid, and what the replacement contributes to the composition's role profile. Substitutions are not simple 1:1 swaps: \"no cheese\" can map to avocado (richness, creaminess), or to nutritional yeast (umami, sharpness), or to extra sauce (moisture), depending on what the customer wants to optimize for. The Substitution archetype carries enough metadata for the replacement engine to reason about role preservation, dietary compatibility, allergen safety, and flavor profile fit. Substitutions may be automatic (suggested by the system) or manual (explicitly chosen by the customer). They may also cascade: removing bread (gluten-free) triggers a lettuce wrap substitution, which itself changes the composition's structural properties.\n",
+        "abstract": true,
+        "ancestors": [
+          "Archetype",
+          "Entity",
+          "Relation"
+        ],
+        "effectiveDefaultCapabilities": [
+          "identifiable",
+          "labelable",
+          "inspectable",
+          "relatable",
+          "substitutable"
+        ],
+        "effectiveRecommendedPresentations": [
+          "compact_ref",
+          "detail_panel",
+          "relation_link",
+          "inline_token",
+          "substitution_badge",
+          "substitution_pair",
+          "substitution_detail"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "role_preserving_substitutable",
+        "description": "Substitution that preserves one or more functional roles from the removed part.",
+        "longDescription": "Role_preserving_substitutable is the primary concrete substitution capability. It keeps the replacement engine honest by explaining which roles are preserved and how well.",
+        "abstract": false,
+        "ancestors": [
+          "Capability",
+          "substitutable"
+        ],
+        "effectiveProjectionNames": [
+          "allergen_flags",
+          "auto_suggest",
+          "dietary_compatibility",
+          "flavor_fit",
+          "price_delta_cents",
+          "replacement_candidates",
+          "replaces",
+          "role_overlap_score",
+          "role_preservation"
+        ],
+        "requiredProjectionNames": [
+          "replacement_candidates",
+          "replaces"
+        ],
+        "effectivePresentations": [
+          "substitution_badge",
+          "substitution_pair",
+          "substitution_detail"
+        ],
+        "effectiveActions": [
+          "apply_substitution",
+          "reject_substitution",
+          "see_alternatives"
+        ],
+        "effectiveFilters": [
+          "role_preservation"
+        ]
+      },
+      {
+        "id": "dietary_substitutable",
+        "description": "Substitution filtered and explained through dietary tags and allergen constraints.",
+        "longDescription": "Dietary_substitutable combines substitution reasoning with dietary/allergen metadata. It is useful for suggestions such as no cheese to avocado for dairy-free customers.",
+        "abstract": false,
+        "ancestors": [
+          "Capability",
+          "substitutable",
+          "role_preserving_substitutable",
+          "dietary"
+        ],
+        "effectiveProjectionNames": [
+          "allergen_contains",
+          "allergen_flags",
+          "allergen_may_contain",
+          "auto_suggest",
+          "dietary_compatibility",
+          "dietary_explanation",
+          "dietary_tags",
+          "flavor_fit",
+          "price_delta_cents",
+          "replacement_candidates",
+          "replaces",
+          "role_overlap_score",
+          "role_preservation"
+        ],
+        "requiredProjectionNames": [
+          "dietary_tags",
+          "replacement_candidates",
+          "replaces"
+        ],
+        "effectivePresentations": [
+          "substitution_badge",
+          "substitution_pair",
+          "substitution_detail",
+          "dietary_badge",
+          "allergen_warning"
+        ],
+        "effectiveActions": [
+          "apply_substitution",
+          "reject_substitution",
+          "see_alternatives",
+          "filter_by_dietary"
+        ],
+        "effectiveFilters": [
+          "role_preservation",
+          "has_dietary_tag",
+          "allergen_free"
+        ]
+      },
+      {
+        "id": "price_aware_substitutable",
+        "description": "Substitution that exposes price deltas and cost impact before the customer applies it.",
+        "longDescription": "Price_aware_substitutable makes substitution cost transparent. It inherits measurable behavior so price deltas can be rendered and compared consistently.",
+        "abstract": false,
+        "ancestors": [
+          "Capability",
+          "substitutable",
+          "role_preserving_substitutable",
+          "measurable"
+        ],
+        "effectiveProjectionNames": [
+          "allergen_flags",
+          "auto_suggest",
+          "dietary_compatibility",
+          "flavor_fit",
+          "price_delta_cents",
+          "price_delta_label",
+          "replacement_candidates",
+          "replaces",
+          "role_overlap_score",
+          "role_preservation",
+          "unit",
+          "value"
+        ],
+        "requiredProjectionNames": [
+          "replacement_candidates",
+          "replaces",
+          "value"
+        ],
+        "effectivePresentations": [
+          "substitution_badge",
+          "substitution_pair",
+          "substitution_detail",
+          "metric_cell"
+        ],
+        "effectiveActions": [
+          "apply_substitution",
+          "reject_substitution",
+          "see_alternatives"
+        ],
+        "effectiveFilters": [
+          "role_preservation",
+          "lt",
+          "lte",
+          "gt",
+          "gte",
+          "between",
+          "price_delta"
+        ]
+      }
+    ],
+    "presentations": [
+      {
+        "id": "substitution_badge",
+        "description": "Inline badge indicating an active or suggested substitution on an ingredient.",
+        "longDescription": "Use substitution_badge as a compact inline indicator that an ingredient has been or can be substituted. It should show what was removed (e.g., \"No cheese\") and optionally what replaces it (e.g., \"→ avocado\"). The badge should use semantic tone to indicate whether the substitution is active (success), suggested (info), or conflicting (warning). Tapping the badge opens the substitution_detail for full alternatives.\n",
+        "layer": "capability",
+        "role": "badge",
+        "requires": [
+          "replaces"
+        ],
+        "optional": [
+          "role_preservation",
+          "dietary_compatibility",
+          "auto_suggest"
+        ]
+      },
+      {
+        "id": "substitution_pair",
+        "description": "Side-by-side or before/after presentation of an original ingredient and its replacement.",
+        "longDescription": "Use substitution_pair to show the original ingredient and its top replacement candidate side by side. This is the primary way the intelligent replacement engine communicates its reasoning to the customer: \"You removed cheese → We suggest avocado (richness, creaminess)\". The pair should show role overlap, flavor fit, dietary compatibility, and price delta so the customer can make an informed choice.\n",
+        "layer": "capability",
+        "role": "substitution_pair",
+        "requires": [
+          "replaces",
+          "replacement_candidates"
+        ],
+        "optional": [
+          "role_preservation",
+          "flavor_fit",
+          "price_delta_cents"
+        ]
+      }
+    ]
+  },
   "selectedAs": "StreetDeliSubstitutionChip",
   "semanticContext": {
     "archetypes": [
