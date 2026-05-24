@@ -1522,3 +1522,130 @@ examples/street-deli-ordering/generated/react/
 ```
 
 not the old generic widget output path.
+
+## Step 12: Hard-cut instance manifests and remove generic scaffold CLI
+
+This step replaced the old instance-manifest shape and removed the old generic scaffold command from the CLI surface. Street Deli instances now declare `semantic_root`, `interactions_root`, `meta_design_systems.web`, and `targets.react` explicitly instead of `instance_root`, `core_model_root`, `template_sources`, and `generation`.
+
+This is a hard cutover, not a compatibility bridge. The old `scaffold-instance` command and the legacy generic widget renderer/writer files were removed; the active scaffold path is now `plan-scaffold --target react` and `scaffold-react`.
+
+### Prompt Context
+
+**User prompt (verbatim):** "do it, replace, hard cutover."
+
+**Assistant interpretation:** Remove the compatibility posture: migrate instance metadata to explicit Web/React target fields, remove the old generic scaffold command, and make React target tooling consume only the new manifest shape.
+
+**Inferred user intent:** Finish the architectural cut from generic widget codegen to Web MetaDesignSystem + React target codegen without aliases or legacy shims.
+
+**Commit (code):** pending at time of diary entry — hard-cut instance manifest and CLI changes.
+
+### What I did
+
+- Rewrote `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/instantiations/street-deli-ordering.yaml` to use:
+  - `semantic_root`
+  - `interactions_root`
+  - `meta_design_systems.web.root`
+  - `meta_design_systems.web.global_root`
+  - `meta_design_systems.web.template_files`
+  - `targets.react.target_file`
+  - `targets.react.output_dir`
+  - `targets.react.package_name`
+- Rewrote `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/instantiations/street-deli-coffee-counter.yaml` to the same hard-cut schema.
+- Updated `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/model.go` so `InstanceManifest` no longer exposes old manifest fields.
+- Updated `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/load.go` so `plan-instance` loads templates from `interactions_root` plus `meta_design_systems.web.template_files`.
+- Updated `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/plan.go` so React planning reads `semantic_root`, `interactions_root`, `meta_design_systems.web.root`, and `targets.react`.
+- Removed `scaffold-instance` from `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`.
+- Deleted:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_instance.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/render.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/render_test.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/write.go`
+- Updated command help text that still referenced `template_sources.global_ir_root`.
+
+### Why
+
+- Keeping both `generation` and `targets.react` would create two sources of truth.
+- Keeping `scaffold-instance` would invite users back into the generic widget codegen path.
+- The new manifest names make the compiler layering explicit: semantic package, Interaction IR root, Web MetaDesignSystem package, and React target.
+
+### What worked
+
+- `go test ./pkg/dmeta/generator/react/... ./pkg/dmeta/... ./cmd/dmeta -count=1` passed.
+- `plan-instance` works for the migrated main Street Deli instance.
+- `plan-instance` works for the migrated coffee-counter instance.
+- `plan-scaffold --target react` still emits eight component rows for the main Street Deli instance.
+- `scaffold-react --dry-run` still plans 65 files.
+- `dmeta --help` now lists `scaffold-react`, not `scaffold-instance`.
+- Running `dmeta scaffold-instance --help` now fails with `unknown command "scaffold-instance"`, which is the intended hard-cut behavior.
+- Global and Street Deli `validate-ir` still pass.
+
+### What didn't work
+
+- N/A after the hard-cut edits. The compile errors were avoided by removing the old generic render/write files after replacing their references.
+
+### What I learned
+
+- The remaining useful part of `pkg/dmeta/generator/widgets` is now instance selection/catalog validation, not rendering.
+- The React planner needed only a small change to become target-field driven: `targets.react` already carries the output directory, package name, and target file.
+- Removing `scaffold-instance` from the root command is clearer than keeping a deprecated alias because the project explicitly wants a hard cutover.
+
+### What was tricky to build
+
+- The instance loader and planner still live in a package named `generator/widgets`, which is now historically named. I did not rename the package in this step because that would be a broader file move, but the render/write functionality is gone.
+- There are older docs and ticket archives that still mention `scaffold-instance`; I did not rewrite historical docs. Current code/examples no longer use the old fields or command.
+- `WidgetGenerationPolicy` still exists in the validator model because Web templates currently include `generation` policy fields. Removing that is a separate schema cleanup task.
+
+### What warrants a second pair of eyes
+
+- Review the new instance manifest schema naming before it becomes the pattern for other instances.
+- Review whether `pkg/dmeta/generator/widgets` should be renamed to `pkg/dmeta/instance` or `pkg/dmeta/metadesign/web/instance` next.
+- Review whether `meta_design_systems.web.global_root` should be used by code or removed if `interactions_root` remains the source for global templates.
+
+### What should be done in the future
+
+- Rename the remaining instance/catalog planning package away from `generator/widgets`.
+- Remove or replace Web template `generation` policy fields with React target policy fields.
+- Update current design docs to remove forward-looking statements that say not to remove `scaffold-instance` yet.
+- Add manifest-schema validation for required `semantic_root`, `interactions_root`, `meta_design_systems.web`, and `targets.react` fields.
+
+### Code review instructions
+
+Start with:
+
+- `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/instantiations/street-deli-ordering.yaml`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/model.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/load.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/plan.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+
+Validate with:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+go test ./pkg/dmeta/generator/react/... ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table
+go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-coffee-counter.yaml --output table
+go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output yaml
+go run ./cmd/dmeta scaffold-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --dry-run --output table
+go run ./cmd/dmeta --help
+go run ./cmd/dmeta scaffold-instance --help # should fail: unknown command
+```
+
+### Technical details
+
+The new main instance manifest top-level shape is:
+
+```yaml
+semantic_root: ..
+interactions_root: ../../../sources/dmeta-ir
+meta_design_systems:
+  web:
+    root: ../meta-design-systems/web
+    global_root: ../../../sources/dmeta-ir/meta-design-systems/web
+    template_files: [...]
+targets:
+  react:
+    target_file: ../../../sources/dmeta-ir/meta-design-systems/web/targets/react.yaml
+    output_dir: ../generated/react
+    package_name: street-deli-ordering-react
+```

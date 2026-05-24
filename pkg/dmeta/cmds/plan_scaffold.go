@@ -77,7 +77,7 @@ Examples:
 				"interactions-root",
 				fields.TypeString,
 				fields.WithDefault(""),
-				fields.WithHelp("Optional root containing interactions/ and the React target file; defaults to instance template_sources.global_ir_root"),
+				fields.WithHelp("Optional root containing interactions/ and the React target file; defaults to instance interactions_root"),
 			),
 			fields.New(
 				"web-root",

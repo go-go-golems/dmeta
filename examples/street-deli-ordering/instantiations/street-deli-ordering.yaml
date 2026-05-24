@@ -3,22 +3,26 @@ artifact_type: dmeta_instance
 id: street_deli_ordering
 name: Street Deli Ordering
 summary: Concrete DMETA instantiation for the Hudson Street Deli sandwich/composition mobile ordering flow.
-instance_root: ..
-core_model_root: ../..
-template_sources:
-  global_ir_root: ../../../sources/dmeta-ir
-  local_template_files:
-  - ../meta-design-systems/web/widgets/menu-browsing.yaml
-  - ../meta-design-systems/web/widgets/item-cards.yaml
-  - ../meta-design-systems/web/widgets/customization.yaml
-  - ../meta-design-systems/web/widgets/modifiers.yaml
-  - ../meta-design-systems/web/widgets/substitutions.yaml
-  - ../meta-design-systems/web/widgets/ordering.yaml
-  - ../meta-design-systems/web/widgets/availability.yaml
-  - ../meta-design-systems/web/widgets/tracking.yaml
-generation:
-  output_dir: ../generated/widgets
-  package_name: street-deli-ordering-widgets
+semantic_root: ..
+interactions_root: ../../../sources/dmeta-ir
+meta_design_systems:
+  web:
+    root: ../meta-design-systems/web
+    global_root: ../../../sources/dmeta-ir/meta-design-systems/web
+    template_files:
+      - ../meta-design-systems/web/widgets/menu-browsing.yaml
+      - ../meta-design-systems/web/widgets/item-cards.yaml
+      - ../meta-design-systems/web/widgets/customization.yaml
+      - ../meta-design-systems/web/widgets/modifiers.yaml
+      - ../meta-design-systems/web/widgets/substitutions.yaml
+      - ../meta-design-systems/web/widgets/ordering.yaml
+      - ../meta-design-systems/web/widgets/availability.yaml
+      - ../meta-design-systems/web/widgets/tracking.yaml
+targets:
+  react:
+    target_file: ../../../sources/dmeta-ir/meta-design-systems/web/targets/react.yaml
+    output_dir: ../generated/react
+    package_name: street-deli-ordering-react
 selected_templates:
 - template: deli.menu_browser
   as: StreetDeliMenuBrowser

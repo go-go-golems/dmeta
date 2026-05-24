@@ -127,3 +127,15 @@ Added scaffold-react writer and full React target renderers. The new command ren
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render.go — React target renderer for components
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/write.go — React target write/dry-run support
 
+
+## 2026-05-24
+
+Hard-cut instance manifests and CLI away from generic widget scaffolding. Street Deli manifests now use semantic_root, interactions_root, meta_design_systems.web, and targets.react; scaffold-instance and legacy generic widget renderer/writer files were removed.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go — Removed scaffold-instance from CLI surface
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/instantiations/street-deli-coffee-counter.yaml — Coffee counter manifest migrated to explicit Web/React targets
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/instantiations/street-deli-ordering.yaml — Main Street Deli manifest migrated to explicit Web/React targets
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/widgets/model.go — Instance manifest schema hard-cut to semantic_root/interactions_root/meta_design_systems/targets
+

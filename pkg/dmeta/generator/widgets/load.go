@@ -41,10 +41,10 @@ func LoadInstance(path string) (InstanceManifest, string, error) {
 
 func LoadTemplateCatalog(ctx context.Context, globalRoot string, instanceDir string, instance InstanceManifest) (TemplateCatalog, error) {
 	if globalRoot == "" {
-		globalRoot = instance.TemplateSources.GlobalIRRoot
+		globalRoot = instance.InteractionsRoot
 	}
 	if globalRoot == "" {
-		return TemplateCatalog{}, errors.New("no global IR root supplied and template_sources.global_ir_root is empty")
+		return TemplateCatalog{}, errors.New("no global IR root supplied and interactions_root is empty")
 	}
 	if !filepath.IsAbs(globalRoot) {
 		globalRoot = filepath.Join(instanceDir, globalRoot)
@@ -55,10 +55,7 @@ func LoadTemplateCatalog(ctx context.Context, globalRoot string, instanceDir str
 	}
 
 	catalog := TemplateCatalog{GlobalRoot: globalRoot, ReflectionRoot: globalRoot, Templates: map[string]validator.Widget{}, Package: pkg}
-	reflectionRoot := instance.InstanceRoot
-	if reflectionRoot == "" {
-		reflectionRoot = instance.CoreModelRoot
-	}
+	reflectionRoot := instance.SemanticRoot
 	if reflectionRoot != "" {
 		if !filepath.IsAbs(reflectionRoot) {
 			reflectionRoot = filepath.Join(instanceDir, reflectionRoot)
@@ -79,7 +76,11 @@ func LoadTemplateCatalog(ctx context.Context, globalRoot string, instanceDir str
 	for _, widget := range pkg.Widgets.Widgets {
 		catalog.Templates[widget.ID] = widget
 	}
-	for _, localPath := range instance.TemplateSources.LocalTemplateFiles {
+	webMDS, ok := instance.MetaDesignSystems["web"]
+	if !ok {
+		return TemplateCatalog{}, errors.New("instance meta_design_systems.web is required")
+	}
+	for _, localPath := range webMDS.TemplateFiles {
 		path := localPath
 		if !filepath.IsAbs(path) {
 			path = filepath.Join(instanceDir, path)
