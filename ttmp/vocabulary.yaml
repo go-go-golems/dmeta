@@ -27,6 +27,10 @@ topics:
       description: Compiler-style intermediate representation, passes, lowering, elaboration, and code generation architecture
     - slug: metadesignsystem
       description: DMETA target-family layer that realizes interaction representations/actions into concrete UI/tooling IRs
+    - slug: pbui
+      description: Presentation-based UI / PBUI architecture and implementation topics
+    - slug: clim
+      description: CLIM-style command and presentation based interface topics
 docTypes:
     - slug: design-doc
       description: Structured rationale and architecture notes
