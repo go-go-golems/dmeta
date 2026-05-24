@@ -31,6 +31,13 @@ func main() {
 	}
 	addGlazedCommand(rootCmd, "generate-core", generateCore)
 
+	validateInteractions, err := dmetacmds.NewValidateInteractionsCommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating validate-interactions command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "validate-interactions", validateInteractions)
+
 	planInstance, err := dmetacmds.NewPlanInstanceCommand()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error creating plan-instance command: %v\n", err)
