@@ -336,3 +336,99 @@ docmgr changelog update --ticket DMETA-COMPILER-MDS \
 
 docmgr doctor --ticket DMETA-COMPILER-MDS --stale-after 30
 ```
+
+## Step 3: Reframe the ticket as a hard top-down cutover
+
+This step changed the implementation strategy from compatibility-first migration to hard cutover. The user clarified that DMETA is still WIP experimentation, so the correct goal is not to preserve old paths, wrapper loaders, or compatibility aliases. The correct goal is to remove conceptual complexity and make the target architecture elegant.
+
+The task list and design guide now say that widgets are not universal DMETA concepts. Widgets belong to the Web MetaDesignSystem. The old top-level `sources/dmeta-ir/widget-templates/` path and local `examples/street-deli-ordering/widget-templates/` path should be moved into `meta-design-systems/web/` and then deleted as source-of-truth locations.
+
+### Prompt Context
+
+**User prompt (verbatim):** "go ewe don't need compatibility or wrappers or such. We are doing a hard cutover, the goal is to cut out complexity, and have an elegant target. Everything in the repo is WIP and experimentation.
+
+Rephrase the ticket / tasks to take that into account, we want to work more top down than bottom up, no need for compat"
+
+**Assistant interpretation:** Update the ticket documents so the implementation plan no longer tries to support old and new systems in parallel; make the plan top-down and target-oriented.
+
+**Inferred user intent:** Avoid accumulating transitional complexity in an experimental repository. Use the refactor to define the clean architecture directly.
+
+**Commit (code):** pending — documentation/task update only.
+
+### What I did
+
+- Rewrote `tasks.md` around hard-cut phases.
+- Updated Phase 1 to create `sources/dmeta-ir/meta-design-systems/web/`, move global widget templates there, and delete the old top-level widget-template directory.
+- Updated Street Deli tasks to move local templates under `examples/street-deli-ordering/meta-design-systems/web/widgets/` and delete the old local template directory.
+- Removed compatibility/wrapper/legacy-support tasks from the checklist.
+- Updated the design guide with a `Hard-cut implementation policy` section.
+- Updated the design guide to say Web widgets belong under the Web MetaDesignSystem, not the universal DMETA IR layer.
+- Updated the design guide implementation phases, risks, open questions, and intern checklist to match the hard-cut strategy.
+- Updated the ticket changelog.
+
+### Why
+
+- Compatibility layers would preserve accidental complexity from an experimental design rather than clarifying the architecture.
+- Widgets are a Web/visual design-system concept, not a universal interaction concept. Moving them under the Web MetaDesignSystem makes that boundary explicit.
+- A top-down cutover matches the desired architecture better: define semantic and interaction layers, then define the Web MetaDesignSystem, then define React as a target.
+
+### What worked
+
+- The task list is now aligned with the intended architecture instead of a compatibility migration.
+- The design guide now includes an explicit hard-cut policy.
+- The canonical folder target is now `meta-design-systems/web/`, matching the user's requested direction.
+
+### What didn't work
+
+- N/A. This was a documentation refactor and did not produce command failures.
+
+### What I learned
+
+- The previous Phase 1 was too bottom-up. It proposed adding compatibility fields to the current widget model before moving the concept into the right layer.
+- The better approach is to establish the target package layout first, then update loaders/types/tools to match that layout.
+
+### What was tricky to build
+
+- The tricky part was avoiding half-measures in the documentation. Several sections still talked about compatibility, legacy paths, or wrappers, so the update needed to touch both `tasks.md` and the design guide.
+- Another tricky point was naming. The ticket now uses `web` as the canonical MetaDesignSystem id/path rather than `web-ui`, because the user specifically suggested a `meta-design-system/web/` folder.
+
+### What warrants a second pair of eyes
+
+- Review whether `web` is the right final MetaDesignSystem id or whether `visual-web` would be clearer. The current document chooses `web` for simplicity and path clarity.
+- Review the hard-delete path for `core-model/presentations.yaml`; some entries may need to be split into Interaction representations before deletion.
+
+### What should be done in the future
+
+- Start implementation by moving global and local widget template files into the Web MetaDesignSystem layout.
+- Update Go loaders to read only the new layout rather than supporting both paths.
+
+### Code review instructions
+
+- Review the updated task file:
+  - `ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/tasks.md`
+- Review the hard-cut policy in the design guide:
+  - `ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/design-doc/01-layered-compiler-pipeline-and-web-metadesignsystem-refactor-guide.md`
+- Search for accidental compatibility language before implementation:
+
+```bash
+rg -n "compat|legacy|wrapper|widget-templates" \
+  ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem \
+  sources examples pkg
+```
+
+### Technical details
+
+Commands run during this step:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+
+rg -n "compat|legacy|wrapper|Do not move|migration" \
+  ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/design-doc/01-layered-compiler-pipeline-and-web-metadesignsystem-refactor-guide.md \
+  ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/tasks.md
+
+docmgr changelog update --ticket DMETA-COMPILER-MDS \
+  --entry "Reframed implementation strategy as a hard top-down cutover: move widgets under meta-design-systems/web, delete old widget-template paths, remove compatibility/wrapper tasks, and treat React as a Web target." \
+  --file-note "/home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/tasks.md:Updated hard-cut phased task list" \
+  --file-note "/home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-COMPILER-MDS--refactor-dmeta-into-layered-compiler-pipeline-and-web-metadesignsystem/design-doc/01-layered-compiler-pipeline-and-web-metadesignsystem-refactor-guide.md:Updated hard-cut design policy and phases"
+```

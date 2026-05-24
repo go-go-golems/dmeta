@@ -18,228 +18,206 @@
 - [x] Validate ticket with `docmgr doctor`.
 - [x] Upload design bundle to reMarkable.
 
-## Phase 1: Add compatibility fields to widget templates
+## Phase 1: Hard-cut target layout and vocabulary reset
 
-Goal: make the current widget-template layer able to express abstract/concrete status and interaction realization without changing generator output yet.
+Goal: stop treating widgets as universal DMETA concepts. Move web/visual widget templates under a Web MetaDesignSystem package and delete the old top-level widget-template layout.
 
-- [ ] Add `Abstract bool \`yaml:"abstract"\`` to `validator.Widget`.
-- [ ] Add `Selectable *bool \`yaml:"selectable"\`` to `validator.Widget`.
-- [ ] Add `Extends []string \`yaml:"extends"\`` to `validator.Widget`.
-- [ ] Add `MetaDesignSystem string \`yaml:"meta_design_system"\`` to `validator.Widget`.
-- [ ] Add `CodegenTargets []string \`yaml:"codegen_targets"\`` to `validator.Widget`.
-- [ ] Add `Realizes Realizes \`yaml:"realizes"\`` to `validator.Widget`.
-- [ ] Add `Realizes` struct with `Representations []string` and `Actions []string`.
-- [ ] Add `Widget.IsSelectable()` helper that defaults to `!Abstract` when `selectable` is omitted.
-- [ ] Update widget model tests or add new tests for parsing the new fields.
-- [ ] Update `ValidateInstanceAgainstCatalog` to reject selected templates with `abstract: true`.
-- [ ] Update `ValidateInstanceAgainstCatalog` to reject selected templates with `selectable: false`.
-- [ ] Add planner warnings for selected templates without `realizes` when strict MetaDesignSystem validation is enabled.
-- [ ] Keep legacy templates valid when the new fields are omitted.
-- [ ] Add one minimal test fixture for an abstract template selected by mistake.
-- [ ] Add one minimal test fixture for a non-selectable template selected by mistake.
-- [ ] Verify existing Street Deli `plan-instance` output remains compatible.
+- [ ] Create `sources/dmeta-ir/meta-design-systems/web/` as the canonical Web MetaDesignSystem root.
+- [ ] Create `sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml`.
+- [ ] Create `sources/dmeta-ir/meta-design-systems/web/widgets/`.
+- [ ] Move all files from `sources/dmeta-ir/widget-templates/` into `sources/dmeta-ir/meta-design-systems/web/widgets/`.
+- [ ] Delete the old `sources/dmeta-ir/widget-templates/` directory after the move.
+- [ ] Replace `sources/dmeta-ir/03-widgets.yaml` with a Web MetaDesignSystem entrypoint or remove it if the root index no longer needs a widget package.
+- [ ] Update `sources/dmeta-ir/00-index.yaml` or equivalent package index to point at `meta-design-systems/web/meta-design-system.yaml` instead of top-level widgets.
+- [ ] Rename top-level docs/labels from “widget template package” to “Web MetaDesignSystem widget templates”.
+- [ ] Decide canonical id prefix: use `web.*` for generic web widgets and `deli.web.*` for Street Deli web widgets.
+- [ ] Update global template ids if needed to use the new prefix.
+- [ ] Remove any plan for compatibility aliases or wrapper loaders.
+- [ ] Update design docs to state the hard-cut rule: old paths are invalid after this phase.
 
 Validation gate:
 
-- [ ] `go test ./pkg/dmeta/... -count=1`
-- [ ] `go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table`
+- [ ] `rg "sources/dmeta-ir/widget-templates|widget-template package|compatibility alias|legacy widget" sources examples pkg ttmp/2026/05/24/DMETA-COMPILER-MDS*` returns no unintended references.
 
-## Phase 2: Introduce Interaction IR catalogs
+## Phase 2: Define the top-level compiler source packages
 
-Goal: create first-class modality-neutral Actions and Representations while leaving current `presentations` fields in place for compatibility.
+Goal: define the new high-level IR layout before writing loaders. This is a top-down schema pass.
 
+- [ ] Create `sources/dmeta-ir/semantic/` or decide to keep `core-model/` as the semantic source root.
 - [ ] Create `sources/dmeta-ir/interactions/00-index.yaml`.
 - [ ] Create `sources/dmeta-ir/interactions/actions.yaml`.
 - [ ] Create `sources/dmeta-ir/interactions/representations.yaml`.
 - [ ] Create `sources/dmeta-ir/interactions/elaboration-rules.yaml`.
-- [ ] Add `pkg/dmeta/interaction/model.go`.
-- [ ] Define `InteractionCatalog` model.
-- [ ] Define `InteractionAction` model.
-- [ ] Define `Representation` model.
-- [ ] Define `SemanticSelector` with explicit `all_*` and `any_*` fields.
-- [ ] Define `RepresentationExposes` with required/recommended/optional projection lists.
-- [ ] Define `ActionEffects`, `ActionSafety`, and action input models.
-- [ ] Add `pkg/dmeta/interaction/load.go` for loading global and local interaction catalogs.
-- [ ] Add parser tests for minimal action and representation files.
+- [ ] Remove `presentations` as a universal semantic-layer requirement from future-facing docs.
+- [ ] Decide whether current `core-model/presentations.yaml` is deleted, moved under `meta-design-systems/web/`, or split into interaction representations plus web presentations.
 - [ ] Seed root abstract definitions `Action` and `Representation`.
 - [ ] Seed initial shared representations: `compact_reference`, `state_indicator`, `inspection_entrypoint`, `composition_summary`, `composition_breakdown`, `ingredient_composition_row`, `role_label`, `dietary_summary`, `configuration_summary`, `substitution_candidate`, `substitution_price_delta`, `order_lifecycle_progress`, `cart_summary`.
 - [ ] Seed initial shared actions: `inspect_subject`, `copy_reference`, `select_subject`, `select_menu_item`, `filter_by_state`, `filter_by_dietary`, `remove_part`, `undo_remove_part`, `add_part`, `change_config`, `apply_substitution`, `reject_substitution`, `see_alternatives`, `add_to_order`, `remove_cart_item`, `submit_order`, `return_to_menu`.
-- [ ] Document which current `core-model/presentations.yaml` entries map to the new representations.
+- [ ] Write a short README for the new compiler-source layout.
 
 Validation gate:
 
-- [ ] Interaction catalogs parse without errors.
-- [ ] New tests pass with `go test ./pkg/dmeta/interaction/... -count=1`.
+- [ ] New YAML files parse with `yq` or a minimal Go loader test.
+- [ ] No new schema mentions widgets outside the Web MetaDesignSystem.
 
-## Phase 3: Validate and resolve Interaction IR inheritance
+## Phase 3: Replace generic widget models with Web MetaDesignSystem models
 
-Goal: give Actions and Representations the same abstract/concrete and inheritance quality as archetypes/capabilities.
+Goal: update Go types to match the new architecture instead of extending the old generic widget model.
 
+- [ ] Create `pkg/dmeta/metadesign/model.go` for MetaDesignSystem definitions.
+- [ ] Create `pkg/dmeta/metadesign/web/model.go` for Web-specific widgets, surfaces, slots, layouts, state bindings, and event bindings.
+- [ ] Move or replace `validator.Widget` with `web.WidgetTemplate` or equivalent target-specific type.
+- [ ] Remove generic `WidgetTemplatesFile` from the validator package if it is only web-specific.
+- [ ] Replace `Consumes.Presentations` with `Realizes.Representations` and `Realizes.Actions` in the Web widget model.
+- [ ] Add `Abstract`, `Selectable`, and `Extends` to Web widget templates.
+- [ ] Add `TargetContracts` or `ReactContract` fields only under the React target layer, not the universal semantic layer.
+- [ ] Remove `WidgetGenerationPolicy` from the universal validator model; move React generation policy under the React target package.
+- [ ] Update tests to parse the new Web widget schema from `meta-design-systems/web/widgets/`.
+- [ ] Delete or rewrite tests that assume top-level generic widget templates.
+
+Validation gate:
+
+- [ ] `go test ./pkg/dmeta/validator ./pkg/dmeta/metadesign/... -count=1`
+
+## Phase 4: Implement Interaction IR models, validation, and inheritance
+
+Goal: make Actions and Representations first-class validated IRs.
+
+- [ ] Add `pkg/dmeta/interaction/model.go`.
+- [ ] Define `InteractionCatalog`.
+- [ ] Define `InteractionAction`.
+- [ ] Define `Representation`.
+- [ ] Define `SemanticSelector` with explicit `all_*` and `any_*` fields.
+- [ ] Define `RepresentationExposes` with required/recommended/optional projection lists.
+- [ ] Define `ActionEffects`, `ActionSafety`, and action input models.
+- [ ] Add `pkg/dmeta/interaction/load.go`.
+- [ ] Add `pkg/dmeta/interaction/validate.go`.
 - [ ] Add `pkg/dmeta/interaction/inheritance.go`.
-- [ ] Resolve `Representation` inheritance.
-- [ ] Resolve `Action` inheritance.
 - [ ] Validate root definitions exist and are abstract.
 - [ ] Validate non-root definitions declare `extends`.
 - [ ] Validate unknown parent references.
 - [ ] Validate inheritance cycles.
-- [ ] Merge inherited `supports_actions` for representations.
-- [ ] Merge inherited `subjects` or define an explicit no-merge rule and document it.
-- [ ] Merge inherited `exposes` fields with deterministic stable ordering.
-- [ ] Merge inherited action inputs/effects/safety or define explicit override semantics.
-- [ ] Add tests for inherited representation fields.
-- [ ] Add tests for inherited action fields.
-- [ ] Add tests for abstract representation emission errors.
-- [ ] Add tests for abstract action emission errors.
-- [ ] Add `validate-interactions` command or add an interaction-validation mode to `validate-ir`.
+- [ ] Merge inherited fields deterministically.
+- [ ] Reject abstract actions/representations when emitted as concrete obligations.
+- [ ] Add parser tests for minimal action and representation files.
+- [ ] Add inheritance tests for action and representation definitions.
+- [ ] Add `dmeta validate-interactions` or integrate interaction validation into the new top-level validator.
 
 Validation gate:
 
 - [ ] `go test ./pkg/dmeta/interaction/... -count=1`
-- [ ] `go run ./cmd/dmeta validate-interactions --root ./examples/street-deli-ordering --output table` or equivalent command.
+- [ ] `go run ./cmd/dmeta validate-interactions --root ./examples/street-deli-ordering --output table` or equivalent.
 
-## Phase 4: Build semantic-to-interaction elaboration
+## Phase 5: Implement semantic-to-interaction elaboration
 
-Goal: derive explicit interaction obligations from resolved semantic facts without choosing web widgets yet.
+Goal: derive modality-neutral interaction obligations from the semantic model before any Web lowering occurs.
 
 - [ ] Define `ElaborationRule` model.
 - [ ] Define `ElaboratedInteractionIR` model.
 - [ ] Define `DomainInteractionObligation` model.
 - [ ] Implement `BuildDomainFacts` from resolved archetype/capability/domain mappings.
 - [ ] Implement `SemanticSelector.Matches(facts)`.
-- [ ] Implement rule matching for `all_capabilities`.
-- [ ] Implement rule matching for `any_capabilities`.
-- [ ] Implement rule matching for `all_archetypes`.
-- [ ] Implement rule matching for `any_archetypes`.
+- [ ] Implement rule matching for `all_capabilities`, `any_capabilities`, `all_archetypes`, and `any_archetypes`.
 - [ ] Implement projection availability checks for emitted representations.
 - [ ] Reject rules that emit abstract representations.
 - [ ] Reject rules that emit abstract actions.
-- [ ] Emit stable, sorted elaborated interaction output.
+- [ ] Emit stable YAML and table output.
 - [ ] Add `dmeta elaborate-interactions` command.
-- [ ] Support `--output table` with domain type, representation, action, and source rule columns.
-- [ ] Support `--output yaml` for inspectable generated IR.
 - [ ] Add Street Deli golden output for initial elaboration.
 - [ ] Confirm `MenuItem`, `Ingredient`, `SubstitutionRule`, `Order`, and `OrderItem` produce expected obligations.
 
 Validation gate:
 
 - [ ] `go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --output table`
-- [ ] Golden test for Street Deli elaboration passes.
+- [ ] Street Deli elaboration golden test passes.
 
-## Phase 5: Define the Web MetaDesignSystem package
+## Phase 6: Implement Web MetaDesignSystem loading, validation, and lowering
 
-Goal: formalize current web-style widget templates as target-family artifacts under a `web-ui` MetaDesignSystem.
+Goal: lower Interaction IR into Web-specific widget/surface IR using the new canonical Web MetaDesignSystem package.
 
-- [ ] Create `sources/dmeta-ir/meta-design-systems/web-ui/meta-design-system.yaml`.
-- [ ] Create `sources/dmeta-ir/meta-design-systems/web-ui/widgets/00-index.yaml`.
-- [ ] Create `sources/dmeta-ir/meta-design-systems/web-ui/lowering-rules.yaml`.
-- [ ] Create `sources/dmeta-ir/meta-design-systems/web-ui/targets/react.yaml`.
-- [ ] Create `sources/dmeta-ir/meta-design-systems/web-ui/schemas/` directory.
-- [ ] Define Web MetaDesignSystem primitive concepts: component levels, surfaces, interaction events, state bindings.
-- [ ] Define validation settings: require `realizes`, reject abstract selected templates, require action bindings when actions are realized.
-- [ ] Add `pkg/dmeta/metadesign/model.go`.
-- [ ] Add `pkg/dmeta/metadesign/load.go`.
-- [ ] Add `pkg/dmeta/metadesign/validate.go`.
-- [ ] Add parser tests for `dmeta_meta_design_system`.
-- [ ] Add parser tests for `dmeta_react_codegen_target`.
-- [ ] Decide whether existing `sources/dmeta-ir/widget-templates/*.yaml` are imported by web-ui or copied into web-ui during the first migration.
-
-Validation gate:
-
-- [ ] Web MetaDesignSystem YAML parses.
-- [ ] `go test ./pkg/dmeta/metadesign/... -count=1`.
-
-## Phase 6: Lower Interaction IR into Web UI widget IR
-
-Goal: map elaborated representations/actions to concrete web widget templates.
-
-- [ ] Add `pkg/dmeta/metadesign/webui/model.go`.
-- [ ] Add `pkg/dmeta/metadesign/webui/lower.go`.
-- [ ] Define `WebWidgetIR` or reuse extended `validator.Widget` with target context.
+- [ ] Add `pkg/dmeta/metadesign/web/load.go`.
+- [ ] Add `pkg/dmeta/metadesign/web/validate.go`.
+- [ ] Add `pkg/dmeta/metadesign/web/lower.go`.
 - [ ] Define `WebLoweringRule` model.
+- [ ] Load `sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml`.
+- [ ] Load web widget templates from `sources/dmeta-ir/meta-design-systems/web/widgets/` only.
+- [ ] Validate selected Web templates are not abstract and are selectable.
+- [ ] Validate Web templates realize known representations/actions.
+- [ ] Validate Web widgets use target-specific presentation terms only inside Web IR.
 - [ ] Implement lowering rule matching by representation id.
 - [ ] Implement lowering rule matching by action id.
 - [ ] Implement lowering rule matching by target context such as density or surface preference.
-- [ ] Emit selected/lowered widget candidates with rationale.
-- [ ] Connect lowering output to instance manifest selections.
-- [ ] Report missing selected widgets for elaborated required representations.
-- [ ] Report selected widgets that do not realize any elaborated obligation.
-- [ ] Add `dmeta lower-metadesign --target web-ui` command.
+- [ ] Emit selected/lowered Web widget candidates with rationale.
+- [ ] Add `dmeta lower-metadesign --target web` command.
 - [ ] Add table output showing representation/action -> web template -> concrete component.
-- [ ] Add YAML output for generated web widget IR.
-- [ ] Add Street Deli lowering rules for `substitution_candidate -> substitution_chip`.
-- [ ] Add Street Deli lowering rules for `composition_breakdown -> composition_customizer`.
-- [ ] Add Street Deli lowering rules for `composition_summary -> composition_card`.
-- [ ] Add Street Deli lowering rules for `order_lifecycle_progress -> order_tracker`.
+- [ ] Add YAML output for generated Web widget IR.
 
 Validation gate:
 
-- [ ] `go run ./cmd/dmeta lower-metadesign --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target web-ui --output table`
-- [ ] Street Deli lowering output accounts for all eight selected widgets.
+- [ ] `go run ./cmd/dmeta lower-metadesign --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target web --output table`
 
-## Phase 7: Create the React target and scaffold plan
+## Phase 7: Define the React target under Web and replace generic scaffold generation
 
-Goal: split current widget generation into an inspectable React scaffold plan followed by rendering/writing files.
+Goal: React becomes a concrete codegen target of the Web MetaDesignSystem, not the meaning of DMETA widgets.
 
+- [ ] Create `sources/dmeta-ir/meta-design-systems/web/targets/react.yaml`.
 - [ ] Add `pkg/dmeta/generator/react/model.go`.
 - [ ] Define `ReactScaffoldPlan`.
 - [ ] Define `PlannedFile` with path, kind, symbol, and provenance.
 - [ ] Define React file kinds: component, types, metadata, stories, barrel, adapter TODO, README, package index.
 - [ ] Add `pkg/dmeta/generator/react/plan.go`.
-- [ ] Implement Web UI widget IR -> React scaffold plan.
+- [ ] Implement Web widget IR -> React scaffold plan.
 - [ ] Add `pkg/dmeta/generator/react/render.go`.
-- [ ] Move or wrap current render functions from `pkg/dmeta/generator/widgets/render.go`.
-- [ ] Add `pkg/dmeta/generator/react/write.go` or reuse current writer.
+- [ ] Move useful rendering logic out of `pkg/dmeta/generator/widgets/render.go` into React-specific rendering.
+- [ ] Delete generic widget scaffold rendering once React rendering is in place.
 - [ ] Add `dmeta plan-scaffold --target react` command.
-- [ ] Update `scaffold-instance` to call the new React scaffold planner internally.
-- [ ] Keep current `scaffold-instance` behavior compatible for legacy manifests.
-- [ ] Add generated metadata fields: `metaDesignSystem`, `codegenTarget`, `realizes.representations`, `realizes.actions`, pass versions.
+- [ ] Rewrite `scaffold-instance` to call the React target path or replace it with a clearer command name.
+- [ ] Add metadata fields: `metaDesignSystem`, `codegenTarget`, `realizes.representations`, `realizes.actions`, pass versions.
 - [ ] Add generated component data attributes for MetaDesignSystem and representation ids.
-- [ ] Add Storybook docs text that names representations/actions, not only presentations.
-- [ ] Add golden tests for React scaffold plan.
-- [ ] Add golden tests for one rendered metadata sidecar.
+- [ ] Add Storybook docs text that names representations/actions.
+- [ ] Add golden tests for React scaffold plan and one rendered metadata sidecar.
 
 Validation gate:
 
 - [ ] `go test ./pkg/dmeta/generator/react/... -count=1`
 - [ ] `go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output yaml`
-- [ ] `go run ./cmd/dmeta scaffold-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml`
 
-## Phase 8: Migrate Street Deli templates and instance metadata
+## Phase 8: Move and rewrite Street Deli Web templates and instance metadata
 
-Goal: migrate the concrete deli representation to the new Web MetaDesignSystem/React target path while preserving the same user-visible app.
+Goal: hard-cut the concrete deli representation to the new Web MetaDesignSystem layout.
 
-- [ ] Add `abstract: false` and `selectable: true` to all eight selected Street Deli local templates.
-- [ ] Add `meta_design_system: web-ui` to all selected Street Deli local templates.
-- [ ] Add `codegen_targets: [react]` to all selected Street Deli local templates.
-- [ ] Add `realizes.representations/actions` to `deli.menu_browser`.
-- [ ] Add `realizes.representations/actions` to `deli.composition_card`.
-- [ ] Add `realizes.representations/actions` to `deli.composition_customizer`.
-- [ ] Add `realizes.representations/actions` to `deli.ingredient_row`.
-- [ ] Add `realizes.representations/actions` to `deli.substitution_chip`.
-- [ ] Add `realizes.representations/actions` to `deli.order_cart`.
-- [ ] Add `realizes.representations/actions` to `deli.order_tracker`.
-- [ ] Add `realizes.representations/actions` to `deli.role_tag`.
-- [ ] Add optional `targets` block to `examples/street-deli-ordering/instantiations/street-deli-ordering.yaml`.
-- [ ] Keep legacy `generation` block during transition.
-- [ ] Regenerate scaffold output under `examples/street-deli-ordering/generated/widgets`.
-- [ ] Verify generated metadata includes new provenance fields.
-- [ ] Verify promoted React implementation remains untouched by generation.
-- [ ] Update generated README to mention Web MetaDesignSystem and React target.
-- [ ] Update design docs if any template ids are renamed.
+- [ ] Create `examples/street-deli-ordering/meta-design-systems/web/widgets/`.
+- [ ] Move all files from `examples/street-deli-ordering/widget-templates/` into `examples/street-deli-ordering/meta-design-systems/web/widgets/`.
+- [ ] Delete the old `examples/street-deli-ordering/widget-templates/` directory.
+- [ ] Rename selected template ids to `deli.web.*` or another final chosen prefix.
+- [ ] Add `abstract: false` and `selectable: true` to all eight selected Street Deli Web templates.
+- [ ] Add `meta_design_system: web` to all selected Street Deli Web templates.
+- [ ] Add `realizes.representations/actions` to `deli.web.menu_browser`.
+- [ ] Add `realizes.representations/actions` to `deli.web.composition_card`.
+- [ ] Add `realizes.representations/actions` to `deli.web.composition_customizer`.
+- [ ] Add `realizes.representations/actions` to `deli.web.ingredient_row`.
+- [ ] Add `realizes.representations/actions` to `deli.web.substitution_chip`.
+- [ ] Add `realizes.representations/actions` to `deli.web.order_cart`.
+- [ ] Add `realizes.representations/actions` to `deli.web.order_tracker`.
+- [ ] Add `realizes.representations/actions` to `deli.web.role_tag`.
+- [ ] Replace `generation` in `examples/street-deli-ordering/instantiations/street-deli-ordering.yaml` with explicit `targets`.
+- [ ] Replace `template_sources.local_template_files` with Web MetaDesignSystem local source references.
+- [ ] Regenerate scaffold output under the new React target output path.
+- [ ] Verify promoted React implementation remains separate from generated output.
 
 Validation gate:
 
 - [ ] `go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table`
-- [ ] `go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table`
 - [ ] `go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --output table`
-- [ ] `go run ./cmd/dmeta lower-metadesign --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target web-ui --output table`
+- [ ] `go run ./cmd/dmeta lower-metadesign --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target web --output table`
+- [ ] `go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output table`
 
 ## Phase 9: Align promoted React app metadata and stories
 
-Goal: update maintained React code to expose the new provenance terms without changing app behavior.
+Goal: update maintained React code to expose the new provenance terms without preserving old presentation compatibility.
 
 - [ ] Update `src/design-tokens/dataAttributes.ts` with `metaDesignSystem`, `codegenTarget`, and `representation` fields.
-- [ ] Keep `presentation` as a legacy/target-specific field.
+- [ ] Remove or rename generic `presentation` data attribute if it no longer has a Web-specific meaning.
 - [ ] Add representation/action data attributes to `StreetDeliCompositionCard` where useful.
 - [ ] Add representation/action data attributes to `StreetDeliCompositionCustomizer` where useful.
 - [ ] Add representation/action data attributes to `StreetDeliIngredientRow` where useful.
@@ -248,40 +226,39 @@ Goal: update maintained React code to expose the new provenance terms without ch
 - [ ] Add representation/action data attributes to `StreetDeliOrderCart` where useful.
 - [ ] Add representation/action data attributes to `StreetDeliOrderTracker` where useful.
 - [ ] Add representation metadata to Storybook docs descriptions for all eight widgets.
-- [ ] Add a Storybook docs page or story section explaining semantic -> representation -> web widget provenance.
-- [ ] Ensure React reducer actions are documented as target action bindings, not upstream Interaction IR definitions.
-- [ ] Verify `npm run build` still passes.
-- [ ] Verify `npm run build-storybook` still passes.
+- [ ] Add a Storybook docs page or story section explaining semantic -> representation -> Web widget -> React component provenance.
+- [ ] Document React reducer actions as target action bindings, not upstream Interaction IR definitions.
 
 Validation gate:
 
 - [ ] `cd examples/street-deli-ordering/www/mobile-react && npm run build`
 - [ ] `cd examples/street-deli-ordering/www/mobile-react && npm run build-storybook`
 
-## Phase 10: Documentation, changelog, and CLIM handoff
+## Phase 10: Delete obsolete paths and docs, then prepare CLIM handoff
 
-Goal: close the Web/React refactor cleanly and prepare the separate CLIM ticket.
+Goal: finish the hard cutover by removing old names and documenting the clean target architecture.
 
-- [ ] Update the design guide if implementation deviates from the proposed package layout.
+- [ ] Delete obsolete generic widget generator package files or move their useful code into Web/React packages.
+- [ ] Delete obsolete top-level widget template docs.
+- [ ] Remove references to `sources/dmeta-ir/widget-templates/` from docs, tests, and examples.
+- [ ] Remove references to `examples/street-deli-ordering/widget-templates/` from docs, tests, and examples.
+- [ ] Update the design guide to match final implementation if naming changed.
 - [ ] Add an implementation diary entry for each completed phase.
 - [ ] Update ticket changelog after each phase with commit hashes.
 - [ ] Relate any new source files to the design doc and diary.
-- [ ] Add a concise `README` section for `sources/dmeta-ir/interactions/`.
-- [ ] Add a concise `README` section for `sources/dmeta-ir/meta-design-systems/web-ui/`.
-- [ ] Add a migration note for legacy `presentations` terminology.
+- [ ] Add a concise README for `sources/dmeta-ir/interactions/`.
+- [ ] Add a concise README for `sources/dmeta-ir/meta-design-systems/web/`.
 - [ ] Add a short follow-up design note for the CLIM ticket boundary.
-- [ ] Run full Go test suite.
-- [ ] Run all DMETA CLI smoke tests.
-- [ ] Run React app build and Storybook build.
-- [ ] Run `docmgr doctor --ticket DMETA-COMPILER-MDS --stale-after 30`.
-- [ ] Upload final updated bundle to reMarkable.
 - [ ] Create or propose a follow-up ticket for the CLIM MetaDesignSystem.
+- [ ] Upload final updated bundle to reMarkable.
 
 Final validation gate:
 
 - [ ] `go test ./... -count=1`
 - [ ] `go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table`
-- [ ] `go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table`
+- [ ] `go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --output table`
+- [ ] `go run ./cmd/dmeta lower-metadesign --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target web --output table`
+- [ ] `go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output table`
 - [ ] `cd examples/street-deli-ordering/www/mobile-react && npm run build`
 - [ ] `cd examples/street-deli-ordering/www/mobile-react && npm run build-storybook`
 - [ ] `docmgr doctor --ticket DMETA-COMPILER-MDS --stale-after 30`

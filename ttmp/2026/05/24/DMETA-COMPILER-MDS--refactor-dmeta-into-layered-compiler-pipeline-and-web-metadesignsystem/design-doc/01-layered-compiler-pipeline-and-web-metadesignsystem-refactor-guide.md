@@ -53,9 +53,22 @@ Semantic Source IR
   -> promoted React implementation
 ```
 
-The scope of this ticket is the web-style UI path. We will create a Web MetaDesignSystem and a React target under that MetaDesignSystem. We will migrate the existing global widget templates, Street Deli local templates, Street Deli instance manifest, planner, scaffold generator, generated metadata, and promoted React provenance to this new shape. A CLIM-style MetaDesignSystem is explicitly out of scope for this ticket and should be implemented in a separate ticket. The CLIM ticket can reuse the same Semantic IR and Interaction IR, but it should define its own target IR for presentation types, commands, translators, recognizers, and a React CLIM runtime representation.
+## Hard-cut implementation policy
 
-The intended reader is a new intern joining the DMETA project. This document explains the current system, the target architecture, the migration sequence, the Go API changes, the YAML schemas, the command-line tools, the Street Deli example, the testing plan, and the risks. It is written as an implementation guide, not only as a conceptual proposal.
+The repository is still experimental. The goal is not to preserve every current path or schema shape. The goal is to remove conceptual complexity and make the target architecture clean. Therefore this ticket should use a hard cutover policy:
+
+- Do not add compatibility wrappers for old widget-template paths.
+- Do not keep aliases from top-level `widget-templates` into the new Web MetaDesignSystem package.
+- Do not keep generic “widget” concepts in the universal DMETA layer.
+- Do not keep `consumes.presentations` as a parallel source of truth once `realizes.representations/actions` exists.
+- Do not keep `generation` as a parallel instance-manifest path once `targets` exists.
+- Prefer deleting or moving WIP artifacts over supporting both old and new layouts.
+- Keep the promoted React app as an acceptance test, but do not preserve old generator APIs only for compatibility.
+
+
+The scope of this ticket is the web-style UI path. We will create a Web MetaDesignSystem and a React target under that MetaDesignSystem. This is now a **hard cutover**, not a compatibility migration. The existing top-level widget-template package should be moved into the Web MetaDesignSystem, the old paths should be deleted, generic widget terminology should be removed from the universal DMETA layer, and the tooling should be rewritten toward the elegant target architecture. A CLIM-style MetaDesignSystem is explicitly out of scope for this ticket and should be implemented in a separate ticket. The CLIM ticket can reuse the same Semantic IR and Interaction IR, but it should define its own target IR for presentation types, commands, translators, recognizers, and a React CLIM runtime representation.
+
+The intended reader is a new intern joining the DMETA project. This document explains the current system, the target architecture, the hard-cut cutover sequence, the Go API changes, the YAML schemas, the command-line tools, the Street Deli example, the testing plan, and the risks. It is written as an implementation guide, not only as a conceptual proposal.
 
 ## Scope and non-scope
 
@@ -64,22 +77,25 @@ This ticket should produce the first production-quality version of the layered c
 In scope:
 
 - Add a first-class Interaction IR with Actions and Representations.
-- Add abstract/concrete validation for interaction definitions and widget templates.
-- Add `realizes` metadata to widget templates so web widgets explicitly realize representations and actions.
-- Define a `web-ui` MetaDesignSystem package in YAML.
-- Define a `react` target under the web-style MetaDesignSystem.
-- Refactor planner/generator terminology from generic widget templates toward target-specific lowerings and scaffold plans.
-- Preserve compatibility with the current Street Deli instance while migrating it to the new fields.
-- Keep the current React promoted app as the acceptance test for the new metadata model.
-- Add commands or command flags that expose the new pipeline stages.
+- Move web/visual widget templates under a Web MetaDesignSystem package.
+- Delete the old top-level widget-template layout instead of wrapping it.
+- Add abstract/concrete validation for interaction definitions and Web widget templates.
+- Add `realizes` metadata so Web widgets explicitly realize representations and actions.
+- Define a `web` MetaDesignSystem package in YAML.
+- Define a `react` target under the Web MetaDesignSystem.
+- Refactor planner/generator code from generic widget templates toward target-specific Web lowerings and React scaffold plans.
+- Hard-cut the Street Deli instance manifest and local templates to the new Web/React layout.
+- Keep the current promoted React app as the acceptance test for the new metadata model.
+- Add commands that expose the new pipeline stages.
 
 Out of scope:
 
 - Building the CLIM MetaDesignSystem. That should be a separate ticket.
+- Preserving old top-level widget-template paths.
+- Preserving old generic widget generator APIs.
 - Rewriting the promoted Street Deli React application from scratch.
 - Building a complete visual editor for the IR.
 - Building a full typechecker for every possible projection type.
-- Removing all legacy `presentation` fields in one pass. The migration should be staged.
 
 ## Current-state evidence
 
@@ -232,7 +248,7 @@ Evidence: `sources/dmeta-ir/03-widgets.yaml:1-6`.
 This is useful wording, but the repository does not yet have a formal `MetaDesignSystem` artifact type. The new architecture should turn that existing statement into an explicit package under something like:
 
 ```text
-sources/dmeta-ir/meta-design-systems/web-ui/
+sources/dmeta-ir/meta-design-systems/web/
 ```
 
 ### Current global template example
@@ -268,13 +284,13 @@ The new manifest should not need to change radically, but it should identify the
 ```yaml
 targets:
   - id: web_react
-    meta_design_system: web-ui
+    meta_design_system: web
     codegen_target: react
     output_dir: ../generated/widgets
     package_name: street-deli-ordering-widgets
 ```
 
-A backwards-compatible first step can keep `generation` and add `targets` as optional.
+Replace `generation` with explicit `targets` in the instance manifest during the cutover. Do not maintain both fields as supported paths.
 
 ### Current planner
 
@@ -406,12 +422,12 @@ Use these terms consistently in code, docs, CLI names, and commit messages.
 
 | Term | Meaning in DMETA | Example |
 |---|---|---|
-| Source IR | Author-written YAML at a given layer. | `archetypes.yaml`, `capabilities.yaml`, `representations.yaml`, `web-ui/widgets.yaml`. |
+| Source IR | Author-written YAML at a given layer. | `archetypes.yaml`, `capabilities.yaml`, `representations.yaml`, `web/widgets.yaml`. |
 | Resolved IR | Normalized output after inheritance/reference resolution. | Effective projections for `dietary_substitutable`. |
-| Pass | A named analysis or transformation over IR. | `resolve-semantic`, `elaborate-interactions`, `lower-web-ui`, `generate-react-scaffold`. |
+| Pass | A named analysis or transformation over IR. | `resolve-semantic`, `elaborate-interactions`, `lower-web`, `generate-react-scaffold`. |
 | Analysis pass | Reads and checks IR without changing its conceptual level. | Validate unknown archetype references. |
 | Elaboration pass | Makes implied structure explicit while staying modality-neutral. | `ingredient_composable` implies `composition_breakdown`. |
-| Lowering pass | Converts higher-level IR to a more target-specific IR. | `substitution_candidate` becomes `web-ui.substitution_chip`. |
+| Lowering pass | Converts higher-level IR to a more target-specific IR. | `substitution_candidate` becomes `web.substitution_chip`. |
 | Specialization | Binds a generic definition to a narrower domain or context. | `composition_breakdown` specialized for Street Deli ingredients. |
 | Instantiation | Selects and names a concrete target artifact for an instance. | `deli.substitution_chip` as `StreetDeliSubstitutionChip`. |
 | Realization | Target-specific implementation of an interaction concept. | A representation realized as a React chip. |
@@ -439,7 +455,7 @@ flowchart TD
     A -->|resolve + validate| B
     B -->|elaborate| C
     C -->|specialize for instance| D
-    D -->|lower into web-ui| E
+    D -->|lower into web| E
     E -->|lower into react target| F
     F -->|generate files| G
     G -->|promote| H
@@ -457,17 +473,17 @@ Add the following artifact types gradually.
 | `dmeta_interaction_representations` | Shared representation catalog. | `sources/dmeta-ir/interactions/representations.yaml` |
 | `dmeta_interaction_elaboration_rules` | Rule table for deriving interactions from semantic selectors. | `sources/dmeta-ir/interactions/elaboration-rules.yaml` |
 | `dmeta_elaborated_interaction_ir` | Generated or inspectable interaction obligations for an instance. | `examples/.../generated/elaborated-interactions.yaml` |
-| `dmeta_meta_design_system` | Target-family definition. | `sources/dmeta-ir/meta-design-systems/web-ui/meta-design-system.yaml` |
-| `dmeta_web_ui_widget_templates` | Web-specific widget templates. | `sources/dmeta-ir/meta-design-systems/web-ui/widgets/*.yaml` |
-| `dmeta_web_ui_lowering_rules` | Rules from Interaction IR to Web UI templates. | `sources/dmeta-ir/meta-design-systems/web-ui/lowering-rules.yaml` |
-| `dmeta_react_codegen_target` | React-specific generation target config. | `sources/dmeta-ir/meta-design-systems/web-ui/targets/react.yaml` |
+| `dmeta_meta_design_system` | Target-family definition. | `sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml` |
+| `dmeta_web_widget_templates` | Web-specific widget templates. | `sources/dmeta-ir/meta-design-systems/web/widgets/*.yaml` |
+| `dmeta_web_lowering_rules` | Rules from Interaction IR to Web templates. | `sources/dmeta-ir/meta-design-systems/web/lowering-rules.yaml` |
+| `dmeta_react_codegen_target` | React-specific generation target config. | `sources/dmeta-ir/meta-design-systems/web/targets/react.yaml` |
 | `dmeta_react_scaffold_plan` | Concrete plan for files and symbols before writing. | `examples/.../generated/react-scaffold-plan.yaml` |
 
-Existing artifact types should not disappear immediately. Instead, support both old and new fields during migration.
+Old widget artifact types and paths should disappear as part of the cutover. The implementation should prefer moving/deleting WIP artifacts over supporting both old and new forms.
 
 ## Proposed repository layout
 
-The first implementation should keep current files working and add new directories alongside them.
+The target layout should be the canonical layout after the cutover. The implementation should move files into this shape and update tools to load this shape directly.
 
 ```text
 sources/dmeta-ir/
@@ -475,24 +491,24 @@ sources/dmeta-ir/
   core-model/
     archetypes.yaml
     capabilities.yaml
-    presentations.yaml          # legacy/shared until migrated
   interactions/
     00-index.yaml
     actions.yaml
     representations.yaml
     elaboration-rules.yaml
   meta-design-systems/
-    web-ui/
+    web/
       meta-design-system.yaml
       widgets/
         00-index.yaml
-        presentations.yaml       # migrated from widget-templates/presentations.yaml
+        presentation-token.yaml
         states.yaml
         tables.yaml
         surfaces.yaml
         filters.yaml
         forms.yaml
         layout.yaml
+        data-display.yaml
       targets/
         react.yaml
       lowering-rules.yaml
@@ -506,20 +522,35 @@ examples/street-deli-ordering/
   interactions/
     actions.yaml                 # optional local extensions
     representations.yaml          # optional local extensions
-  meta-design-system-instances/
-    web-ui-react.yaml             # optional next-generation instance file
-  widget-templates/               # legacy local templates during migration
+  meta-design-systems/
+    web/
+      widgets/
+        menu-browsing.yaml
+        item-cards.yaml
+        customization.yaml
+        substitutions.yaml
+        ordering.yaml
+        tracking.yaml
+  instantiations/
+    street-deli-ordering.yaml     # target-aware instance manifest
   generated/
     interactions/
       elaborated-interactions.yaml
-    web-ui/
+    web/
       widget-ir.yaml
     react/
       scaffold-plan.yaml
       widgets/
 ```
 
-Do not move all current files in the first commit. The first implementation should add schema support and compatibility, then migrate one representative path, then migrate all Street Deli templates.
+After this cutover, these paths should not remain as source-of-truth locations:
+
+```text
+sources/dmeta-ir/widget-templates/
+examples/street-deli-ordering/widget-templates/
+```
+
+If a file still lives in one of those paths after the cutover, treat it as unfinished work, not as a supported legacy mode.
 
 ## Interaction IR design
 
@@ -798,7 +829,7 @@ A MetaDesignSystem is a formal target-family definition. It consumes Interaction
 Proposed file:
 
 ```text
-sources/dmeta-ir/meta-design-systems/web-ui/meta-design-system.yaml
+sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml
 ```
 
 Schema sketch:
@@ -806,8 +837,8 @@ Schema sketch:
 ```yaml
 schema_version: 0
 artifact_type: dmeta_meta_design_system
-id: web-ui
-name: Web UI MetaDesignSystem
+id: web
+name: Web MetaDesignSystem
 summary: Realizes modality-neutral DMETA actions and representations as graphical web UI widgets, surfaces, slots, layouts, and event bindings.
 
 consumes:
@@ -861,56 +892,45 @@ The Web MetaDesignSystem should own graphical terms such as card, badge, chip, d
 
 ## Web widget template schema
 
-The existing `Widget` struct should be extended. Avoid breaking old templates immediately; add new optional fields first.
+Web widget templates are target-specific artifacts. They should not live in the universal validator model as generic `Widget` definitions. They belong under the Web MetaDesignSystem package and should be represented by Web-specific Go types.
 
-Proposed additions:
+Proposed Go shape:
 
 ```go
-type Widget struct {
-    ID              string                 `yaml:"id"`
-    Name            string                 `yaml:"name"`
-    Status          string                 `yaml:"status"`
-    Abstract        bool                   `yaml:"abstract"`
-    Selectable      *bool                  `yaml:"selectable"`
-    Extends         []string               `yaml:"extends"`
-    MetaDesignSystem string                `yaml:"meta_design_system"`
-    CodegenTargets  []string              `yaml:"codegen_targets"`
-    Classification  map[string]any         `yaml:"classification"`
-    Intent          WidgetIntent           `yaml:"intent"`
-    Template        TemplateMetadata       `yaml:"template"`
-    Consumes        Consumes               `yaml:"consumes"`          // legacy/compatibility
-    Realizes        Realizes               `yaml:"realizes"`         // new
-    SemanticContext WidgetSemanticContext  `yaml:"semantic_context"`
-    ProjectionHints WidgetProjectionHints  `yaml:"projection_hints"`
-    Generation      WidgetGenerationPolicy `yaml:"generation"`
-    Contract        WidgetContract         `yaml:"contract"`
-    Stories         []string               `yaml:"stories"`
-    Outputs         map[string]string      `yaml:"outputs"`
+type WebWidgetTemplate struct {
+    ID               string                 `yaml:"id"`
+    Name             string                 `yaml:"name"`
+    Status           string                 `yaml:"status"`
+    Abstract         bool                   `yaml:"abstract"`
+    Selectable       bool                   `yaml:"selectable"`
+    Extends          []string               `yaml:"extends"`
+    Classification   map[string]any         `yaml:"classification"`
+    Intent           WidgetIntent           `yaml:"intent"`
+    Realizes         Realizes               `yaml:"realizes"`
+    SemanticContext  WidgetSemanticContext  `yaml:"semantic_context"`
+    ProjectionHints  WidgetProjectionHints  `yaml:"projection_hints"`
+    WebContract      WebWidgetContract      `yaml:"web_contract"`
+    ReactContract    *ReactContract         `yaml:"react_contract,omitempty"`
+    Stories          []string               `yaml:"stories"`
 }
 
 type Realizes struct {
     Representations []string `yaml:"representations"`
     Actions         []string `yaml:"actions"`
 }
-
-func (w Widget) IsSelectable() bool {
-    if w.Selectable == nil {
-        return !w.Abstract
-    }
-    return *w.Selectable
-}
 ```
 
-Template YAML after migration:
+There is intentionally no `Consumes.Presentations` compatibility field. A Web widget realizes modality-neutral representations and actions. Web-specific presentation vocabulary may appear inside `web_contract`, visual-state definitions, layout slots, CSS/token hints, and React target contracts, but it should not be confused with the universal Interaction IR.
+
+Template YAML after the cutover:
 
 ```yaml
-- id: web-ui.substitution_chip
+- id: deli.web.substitution_chip
   name: SubstitutionChip
   status: template
   abstract: false
   selectable: true
-  meta_design_system: web-ui
-  codegen_targets: [react]
+  extends: []
   classification:
     level: atom
     role: substitution_suggestion
@@ -924,12 +944,24 @@ Template YAML after migration:
     actions:
       - apply_substitution
       - see_alternatives
-  consumes:
+  semantic_context:
+    archetypes:
+      - SubstitutionSuggestion
     capabilities:
       - role_preserving_substitutable
       - dietary_substitutable
       - price_aware_substitutable
-  contract:
+  projection_hints:
+    recommended:
+      - substitutable.replaces
+      - substitutable.replacement_candidates
+      - role_preserving_substitutable.role_overlap_score
+  web_contract:
+    surface: inline_chip
+    interaction_events:
+      primary: tap
+      secondary: long_press
+  react_contract:
     props:
       SubstitutionChipProps:
         fields:
@@ -938,15 +970,16 @@ Template YAML after migration:
             required: true
     action_slots:
       onApply:
-        accepts: ActionRequest<apply_substitution>
+        action: apply_substitution
 ```
 
-Compatibility rule:
+Hard-cut validation rules:
 
-- During migration, old templates with `consumes.presentations` remain valid.
-- New templates should include `realizes.representations` and `realizes.actions`.
-- `plan-instance` should warn for selected templates without `realizes` once the Web MetaDesignSystem is enabled.
-- Later, selected web-ui templates should require `realizes`.
+- Web loaders read from `meta-design-systems/web/widgets/` only.
+- Selected Web templates must have `abstract: false` and `selectable: true`.
+- Selected Web templates must declare `realizes.representations` or `realizes.actions`.
+- `consumes.presentations` is invalid in Web widget templates after the cutover.
+- React-specific props and file outputs belong to the React target, not to the universal semantic layer.
 
 ## React target
 
@@ -955,7 +988,7 @@ The React target is not the same thing as the Web MetaDesignSystem. The Web Meta
 Proposed file:
 
 ```text
-sources/dmeta-ir/meta-design-systems/web-ui/targets/react.yaml
+sources/dmeta-ir/meta-design-systems/web/targets/react.yaml
 ```
 
 Schema sketch:
@@ -964,8 +997,8 @@ Schema sketch:
 schema_version: 0
 artifact_type: dmeta_react_codegen_target
 id: react
-meta_design_system: web-ui
-summary: Generates React + TypeScript + Storybook scaffolds from Web UI widget IR.
+meta_design_system: web
+summary: Generates React + TypeScript + Storybook scaffolds from Web widget IR.
 
 file_kinds:
   component:
@@ -996,7 +1029,7 @@ runtime_metadata:
     capabilities: data-dmeta-capabilities
 
 storybook:
-  title_prefix: DMETA/Web UI
+  title_prefix: DMETA/Web
   include_autodocs: true
   require_semantic_description: true
 ```
@@ -1006,16 +1039,16 @@ React scaffold plan schema:
 ```yaml
 schema_version: 0
 artifact_type: dmeta_react_scaffold_plan
-id: street_deli_ordering.web-ui.react
+id: street_deli_ordering.web.react
 instance: street_deli_ordering
-meta_design_system: web-ui
+meta_design_system: web
 codegen_target: react
 files:
   - path: ../generated/widgets/StreetDeliSubstitutionChip/StreetDeliSubstitutionChip.tsx
     kind: component
     symbol: StreetDeliSubstitutionChip
     source:
-      widget_template: web-ui.substitution_chip
+      widget_template: web.substitution_chip
       representations:
         - substitution_candidate
         - substitution_price_delta
@@ -1058,9 +1091,9 @@ dmeta elaborate-interactions --root ./examples/street-deli-ordering --output tab
 dmeta validate-interactions --root ./examples/street-deli-ordering --output table
 
 # New: lowers elaborated interactions into a target MetaDesignSystem.
-dmeta lower-metadesign --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target web-ui --output yaml
+dmeta lower-metadesign --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target web --output yaml
 
-# Existing name can remain as compatibility alias.
+# Existing names can be replaced; no compatibility alias is required.
 dmeta plan-instance --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --output table
 
 # New or renamed: build a scaffold plan without writing files.
@@ -1113,17 +1146,17 @@ pkg/dmeta/interaction/
 
 pkg/dmeta/metadesign/
   model.go                  # MetaDesignSystem, target definitions
-  load.go                   # load web-ui package
+  load.go                   # load web package
   validate.go               # validate MDS definitions
 
 pkg/dmeta/metadesign/webui/
   model.go                  # WebWidget, surface, slot, action binding if separate from Widget
-  lower.go                  # Interaction IR -> Web UI widget IR
+  lower.go                  # Interaction IR -> Web widget IR
   validate.go               # validate web UI target artifacts
 
 pkg/dmeta/generator/react/
   model.go                  # ReactScaffoldPlan, PlannedFile
-  plan.go                   # Web UI widget IR -> scaffold plan
+  plan.go                   # Web widget IR -> scaffold plan
   render.go                 # scaffold plan -> GeneratedFile
   write.go                  # file writer, maybe shared with widgets/write.go
 
@@ -1211,13 +1244,13 @@ Target metadata shape:
   "compilerPipeline": {
     "semanticResolver": "resolve-core-inheritance/v1",
     "interactionElaborator": "interaction-elaboration/v1",
-    "metaDesignLowerer": "web-ui-lowering/v1",
+    "metaDesignLowerer": "web-lowering/v1",
     "codegenTarget": "react/v1"
   },
   "instanceId": "street_deli_ordering",
-  "metaDesignSystem": "web-ui",
+  "metaDesignSystem": "web",
   "codegenTarget": "react",
-  "templateId": "web-ui.substitution_chip",
+  "templateId": "web.substitution_chip",
   "selectedAs": "StreetDeliSubstitutionChip",
   "variant": "mobile_default",
   "realizes": {
@@ -1238,8 +1271,8 @@ Generated component data attributes should include:
 ```tsx
 <section
   data-dmeta-widget="StreetDeliSubstitutionChip"
-  data-dmeta-template="web-ui.substitution_chip"
-  data-dmeta-meta-design-system="web-ui"
+  data-dmeta-template="web.substitution_chip"
+  data-dmeta-meta-design-system="web"
   data-dmeta-codegen-target="react"
   data-dmeta-representation="substitution_candidate"
   data-dmeta-action-id="apply_substitution"
@@ -1259,7 +1292,7 @@ export type DmetaAttrOptions = {
   archetypes?: string[];
   capabilities?: string[];
   representation?: string;
-  presentation?: string; // keep as target-specific/legacy field
+  webPresentation?: string; // target-specific Web presentation detail, not universal Interaction IR
   semanticId?: string;
   label?: string;
   copyValue?: string;
@@ -1274,16 +1307,16 @@ The Street Deli example should remain the acceptance test. The goal is not to ch
 
 ### Current selected widgets to new realizations
 
-| Current template | New web-ui template | Representations | Actions |
+| Current template | New web template | Representations | Actions |
 |---|---|---|---|
-| `deli.menu_browser` | `web-ui.menu_browser` or `deli.web-ui.menu_browser` | `menu_browse_surface`, `menu_item_orderable_summary`, `category_filter_summary` | `select_menu_item`, `select_category`, `filter_by_dietary` |
-| `deli.composition_card` | `deli.web-ui.composition_card` | `composition_summary`, `dietary_summary`, `price_summary` | `select_menu_item`, `inspect_subject` |
-| `deli.composition_customizer` | `deli.web-ui.composition_customizer` | `composition_breakdown`, `configuration_summary`, `substitution_candidate`, `dietary_constraint_summary` | `remove_part`, `undo_remove_part`, `apply_substitution`, `change_config`, `add_to_order` |
-| `deli.ingredient_row` | `deli.web-ui.ingredient_row` | `ingredient_composition_row`, `role_label`, `dietary_marker` | `remove_part`, `undo_remove_part`, `see_alternatives` |
-| `deli.substitution_chip` | `deli.web-ui.substitution_chip` | `substitution_candidate`, `substitution_price_delta`, `substitution_role_fit` | `apply_substitution`, `reject_substitution`, `see_alternatives` |
-| `deli.order_cart` | `deli.web-ui.order_cart` | `cart_summary`, `order_item_summary`, `price_total_summary` | `remove_cart_item`, `submit_order`, `return_to_menu` |
-| `deli.order_tracker` | `deli.web-ui.order_tracker` | `order_lifecycle_progress`, `state_indicator` | `return_to_menu`, `inspect_subject` |
-| `deli.role_tag` | `deli.web-ui.role_tag` | `role_label` | none or `filter_by_role` later |
+| `deli.menu_browser` | `web.menu_browser` or `deli.web.menu_browser` | `menu_browse_surface`, `menu_item_orderable_summary`, `category_filter_summary` | `select_menu_item`, `select_category`, `filter_by_dietary` |
+| `deli.composition_card` | `deli.web.composition_card` | `composition_summary`, `dietary_summary`, `price_summary` | `select_menu_item`, `inspect_subject` |
+| `deli.composition_customizer` | `deli.web.composition_customizer` | `composition_breakdown`, `configuration_summary`, `substitution_candidate`, `dietary_constraint_summary` | `remove_part`, `undo_remove_part`, `apply_substitution`, `change_config`, `add_to_order` |
+| `deli.ingredient_row` | `deli.web.ingredient_row` | `ingredient_composition_row`, `role_label`, `dietary_marker` | `remove_part`, `undo_remove_part`, `see_alternatives` |
+| `deli.substitution_chip` | `deli.web.substitution_chip` | `substitution_candidate`, `substitution_price_delta`, `substitution_role_fit` | `apply_substitution`, `reject_substitution`, `see_alternatives` |
+| `deli.order_cart` | `deli.web.order_cart` | `cart_summary`, `order_item_summary`, `price_total_summary` | `remove_cart_item`, `submit_order`, `return_to_menu` |
+| `deli.order_tracker` | `deli.web.order_tracker` | `order_lifecycle_progress`, `state_indicator` | `return_to_menu`, `inspect_subject` |
+| `deli.role_tag` | `deli.web.role_tag` | `role_label` | none or `filter_by_role` later |
 
 ### Deli semantic facts to interaction obligations
 
@@ -1321,7 +1354,7 @@ The local templates currently live under `examples/street-deli-ordering/widget-t
 ```yaml
 abstract: false
 selectable: true
-meta_design_system: web-ui
+meta_design_system: web
 codegen_targets: [react]
 realizes:
   representations:
@@ -1332,7 +1365,7 @@ realizes:
     - apply_substitution
 ```
 
-The current `consumes.presentations` can remain until the validator no longer requires it. When the migration is complete, `consumes.presentations` should either be removed or treated as legacy compatibility metadata.
+Remove `consumes.presentations` from Street Deli Web templates during the cutover. Each Web template should declare `realizes.representations/actions` as the source of truth.
 
 ### Deli instance manifest
 
@@ -1341,7 +1374,7 @@ Add target configuration without removing current generation:
 ```yaml
 targets:
   - id: web_react
-    meta_design_system: web-ui
+    meta_design_system: web
     codegen_target: react
     generation:
       output_dir: ../generated/widgets
@@ -1350,16 +1383,16 @@ targets:
 
 Then update planner behavior:
 
-- If `targets` is absent, use legacy `generation` path.
-- If `targets` is present, plan per target.
-- `plan-instance` should print target columns when present.
+- `targets` is required after the cutover.
+- `generation` should be removed from the manifest.
+- `plan-instance` or its replacement should print target columns unconditionally for target-aware instances.
 
 Table output can become:
 
 ```text
 kind      target     template                    component                      variant       status
-selected  web_react  deli.web-ui.menu_browser    StreetDeliMenuBrowser          mobile_cards  selected
-selected  web_react  deli.web-ui.substitution_chip StreetDeliSubstitutionChip    mobile_default selected
+selected  web_react  deli.web.menu_browser    StreetDeliMenuBrowser          mobile_cards  selected
+selected  web_react  deli.web.substitution_chip StreetDeliSubstitutionChip    mobile_default selected
 ```
 
 ## React target acceptance criteria
@@ -1420,7 +1453,7 @@ Test cases:
 
 - Selecting `abstract: true` template returns error finding.
 - Selecting `selectable: false` template returns error finding.
-- Missing `realizes` returns warning when web-ui strict validation is enabled.
+- Missing `realizes` returns warning when web strict validation is enabled.
 - Unknown realized representation returns error.
 - Unknown realized action returns error.
 
@@ -1430,7 +1463,7 @@ Add golden tests for Street Deli:
 
 ```text
 testdata/street-deli/elaborated-interactions.golden.yaml
-testdata/street-deli/web-ui-lowering.golden.yaml
+testdata/street-deli/web-lowering.golden.yaml
 testdata/street-deli/react-scaffold-plan.golden.yaml
 ```
 
@@ -1447,7 +1480,7 @@ go run ./cmd/dmeta plan-instance --instance ./examples/street-deli-ordering/inst
 
 go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --output table
 
-go run ./cmd/dmeta lower-metadesign --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target web-ui --output yaml
+go run ./cmd/dmeta lower-metadesign --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target web --output yaml
 ```
 
 The first implementation may not have all commands. Add tests as commands land.
@@ -1473,246 +1506,77 @@ The promoted app should not be overwritten by scaffold generation.
 
 ## Implementation phases
 
-### Phase 1: vocabulary and compatibility fields
+The implementation should proceed top-down. Define the target architecture and move the source files first; do not add compatibility wrappers around the old layout.
 
-Goal: add new fields and validation without changing generation output.
+### Phase 1: hard-cut target layout and vocabulary reset
 
-Files to change:
+Create the canonical Web MetaDesignSystem package under `sources/dmeta-ir/meta-design-systems/web/`. Move the current global widget templates into `meta-design-systems/web/widgets/` and delete `sources/dmeta-ir/widget-templates/`. Move the Street Deli local widget templates into `examples/street-deli-ordering/meta-design-systems/web/widgets/` and delete `examples/street-deli-ordering/widget-templates/`. Update indexes and docs so widgets are only described as Web MetaDesignSystem artifacts.
 
-- `pkg/dmeta/validator/model.go`
-- `pkg/dmeta/generator/widgets/load.go`
-- `pkg/dmeta/generator/widgets/model.go`
-- representative template files under `sources/dmeta-ir/widget-templates/`
-- representative local templates under `examples/street-deli-ordering/widget-templates/`
+### Phase 2: top-level compiler source packages
 
-Tasks:
+Define the universal layers before target-specific tooling. Add `interactions/actions.yaml`, `interactions/representations.yaml`, and `interactions/elaboration-rules.yaml`. Decide whether current semantic `presentations.yaml` is deleted, moved under Web, or split into interaction representations plus Web presentation contracts. Do not keep it as a universal bridge concept.
 
-1. Add `Abstract`, `Selectable`, `Extends`, `MetaDesignSystem`, `CodegenTargets`, and `Realizes` to `Widget`.
-2. Add `Realizes` struct.
-3. Add `IsSelectable()` helper.
-4. Update catalog loading to preserve new fields.
-5. Update instance validation to reject selected abstract/non-selectable templates.
-6. Add warnings for missing `realizes` on selected templates only when a flag or validation option enables it.
-7. Add tests for new validation.
+### Phase 3: Web-specific Go model
 
-Expected result: current Street Deli plan still passes after adding `abstract: false`, `selectable: true`, and `realizes` to templates.
+Replace generic widget models with Web-specific models. `WidgetTemplatesFile` and `Widget` should not remain universal validator concepts if they only apply to visual/web UI. The Web model should contain `WebWidgetTemplate`, `Realizes`, web contracts, and optional React target contracts.
 
-### Phase 2: Interaction IR catalogs
+### Phase 4: Interaction IR validation and inheritance
 
-Goal: introduce Actions and Representations as first-class YAML catalogs.
+Implement Actions and Representations as first-class IRs with inheritance, abstract/concrete validation, selector validation, and projection requirements.
 
-Files to add:
+### Phase 5: semantic-to-interaction elaboration
 
-```text
-sources/dmeta-ir/interactions/00-index.yaml
-sources/dmeta-ir/interactions/actions.yaml
-sources/dmeta-ir/interactions/representations.yaml
-sources/dmeta-ir/interactions/elaboration-rules.yaml
-pkg/dmeta/interaction/model.go
-pkg/dmeta/interaction/load.go
-pkg/dmeta/interaction/validate.go
-pkg/dmeta/interaction/inheritance.go
-```
+Implement the elaboration pass that derives interaction obligations from resolved semantic facts. This pass remains modality-neutral and emits Actions/Representations, not Web widgets.
 
-Initial representations:
+### Phase 6: Web MetaDesignSystem lowering
 
-- `compact_reference`
-- `state_indicator`
-- `inspection_entrypoint`
-- `composition_summary`
-- `composition_breakdown`
-- `ingredient_composition_row`
-- `role_label`
-- `dietary_summary`
-- `configuration_summary`
-- `substitution_candidate`
-- `substitution_price_delta`
-- `order_lifecycle_progress`
-- `cart_summary`
+Implement Web lowering from elaborated interactions into Web widget/surface IR. This is where cards, chips, sheets, tables, tabs, rows, and visual event bindings become valid terms.
 
-Initial actions:
+### Phase 7: React target and scaffold plan
 
-- `inspect_subject`
-- `copy_reference`
-- `select_subject`
-- `select_menu_item`
-- `filter_by_state`
-- `filter_by_dietary`
-- `remove_part`
-- `undo_remove_part`
-- `add_part`
-- `change_config`
-- `apply_substitution`
-- `reject_substitution`
-- `see_alternatives`
-- `add_to_order`
-- `remove_cart_item`
-- `submit_order`
-- `return_to_menu`
+Define React as a target under the Web MetaDesignSystem. Replace generic widget scaffolding with a React scaffold plan and React renderer.
 
-Expected result: `validate-interactions` can validate these catalogs independently.
+### Phase 8: Street Deli hard cutover
 
-### Phase 3: elaboration command
+Rewrite the Street Deli instance manifest and local templates to use the new `meta-design-systems/web/` structure, new template ids, explicit targets, and `realizes` metadata. Regenerate scaffolds through the new React target.
 
-Goal: derive interaction obligations from semantic facts.
+### Phase 9: promoted React metadata and Storybook alignment
 
-Files to add/change:
+Update the promoted React app to expose representation/action provenance instead of legacy presentation metadata. Update Storybook docs so they explain semantic -> representation/action -> Web widget -> React component provenance.
 
-- `pkg/dmeta/interaction/elaborate.go`
-- `pkg/dmeta/cmds/elaborate_interactions.go`
-- `cmd/dmeta/main.go`
+### Phase 10: delete obsolete paths and prepare CLIM handoff
 
-Implementation sketch:
-
-```go
-func Elaborate(pkg validator.Package, resolved *validator.ResolvedCoreModel, interactions Catalog, rules []Rule) (ElaboratedIR, []Finding) {
-    for exampleID, example := range pkg.CoreModel.DomainExamples {
-        for domainTypeID, domainType := range example.DomainTypes {
-            facts := BuildDomainFacts(domainType, resolved)
-            for _, rule := range rules {
-                if rule.When.Matches(facts) {
-                    emitRepresentations(rule, domainTypeID)
-                    emitActions(rule, domainTypeID)
-                }
-            }
-        }
-    }
-}
-```
-
-Expected result: a table showing Street Deli domain types and emitted representations/actions.
-
-### Phase 4: Web MetaDesignSystem package
-
-Goal: formalize the current web widget template catalog as the first MetaDesignSystem.
-
-Files to add:
-
-```text
-sources/dmeta-ir/meta-design-systems/web-ui/meta-design-system.yaml
-sources/dmeta-ir/meta-design-systems/web-ui/lowering-rules.yaml
-sources/dmeta-ir/meta-design-systems/web-ui/targets/react.yaml
-sources/dmeta-ir/meta-design-systems/web-ui/widgets/00-index.yaml
-```
-
-Files to migrate gradually:
-
-```text
-sources/dmeta-ir/widget-templates/*.yaml
-examples/street-deli-ordering/widget-templates/*.yaml
-```
-
-Expected result: the old template catalog can still load, but new code can also load web-ui metadata.
-
-### Phase 5: lower web-ui
-
-Goal: map elaborated Interaction IR into selected web UI templates.
-
-Files to add:
-
-- `pkg/dmeta/metadesign/model.go`
-- `pkg/dmeta/metadesign/load.go`
-- `pkg/dmeta/metadesign/webui/lower.go`
-- `pkg/dmeta/cmds/lower_metadesign.go`
-
-Lowering rule sketch:
-
-```yaml
-rules:
-  - id: substitution_candidate_to_chip
-    when:
-      representation: substitution_candidate
-      target_context:
-        density: mobile
-    emits:
-      template: deli.web-ui.substitution_chip
-      variant: mobile_default
-      required_actions:
-        - apply_substitution
-        - see_alternatives
-```
-
-Expected result: lowerer can explain why each selected Street Deli web widget exists.
-
-### Phase 6: React scaffold plan
-
-Goal: split generation into plan and render.
-
-Files to add:
-
-- `pkg/dmeta/generator/react/model.go`
-- `pkg/dmeta/generator/react/plan.go`
-- `pkg/dmeta/generator/react/render.go`
-
-Files to change:
-
-- `pkg/dmeta/generator/widgets/render.go` may become compatibility wrapper.
-- `pkg/dmeta/cmds/scaffold_instance.go` should call the new plan/render path.
-
-Expected result: command can write or print a `dmeta_react_scaffold_plan` before writing files.
-
-### Phase 7: migrate Street Deli templates and generated metadata
-
-Goal: update all eight selected templates and regenerate scaffolds.
-
-Files to update:
-
-- `examples/street-deli-ordering/widget-templates/menu-browsing.yaml`
-- `examples/street-deli-ordering/widget-templates/item-cards.yaml`
-- `examples/street-deli-ordering/widget-templates/customization.yaml`
-- `examples/street-deli-ordering/widget-templates/substitutions.yaml`
-- `examples/street-deli-ordering/widget-templates/ordering.yaml`
-- `examples/street-deli-ordering/widget-templates/tracking.yaml`
-- `examples/street-deli-ordering/instantiations/street-deli-ordering.yaml`
-- generated scaffold metadata under `examples/street-deli-ordering/generated/widgets/`
-
-Expected result: all current validation and generation commands pass; generated metadata includes new pipeline provenance.
-
-### Phase 8: update promoted React metadata helpers and stories
-
-Goal: align promoted code with new metadata terms without changing user-visible behavior.
-
-Files to update:
-
-- `examples/street-deli-ordering/www/mobile-react/src/design-tokens/dataAttributes.ts`
-- widget doc comments under `www/mobile-react/src/widgets/*/*.tsx`
-- Storybook docs descriptions under `www/mobile-react/src/widgets/*/*.stories.tsx`
-
-Expected result: Storybook docs can explain both semantic source and interaction realization.
+Remove obsolete paths, obsolete docs, and obsolete generic widget generator code. Record the final shape and create the follow-up CLIM MetaDesignSystem ticket.
 
 ## Risks and mitigations
 
-### Risk: too many layers too soon
+### Risk: hard cutover breaks current commands temporarily
 
-The pipeline can become heavy if every concept requires a file before any code can be generated. Mitigation: make intermediate artifacts inspectable but not always mandatory. The first implementation can keep generated/resolved IR in memory and only write it when requested.
+The repository is WIP, so this is acceptable inside a focused implementation branch/commit sequence. Mitigation: keep each commit internally understandable, run validation after each phase, and restore the Street Deli acceptance path before considering the ticket implemented.
 
-### Risk: backwards compatibility breaks current templates
+### Risk: deleting old paths before new loaders exist causes confusion
 
-Existing templates use `consumes.presentations`. Mitigation: keep `consumes` as compatibility metadata and add `realizes` as optional first. Warn before requiring.
+Mitigation: do the move and loader updates in the same phase. The old paths should not remain as supported inputs, but the commit that deletes them should also add the new canonical source paths.
 
-### Risk: representations duplicate current presentations with new names
+### Risk: Web concepts leak back into the universal layer
 
-Some duplication is acceptable during migration. Mitigation: add `migrated_from_presentations` metadata to representations and maintain a migration table.
+Mitigation: enforce naming and directory boundaries. Widgets, chips, cards, sheets, drawers, tables, and React contracts belong under `meta-design-systems/web/` or its React target. Universal DMETA layers should talk about archetypes, capabilities, actions, representations, selectors, and projections.
 
 ### Risk: React target becomes too coupled to Street Deli
 
-The first target will be exercised by Street Deli, but it should not contain deli-specific assumptions. Mitigation: keep deli-specific templates under the example/local package or under `deli.web-ui.*`, not generic `web-ui.*`.
+The first target will be exercised by Street Deli, but generic Web widgets should not encode deli-specific assumptions. Mitigation: keep generic templates under `web.*` and deli-specific templates under `deli.web.*` in the Street Deli package.
 
-### Risk: CLIM requirements distort web implementation
+### Risk: promoted React code falls behind generated provenance
 
-CLIM is out of scope for this ticket. The shared Interaction IR should be designed carefully, but CLIM-specific target concepts should wait for the CLIM ticket.
-
-### Risk: generated scaffolds overwrite promoted code
-
-The current generated output directory and promoted app directory are separate. Preserve that separation. Never write generator output into `www/mobile-react/src/widgets` unless a future command explicitly supports promotion workflows.
+Mitigation: update generated metadata first, then update promoted React `data-dmeta-*` attributes and Storybook docs after the compiler-side schema stabilizes.
 
 ## Open questions
 
 1. Should Interaction IR live under `sources/dmeta-ir/interactions/` or under `sources/dmeta-ir/core-model/`? Recommendation: separate `interactions/` because it is a distinct layer.
-2. Should current `core-model/presentations.yaml` be renamed immediately? Recommendation: no. Keep it as legacy/shared during migration.
-3. Should Web MetaDesignSystem be named `web-ui`, `web`, `graphical-web`, or `mobile-web`? Recommendation: `web-ui` because it can include mobile and desktop web styles without implying only mobile.
-4. Should React be modeled as a target under web-ui or as its own MetaDesignSystem? Recommendation: target under web-ui. React is an implementation technology; web-ui is the interaction family.
-5. Should local Street Deli web templates be named `deli.web-ui.*` or keep `deli.*`? Recommendation: add `meta_design_system: web-ui` first, then rename in a later compatibility pass if needed.
+2. Should current `core-model/presentations.yaml` be deleted or moved? Recommendation: hard-cut it out of the universal semantic layer; split useful entries into Interaction representations or Web presentation contracts.
+3. Should Web MetaDesignSystem be named `web`, `graphical-web`, or `mobile-web`? Recommendation: `web` because it can include mobile and desktop web styles without implying only mobile.
+4. Should React be modeled as a target under web or as its own MetaDesignSystem? Recommendation: target under web. React is an implementation technology; web is the interaction family.
+5. Should local Street Deli web templates be named `deli.web.*` or another prefix? Recommendation: rename during the cutover; do not keep `deli.*` as a compatibility form.
 6. Should `realizes.actions` be required for every widget? Recommendation: no. Some widgets are purely representational, but if a widget has action slots, those slots should reference known actions.
 7. Should elaboration rules emit domain-local representations? Recommendation: yes. Use global representations for common patterns and local representations for domain-specific concepts.
 
@@ -1721,20 +1585,20 @@ The current generated output directory and promoted app directory are separate. 
 Use this checklist when starting the implementation.
 
 1. Run the current validation commands and save output for comparison.
-2. Add `abstract`, `selectable`, `extends`, `meta_design_system`, `codegen_targets`, and `realizes` to the widget model.
-3. Add planner validation for abstract/non-selectable templates.
-4. Add a minimal Interaction IR model and parser.
-5. Add a minimal global actions/representations catalog.
-6. Add `realizes` metadata to one global template and one Street Deli local template.
-7. Add tests for parsing and planner validation.
-8. Add the elaboration rule model and a table-output command.
-9. Add the web-ui MetaDesignSystem YAML package.
-10. Add web-ui lowering rules for at least `substitution_candidate -> substitution_chip` and `composition_breakdown -> composition_customizer`.
-11. Add React scaffold plan model.
+2. Create the canonical `sources/dmeta-ir/meta-design-systems/web/` package.
+3. Move global widget templates into the Web package and delete the old top-level widget-template directory.
+4. Move Street Deli widget templates into `examples/street-deli-ordering/meta-design-systems/web/widgets/` and delete the old local widget-template directory.
+5. Define Interaction IR actions/representations at the universal layer.
+6. Replace generic widget structs with Web-specific template structs.
+7. Add validation for abstract/non-selectable Web templates.
+8. Implement semantic-to-interaction elaboration.
+9. Implement Web lowering rules for `substitution_candidate -> substitution_chip` and `composition_breakdown -> composition_customizer`.
+10. Define React as a target under the Web MetaDesignSystem.
+11. Add React scaffold plan model and renderer.
 12. Update generated metadata to include `realizes` and target provenance.
-13. Migrate all eight Street Deli selected templates.
-14. Run `validate-ir`, `plan-instance`, Go tests, React build, and Storybook build.
-15. Update docs and changelog.
+13. Hard-cut the Street Deli instance manifest to explicit Web/React targets.
+14. Run `validate-ir`, elaboration, Web lowering, React scaffold planning, Go tests, React build, and Storybook build.
+15. Update docs, changelog, and the CLIM handoff note.
 
 ## File reference index
 
@@ -1764,6 +1628,6 @@ Current source files that define the existing system:
 
 ## Final guidance
 
-Do the refactor in small passes. The current system works and should keep working after each phase. The first milestone is not a new UI; it is better compiler structure and better metadata. The second milestone is a visible `elaborate-interactions` command. The third milestone is a Web MetaDesignSystem package that can explain the existing Street Deli widgets. The fourth milestone is React scaffold metadata that traces each generated component through template, representation, action, capability, archetype, and domain type.
+Do the refactor in focused passes, but do not preserve old paths as supported APIs. Temporary breakage inside a phase is acceptable because the repository is experimental; each completed phase should restore a coherent target architecture. The first milestone is the canonical Web MetaDesignSystem layout. The second milestone is a visible `elaborate-interactions` command. The third milestone is Web lowering that explains the existing Street Deli widgets without relying on top-level widget-template paths. The fourth milestone is React scaffold metadata that traces each generated component through template, representation, action, capability, archetype, and domain type.
 
 The CLIM target should begin only after those shared layers are stable. At that point, CLIM should consume the same Semantic IR and Interaction IR, then define its own MetaDesignSystem and final React CLIM framework representation without inheriting web widget vocabulary.
