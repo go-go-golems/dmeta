@@ -86,9 +86,13 @@ func loadSplitCoreModel(root string, core *CoreModelFile) error {
 		core.Presentations = presentations.Presentations
 		core.Actions = presentations.Actions
 	}
-	if len(core.Files.Examples) > 0 {
+	if core.Files.DomainExample != "" || len(core.Files.Examples) > 0 {
 		core.DomainExamples = map[string]DomainExample{}
-		for _, examplePath := range core.Files.Examples {
+		paths := append([]string{}, core.Files.Examples...)
+		if core.Files.DomainExample != "" {
+			paths = append(paths, core.Files.DomainExample)
+		}
+		for _, examplePath := range paths {
 			example, err := loadYAML[DomainExampleFile](filepath.Join(root, examplePath))
 			if err != nil {
 				return errors.Wrapf(err, "load domain example %s", examplePath)
