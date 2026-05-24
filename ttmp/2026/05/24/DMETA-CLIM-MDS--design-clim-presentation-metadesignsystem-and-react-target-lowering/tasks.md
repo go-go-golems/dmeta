@@ -91,21 +91,21 @@ Validation gate:
 
 Goal: make object types and actions first-class target objects without duplicating upstream IR. Object descriptors should derive from Semantic IR; action descriptors should derive from Interaction IR.
 
-- [ ] Add a PBUI descriptor derivation model or target planning model.
-- [ ] Derive object/type descriptors from resolved Semantic IR domain types, archetypes, and capabilities.
-- [ ] Derive action descriptors from Interaction IR actions and their inheritance/effects/safety/input metadata.
-- [ ] Preserve natural-language fields in descriptors:
+- [x] Add a PBUI descriptor derivation model or target planning model.
+- [x] Derive object/type descriptors from resolved Semantic IR domain types, archetypes, and capabilities.
+- [x] Derive action descriptors from Interaction IR actions and their inheritance/effects/safety/input metadata.
+- [x] Preserve natural-language fields in descriptors:
   - intent;
   - description;
   - long description;
   - notes;
   - source provenance.
-- [ ] Add tests proving derived descriptors contain enough metadata to power introspection UI.
-- [ ] Decide whether descriptor derivation belongs under `pkg/dmeta/metadesign/pbui` or `pkg/dmeta/generator/react`.
+- [x] Add tests proving derived descriptors contain enough metadata to power introspection UI.
+- [x] Decide whether descriptor derivation belongs under `pkg/dmeta/metadesign/pbui` or `pkg/dmeta/generator/react`.
 
 Validation gate:
 
-- [ ] Unit tests for descriptor derivation pass.
+- [x] Unit tests for descriptor derivation pass.
 
 ## Phase 4: Plan PBUI React target artifacts
 

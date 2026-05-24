@@ -20,6 +20,10 @@ RelatedFiles:
       Note: lower-pbui CLI command
     - Path: pkg/dmeta/cmds/validate_pbui.go
       Note: validate-pbui CLI command
+    - Path: pkg/dmeta/metadesign/pbui/descriptors.go
+      Note: PBUI descriptor derivation from Semantic and Interaction IR
+    - Path: pkg/dmeta/metadesign/pbui/descriptors_test.go
+      Note: Descriptor derivation tests for Street Deli object metadata and submit_order action metadata
     - Path: pkg/dmeta/metadesign/pbui/load.go
       Note: PBUI loader with duplicate presentation key scan
     - Path: pkg/dmeta/metadesign/pbui/lower.go
@@ -52,6 +56,7 @@ LastUpdated: 2026-05-24T16:30:06.156039781-04:00
 WhatFor: Record the source import, thesis analysis, design interpretation, and future implementation work for the CLIM MetaDesignSystem ticket.
 WhenToUse: Read before resuming CLIM MetaDesignSystem research or implementation.
 ---
+
 
 
 
@@ -581,3 +586,67 @@ The Street Deli validation exposed a useful schema mismatch: the initial lifecyc
 - New command:
   - `dmeta lower-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table`
 - PBUI obligations are stable-sorted by example, domain type, presentation type, and source rule.
+
+## Step 7: Derive PBUI object and action descriptors from Semantic and Interaction IR
+
+This step implemented Phase 3 descriptor derivation. PBUI now has derived `ObjectTypeDescriptor` values from Semantic IR domain examples and resolved inheritance, plus derived `ActionDescriptor` values from the Interaction IR action catalog. This keeps object types and actions first-class for PBUI/React targets without duplicating their authored definitions in the PBUI layer.
+
+The descriptors preserve human-facing metadata and provenance. Object descriptors carry domain descriptions, effective archetypes, effective capabilities, capability descriptions, projection descriptors, and semantic provenance. Action descriptors carry intent, description, long description, inputs, effects, results, safety, notes, and Interaction IR provenance. This is the bridge that later lets generated inspector panels, command palettes, action presentations, metadata sidecars, and Storybook docs explain what they are presenting.
+
+### Prompt Context
+
+**User prompt (verbatim):** (see Step 4)
+
+**Assistant interpretation:** Continue implementing the phased CLIM/PBUI plan by deriving first-class object/action descriptors from upstream IR instead of authoring duplicate PBUI catalogs.
+
+**Inferred user intent:** Prepare the target-planning layer for action/object introspection while preserving clean compiler boundaries.
+
+**Commit (code):** pending at time of diary entry
+
+### What I did
+- Added descriptor derivation model and functions in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/descriptors.go`
+- Added tests in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/descriptors_test.go`
+- Updated the Phase 3 task checklist.
+
+### Why
+- The thesis and user requirements both say object types and actions should be first-class objects.
+- The first-pass design says those objects should be derived from Semantic IR and Interaction IR rather than authored again in PBUI.
+- React target planning needs descriptors before it can produce registries, selectors, inspector surfaces, and action presentations.
+
+### What worked
+- `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... ./cmd/dmeta -count=1` passes.
+- The `MenuItem` object descriptor test confirms semantic description, capability descriptions, projection descriptors, and semantic provenance are preserved.
+- The `submit_order` action descriptor test confirms natural-language action metadata, backend mutation effects, confirmation safety, and Interaction IR provenance are preserved.
+
+### What didn't work
+- N/A. The descriptor derivation pass was straightforward after the earlier Semantic and Interaction IR packages were already in place.
+
+### What I learned
+- Descriptor derivation belongs in `pkg/dmeta/metadesign/pbui` for now, not the React target package. The descriptors are PBUI concepts that multiple targets could use; React will only choose their concrete file/rendering shape.
+- Object descriptors need projection descriptors, not just capability ids, if inspector UIs are going to explain what information is available.
+
+### What was tricky to build
+- The subtle part was preserving effective inherited facts without inventing new PBUI semantics. Object descriptors include effective archetypes and capabilities by reading the resolved semantic model, but they do not change what those facts mean.
+- Another important detail was keeping provenance explicit. Generated target registries should be able to say that object descriptors came from `semantic-ir` and action descriptors came from `interaction-ir`.
+
+### What warrants a second pair of eyes
+- Review whether the descriptor shape needs separate `ArchetypeDescriptor` and `CapabilityDescriptor` objects in a later phase, or whether embedding capability descriptions/projections in object descriptors is enough for v1.
+- Review whether action descriptors should include inherited/merged action fields once Interaction IR inheritance merging is implemented.
+
+### What should be done in the future
+- Implement Phase 4 PBUI React target planning from PBUI obligations plus derived object/action descriptors.
+- Consider adding a CLI inspection command if descriptor debugging becomes useful before React planning is complete.
+
+### Code review instructions
+- Review:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/descriptors.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/descriptors_test.go`
+- Validate with:
+  - `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... ./cmd/dmeta -count=1`
+
+### Technical details
+- Object descriptors are sorted by example id and domain type id.
+- Action descriptors are sorted by action id.
+- Descriptor provenance currently records source layer, source artifact, source pass, and source references.

@@ -65,3 +65,13 @@ Implemented Phase 2 lower-pbui pass, preserving presenter/recognizer intent and 
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/lower.go — PBUI lowering algorithm
 - /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml — Lifecycle rule adjusted for current Street Deli state obligations
 
+
+## 2026-05-24
+
+Implemented Phase 3 PBUI object/action descriptor derivation from Semantic IR and Interaction IR, preserving natural-language metadata and provenance.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/descriptors.go — Descriptor derivation implementation
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/descriptors_test.go — Descriptor derivation validation
+
