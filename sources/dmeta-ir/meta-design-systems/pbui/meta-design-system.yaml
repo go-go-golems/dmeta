@@ -1,0 +1,39 @@
+schema_version: 0
+artifact_type: dmeta_meta_design_system
+id: pbui
+name: Presentation Based UI MetaDesignSystem
+summary: CLIM-inspired presentation-system MetaDesignSystem for typed objects, typed actions, and typed presentations.
+long_summary: >-
+  The PBUI MetaDesignSystem is the DMETA layer that turns modality-neutral
+  Interaction IR obligations into presentation-system obligations. It is not a
+  React component library and it is not a replacement for Semantic IR or
+  Interaction IR. Semantic IR remains the source of domain object facts;
+  Interaction IR remains the source of action and representation obligations;
+  PBUI defines the structured presentation concepts that make actions,
+  object references, inspectors, command choosers, and lifecycle/status
+  surfaces explicit before a target such as React chooses files, selectors,
+  hooks, slices, or components.
+intent: >-
+  Keep the first CLIM/PBUI pass small but semantically rich. The authored PBUI
+  catalogs should explain why each presentation exists, what kind of user
+  thinking it supports, and how presenter/recognizer intent should be compiled
+  by targets. The catalog intentionally avoids a large thesis-complete set of
+  presenter and recognizer schemas until the Street Deli dogfooding pass proves
+  which concepts must become independently authored.
+status: experimental
+files:
+  presentation_types: ./presentation-types.yaml
+  lowering_rules: ./lowering-rules.yaml
+  react_target: ./targets/react.yaml
+validation:
+  require_unique_presentation_type_ids: true
+  require_known_representations: true
+  require_known_actions: true
+  reject_abstract_interaction_realizations: true
+notes: >-
+  This package is deliberately parallel to the Web MetaDesignSystem but it is
+  not Web-specific. It models presentations as typed interface objects. A React
+  target may render those presentations as components, but the presentation
+  type ids and lowering rationale should remain readable in generated metadata
+  so designers can trace a widget back to semantic facts and interaction
+  obligations.

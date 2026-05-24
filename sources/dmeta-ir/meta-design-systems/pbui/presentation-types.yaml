@@ -1,0 +1,295 @@
+schema_version: 0
+artifact_type: dmeta_pbui_presentation_types
+summary: First-pass PBUI presentation type catalog.
+long_summary: >-
+  Presentation types describe the symbolic interface objects that sit between
+  Interaction IR obligations and concrete target renderers. They are intentionally
+  richer than plain component names: each type records the object or action it
+  presents, the Interaction IR representations/actions it realizes, the
+  presenter intent that projects domain state into visible data, and the
+  recognizer intent that turns user interaction back into action requests.
+  Targets may compile these concepts into static registries, Redux selectors,
+  hooks, event adapters, React components, Storybook stories, and metadata
+  sidecars.
+presentation_types:
+  pbui.presentation_ref:
+    name: Presentation Reference
+    summary: Stable compact presentation of one semantic object or selected interface object.
+    intent: >-
+      Give the user a selectable, inspectable handle for an object without
+      requiring the target to choose a card, row, chip, icon, or command-line
+      token yet. This is the PBUI equivalent of the Readwise Viewer
+      PresentationRef shape and should be usable anywhere a user needs to point
+      at, select, copy, or inspect an object.
+    description: >-
+      A presentation reference carries stable identity, label text, object type
+      metadata, and capability hints. It is often rendered as a compact row,
+      chip, icon label, command completion item, or selected-object token.
+    presents:
+      object_types: []
+      type_descriptors: true
+      action_descriptors: false
+    realizes:
+      representations:
+        - compact_reference
+        - inspection_entrypoint
+      actions:
+        - inspect_subject
+        - copy_reference
+        - select_subject
+    roles:
+      - identity
+      - label
+      - capabilities
+      - selection_state
+    presenter:
+      intent: >-
+        Project semantic identity and human-readable label data from the domain
+        object into a compact first-class presentation object.
+      preferred_target_shape: selector_or_projection_hook
+      notes: >-
+        In React, this should usually compile to a selector plus a hook that
+        returns a PresentationRef-like view model rather than to persistent
+        presentation database state.
+    recognizer:
+      intent: >-
+        Interpret click, keyboard selection, copy gesture, or command-line
+        completion as selection, inspection, or copy-reference action requests.
+      preferred_target_shape: event_adapter
+    notes: >-
+      This type is deliberately generic. Domain-specific presentations should
+      extend it by lowering to more specific PBUI presentation types only when
+      they need richer presenter or recognizer semantics.
+
+  pbui.action_presentation:
+    name: Action Presentation
+    summary: First-class presentable object for an Interaction IR action that is available in context.
+    intent: >-
+      Make actions inspectable and manipulable objects rather than opaque
+      callbacks. This type lets a target render an action in a menu, command
+      palette, hint bar, toolbar, or planning surface while preserving action
+      documentation, accepted subject types, input requirements, safety, and
+      confirmation metadata.
+    description: >-
+      An action presentation wraps an Interaction IR action descriptor with
+      availability state for the current subject or interaction context.
+    presents:
+      object_types: []
+      type_descriptors: false
+      action_descriptors: true
+    realizes:
+      representations:
+        - compact_reference
+      actions:
+        - inspect_subject
+        - select_subject
+    roles:
+      - action_id
+      - label
+      - documentation
+      - accepts
+      - enabled_state
+      - safety
+      - confirmation_requirement
+    presenter:
+      intent: >-
+        Project action metadata and current subject compatibility into a
+        selectable command/action object.
+      preferred_target_shape: derived_action_registry_plus_selector
+      notes: >-
+        The action descriptor itself should usually be a generated static
+        registry entry; enabled/disabled state should be derived by selectors.
+    recognizer:
+      intent: >-
+        Interpret choosing this presentation as the beginning of an action
+        request, argument collection step, or confirmation step.
+      preferred_target_shape: action_request_builder
+    notes: >-
+      This is the first-pass bridge toward command databases. It should remain
+      small until a real planning UI requires separate command-set IR.
+
+  pbui.inspector_panel:
+    name: Inspector Panel
+    summary: Presentation that expands a selected object's facts, representations, and available actions.
+    intent: >-
+      Provide a target-independent obligation for detail inspection. The panel
+      should make object type metadata and action metadata visible enough that a
+      user can understand what an object is and what can be done with it.
+    description: >-
+      Inspector panels gather semantic labels, state, related projections,
+      object type descriptors, and compatible actions into one structured
+      presentation.
+    presents:
+      object_types: []
+      type_descriptors: true
+      action_descriptors: true
+    realizes:
+      representations:
+        - inspection_entrypoint
+        - compact_reference
+        - state_indicator
+      actions:
+        - inspect_subject
+        - copy_reference
+    roles:
+      - header
+      - type_summary
+      - projection_sections
+      - action_list
+      - provenance
+    presenter:
+      intent: >-
+        Collect domain facts and derived descriptors for the selected subject,
+        then organize them into readable sections.
+      preferred_target_shape: selector_bundle_plus_component
+    recognizer:
+      intent: >-
+        Interpret action clicks, copy controls, and nested object references as
+        action requests over the inspected subject or nested subjects.
+      preferred_target_shape: delegated_event_adapters
+    notes: >-
+      This presentation is a safe early place to expose rich natural-language
+      IR documentation because it can show descriptions and provenance directly.
+
+  pbui.action_chooser:
+    name: Action Chooser
+    summary: Presentation for choosing an enabled action for the current object or interaction state.
+    intent: >-
+      Represent the command-palette/menu part of a CLIM-style interface without
+      committing to one UI idiom. A browser target may render this as a popover,
+      toolbar, command palette, action sheet, or keyboard-driven list.
+    description: >-
+      The chooser presents compatible Action Presentation objects, groups them
+      by intent or safety, and starts action execution or argument collection.
+    presents:
+      object_types: []
+      type_descriptors: false
+      action_descriptors: true
+    realizes:
+      representations:
+        - compact_reference
+      actions:
+        - select_subject
+        - inspect_subject
+    roles:
+      - current_subject
+      - compatible_actions
+      - command_filter
+      - disabled_explanations
+    presenter:
+      intent: >-
+        Derive a list of compatible action presentations from the current
+        selected object, action descriptors, safety metadata, and interaction
+        state.
+      preferred_target_shape: use_action_choices_hook
+    recognizer:
+      intent: >-
+        Interpret keyboard input, pointer selection, or command text as an
+        action choice and optional argument-selection transition.
+      preferred_target_shape: command_parser_and_event_adapter
+    notes: >-
+      Command sets may become authored IR later. For now, action groups can be
+      derived from Interaction IR intent, safety, and local presentation context.
+
+  pbui.lifecycle_status:
+    name: Lifecycle Status Presentation
+    summary: Presentation for stateful and temporal lifecycle progress.
+    intent: >-
+      Give lifecycle/state information a first-class presentation type so
+      order tracking, job progress, import status, and similar flows can share
+      presenter and recognizer semantics.
+    description: >-
+      Lifecycle status presentations expose current state, ordered phases,
+      timing metadata, and navigation/inspection affordances.
+    presents:
+      object_types: []
+      type_descriptors: false
+      action_descriptors: false
+    realizes:
+      representations:
+        - state_indicator
+        - order_lifecycle_progress
+      actions:
+        - inspect_subject
+        - return_to_menu
+    roles:
+      - current_state
+      - phase_list
+      - timestamps
+      - next_step_hint
+    presenter:
+      intent: >-
+        Project stateful and temporal facts into an ordered lifecycle model with
+        labels, tones, and progress semantics.
+      preferred_target_shape: selector_or_projection_hook
+    recognizer:
+      intent: >-
+        Interpret lifecycle interactions as inspection, filtering, or navigation
+        rather than direct mutation unless an action explicitly says otherwise.
+      preferred_target_shape: event_adapter
+    notes: >-
+      This type exists partly to test Street Deli order tracking through PBUI.
+
+  pbui.composition_presentation:
+    name: Composition Presentation
+    summary: Presentation for composed objects made of parts with roles, substitutions, and local edit actions.
+    intent: >-
+      Exercise PBUI against the richest Street Deli case: a composed menu item
+      or order item with ingredients, roles, configuration, substitutions,
+      and cart actions. This type should reveal whether the first-pass presenter
+      and recognizer model is expressive enough for nontrivial structured data.
+    description: >-
+      A composition presentation organizes parts, role labels, dietary metadata,
+      configuration options, substitution candidates, and local mutation actions.
+    presents:
+      object_types:
+        - MenuItem
+        - OrderItem
+      type_descriptors: true
+      action_descriptors: true
+    realizes:
+      representations:
+        - composition_summary
+        - composition_breakdown
+        - ingredient_composition_row
+        - role_label
+        - dietary_summary
+        - configuration_summary
+        - substitution_candidate
+        - substitution_price_delta
+        - cart_summary
+      actions:
+        - select_menu_item
+        - remove_part
+        - undo_remove_part
+        - add_part
+        - change_config
+        - apply_substitution
+        - reject_substitution
+        - see_alternatives
+        - add_to_order
+        - remove_cart_item
+        - submit_order
+    roles:
+      - composition_header
+      - part_list
+      - role_context
+      - configuration_controls
+      - substitution_actions
+      - cart_actions
+    presenter:
+      intent: >-
+        Collect a composition and its parts from domain state, annotate parts
+        with role and dietary facts, then project available local edit actions
+        into action presentations beside the relevant parts.
+      preferred_target_shape: selector_bundle_plus_component_family
+    recognizer:
+      intent: >-
+        Interpret part-level controls, substitution choices, configuration
+        changes, and cart actions as typed action requests with explicit
+        semantic references for the composition, part, candidate, and cart.
+      preferred_target_shape: event_adapter_with_action_request_builders
+    notes: >-
+      This presentation is intentionally Street-Deli-informed. It is acceptable
+      for v1 because Street Deli is the dogfooding fixture, but reusable pieces
+      should be factored out once a second domain exercises the PBUI package.

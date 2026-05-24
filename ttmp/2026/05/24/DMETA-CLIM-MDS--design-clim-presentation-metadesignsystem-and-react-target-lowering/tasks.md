@@ -30,23 +30,23 @@ Validation gate:
 
 Goal: add the smallest useful authored PBUI/CLIM MetaDesignSystem package. Do not author a large thesis-complete object/action/presenter/recognizer schema yet. The authored layer should define presentation types and PBUI lowering rules with rich natural-language intent fields.
 
-- [ ] Create `sources/dmeta-ir/meta-design-systems/pbui/meta-design-system.yaml`.
-- [ ] Create `sources/dmeta-ir/meta-design-systems/pbui/presentation-types.yaml`.
-- [ ] Create `sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml`.
-- [ ] Create `sources/dmeta-ir/meta-design-systems/pbui/targets/react.yaml`.
-- [ ] Include substantial `summary`, `long_summary`, `intent`, `description`, `notes`, and rationale-style fields in the PBUI YAML catalogs.
-- [ ] Seed presentation types for the first pass:
+- [x] Create `sources/dmeta-ir/meta-design-systems/pbui/meta-design-system.yaml`.
+- [x] Create `sources/dmeta-ir/meta-design-systems/pbui/presentation-types.yaml`.
+- [x] Create `sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml`.
+- [x] Create `sources/dmeta-ir/meta-design-systems/pbui/targets/react.yaml`.
+- [x] Include substantial `summary`, `long_summary`, `intent`, `description`, `notes`, and rationale-style fields in the PBUI YAML catalogs.
+- [x] Seed presentation types for the first pass:
   - object reference / presentation reference;
   - action presentation;
   - inspector presentation;
   - action chooser / command palette style presentation;
   - lifecycle/status presentation;
   - composition-style presentation if useful for Street Deli validation.
-- [ ] Add `pkg/dmeta/metadesign/pbui/model.go`.
-- [ ] Add `pkg/dmeta/metadesign/pbui/load.go`.
-- [ ] Add `pkg/dmeta/metadesign/pbui/validate.go`.
-- [ ] Register `dmeta validate-pbui` in `cmd/dmeta/main.go`.
-- [ ] Validate:
+- [x] Add `pkg/dmeta/metadesign/pbui/model.go`.
+- [x] Add `pkg/dmeta/metadesign/pbui/load.go`.
+- [x] Add `pkg/dmeta/metadesign/pbui/validate.go`.
+- [x] Register `dmeta validate-pbui` in `cmd/dmeta/main.go`.
+- [x] Validate:
   - package artifact type;
   - known presentation type ids;
   - duplicate presentation type ids;
@@ -58,8 +58,8 @@ Goal: add the smallest useful authored PBUI/CLIM MetaDesignSystem package. Do no
 
 Validation gate:
 
-- [ ] `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... -count=1`
-- [ ] `go run ./cmd/dmeta validate-pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
+- [x] `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... -count=1`
+- [x] `go run ./cmd/dmeta validate-pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
 
 ## Phase 2: Lower Interaction IR obligations into PBUI presentation obligations
 
