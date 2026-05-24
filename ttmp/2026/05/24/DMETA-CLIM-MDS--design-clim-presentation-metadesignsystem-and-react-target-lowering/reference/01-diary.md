@@ -16,8 +16,11 @@ RelatedFiles:
       Note: |-
         CLI registration for validate-pbui
         CLI registration for lower-pbui
+        CLI registration for plan-pbui-react
     - Path: pkg/dmeta/cmds/lower_pbui.go
       Note: lower-pbui CLI command
+    - Path: pkg/dmeta/cmds/plan_pbui_react.go
+      Note: plan-pbui-react CLI command
     - Path: pkg/dmeta/cmds/validate_pbui.go
       Note: validate-pbui CLI command
     - Path: pkg/dmeta/metadesign/pbui/descriptors.go
@@ -32,6 +35,10 @@ RelatedFiles:
       Note: Street Deli PBUI lowering test
     - Path: pkg/dmeta/metadesign/pbui/model.go
       Note: PBUI Go model
+    - Path: pkg/dmeta/metadesign/pbui/react_plan.go
+      Note: PBUI React target planning model and file planner
+    - Path: pkg/dmeta/metadesign/pbui/react_plan_test.go
+      Note: PBUI React plan test for registries
     - Path: pkg/dmeta/metadesign/pbui/validate.go
       Note: PBUI validator against Interaction IR
     - Path: sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml
@@ -56,6 +63,7 @@ LastUpdated: 2026-05-24T16:30:06.156039781-04:00
 WhatFor: Record the source import, thesis analysis, design interpretation, and future implementation work for the CLIM MetaDesignSystem ticket.
 WhenToUse: Read before resuming CLIM MetaDesignSystem research or implementation.
 ---
+
 
 
 
@@ -650,3 +658,74 @@ The descriptors preserve human-facing metadata and provenance. Object descriptor
 - Object descriptors are sorted by example id and domain type id.
 - Action descriptors are sorted by action id.
 - Descriptor provenance currently records source layer, source artifact, source pass, and source references.
+
+## Step 8: Plan PBUI React target files from presentation obligations and descriptors
+
+This step implemented Phase 4: PBUI React target planning. The new planner combines PBUI presentation obligations, derived object descriptors, derived action descriptors, and the PBUI React target YAML into an inspectable file plan. The plan includes registries, session state, selectors, action request builders, event adapters, command parser stubs, presenter hooks, presentation components, Storybook stories, metadata sidecars, barrels, and a package README.
+
+The new `dmeta plan-pbui-react` command is intentionally a planning command only. It does not render files yet. That keeps the next rendering phase reviewable: we can inspect what the compiler intends to generate for Street Deli before committing to actual scaffold output. The table output preserves presentation type ids, source representations/actions, source lowering rules, presenter intent, recognizer intent, and rationale.
+
+### Prompt Context
+
+**User prompt (verbatim):** (see Step 4)
+
+**Assistant interpretation:** Continue from descriptor derivation into PBUI React target planning, producing an inspectable plan before rendering any files.
+
+**Inferred user intent:** Prepare for Street Deli rescaffolding by making the target file set explicit and reviewable.
+
+**Commit (code):** pending at time of diary entry
+
+### What I did
+- Added PBUI React planning model and planner:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_plan.go`
+- Added planner test:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_plan_test.go`
+- Added CLI command:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/plan_pbui_react.go`
+- Registered `plan-pbui-react` in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+- Updated the Phase 4 task checklist.
+
+### Why
+- Rendering should not be the first target step. A plan lets us review file kinds, provenance, and target shape before writing scaffold files.
+- PBUI target planning needs to keep object descriptors, action descriptors, and presentation obligations together.
+- Street Deli dogfooding needs a clear output path and concrete planned file list before rescaffolding.
+
+### What worked
+- `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... ./cmd/dmeta -count=1` passes.
+- `go run ./cmd/dmeta plan-pbui-react --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table` emits planned files under `examples/street-deli-ordering/generated/pbui-react/`.
+- The plan includes package-level registries/runtime support and per-presentation component/hook/story/metadata files.
+
+### What didn't work
+- N/A. The planning phase compiled and validated cleanly.
+
+### What I learned
+- Grouping by PBUI presentation type gives a compact first React plan. For example, all `pbui.inspector_panel` obligations produce one `PbuiInspectorPanel` component plan with many source domain types.
+- The output already shows an important future refinement: `pbui.action_chooser` only appears once lowering emits it. The planner can handle it, but current Street Deli obligations do not yet trigger that rule broadly.
+
+### What was tricky to build
+- The planner needed to distinguish package-level files from presentation-specific files. Registries, state, selectors, event adapters, and command parsing are package-level; components, hooks, stories, metadata, and barrels are presentation-specific.
+- The plan also needed to preserve natural-language lowering rationale and presenter/recognizer intent at the file provenance level so later renderers can include them in metadata and docs.
+
+### What warrants a second pair of eyes
+- Review whether grouping by presentation type is enough for v1 or whether some presentations should split by domain type or source rule.
+- Review command naming: `plan-pbui-react` is explicit and easy to use, but could later become part of a generalized `plan-scaffold --target pbui-react` path.
+
+### What should be done in the future
+- Implement Phase 5 rendering for the planned files.
+- Ensure rendered metadata sidecars include the same presenter/recognizer/rationale provenance exposed by the planner.
+- Use the planned output path for Street Deli dogfooding.
+
+### Code review instructions
+- Review:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_plan.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/plan_pbui_react.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_plan_test.go`
+- Validate with:
+  - `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... ./cmd/dmeta -count=1`
+  - `go run ./cmd/dmeta plan-pbui-react --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table`
+
+### Technical details
+- Default output path comes from `sources/dmeta-ir/meta-design-systems/pbui/targets/react.yaml` and resolves relative to the semantic package root.
+- Current Street Deli default planned path is:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/generated/pbui-react/`
