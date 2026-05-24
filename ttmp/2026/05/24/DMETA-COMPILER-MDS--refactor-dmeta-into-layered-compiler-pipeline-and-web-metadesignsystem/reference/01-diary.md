@@ -1250,7 +1250,7 @@ The implementation still does not write files to disk or overwrite generated/pro
 
 **Inferred user intent:** Move from planning toward target rendering while keeping the new compiler layers and diary discipline intact.
 
-**Commit (code):** pending at time of diary entry — React metadata sidecar renderer changes.
+**Commit (code):** 6f1f77959466e5c5115fd7b5fc7e880599bcbf69 — "DMETA-COMPILER-MDS: render react metadata sidecars"
 
 ### What I did
 
