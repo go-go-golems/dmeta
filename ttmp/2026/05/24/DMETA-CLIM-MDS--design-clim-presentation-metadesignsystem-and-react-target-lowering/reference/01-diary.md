@@ -17,10 +17,13 @@ RelatedFiles:
         CLI registration for validate-pbui
         CLI registration for lower-pbui
         CLI registration for plan-pbui-react
+        CLI registration for scaffold-pbui-react
     - Path: pkg/dmeta/cmds/lower_pbui.go
       Note: lower-pbui CLI command
     - Path: pkg/dmeta/cmds/plan_pbui_react.go
       Note: plan-pbui-react CLI command
+    - Path: pkg/dmeta/cmds/scaffold_pbui_react.go
+      Note: scaffold-pbui-react CLI command
     - Path: pkg/dmeta/cmds/validate_pbui.go
       Note: validate-pbui CLI command
     - Path: pkg/dmeta/metadesign/pbui/descriptors.go
@@ -39,6 +42,12 @@ RelatedFiles:
       Note: PBUI React target planning model and file planner
     - Path: pkg/dmeta/metadesign/pbui/react_plan_test.go
       Note: PBUI React plan test for registries
+    - Path: pkg/dmeta/metadesign/pbui/react_render.go
+      Note: PBUI React scaffold renderer
+    - Path: pkg/dmeta/metadesign/pbui/react_render_test.go
+      Note: Renderer and metadata JSON validation tests
+    - Path: pkg/dmeta/metadesign/pbui/react_write.go
+      Note: PBUI React scaffold dry-run/write support
     - Path: pkg/dmeta/metadesign/pbui/validate.go
       Note: PBUI validator against Interaction IR
     - Path: sources/dmeta-ir/meta-design-systems/pbui/lowering-rules.yaml
@@ -63,6 +72,7 @@ LastUpdated: 2026-05-24T16:30:06.156039781-04:00
 WhatFor: Record the source import, thesis analysis, design interpretation, and future implementation work for the CLIM MetaDesignSystem ticket.
 WhenToUse: Read before resuming CLIM MetaDesignSystem research or implementation.
 ---
+
 
 
 
@@ -729,3 +739,86 @@ The new `dmeta plan-pbui-react` command is intentionally a planning command only
 - Default output path comes from `sources/dmeta-ir/meta-design-systems/pbui/targets/react.yaml` and resolves relative to the semantic package root.
 - Current Street Deli default planned path is:
   - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/generated/pbui-react/`
+
+## Step 9: Render and dry-run a minimal PBUI React scaffold
+
+This step implemented most of Phase 5 by turning the PBUI React plan into rendered scaffold files. The renderer now produces TypeScript registries, PBUI session state, selector/projection stubs, action request builders, event adapters, command parser stubs, presenter hooks, React component skeletons, metadata JSON sidecars, Storybook story skeletons, barrels, and a README. The scaffold command defaults to dry-run so Street Deli output can be reviewed before writing files.
+
+The renderer preserves the user-requested explanatory content. Metadata sidecars include source passes, presentation type ids, domain types, representations, actions, source lowering rules, presenter intent, recognizer intent, and lowering rationale. Storybook scaffolds also include rationale text so generated UI review surfaces can explain why a presentation exists.
+
+### Prompt Context
+
+**User prompt (verbatim):** (see Step 4)
+
+**Assistant interpretation:** Continue implementing the phased CLIM/PBUI plan by rendering a minimal React scaffold and validating it through dry-run output.
+
+**Inferred user intent:** Move from planning to concrete scaffold generation while preserving explanatory metadata and keeping generated Street Deli output reviewable.
+
+**Commit (code):** pending at time of diary entry
+
+### What I did
+- Added PBUI React rendering:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_render.go`
+- Added PBUI React write/dry-run support:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_write.go`
+- Added rendering tests:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_render_test.go`
+- Added CLI command:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_pbui_react.go`
+- Registered `scaffold-pbui-react` in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+- Validated dry-run and metadata-only dry-run against Street Deli.
+- Wrote a full scaffold to `/tmp/dmeta-pbui-react-scaffold-test` with `--dry-run=false --force` to verify file writing without adding generated output to the repo.
+- Updated the Phase 5 task checklist.
+
+### Why
+- A concrete renderer is needed before Street Deli can dogfood the new PBUI/CLIM target.
+- Dry-run support keeps the generated file set reviewable and prevents accidental overwrites.
+- Metadata-only support gives a low-risk first write path, matching the earlier Web/React target pattern.
+
+### What worked
+- `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... ./cmd/dmeta -count=1` passes.
+- `go run ./cmd/dmeta scaffold-pbui-react --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --dry-run --output table` succeeds.
+- `go run ./cmd/dmeta scaffold-pbui-react --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --metadata-only --dry-run --output table` succeeds.
+- A temp write to `/tmp/dmeta-pbui-react-scaffold-test` wrote 34 files.
+
+### What didn't work
+- The first attempt to compile the renderer failed with Go syntax errors:
+  - `pkg/dmeta/metadesign/pbui/react_render.go:195:24: missing ',' in argument list`
+  - `pkg/dmeta/metadesign/pbui/react_render.go:196:12: expected operand, found '%'`
+  - and related parser errors.
+- Root cause: a raw Go string for the generated README contained Markdown backticks, which prematurely ended the raw string literal.
+- Fix: changed `renderPackageReadme` to use a normal quoted format string with escaped newlines.
+- TypeScript compilation is not yet validated because the generated PBUI output is not wrapped as a buildable package with a `package.json`/`tsconfig` in this phase. That is deferred to Street Deli dogfooding.
+
+### What I learned
+- The generated file set is already large enough that dry-run is essential. Street Deli currently plans/renders 34 files for the minimal PBUI target.
+- Metadata sidecars are again the safest first artifact: they are valid JSON and preserve the most important design intent before the React skeletons become production-ready.
+
+### What was tricky to build
+- The renderer had to stay minimal while still preserving the architectural distinction between presenter hooks, recognizer/event adapters, action request builders, and components.
+- Another tricky issue was avoiding premature package assumptions. The scaffold renders plausible TypeScript/TSX files, but the actual build/package wiring belongs in the Street Deli dogfooding phase.
+
+### What warrants a second pair of eyes
+- Review generated TSX shape before writing files into the Street Deli tree. It is intentionally skeletal and may need package-level imports or conventions before compilation.
+- Review whether metadata-only should default to false for `scaffold-pbui-react`; it currently defaults to full dry-run and only filters with `--metadata-only`.
+
+### What should be done in the future
+- Wrap the PBUI generated output in a buildable package during the Street Deli dogfooding phase.
+- Add golden tests for a rendered metadata sidecar and possibly a compact plan output.
+- Then write generated files under `examples/street-deli-ordering/generated/pbui-react/` or a chosen promoted experiment path.
+
+### Code review instructions
+- Review:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_render.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_write.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_pbui_react.go`
+- Validate with:
+  - `go test ./pkg/dmeta/metadesign/pbui/... ./pkg/dmeta/interaction/... ./cmd/dmeta -count=1`
+  - `go run ./cmd/dmeta scaffold-pbui-react --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --dry-run --output table`
+  - `go run ./cmd/dmeta scaffold-pbui-react --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --metadata-only --dry-run --output table`
+
+### Technical details
+- Temp write validation:
+  - `go run ./cmd/dmeta scaffold-pbui-react --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output-dir /tmp/dmeta-pbui-react-scaffold-test --dry-run=false --force --output table`
+  - `find /tmp/dmeta-pbui-react-scaffold-test -type f | wc -l` returned `34`.

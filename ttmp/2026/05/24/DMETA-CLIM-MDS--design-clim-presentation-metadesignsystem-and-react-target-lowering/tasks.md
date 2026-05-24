@@ -144,19 +144,19 @@ Validation gate:
 
 Goal: render a small but coherent target scaffold that demonstrates the thesis-aligned model in React terms.
 
-- [ ] Render TypeScript registry files.
-- [ ] Render PBUI session slice skeleton.
-- [ ] Render selector/hook skeletons for presenter projections.
-- [ ] Render event adapter skeletons for recognizer behavior.
-- [ ] Render presentational React components.
-- [ ] Render metadata sidecars with source passes and intent text.
-- [ ] Render Storybook stories or docs blocks that explain the presentation/action/type provenance.
-- [ ] Add dry-run and metadata-only behavior where applicable.
+- [x] Render TypeScript registry files.
+- [x] Render PBUI session slice skeleton.
+- [x] Render selector/hook skeletons for presenter projections.
+- [x] Render event adapter skeletons for recognizer behavior.
+- [x] Render presentational React components.
+- [x] Render metadata sidecars with source passes and intent text.
+- [x] Render Storybook stories or docs blocks that explain the presentation/action/type provenance.
+- [x] Add dry-run and metadata-only behavior where applicable.
 
 Validation gate:
 
-- [ ] Scaffold command dry-run succeeds.
-- [ ] Rendered files compile or pass TypeScript syntax checks if a package is emitted.
+- [x] Scaffold command dry-run succeeds.
+- [ ] Rendered files compile or pass TypeScript syntax checks if a package is emitted. (Deferred until the generated PBUI output is wrapped as a buildable package in the Street Deli dogfooding phase.)
 
 ## Phase 6: Add a focused example and golden tests
 
