@@ -1,0 +1,35 @@
+schema_version: 0
+artifact_type: dmeta_web_react_target
+id: react
+name: React Target for the Web MetaDesignSystem
+summary: React-specific scaffold planning rules for Web MetaDesignSystem obligations.
+long_summary: >
+  This target consumes Web MetaDesignSystem obligations and plans React artifacts such as
+  components, props, CSS modules, Storybook stories, metadata sidecars, adapter TODOs,
+  README files, and package barrels. It is deliberately below the Web MetaDesignSystem:
+  it does not define semantic archetypes, Interaction IR actions/representations, or
+  universal widget concepts.
+status: draft
+defaults:
+  output_dir: ./generated/react
+  package_name: dmeta-web-react
+  style: css_modules
+  storybook: true
+  metadata_sidecars: true
+file_kinds:
+  - component
+  - types
+  - metadata
+  - stories
+  - barrel
+  - adapter_todo
+  - readme
+  - package_index
+provenance:
+  meta_design_system: web
+  codegen_target: react
+  source_passes:
+    - semantic-ir
+    - interaction-elaboration
+    - web-lowering
+    - react-planning

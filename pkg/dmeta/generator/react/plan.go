@@ -1,0 +1,285 @@
+package react
+
+import (
+	"context"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+
+	widgetgen "github.com/go-go-golems/dmeta/pkg/dmeta/generator/widgets"
+	"github.com/go-go-golems/dmeta/pkg/dmeta/interaction"
+	webmds "github.com/go-go-golems/dmeta/pkg/dmeta/metadesign/web"
+	"github.com/go-go-golems/dmeta/pkg/dmeta/validator"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
+)
+
+type PlanOptions struct {
+	InstancePath     string
+	TargetFile       string
+	InteractionsRoot string
+	WebRoot          string
+	SemanticRoot     string
+	OutputDir        string
+}
+
+func LoadTarget(path string) (TargetFile, error) {
+	var target TargetFile
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return target, err
+	}
+	if err := yaml.Unmarshal(b, &target); err != nil {
+		return target, err
+	}
+	if target.ArtifactType != "dmeta_web_react_target" {
+		return target, errors.Errorf("React target artifact_type is %q, expected dmeta_web_react_target", target.ArtifactType)
+	}
+	return target, nil
+}
+
+func BuildScaffoldPlan(ctx context.Context, opts PlanOptions) (ScaffoldPlan, error) {
+	if opts.InstancePath == "" {
+		return ScaffoldPlan{}, errors.New("instance path is required")
+	}
+	instance, instanceDir, err := widgetgen.LoadInstance(opts.InstancePath)
+	if err != nil {
+		return ScaffoldPlan{}, err
+	}
+
+	semanticRoot := opts.SemanticRoot
+	if semanticRoot == "" {
+		semanticRoot = instance.InstanceRoot
+	}
+	if semanticRoot == "" {
+		semanticRoot = instance.CoreModelRoot
+	}
+	if semanticRoot == "" {
+		return ScaffoldPlan{}, errors.New("no semantic root supplied and instance_root/core_model_root are empty")
+	}
+	semanticRoot = resolveRelative(instanceDir, semanticRoot)
+
+	interactionsRoot := opts.InteractionsRoot
+	if interactionsRoot == "" {
+		interactionsRoot = instance.TemplateSources.GlobalIRRoot
+	}
+	if interactionsRoot == "" {
+		return ScaffoldPlan{}, errors.New("no interactions root supplied and template_sources.global_ir_root is empty")
+	}
+	interactionsRoot = resolveRelative(instanceDir, interactionsRoot)
+
+	webRoot := opts.WebRoot
+	if webRoot == "" {
+		webRoot = filepath.Join(semanticRoot, "meta-design-systems", "web")
+	}
+	webRoot = resolveRelative(instanceDir, webRoot)
+
+	targetFile := opts.TargetFile
+	if targetFile == "" {
+		targetFile = filepath.Join(interactionsRoot, "meta-design-systems", "web", "targets", "react.yaml")
+	}
+	targetFile = resolveRelative(instanceDir, targetFile)
+	target, err := LoadTarget(targetFile)
+	if err != nil {
+		return ScaffoldPlan{}, errors.Wrap(err, "load React target")
+	}
+
+	semanticPkg, err := validator.LoadPackage(ctx, semanticRoot)
+	if err != nil {
+		return ScaffoldPlan{}, err
+	}
+	resolved, inheritanceFindings := validator.ResolveCoreInheritance(semanticPkg.CoreModel)
+	if validator.HasErrors(inheritanceFindings) {
+		return ScaffoldPlan{}, errors.New("semantic inheritance has error-severity findings; run validate-ir")
+	}
+
+	interactionPkg, err := interaction.LoadPackage(ctx, interactionsRoot)
+	if err != nil {
+		return ScaffoldPlan{}, err
+	}
+	interactionFindings := interaction.ValidatePackage(interactionPkg)
+	if validator.HasErrors(interactionFindings) {
+		return ScaffoldPlan{}, errors.New("interaction package has error-severity findings; run validate-interactions")
+	}
+	interactionObligations, elaborationFindings := interaction.ElaborateInteractions(semanticPkg.CoreModel, resolved, interactionPkg)
+	if validator.HasErrors(elaborationFindings) {
+		return ScaffoldPlan{}, errors.New("interaction elaboration has error-severity findings")
+	}
+
+	webPkg, err := webmds.LoadPackage(ctx, webRoot)
+	if err != nil {
+		return ScaffoldPlan{}, err
+	}
+	webFindings := webmds.ValidatePackage(webPkg, interactionPkg)
+	if validator.HasErrors(webFindings) {
+		return ScaffoldPlan{}, errors.New("Web MetaDesignSystem has error-severity findings")
+	}
+	webObligations := webmds.Lower(interactionObligations, webPkg)
+
+	outputDir := opts.OutputDir
+	if outputDir != "" {
+		outputDir = resolveRelative(instanceDir, outputDir)
+	} else if target.Defaults.OutputDir != "" {
+		outputDir = resolveRelative(semanticRoot, target.Defaults.OutputDir)
+	} else {
+		return ScaffoldPlan{}, errors.New("React target has no defaults.output_dir and no --output-dir was supplied")
+	}
+	packageName := target.Defaults.PackageName
+
+	plan := ScaffoldPlan{InstanceID: instance.ID, TargetID: target.ID, MetaDesignSystem: target.Provenance.MetaDesignSystem, OutputDir: outputDir, PackageName: packageName}
+	obligationsByTemplate := groupWebObligations(webObligations)
+	for _, selected := range instance.SelectedTemplates {
+		componentName := selected.As
+		if componentName == "" {
+			componentName = componentNameFromTemplate(selected.Template)
+		}
+		component := ComponentPlan{
+			TemplateID:        selected.Template,
+			ComponentName:     componentName,
+			Variant:           selected.Variant,
+			OutputDir:         outputDir,
+			PackageName:       packageName,
+			Slots:             sortedSet(nil),
+			VisualStates:      sortedSet(nil),
+			EventBindings:     sortedSet(nil),
+			SourceDomainTypes: []string{},
+			SourceRules:       []string{},
+		}
+		if obligations, ok := obligationsByTemplate[selected.Template]; ok {
+			component = applyWebObligations(component, obligations)
+		}
+		component.Files = planFiles(component, target)
+		plan.Components = append(plan.Components, component)
+	}
+	plan.Files = planPackageFiles(plan, target)
+	return plan, nil
+}
+
+func resolveRelative(base string, path string) string {
+	if path == "" || filepath.IsAbs(path) {
+		return path
+	}
+	return filepath.Clean(filepath.Join(base, path))
+}
+
+func groupWebObligations(obligations []webmds.Obligation) map[string][]webmds.Obligation {
+	out := map[string][]webmds.Obligation{}
+	for _, obligation := range obligations {
+		out[obligation.WidgetTemplateID] = append(out[obligation.WidgetTemplateID], obligation)
+	}
+	return out
+}
+
+func applyWebObligations(component ComponentPlan, obligations []webmds.Obligation) ComponentPlan {
+	slots := setFrom(component.Slots)
+	states := setFrom(component.VisualStates)
+	events := setFrom(component.EventBindings)
+	representations := map[string]bool{}
+	actions := map[string]bool{}
+	domainTypes := map[string]bool{}
+	rules := map[string]bool{}
+	for _, obligation := range obligations {
+		addAll(slots, obligation.Slots)
+		addAll(states, obligation.VisualStates)
+		addAll(events, obligation.EventBindings)
+		addAll(representations, obligation.SourceRepresentations)
+		addAll(actions, obligation.SourceActions)
+		addAll(actions, obligation.EventBindings)
+		domainTypes[obligation.DomainTypeID] = true
+		rules[obligation.SourceRuleID] = true
+	}
+	component.Slots = sortedSet(slots)
+	component.VisualStates = sortedSet(states)
+	component.EventBindings = sortedSet(events)
+	component.RealizesRepresentations = sortedSet(representations)
+	component.RealizesActions = sortedSet(actions)
+	component.SourceDomainTypes = sortedSet(domainTypes)
+	component.SourceRules = sortedSet(rules)
+	return component
+}
+
+func planPackageFiles(plan ScaffoldPlan, target TargetFile) []PlannedFile {
+	if !contains(target.FileKinds, "package_index") {
+		return nil
+	}
+	provenance := FileProvenance{
+		MetaDesignSystem: target.Provenance.MetaDesignSystem,
+		CodegenTarget:    target.Provenance.CodegenTarget,
+		Passes:           target.Provenance.SourcePasses,
+	}
+	return []PlannedFile{{Path: filepath.Join(plan.OutputDir, "index.ts"), Kind: "package_index", Symbol: plan.PackageName, Provenance: provenance}}
+}
+
+func planFiles(component ComponentPlan, target TargetFile) []PlannedFile {
+	base := filepath.Join(component.OutputDir, component.ComponentName)
+	provenance := FileProvenance{
+		MetaDesignSystem: target.Provenance.MetaDesignSystem,
+		CodegenTarget:    target.Provenance.CodegenTarget,
+		TemplateID:       component.TemplateID,
+		ComponentName:    component.ComponentName,
+		Representations:  component.RealizesRepresentations,
+		Actions:          component.RealizesActions,
+		DomainTypes:      component.SourceDomainTypes,
+		SourceRules:      component.SourceRules,
+		Passes:           target.Provenance.SourcePasses,
+	}
+	files := []PlannedFile{
+		{Path: filepath.Join(base, component.ComponentName+".tsx"), Kind: "component", Symbol: component.ComponentName, Provenance: provenance},
+		{Path: filepath.Join(base, component.ComponentName+".types.ts"), Kind: "types", Symbol: component.ComponentName + "Props", Provenance: provenance},
+		{Path: filepath.Join(base, component.ComponentName+".metadata.json"), Kind: "metadata", Symbol: component.ComponentName + "Metadata", Provenance: provenance},
+		{Path: filepath.Join(base, component.ComponentName+".stories.tsx"), Kind: "stories", Symbol: component.ComponentName + "Stories", Provenance: provenance},
+		{Path: filepath.Join(base, component.ComponentName+".module.css"), Kind: "style", Symbol: component.ComponentName + "Styles", Provenance: provenance},
+		{Path: filepath.Join(base, "index.ts"), Kind: "barrel", Symbol: component.ComponentName, Provenance: provenance},
+	}
+	if contains(target.FileKinds, "adapter_todo") {
+		files = append(files, PlannedFile{Path: filepath.Join(base, component.ComponentName+".adapter.todo.ts"), Kind: "adapter_todo", Symbol: component.ComponentName + "AdapterTODO", Provenance: provenance})
+	}
+	if contains(target.FileKinds, "readme") {
+		files = append(files, PlannedFile{Path: filepath.Join(base, "README.md"), Kind: "readme", Symbol: component.ComponentName + "Readme", Provenance: provenance})
+	}
+	return files
+}
+
+func componentNameFromTemplate(templateID string) string {
+	parts := strings.FieldsFunc(templateID, func(r rune) bool { return r == '.' || r == '_' || r == '-' })
+	for i, part := range parts {
+		if part == "" {
+			continue
+		}
+		parts[i] = strings.ToUpper(part[:1]) + part[1:]
+	}
+	return strings.Join(parts, "")
+}
+
+func setFrom(values []string) map[string]bool {
+	out := map[string]bool{}
+	addAll(out, values)
+	return out
+}
+
+func addAll(set map[string]bool, values []string) {
+	for _, value := range values {
+		if value != "" {
+			set[value] = true
+		}
+	}
+}
+
+func sortedSet(set map[string]bool) []string {
+	values := make([]string, 0, len(set))
+	for value := range set {
+		values = append(values, value)
+	}
+	sort.Strings(values)
+	return values
+}
+
+func contains(values []string, value string) bool {
+	for _, v := range values {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}

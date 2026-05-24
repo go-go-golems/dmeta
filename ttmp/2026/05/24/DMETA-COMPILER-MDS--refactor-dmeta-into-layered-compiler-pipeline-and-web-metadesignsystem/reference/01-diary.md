@@ -1112,3 +1112,126 @@ The new output columns are:
 - `description`
 
 This preserves provenance from Interaction IR to Web obligations without introducing React component names yet.
+
+## Step 9: Add React target scaffold planning under Web
+
+This step introduced React as a target under the Web MetaDesignSystem without making React consume universal widget templates directly. The new `plan-scaffold --target react` command starts from the instance's selected component aliases, derives Interaction IR obligations, lowers them through Web lowering rules, and then plans React files with explicit provenance.
+
+No React files are written yet. This is a planning pass only: it proves that React components can be described as target artifacts of Web obligations rather than as the direct output of old generic widget codegen.
+
+### Prompt Context
+
+**User prompt (verbatim):** "continue"
+
+**Assistant interpretation:** Continue implementing the next phase of the DMETA compiler/Web MetaDesignSystem refactor after explaining the generic-widget-codegen boundary.
+
+**Inferred user intent:** Advance the React target work while preserving the new Semantic IR -> Interaction IR -> Web -> React layering.
+
+**Commit (code):** pending at time of diary entry — React scaffold planning changes.
+
+### What I did
+
+- Added the React target definition:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/web/targets/react.yaml`
+- Added `pkg/dmeta/generator/react/model.go` with:
+  - `TargetFile`
+  - `ScaffoldPlan`
+  - `ComponentPlan`
+  - `PlannedFile`
+  - `FileProvenance`
+- Added `pkg/dmeta/generator/react/plan.go` to build a React scaffold plan from:
+  - instance selected templates/component aliases;
+  - semantic package loading;
+  - Interaction IR elaboration;
+  - Web MetaDesignSystem lowering;
+  - React target file kinds and provenance settings.
+- Added `pkg/dmeta/cmds/plan_scaffold.go`.
+- Registered `plan-scaffold` in `cmd/dmeta/main.go`.
+- Added a Street Deli Web lowering rule so `MenuItem` obligations lower to `deli.menu_browser`; this gives all eight selected Street Deli widgets React planning provenance.
+- Kept the generated output path target-specific: the React target defaults to `generated/react`, not the old generated widget output path.
+
+### Why
+
+- React should be a codegen target below Web, not the thing that defines DMETA widgets.
+- A plan command is safer than a renderer at this stage because it makes provenance and file shape reviewable before writing files.
+- The command proves that selected Street Deli component names can be combined with Web obligations without routing through the old generic renderer.
+
+### What worked
+
+- `go test ./pkg/dmeta/generator/react/... ./pkg/dmeta/... ./cmd/dmeta -count=1` passed.
+- `plan-scaffold --target react --output yaml` produced eight component rows, one for each selected Street Deli widget.
+- Each component row includes:
+  - `meta_design_system: web`
+  - `target: react`
+  - source representations;
+  - source actions/event bindings;
+  - source domain types;
+  - source Web lowering rules;
+  - slots and visual states.
+- Planned file rows include component, types, metadata sidecar, stories, CSS module, barrel, adapter TODO, README, and a package index.
+
+### What didn't work
+
+- Initially the React planner reused the instance manifest's old `generation.output_dir`, which pointed to `generated/widgets`. That would make the new target look like a continuation of the old generic widget scaffold path. I changed the planner to use the React target default (`generated/react`) unless `--output-dir` is explicitly supplied.
+- Before adding the `deli.menu_browser` lowering rule, only seven of the eight selected Street Deli widgets had Web obligation provenance. Adding the `menu_item_obligations_to_deli_menu_browser` rule fixed that.
+
+### What I learned
+
+- The Web lowering output already contains enough information to plan target files: widget template ID, slots, visual states, event bindings, representations, actions, domain types, and source rules.
+- The instance manifest is still useful for component alias selection, but the target planner must not rely on the old generic renderer or old output naming.
+- A package-level `index.ts` belongs to the React plan, not to any one component, so `ScaffoldPlan` needs package-level planned files as well as per-component files.
+
+### What was tricky to build
+
+- Avoiding the old generator while still reusing the existing instance manifest required a narrow boundary. The React planner reads selected aliases from the manifest, but the semantic meaning comes from Interaction/Web obligations.
+- Relative path resolution has different roots: the instance manifest is relative to the instantiation directory, the semantic package is the instance root, and target defaults are more naturally relative to the semantic package root.
+- The command emits both component rows and file rows. This is verbose, but it makes planned files and provenance visible in `--output yaml` before any renderer exists.
+
+### What warrants a second pair of eyes
+
+- Review whether the React target package should live under `pkg/dmeta/generator/react` or a more explicit Web target path such as `pkg/dmeta/metadesign/web/targets/react`.
+- Review the current use of the existing instance manifest for component aliases. Phase 8 should replace `generation` and `template_sources` with explicit Web/React target metadata.
+- Review whether package-level planned files should have their own richer provenance model rather than empty template/component fields.
+
+### What should be done in the future
+
+- Add golden tests for the React scaffold plan.
+- Add a renderer for at least the metadata sidecar first, then component/type/story files.
+- Replace the old `scaffold-instance` path with the React target planner/renderer.
+- Migrate the instance manifest to explicit `targets.react` metadata.
+
+### Code review instructions
+
+Start with:
+
+- `/home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/web/targets/react.yaml`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/model.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/plan.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/plan_scaffold.go`
+- `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/web/lowering-rules.yaml`
+
+Validate with:
+
+```bash
+cd /home/manuel/code/wesen/go-go-golems/dmeta
+go test ./pkg/dmeta/generator/react/... ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output yaml
+go run ./cmd/dmeta lower-web --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --web-root ./examples/street-deli-ordering/meta-design-systems/web --output table
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+```
+
+### Technical details
+
+The React plan file kinds are currently:
+
+- `component`
+- `types`
+- `metadata`
+- `stories`
+- `style`
+- `barrel`
+- `adapter_todo`
+- `readme`
+- `package_index`
+
+The command is intentionally a planner, not a writer. It does not touch promoted React code or generated output directories.

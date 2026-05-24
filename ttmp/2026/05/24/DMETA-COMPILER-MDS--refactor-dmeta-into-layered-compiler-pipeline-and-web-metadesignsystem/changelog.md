@@ -92,3 +92,15 @@ Added Web MetaDesignSystem lowering catalogs and lower-web command. Interaction 
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/web/lower.go — Interaction-to-Web lowering pass
 - /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/web/lowering-rules.yaml — Global Web lowering catalog
 
+
+## 2026-05-24
+
+Added React target scaffold planning under the Web MetaDesignSystem. plan-scaffold --target react now consumes Web obligations and emits component/file plans with Web/React provenance for all eight selected Street Deli widgets.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/plan_scaffold.go — plan-scaffold CLI command
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/model.go — React scaffold plan model
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/plan.go — React target planning from Web obligations
+- /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/web/targets/react.yaml — React target metadata and file-kind catalog
+

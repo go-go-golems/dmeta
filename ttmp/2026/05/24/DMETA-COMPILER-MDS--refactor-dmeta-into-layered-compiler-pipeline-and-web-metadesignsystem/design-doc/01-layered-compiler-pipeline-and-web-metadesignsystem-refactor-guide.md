@@ -22,7 +22,9 @@ RelatedFiles:
         Concrete instance manifest used as the migration acceptance test
         Instance manifest now points to local Web widget templates
     - Path: examples/street-deli-ordering/meta-design-systems/web/lowering-rules.yaml
-      Note: Local Street Deli Web lowering rules
+      Note: |-
+        Local Street Deli Web lowering rules
+        Now lowers MenuItem obligations to deli.menu_browser for React plan coverage
     - Path: examples/street-deli-ordering/meta-design-systems/web/meta-design-system.yaml
       Note: Street Deli local Web MetaDesignSystem entrypoint created in Phase 1
     - Path: examples/street-deli-ordering/widget-templates/customization.yaml
@@ -31,8 +33,14 @@ RelatedFiles:
       Note: CLI command exposing interaction elaboration
     - Path: pkg/dmeta/cmds/lower_web.go
       Note: CLI command for Web lowering
+    - Path: pkg/dmeta/cmds/plan_scaffold.go
+      Note: React scaffold planning CLI
     - Path: pkg/dmeta/cmds/validate_interactions.go
       Note: CLI command exposing Interaction IR validation
+    - Path: pkg/dmeta/generator/react/model.go
+      Note: React target scaffold plan and provenance model
+    - Path: pkg/dmeta/generator/react/plan.go
+      Note: Planning pass from Web obligations to React files
     - Path: pkg/dmeta/generator/widgets/load.go
       Note: Current instance/catalog planner validation to extend for abstract/selectable/realizes rules
     - Path: pkg/dmeta/generator/widgets/render.go
@@ -65,12 +73,15 @@ RelatedFiles:
       Note: Initial Interaction IR representation catalog
     - Path: sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml
       Note: Global Web MetaDesignSystem package entrypoint created in Phase 1
+    - Path: sources/dmeta-ir/meta-design-systems/web/targets/react.yaml
+      Note: React target definition under Web MetaDesignSystem
 ExternalSources: []
 Summary: Design and implementation guide for refactoring DMETA from semantic schemas plus widget templates into a layered compiler pipeline with Interaction IR, a Web MetaDesignSystem, and a React code-generation target.
 LastUpdated: 2026-05-24T18:15:00-04:00
 WhatFor: 'Use when implementing the next DMETA architecture step: Actions/Representations, MetaDesignSystem schemas, web-style UI lowering, React scaffold tooling, and migration of Street Deli templates.'
 WhenToUse: Read before changing pkg/dmeta/validator, pkg/dmeta/generator/widgets, sources/dmeta-ir widget templates, or examples/street-deli-ordering instance manifests for the compiler-pipeline refactor.
 ---
+
 
 
 
