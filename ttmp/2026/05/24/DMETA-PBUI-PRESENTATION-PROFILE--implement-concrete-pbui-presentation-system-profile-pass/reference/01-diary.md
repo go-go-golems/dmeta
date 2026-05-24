@@ -14,6 +14,8 @@ DocType: reference
 Intent: long-term
 Owners: []
 RelatedFiles:
+    - Path: cmd/dmeta/main.go
+      Note: Registers validate-pbui-profile
     - Path: examples/street-deli-ordering/meta-design-systems/pbui/presentation-bindings.yaml
       Note: PBUI presentation type to concrete renderer binding profile
     - Path: examples/street-deli-ordering/meta-design-systems/pbui/presentation-system.yaml
@@ -26,6 +28,16 @@ RelatedFiles:
       Note: Concrete PBUI React app target metadata
     - Path: examples/street-deli-ordering/meta-design-systems/pbui/view-models.yaml
       Note: Concrete menu/detail/substitution/cart/help/tracker view model profile
+    - Path: pkg/dmeta/cmds/validate_pbui_profile.go
+      Note: CLI command for validating concrete PBUI profiles
+    - Path: pkg/dmeta/metadesign/pbui/profile/load.go
+      Note: Concrete PBUI profile loader
+    - Path: pkg/dmeta/metadesign/pbui/profile/load_validate_test.go
+      Note: Street Deli concrete profile validation tests
+    - Path: pkg/dmeta/metadesign/pbui/profile/model.go
+      Note: Concrete PBUI profile data model
+    - Path: pkg/dmeta/metadesign/pbui/profile/validate.go
+      Note: Concrete PBUI profile validator
     - Path: ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/design-doc/01-concrete-pbui-presentation-profile-pass-guide.md
       Note: Primary guide produced in Step 1
     - Path: ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/tasks.md
@@ -36,6 +48,7 @@ LastUpdated: 2026-05-24T17:58:00-04:00
 WhatFor: Record ticket setup, evidence gathering, design decisions, implementation steps, failures, validation, and handoff notes for the PBUI concrete presentation profile pass.
 WhenToUse: Read before resuming work on DMETA-PBUI-PRESENTATION-PROFILE or implementing profile schemas, validators, instantiation, or the Street Deli clim-react app.
 ---
+
 
 
 
@@ -215,7 +228,7 @@ The catalogs intentionally include substantial prose fields. This profile is not
 
 **Inferred user intent:** Move from design documentation to actual implementation of the concrete PBUI presentation-profile pass while preserving a clear audit trail.
 
-**Commit (code):** pending at time of diary entry
+**Commit (code):** c582d94a80018adc32cadb88a82674fa8a0adab4 — "DMETA-PBUI-PRESENTATION-PROFILE: author Street Deli profile"
 
 ### What I did
 - Created the local Street Deli PBUI profile directory:
@@ -282,3 +295,92 @@ The catalogs intentionally include substantial prose fields. This profile is not
 ### Technical details
 - YAML validation command used:
   - `python3 - <<'PY'` with `yaml.safe_load` over `examples/street-deli-ordering/meta-design-systems/pbui/**/*.yaml`.
+
+## Step 4: Load and validate concrete PBUI profiles from Go
+
+This step made the Street Deli concrete PBUI profile compiler-visible. I added a new Go package under `pkg/dmeta/metadesign/pbui/profile` that loads the profile entrypoint and all referenced catalogs, validates them against the abstract PBUI MetaDesignSystem, and exposes a new CLI command: `dmeta validate-pbui-profile`.
+
+This is intentionally a validation-only phase. It does not yet instantiate PBUI obligations into a concrete presentation plan. The important milestone is that the authored YAML from Phase 1 is no longer just documentation data; it now participates in the compiler toolchain and can fail fast when a view or binding references an unknown PBUI presentation type.
+
+### Prompt Context
+
+**User prompt (verbatim):** (same as Step 3)
+
+**Assistant interpretation:** Continue through the ticket phases by implementing Phase 2 after authoring the YAML profile package.
+
+**Inferred user intent:** Turn the concrete profile into a validated compiler input before attempting instantiation or React app generation.
+
+**Commit (code):** 3d8dd2d636b4317cbe927d9f78f3da4790d0b968 — "DMETA-PBUI-PRESENTATION-PROFILE: validate concrete PBUI profiles"
+
+### What I did
+- Added Go model structs for concrete PBUI profile packages:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/model.go`
+- Added loader support for `presentation-system.yaml` and referenced files:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/load.go`
+- Added profile validation:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/validate.go`
+- Added unit/fixture tests:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/load_validate_test.go`
+- Added CLI command:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/validate_pbui_profile.go`
+- Registered the CLI command in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+- Updated Phase 2 tasks and validation gates.
+
+### Why
+- The concrete profile must be validated before later passes can instantiate it against PBUI obligations.
+- Validation should catch unknown presentation type ids in view models and renderer bindings while the data is still easy to fix.
+- The CLI command gives future contributors a simple checkpoint before they work on `instantiate-pbui` or `plan-pbui-react-app`.
+
+### What worked
+- `go test ./pkg/dmeta/metadesign/pbui/... ./cmd/dmeta -count=1` passed.
+- `go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table` emitted a `validation_ok` info row.
+- The negative unit test verifies that an unknown binding id produces an `unknown_presentation_type` error under `pbui_presentation_bindings`.
+
+### What didn't work
+- N/A. The first implementation compiled and validated after `gofmt`.
+
+### What I learned
+- The profile validator should validate against the abstract PBUI package, not directly against Interaction IR. Interaction IR validation remains upstream through `validate-pbui`; the profile only needs to know which PBUI presentation types are legal concrete inputs.
+- The YAML profile split made the loader straightforward: `presentation-system.yaml` is the entrypoint and `files.*` points at the rest.
+
+### What was tricky to build
+- The subtle boundary was avoiding duplicate validation responsibilities. `validate-pbui-profile` loads and checks Interaction IR and PBUI first, but the concrete profile validator itself only validates profile-specific structure and PBUI presentation type references.
+- Another small care point was preserving a flexible YAML shape for tokens/display/placement fields. These are intentionally partially open maps because the profile is still experimental and later phases may refine exact schemas.
+
+### What warrants a second pair of eyes
+- Review whether `model.go` should keep `map[string]any` escape hatches for token/display fields or enforce a stricter schema immediately.
+- Review whether warnings for missing prose should become errors once the schema stabilizes.
+- Review whether `validate-pbui-profile` should emit upstream PBUI warnings too, or keep them behind separate `validate-pbui` runs.
+
+### What should be done in the future
+- Implement Phase 3: instantiate the concrete profile against lowered PBUI obligations to produce a `ConcretePresentationPlan`.
+- Add golden output for profile validation if the table output becomes a stable review artifact.
+
+### Code review instructions
+- Start with the package API:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/model.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/load.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/validate.go`
+- Then review the CLI command and registration:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/validate_pbui_profile.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+- Validate with:
+  - `go test ./pkg/dmeta/metadesign/pbui/... ./cmd/dmeta -count=1`
+  - `go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
+
+### Technical details
+- The loader expects these artifact types:
+  - `dmeta_pbui_presentation_system`
+  - `dmeta_pbui_style_profile`
+  - `dmeta_pbui_surfaces`
+  - `dmeta_pbui_view_models`
+  - `dmeta_pbui_presentation_bindings`
+  - `dmeta_pbui_react_app_target`
+- The validator checks:
+  - profile id, prose, inherited MetaDesignSystem, and file references;
+  - required token groups and style classes;
+  - required shell/view/command-line surfaces;
+  - view mode labels and PBUI presentation type references;
+  - binding component names, classes, and PBUI presentation type references;
+  - React app target output directory, provenance, and normal/select/confirm runtime states.

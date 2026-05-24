@@ -33,18 +33,18 @@ Validation gate:
 
 Goal: make the concrete profile compiler-visible before generating any app code.
 
-- [ ] Add Go model for presentation-system profiles.
-- [ ] Add loader for `presentation-system.yaml` and referenced files.
-- [ ] Add validator for artifact types, required prose fields, view ids, surface ids, binding ids, and style classes.
-- [ ] Validate presentation bindings reference known PBUI presentation types.
-- [ ] Validate view models reference known PBUI presentation types.
-- [ ] Add `dmeta validate-pbui-profile`.
-- [ ] Add unit tests and a Street Deli profile fixture test.
+- [x] Add Go model for presentation-system profiles.
+- [x] Add loader for `presentation-system.yaml` and referenced files.
+- [x] Add validator for artifact types, required prose fields, view ids, surface ids, binding ids, and style classes.
+- [x] Validate presentation bindings reference known PBUI presentation types.
+- [x] Validate view models reference known PBUI presentation types.
+- [x] Add `dmeta validate-pbui-profile`.
+- [x] Add unit tests and a Street Deli profile fixture test.
 
 Validation gate:
 
-- [ ] `go test ./pkg/dmeta/metadesign/pbui/... -count=1`
-- [ ] `go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
+- [x] `go test ./pkg/dmeta/metadesign/pbui/... -count=1`
+- [x] `go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
 
 ## Phase 3: Instantiate profile against PBUI obligations
 
