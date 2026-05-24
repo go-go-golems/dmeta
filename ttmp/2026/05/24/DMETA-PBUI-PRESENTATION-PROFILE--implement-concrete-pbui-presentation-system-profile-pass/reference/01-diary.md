@@ -31,10 +31,18 @@ RelatedFiles:
       Note: Concrete PBUI React app target metadata
     - Path: examples/street-deli-ordering/meta-design-systems/pbui/view-models.yaml
       Note: Concrete menu/detail/substitution/cart/help/tracker view model profile
+    - Path: examples/street-deli-ordering/www/clim-react/src/App.tsx
+      Note: Scaffolded concrete Street Deli CLIM React app entry point
+    - Path: examples/street-deli-ordering/www/clim-react/src/components/storybook/ClimStoryShell.tsx
+      Note: Shared Storybook shell for CLIM stories
+    - Path: examples/street-deli-ordering/www/clim-react/src/fixtures/presentationFixtures.ts
+      Note: Deterministic Storybook fixtures for generated stories
     - Path: pkg/dmeta/cmds/instantiate_pbui.go
       Note: CLI command for producing concrete PBUI presentation plans
     - Path: pkg/dmeta/cmds/plan_pbui_react_app.go
       Note: CLI command for planning the concrete React CLIM app target
+    - Path: pkg/dmeta/cmds/scaffold_pbui_react_app.go
+      Note: Storybook-aware concrete React CLIM app scaffold command
     - Path: pkg/dmeta/cmds/validate_pbui_profile.go
       Note: CLI command for validating concrete PBUI profiles
     - Path: pkg/dmeta/metadesign/pbui/profile/instantiate.go
@@ -51,6 +59,10 @@ RelatedFiles:
       Note: Concrete PBUI React app planner
     - Path: pkg/dmeta/metadesign/pbui/profile/react_app_plan_test.go
       Note: Street Deli React app plan tests
+    - Path: pkg/dmeta/metadesign/pbui/profile/react_app_render.go
+      Note: Renderer for generated React app and Storybook files
+    - Path: pkg/dmeta/metadesign/pbui/profile/react_app_write.go
+      Note: Writer/copy support for React app scaffold files and fonts
     - Path: pkg/dmeta/metadesign/pbui/profile/validate.go
       Note: Concrete PBUI profile validator
     - Path: ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/design-doc/01-concrete-pbui-presentation-profile-pass-guide.md
@@ -63,6 +75,7 @@ LastUpdated: 2026-05-24T17:58:00-04:00
 WhatFor: Record ticket setup, evidence gathering, design decisions, implementation steps, failures, validation, and handoff notes for the PBUI concrete presentation profile pass.
 WhenToUse: Read before resuming work on DMETA-PBUI-PRESENTATION-PROFILE or implementing profile schemas, validators, instantiation, or the Street Deli clim-react app.
 ---
+
 
 
 
@@ -604,3 +617,119 @@ The result is still a plan, not scaffolding. That is the right boundary for this
   - symbol;
   - optional view/component/presentation/surface context;
   - provenance with MetaDesignSystem, presentation system, target, style profile, source passes, and source category.
+
+## Step 7: Scaffold the real React CLIM app with Storybook stories
+
+This step answered the Storybook question by making Storybook a first-class concrete React app target artifact. I extended the implementation guide, added a Storybook-first task phase, expanded the React app target file kinds, implemented `dmeta scaffold-pbui-react-app`, and scaffolded the actual app under `examples/street-deli-ordering/www/clim-react/`.
+
+The scaffold is intentionally a buildable first pass rather than the final polished CLIM runtime. It includes the real package shape, Berkeley Mono fonts, CLIM CSS, runtime placeholder modules, generated profile metadata, deterministic fixtures, shell/command/presentation/view components, and Storybook stories for each component family. This gives us a concrete review surface before deeper runtime behavior is ported from the prototype and Readwise reference.
+
+### Prompt Context
+
+**User prompt (verbatim):** "alright, add an implementation guide section for this, add phase + tasks, then build that, and then scaffold the real app."
+
+**Assistant interpretation:** Document the Storybook-first scaffolding approach, add task coverage, implement Storybook-aware scaffold tooling, and generate the actual `www/clim-react` app.
+
+**Inferred user intent:** Move from planning to a real buildable app while ensuring component and view stories are generated as part of the target, not bolted on manually later.
+
+**Commit (code):** 454db4f1023b06477f57c5d8b99ddde05bf396f5 — "DMETA-PBUI-PRESENTATION-PROFILE: scaffold React CLIM app with Storybook"
+
+### What I did
+- Added a new guide addendum: `Storybook-first concrete React app scaffolding`.
+- Added Phase 4.5 Storybook-first planning tasks and marked the completed scaffold validation items.
+- Extended `examples/street-deli-ordering/meta-design-systems/pbui/targets/react-app.yaml` with Storybook file kinds:
+  - `storybook_main`
+  - `storybook_preview`
+  - `storybook_preview_css`
+  - `storybook_story_shell`
+  - `storybook_fixtures`
+  - `shell_story`
+  - `command_line_story`
+  - `command_bar_story`
+  - `context_menu_story`
+  - `confirm_prompt_story`
+  - `presentation_story`
+  - `action_presentation_story`
+  - `view_story`
+- Extended React app planning in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/react_app_plan.go`
+- Added React app rendering/writing support:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/react_app_render.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/react_app_write.go`
+- Added the scaffold command:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_pbui_react_app.go`
+- Registered the command in:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/cmd/dmeta/main.go`
+- Scaffolded the real app at:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/www/clim-react/`
+- Added `.gitignore` entries for `storybook-static/` and `*.tsbuildinfo`.
+
+### Why
+- Storybook is the right review surface for a presentation system compiler target.
+- Generated stories make visual states explicit: normal, selected, selectable/select-mode, shell modes, command surfaces, presentation renderers, and view compositions.
+- The concrete app should be separate from the generic PBUI proof package under `generated/pbui-react/`.
+
+### What worked
+- `go test ./pkg/dmeta/... ./cmd/dmeta -count=1` passed.
+- `go run ./cmd/dmeta validate-pbui-profile ... --include-info --output table` passed.
+- `go run ./cmd/dmeta plan-pbui-react-app ... --output-dir ./examples/street-deli-ordering/www/clim-react --output table` emitted Storybook/app file plans.
+- `go run ./cmd/dmeta scaffold-pbui-react-app ... --output-dir examples/street-deli-ordering/www/clim-react --output table` wrote the scaffold.
+- `cd examples/street-deli-ordering/www/clim-react && npm install --no-audit --no-fund && npm run build` passed.
+- `cd examples/street-deli-ordering/www/clim-react && npm run build-storybook` passed.
+- Existing promoted mobile React app still builds with `npm run build`.
+
+### What didn't work
+- First dry-run with `--output-dir ./examples/...` resolved the explicit output path relative to the profile root, producing a duplicated path under `meta-design-systems/pbui/examples/...`.
+- Fix:
+  - default output paths from `targets/react-app.yaml` are still resolved relative to the profile root;
+  - explicit `--output-dir` values are now treated as command-working-directory relative paths.
+- The first app planner emitted `ActionPresentationInline.tsx` twice, once as a generic presentation component and once as an action-presentation component.
+- Fix:
+  - `presentation_component` skips `pbui.action_presentation`; `action_presentation_component` owns that file.
+
+### What I learned
+- Storybook file kinds belong in `targets/react-app.yaml`; they are concrete React target review artifacts, not abstract PBUI concepts.
+- The scaffold command should generate deterministic fixtures immediately. Without fixtures, generated Storybook stories would depend on runtime state that does not exist yet.
+- Buildable placeholders are valuable at this stage because they prove the app package, TS config, Storybook config, and file graph before we invest in richer runtime behavior.
+
+### What was tricky to build
+- The hardest part was keeping output path semantics clear. The profile default path is relative to the profile root (`../../www/clim-react`), while a CLI override should behave like a normal shell path from the current working directory.
+- Story imports also needed care. View stories live in `src/views`, while component stories live under `src/components/*`; their relative import path to `ClimStoryShell` differs.
+- Shell components have different props than presentation components, so generated stories cannot blindly attach `selected` or `selectable` args to every component.
+
+### What warrants a second pair of eyes
+- Review whether the scaffolded placeholder components are sufficient for Phase 5 or whether we should immediately port more of `prototype-clim/js/app-main.js` behavior.
+- Review the duplicated conceptual component name `ActionHintBar`, which appears both as a command-surface component and as the `pbui.action_chooser` presentation binding.
+- Review whether generated files under `www/clim-react` should remain committed long term or whether only scaffold tooling should be committed once the target is stable.
+
+### What should be done in the future
+- Port richer runtime behavior from Readwise and `prototype-clim` into `www/clim-react`.
+- Add visual parity review screenshots for menu/detail/substitution/cart/help/tracker.
+- Replace generic placeholder renderers with profile-specific renderer logic as the concrete app matures.
+
+### Code review instructions
+- Start with the app target configuration:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/pbui/targets/react-app.yaml`
+- Review planner/render/write implementation:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/react_app_plan.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/react_app_render.go`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/react_app_write.go`
+- Review CLI:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_pbui_react_app.go`
+- Review scaffolded app entry points:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/www/clim-react/src/App.tsx`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/www/clim-react/src/components/storybook/ClimStoryShell.tsx`
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/www/clim-react/src/fixtures/presentationFixtures.ts`
+- Validate with:
+  - `go test ./pkg/dmeta/... ./cmd/dmeta -count=1`
+  - `cd examples/street-deli-ordering/www/clim-react && npm ci --no-audit --no-fund && npm run build && npm run build-storybook`
+  - `cd examples/street-deli-ordering/www/mobile-react && npm run build`
+
+### Technical details
+- New command:
+  - `dmeta scaffold-pbui-react-app`
+- Important options:
+  - `--dry-run` reports planned writes/copies;
+  - `--force` overwrites existing files;
+  - `--output-dir` overrides profile target output.
+- The generated app currently uses deterministic fixtures and placeholder runtime modules. This is a scaffolded app foundation, not the final fully interactive CLIM runtime.
