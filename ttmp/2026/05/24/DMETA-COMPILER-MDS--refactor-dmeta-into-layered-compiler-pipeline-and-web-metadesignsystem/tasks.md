@@ -49,21 +49,22 @@ Validation gate:
 Goal: define the new high-level IR layout before writing loaders. This is a top-down schema pass.
 
 - [ ] Create `sources/dmeta-ir/semantic/` or decide to keep `core-model/` as the semantic source root.
-- [ ] Create `sources/dmeta-ir/interactions/00-index.yaml`.
-- [ ] Create `sources/dmeta-ir/interactions/actions.yaml`.
-- [ ] Create `sources/dmeta-ir/interactions/representations.yaml`.
-- [ ] Create `sources/dmeta-ir/interactions/elaboration-rules.yaml`.
-- [ ] Remove `presentations` as a universal semantic-layer requirement from future-facing docs.
+- [x] Create `sources/dmeta-ir/interactions/00-index.yaml`.
+- [x] Create `sources/dmeta-ir/interactions/actions.yaml`.
+- [x] Create `sources/dmeta-ir/interactions/representations.yaml`.
+- [x] Create `sources/dmeta-ir/interactions/elaboration-rules.yaml`.
+- [x] Add `interactions` to the global package index.
+- [x] Remove `presentations` as a universal semantic-layer requirement from future-facing docs.
 - [ ] Decide whether current `core-model/presentations.yaml` is deleted, moved under `meta-design-systems/web/`, or split into interaction representations plus web presentations.
-- [ ] Seed root abstract definitions `Action` and `Representation`.
-- [ ] Seed initial shared representations: `compact_reference`, `state_indicator`, `inspection_entrypoint`, `composition_summary`, `composition_breakdown`, `ingredient_composition_row`, `role_label`, `dietary_summary`, `configuration_summary`, `substitution_candidate`, `substitution_price_delta`, `order_lifecycle_progress`, `cart_summary`.
-- [ ] Seed initial shared actions: `inspect_subject`, `copy_reference`, `select_subject`, `select_menu_item`, `filter_by_state`, `filter_by_dietary`, `remove_part`, `undo_remove_part`, `add_part`, `change_config`, `apply_substitution`, `reject_substitution`, `see_alternatives`, `add_to_order`, `remove_cart_item`, `submit_order`, `return_to_menu`.
+- [x] Seed root abstract definitions `Action` and `Representation`.
+- [x] Seed initial shared representations: `compact_reference`, `state_indicator`, `inspection_entrypoint`, `composition_summary`, `composition_breakdown`, `ingredient_composition_row`, `role_label`, `dietary_summary`, `configuration_summary`, `substitution_candidate`, `substitution_price_delta`, `order_lifecycle_progress`, `cart_summary`.
+- [x] Seed initial shared actions: `inspect_subject`, `copy_reference`, `select_subject`, `select_menu_item`, `filter_by_state`, `filter_by_dietary`, `remove_part`, `undo_remove_part`, `add_part`, `change_config`, `apply_substitution`, `reject_substitution`, `see_alternatives`, `add_to_order`, `remove_cart_item`, `submit_order`, `return_to_menu`.
 - [ ] Write a short README for the new compiler-source layout.
 
 Validation gate:
 
-- [ ] New YAML files parse with `yq` or a minimal Go loader test.
-- [ ] No new schema mentions widgets outside the Web MetaDesignSystem.
+- [x] New YAML files parse with `yq` or a minimal Go loader test.
+- [x] No new schema mentions widgets outside the Web MetaDesignSystem.
 
 ## Phase 3: Replace generic widget models with Web MetaDesignSystem models
 

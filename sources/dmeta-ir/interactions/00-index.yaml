@@ -1,0 +1,12 @@
+schema_version: 0
+artifact_type: dmeta_interaction_package
+summary: Modality-neutral Interaction IR package for DMETA actions, representations, and elaboration rules.
+status: draft
+files:
+  actions: ./actions.yaml
+  representations: ./representations.yaml
+  elaboration_rules: ./elaboration-rules.yaml
+validation:
+  require_abstract_roots: true
+  reject_abstract_emissions: true
+  require_known_selectors: true

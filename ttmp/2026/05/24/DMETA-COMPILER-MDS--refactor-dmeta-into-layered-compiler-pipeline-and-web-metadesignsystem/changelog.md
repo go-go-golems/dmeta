@@ -45,3 +45,14 @@ Phase 1 partial hard cutover: moved global and Street Deli widget templates unde
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/validate.go — Validates web_meta_design_system index artifact type
 - /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml — New global Web MetaDesignSystem package entrypoint
 
+
+## 2026-05-24
+
+Phase 2 seed: added top-level Interaction IR package with initial modality-neutral actions, representations, and semantic-to-interaction elaboration rules; added interactions to global IR index and validated YAML parsing.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/interactions/actions.yaml — Initial modality-neutral action catalog
+- /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/interactions/elaboration-rules.yaml — Initial rules mapping semantic facts to interaction obligations
+- /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/interactions/representations.yaml — Initial modality-neutral representation catalog
+

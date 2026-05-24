@@ -1,0 +1,283 @@
+schema_version: 0
+artifact_type: dmeta_interaction_actions
+summary: Shared modality-neutral DMETA action catalog.
+long_summary: Actions describe operations over semantic subjects before any target design system chooses callbacks, commands, gestures, routes, or voice intents.
+actions:
+  Action:
+    abstract: true
+    extends: []
+    intent: Root interaction action. It is never emitted directly.
+    description: Root interaction action class.
+    subjects: []
+    inputs: {}
+    effects:
+      scope: none
+      mutates_backend: false
+    result:
+      kind: none
+  inspect_subject:
+    extends: [Action]
+    intent: Expose additional detail about a semantic subject without mutating it.
+    description: Open or otherwise present detail for a selected semantic subject.
+    subjects:
+      - any_capabilities: [inspectable]
+    inputs:
+      subject_ref:
+        type: SemanticRef
+        required: true
+        description: Subject to inspect.
+    effects:
+      scope: navigation_or_local_view
+      mutates_backend: false
+    result:
+      kind: inspection_surface
+  copy_reference:
+    extends: [Action]
+    intent: Copy or expose a stable reference for an identifiable subject.
+    description: Copy a stable id or reference label.
+    subjects:
+      - all_capabilities: [identifiable]
+    inputs:
+      subject_ref:
+        type: SemanticRef
+        required: true
+    effects:
+      scope: client_clipboard
+      mutates_backend: false
+    result:
+      kind: copied_reference
+  select_subject:
+    extends: [Action]
+    intent: Select a semantic subject as the active item in the current interaction context.
+    description: Generic non-mutating selection action.
+    subjects:
+      - any_capabilities: [identifiable]
+    inputs:
+      subject_ref:
+        type: SemanticRef
+        required: true
+    effects:
+      scope: local_selection
+      mutates_backend: false
+    result:
+      kind: selected_subject
+  select_menu_item:
+    extends: [select_subject]
+    intent: Begin ordering or customization for a selected menu item.
+    description: Street Deli/domain-local action for entering a menu item flow.
+    subjects:
+      - all_capabilities: [composable, labelable]
+    inputs:
+      item_ref:
+        type: SemanticRef
+        required: true
+    effects:
+      scope: local_navigation
+      mutates_backend: false
+    result:
+      kind: customization_started
+  filter_by_state:
+    extends: [Action]
+    intent: Constrain a result set or view by a state value.
+    description: Apply a state filter from a stateful subject or state representation.
+    subjects:
+      - all_capabilities: [stateful]
+    inputs:
+      state:
+        type: string
+        required: true
+    effects:
+      scope: query_or_local_filter
+      mutates_backend: false
+    result:
+      kind: filter_applied
+  filter_by_dietary:
+    extends: [Action]
+    intent: Constrain choices by dietary tags or allergen constraints.
+    description: Apply a dietary filter in a menu, substitution, or composition context.
+    subjects:
+      - all_capabilities: [dietary]
+    inputs:
+      dietary_tag:
+        type: string
+        required: true
+    effects:
+      scope: query_or_local_filter
+      mutates_backend: false
+    result:
+      kind: filter_applied
+  mutate_composition:
+    abstract: true
+    extends: [Action]
+    intent: Base action for changing a mutable composition draft.
+    description: Abstract parent for composition-editing actions.
+    subjects:
+      - any_capabilities: [composable]
+    inputs: {}
+    effects:
+      scope: local_draft
+      mutates_backend: false
+    result:
+      kind: updated_composition
+  remove_part:
+    extends: [mutate_composition]
+    intent: Mark a composition part as removed while preserving its original role contribution.
+    description: Remove an ingredient or part from a composition draft.
+    inputs:
+      composition_ref:
+        type: SemanticRef
+        required: true
+      part_ref:
+        type: SemanticRef
+        required: true
+    safety:
+      reversible: true
+      requires_confirmation: false
+  undo_remove_part:
+    extends: [mutate_composition]
+    intent: Restore a removed composition part.
+    description: Undo a local part-removal decision.
+    inputs:
+      composition_ref:
+        type: SemanticRef
+        required: true
+      part_ref:
+        type: SemanticRef
+        required: true
+    safety:
+      reversible: true
+      requires_confirmation: false
+  add_part:
+    extends: [mutate_composition]
+    intent: Add a part to a mutable composition draft.
+    description: Add an ingredient or part to a composition.
+    inputs:
+      composition_ref:
+        type: SemanticRef
+        required: true
+      part_ref:
+        type: SemanticRef
+        required: true
+  change_config:
+    extends: [Action]
+    intent: Change a scalar or categorical configuration option on a configurable subject.
+    description: Update configuration such as size, toast level, temperature, or spice level.
+    subjects:
+      - all_capabilities: [configurable]
+    inputs:
+      key:
+        type: string
+        required: true
+      value:
+        type: string
+        required: true
+    effects:
+      scope: local_draft
+      mutates_backend: false
+    result:
+      kind: updated_config
+  apply_substitution:
+    extends: [mutate_composition]
+    intent: Replace a removed or selected composition part with a compatible replacement candidate.
+    description: Apply a substitution candidate to a composition draft.
+    subjects:
+      - any_capabilities: [substitutable]
+    inputs:
+      composition_ref:
+        type: SemanticRef
+        required: true
+      original_part_ref:
+        type: SemanticRef
+        required: true
+      replacement_candidate_ref:
+        type: SemanticRef
+        required: true
+    safety:
+      reversible: true
+      requires_confirmation: false
+  reject_substitution:
+    extends: [Action]
+    intent: Dismiss a suggested substitution candidate without applying it.
+    description: Reject one replacement candidate.
+    subjects:
+      - any_capabilities: [substitutable]
+    inputs:
+      candidate_ref:
+        type: SemanticRef
+        required: true
+    effects:
+      scope: local_draft
+      mutates_backend: false
+    result:
+      kind: candidate_rejected
+  see_alternatives:
+    extends: [Action]
+    intent: Reveal additional candidates or choices beyond the primary suggestion.
+    description: Show more alternatives for a substitution, configuration, or selection point.
+    subjects:
+      - any_capabilities: [substitutable]
+    inputs:
+      subject_ref:
+        type: SemanticRef
+        required: true
+    effects:
+      scope: local_view
+      mutates_backend: false
+    result:
+      kind: alternatives_surface
+  add_to_order:
+    extends: [Action]
+    intent: Convert a configured composition draft into an order/cart item.
+    description: Add the current configured item to an order/cart.
+    subjects:
+      - any_capabilities: [composable]
+    inputs:
+      draft_ref:
+        type: SemanticRef
+        required: true
+    effects:
+      scope: local_cart
+      mutates_backend: false
+    result:
+      kind: cart_item_added
+  remove_cart_item:
+    extends: [Action]
+    intent: Remove an item from a local cart or order draft.
+    description: Remove a cart item.
+    inputs:
+      cart_item_ref:
+        type: SemanticRef
+        required: true
+    effects:
+      scope: local_cart
+      mutates_backend: false
+    result:
+      kind: cart_item_removed
+  submit_order:
+    extends: [Action]
+    intent: Commit the configured cart as an order and enter lifecycle tracking.
+    description: Submit an order to the backend or order lifecycle.
+    subjects:
+      - any_archetypes: [Order]
+    inputs:
+      cart_ref:
+        type: SemanticRef
+        required: true
+    effects:
+      scope: backend_mutation
+      mutates_backend: true
+    result:
+      kind: order_created
+    safety:
+      reversible: false
+      requires_confirmation: true
+  return_to_menu:
+    extends: [Action]
+    intent: Return from cart, tracker, or detail flow to the menu browsing surface.
+    description: Navigate back to the menu.
+    inputs: {}
+    effects:
+      scope: local_navigation
+      mutates_backend: false
+    result:
+      kind: navigation_changed
