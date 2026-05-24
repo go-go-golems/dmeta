@@ -251,7 +251,7 @@ Define component classes and deterministic generation outputs.
    - `PresentationToken`;
    - `StatusBadge`;
    - `CompactReference`.
-2. Define widget contracts against presentations and capabilities, not raw domain objects only.
+2. Define widget contracts against presentations and capabilities, not raw domain objects only. Treat archetype/capability references as reflection-first scaffold context by default: generated metadata, doc comments, Storybook notes, and adapter TODOs should help the implementor reason about inherited semantics without forcing one rigid prop shape or layout.
 3. Define generated outputs:
    - component scaffold;
    - `.types.ts`;

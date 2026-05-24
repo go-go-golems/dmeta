@@ -89,6 +89,40 @@ templates:
     metadata: src/street-deli/widgets/OrderTracker/OrderTracker.metadata.ts
     stories: src/street-deli/widgets/OrderTracker/OrderTracker.stories.tsx
     barrel: src/street-deli/widgets/OrderTracker/index.ts
+  semantic_context:
+    archetypes:
+    - Order
+    - WorkItem
+    - TimelineSpan
+    capabilities:
+    - stateful
+    - temporal
+    - relatable
+    presentations:
+    - prep_status_indicator
+    - timeline_marker
+    - dense_row
+    intent: Render order preparation progress using work-item state and timeline semantics. Inheritance helps explain why
+      Order and PrepTask can share tracking presentations while still using different layouts.
+    inherited_context_note: Order extends WorkItem and TimelineSpan; PrepTask extends WorkItem and can appear as a station-level
+      child in tracking views.
+  projection_hints:
+    recommended:
+    - stateful.state
+    - temporal.start_time
+    - temporal.end_time
+    optional:
+    - temporal.duration_ms
+    - relatable.actor_ref
+    - relatable.work_item_ref
+    adapter_todos:
+    - Decide whether tracker steps are derived from order state, prep tasks, or both.
+  generation:
+    scaffold_mode: adapter_todos
+    emit_semantic_metadata: true
+    emit_doc_comments: true
+    emit_adapter_todos: true
+    strict_projection_adapter: false
 - id: deli.prep_status_badge
   name: PrepStatusBadge
   status: template

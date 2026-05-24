@@ -62,4 +62,4 @@ GOWORK=off go run ./cmd/dmeta scaffold-instance   --instance ./examples/street-d
 
 ## Instance widget review rule
 
-Generated instance widgets are scaffolds. Review the `.metadata.ts` sidecar first to confirm the template id, instance id, selected variant, selection reason, and adaptations. Do not overwrite promoted widgets casually; regenerate only scaffold-stage files or create an explicit migration patch for promoted implementations.
+Generated instance widgets are scaffolds. Review the `.metadata.ts` sidecar first to confirm the template id, instance id, selected variant, selection reason, adaptations, and any reflection-first semantic context/projection hints. Archetype/capability inheritance should guide metadata, doc comments, Storybook notes, and adapter TODOs; it should not force one rigid prop surface or layout unless a template explicitly opts into strict projection adapter generation. Do not overwrite promoted widgets casually; regenerate only scaffold-stage files or create an explicit migration patch for promoted implementations.

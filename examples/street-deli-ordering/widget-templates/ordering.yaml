@@ -89,6 +89,41 @@ templates:
     metadata: src/street-deli/widgets/OrderCart/OrderCart.metadata.ts
     stories: src/street-deli/widgets/OrderCart/OrderCart.stories.tsx
     barrel: src/street-deli/widgets/OrderCart/index.ts
+  semantic_context:
+    archetypes:
+    - OrderItem
+    - WorkItem
+    - ProductComposition
+    capabilities:
+    - ingredient_composable
+    - configurable
+    - measurable
+    - stateful
+    presentations:
+    - order_item_row
+    - compact_ref
+    intent: Render the order review surface after menu items become customized order items. The inherited work-item and product-composition
+      context should guide metadata and adapter TODOs, not force cart layout.
+    inherited_context_note: OrderItem extends WorkItem and ProductComposition, so it combines lifecycle/work semantics with
+      final ingredient composition state.
+  projection_hints:
+    recommended:
+    - labelable.label
+    - measurable.value
+    - ingredient_composable.parts
+    - configurable.current_config
+    optional:
+    - stateful.state
+    - relatable.work_item_ref
+    adapter_todos:
+    - Map applied substitutions as cart-line annotations, not as raw ingredient rows only.
+    - Decide whether stateful prep status appears in cart or only in tracker.
+  generation:
+    scaffold_mode: adapter_todos
+    emit_semantic_metadata: true
+    emit_doc_comments: true
+    emit_adapter_todos: true
+    strict_projection_adapter: false
 - id: deli.cart_line_item
   name: CartLineItem
   status: template

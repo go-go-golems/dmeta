@@ -90,6 +90,41 @@ templates:
     metadata: src/street-deli/widgets/CompositionCard/CompositionCard.metadata.ts
     stories: src/street-deli/widgets/CompositionCard/CompositionCard.stories.tsx
     barrel: src/street-deli/widgets/CompositionCard/index.ts
+  semantic_context:
+    archetypes:
+    - ProductComposition
+    capabilities:
+    - ingredient_composable
+    - dietary
+    - measurable
+    - available
+    presentations:
+    - composition_card
+    intent: Render a mobile menu card for a sellable ingredient composition. The semantic model explains why MenuItem fits
+      here without requiring every variant to render the full ingredient role graph.
+    inherited_context_note: MenuItem extends ProductSpec and ProductComposition, so it satisfies both product browsing and
+      composition customization context.
+  projection_hints:
+    recommended:
+    - labelable.label
+    - measurable.value
+    - ingredient_composable.parts
+    - dietary.dietary_tags
+    optional:
+    - available.availability_state
+    - ingredient_composable.required_roles
+    - ingredient_composable.ingredient_roles
+    documentation_only:
+    - ingredient_composable.role_profile
+    adapter_todos:
+    - Decide whether the selected variant shows a short ingredient summary or full ingredient rows.
+    - Keep dietary/allergen information visible when safety-relevant.
+  generation:
+    scaffold_mode: adapter_todos
+    emit_semantic_metadata: true
+    emit_doc_comments: true
+    emit_adapter_todos: true
+    strict_projection_adapter: false
 - id: deli.simple_menu_item_card
   name: SimpleMenuItemCard
   status: template

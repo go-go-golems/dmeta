@@ -14,3 +14,15 @@ files:
   tracking: ./tracking.yaml
 validation:
   require_unique_template_ids: true
+authoring_guidance:
+  semantic_context_policy: Street Deli widgets use inherited archetypes/capabilities to explain why templates apply to MenuItem,
+    OrderItem, Ingredient, and SubstitutionSuggestion. Generated scaffolds should surface this context while leaving final
+    mobile layout decisions to the implementor.
+  projection_generation_policy: Use projection_hints for adapter TODOs and review notes. Keep strict projection adapters disabled
+    until a promoted React implementation chooses stable view-model shapes.
+  default_generation_policy:
+    scaffold_mode: reflective
+    emit_semantic_metadata: true
+    emit_doc_comments: true
+    emit_adapter_todos: false
+    strict_projection_adapter: false
