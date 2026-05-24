@@ -111,34 +111,34 @@ Validation gate:
 
 Goal: compile PBUI presentation obligations into a React target plan. Do not render a full app yet; first create an inspectable plan with file kinds and provenance.
 
-- [ ] Extend or add React planning code for PBUI obligations.
-- [ ] Plan generated registries:
+- [x] Extend or add React planning code for PBUI obligations.
+- [x] Plan generated registries:
   - object type registry;
   - action descriptor registry;
   - presentation type registry.
-- [ ] Plan session state artifacts:
+- [x] Plan session state artifacts:
   - PBUI session slice;
   - interaction state model;
   - command buffer/history model.
-- [ ] Plan presenter artifacts:
+- [x] Plan presenter artifacts:
   - selectors;
   - projection functions;
   - `useSelector`-style hooks.
-- [ ] Plan recognizer artifacts:
+- [x] Plan recognizer artifacts:
   - event adapters;
   - action request builders;
   - command parser stubs.
-- [ ] Plan presentation widgets:
+- [x] Plan presentation widgets:
   - object presentation component;
   - action presentation component;
   - inspector component;
   - action chooser component.
-- [ ] Plan metadata sidecars with PBUI provenance.
-- [ ] Add CLI surface for PBUI React planning or extend `plan-scaffold` with a clear target name.
+- [x] Plan metadata sidecars with PBUI provenance.
+- [x] Add CLI surface for PBUI React planning or extend `plan-scaffold` with a clear target name.
 
 Validation gate:
 
-- [ ] Planning command emits stable YAML/table output for PBUI React target files.
+- [x] Planning command emits stable YAML/table output for PBUI React target files.
 
 ## Phase 5: Render a minimal PBUI React target scaffold
 
