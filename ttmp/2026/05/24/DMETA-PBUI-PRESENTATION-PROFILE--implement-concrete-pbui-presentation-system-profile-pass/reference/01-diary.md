@@ -14,6 +14,18 @@ DocType: reference
 Intent: long-term
 Owners: []
 RelatedFiles:
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/presentation-bindings.yaml
+      Note: PBUI presentation type to concrete renderer binding profile
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/presentation-system.yaml
+      Note: Concrete PBUI profile package entrypoint
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/style-profile.yaml
+      Note: Street Deli CLIM visual style profile
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/surfaces.yaml
+      Note: Concrete CLIM shell and surface profile
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/targets/react-app.yaml
+      Note: Concrete PBUI React app target metadata
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/view-models.yaml
+      Note: Concrete menu/detail/substitution/cart/help/tracker view model profile
     - Path: ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/design-doc/01-concrete-pbui-presentation-profile-pass-guide.md
       Note: Primary guide produced in Step 1
     - Path: ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/tasks.md
@@ -24,6 +36,7 @@ LastUpdated: 2026-05-24T17:58:00-04:00
 WhatFor: Record ticket setup, evidence gathering, design decisions, implementation steps, failures, validation, and handoff notes for the PBUI concrete presentation profile pass.
 WhenToUse: Read before resuming work on DMETA-PBUI-PRESENTATION-PROFILE or implementing profile schemas, validators, instantiation, or the Street Deli clim-react app.
 ---
+
 
 
 # Diary
@@ -187,3 +200,85 @@ The upload bundle contains the primary guide, this diary, and the task plan. Tha
 ### Technical details
 - reMarkable destination:
   - `/ai/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE`
+
+## Step 3: Author the Street Deli concrete PBUI profile YAML package
+
+This step implemented Phase 1 of the new ticket by creating the local Street Deli concrete PBUI presentation-system profile package. The package lives under `examples/street-deli-ordering/meta-design-systems/pbui/` and turns the earlier design guide into actual machine-readable catalogs: a package entrypoint, style profile, shell/surface layout, view models, presentation bindings, and React app target metadata.
+
+The catalogs intentionally include substantial prose fields. This profile is not just a list of component names; it records why the Street Deli CLIM app should look like `prototype-clim`, how Readwise's browser CLIM runtime informs interaction semantics, and where each abstract PBUI presentation type should appear in a concrete graphical shell.
+
+### Prompt Context
+
+**User prompt (verbatim):** "now add phases and tasks to the ticket, and work on them step by step, committinga t appropriate intervals, and keeping a detailed diary."
+
+**Assistant interpretation:** Start executing the `DMETA-PBUI-PRESENTATION-PROFILE` plan phase by phase, with diary updates and commits at reviewable intervals.
+
+**Inferred user intent:** Move from design documentation to actual implementation of the concrete PBUI presentation-profile pass while preserving a clear audit trail.
+
+**Commit (code):** pending at time of diary entry
+
+### What I did
+- Created the local Street Deli PBUI profile directory:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/pbui/`
+- Added profile package entrypoint:
+  - `presentation-system.yaml`
+- Added visual style profile from `prototype-clim/styles.css`:
+  - `style-profile.yaml`
+- Added shell and surface profile from `prototype-clim/index.html`:
+  - `surfaces.yaml`
+- Added concrete view models from `prototype-clim/js/app-main.js`:
+  - `view-models.yaml`
+- Added abstract-PBUI-to-concrete-renderer bindings:
+  - `presentation-bindings.yaml`
+- Added React app target metadata:
+  - `targets/react-app.yaml`
+- Parsed all new YAML files with Python/PyYAML to catch syntax errors.
+- Updated the Phase 1 task checklist.
+
+### Why
+- The new compiler pass needs a concrete source package before Go model/load/validate code can be implemented.
+- The profile data should be explicit so the concrete graphical design is not hidden inside future React components.
+- Street Deli needs a local profile because `prototype-clim` is a specific monochrome command-oriented app, not a universal PBUI design.
+
+### What worked
+- All six YAML files parse successfully.
+- The profile now references both primary evidence sources:
+  - `../../prototype-clim`
+  - `/home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim`
+- The profile catalogs preserve human-readable intent, rationale, source references, component vocabulary, style class semantics, and runtime expectations.
+
+### What didn't work
+- N/A. This was the first authored YAML pass and did not hit technical blockers.
+
+### What I learned
+- The concrete profile naturally splits into style, surfaces, views, and bindings. Trying to combine them into one YAML file would make it harder to review and harder for future validators to report precise errors.
+- The `presentation-bindings.yaml` file is the central bridge: it is where abstract PBUI types become concrete renderer components such as `PresentationRefLine`, `ActionPresentationInline`, and `CompositionPresentationBlock`.
+
+### What was tricky to build
+- The main challenge was staying concrete without becoming React-only. For example, `ClimShell` and `PresentationRefLine` are component names, but the catalogs still describe shell regions, presentation placement, and style class semantics in target-neutral terms.
+- Another subtlety was capturing prototype CSS class names directly. This is intentional for visual parity, even though a later React implementation may wrap them in CSS modules or generated class maps.
+
+### What warrants a second pair of eyes
+- Review whether `style-profile.yaml` should preserve prototype class names exactly or introduce a cleaner canonical naming layer.
+- Review whether `presentation-bindings.yaml` has the right renderer vocabulary for the first `www/clim-react` app.
+- Review whether `targets/react-app.yaml` should live in the local profile package or under the global PBUI target catalog.
+
+### What should be done in the future
+- Implement Phase 2: Go model/load/validate support and `dmeta validate-pbui-profile`.
+- Add validation that view models and bindings reference known global PBUI presentation types.
+
+### Code review instructions
+- Start with:
+  - `/home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/pbui/presentation-system.yaml`
+- Then review the data split:
+  - `style-profile.yaml` for visual tokens/classes.
+  - `surfaces.yaml` for shell regions.
+  - `view-models.yaml` for app view organization.
+  - `presentation-bindings.yaml` for abstract-to-concrete renderer mapping.
+  - `targets/react-app.yaml` for future app target file kinds and runtime contract.
+- Validate YAML with:
+  - `python3 - <<'PY' ... yaml.safe_load(...) ... PY`
+
+### Technical details
+- YAML validation command used:
+  - `python3 - <<'PY'` with `yaml.safe_load` over `examples/street-deli-ordering/meta-design-systems/pbui/**/*.yaml`.

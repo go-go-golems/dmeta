@@ -22,6 +22,18 @@ RelatedFiles:
       Note: Readwise Redux CLIM state-machine reference
     - Path: ../../../../../../../../2026-05-21--readwise-viewer/pkg/web/clim/types.ts
       Note: Readwise PresentationRef
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/presentation-bindings.yaml
+      Note: Abstract PBUI to concrete renderer bindings
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/presentation-system.yaml
+      Note: Phase 1 concrete profile entrypoint implementing the guide's proposed package
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/style-profile.yaml
+      Note: Concrete graphical design profile extracted from prototype-clim
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/surfaces.yaml
+      Note: Concrete shell and surface definitions
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/targets/react-app.yaml
+      Note: React app target metadata for the profile pass
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/view-models.yaml
+      Note: Concrete CLIM app view definitions
     - Path: examples/street-deli-ordering/prototype-clim/index.html
       Note: Street Deli CLIM shell and view layout reference
     - Path: examples/street-deli-ordering/prototype-clim/js/app-main.js
@@ -42,6 +54,7 @@ LastUpdated: 2026-05-24T17:55:00-04:00
 WhatFor: Use this guide to implement the missing pass that turns abstract PBUI presentation obligations into a concrete CLIM-like graphical presentation system, using Street Deli prototype-clim as the visual reference and Readwise Viewer as the runtime architecture reference.
 WhenToUse: Read before implementing PBUI presentation-system profile schemas, validators, instantiation passes, or a real Street Deli clim-react app.
 ---
+
 
 
 # Concrete PBUI Presentation Profile Pass Guide
