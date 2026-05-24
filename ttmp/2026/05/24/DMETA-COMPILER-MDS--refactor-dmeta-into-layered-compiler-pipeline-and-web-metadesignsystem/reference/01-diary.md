@@ -596,7 +596,7 @@ The important boundary is that these definitions do not mention React components
 
 **Inferred user intent:** Establish the clean upper layer that Web and future CLIM MetaDesignSystems will share.
 
-**Commit (code):** pending at time of diary entry — Interaction IR seed changes.
+**Commit (code):** 032c3e7b8464509940e8ecb72faf2b0000fb301f — "DMETA-COMPILER-MDS: seed interaction IR catalogs"
 
 ### What I did
 
