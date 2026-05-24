@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/go-go-golems/dmeta/pkg/dmeta/validator"
 	"github.com/pkg/errors"
@@ -11,8 +12,12 @@ import (
 )
 
 type TemplateCatalog struct {
-	GlobalRoot string
-	Templates  map[string]validator.Widget
+	GlobalRoot      string
+	ReflectionRoot  string
+	Templates       map[string]validator.Widget
+	Package         *validator.Package
+	ResolvedCore    *validator.ResolvedCoreModel
+	ReflectionReady bool
 }
 
 func LoadInstance(path string) (InstanceManifest, string, error) {
@@ -49,7 +54,28 @@ func LoadTemplateCatalog(ctx context.Context, globalRoot string, instanceDir str
 		return TemplateCatalog{}, errors.Wrap(err, "load global DMETA IR")
 	}
 
-	catalog := TemplateCatalog{GlobalRoot: globalRoot, Templates: map[string]validator.Widget{}}
+	catalog := TemplateCatalog{GlobalRoot: globalRoot, ReflectionRoot: globalRoot, Templates: map[string]validator.Widget{}, Package: pkg}
+	reflectionRoot := instance.InstanceRoot
+	if reflectionRoot == "" {
+		reflectionRoot = instance.CoreModelRoot
+	}
+	if reflectionRoot != "" {
+		if !filepath.IsAbs(reflectionRoot) {
+			reflectionRoot = filepath.Join(instanceDir, reflectionRoot)
+		}
+		if reflectionPkg, err := validator.LoadPackage(ctx, reflectionRoot); err == nil {
+			catalog.Package = reflectionPkg
+			catalog.ReflectionRoot = reflectionRoot
+		}
+	}
+	if catalog.Package != nil {
+		resolved, findings := validator.ResolveCoreInheritance(catalog.Package.CoreModel)
+		if !validator.HasErrors(findings) {
+			catalog.ResolvedCore = resolved
+			catalog.ReflectionReady = true
+		}
+	}
+
 	for _, widget := range pkg.Widgets.Widgets {
 		catalog.Templates[widget.ID] = widget
 	}
@@ -136,9 +162,67 @@ func ResolveTemplates(ctx context.Context, globalRoot string, instanceDir string
 	resolved := make([]ResolvedTemplate, 0, len(instance.SelectedTemplates))
 	for _, selected := range instance.SelectedTemplates {
 		widget := catalog.Templates[selected.Template]
-		resolved = append(resolved, ResolvedTemplate{Selected: selected, Template: widget})
+		resolved = append(resolved, ResolvedTemplate{Selected: selected, Template: widget, Reflection: buildWidgetReflection(widget, catalog.Package, catalog.ResolvedCore)})
 	}
 	return resolved, nil
+}
+
+func buildWidgetReflection(widget validator.Widget, pkg *validator.Package, resolved *validator.ResolvedCoreModel) WidgetReflection {
+	if pkg == nil || resolved == nil {
+		return WidgetReflection{}
+	}
+	ctx := widget.SemanticContext
+	if len(ctx.Archetypes) == 0 && len(ctx.Capabilities) == 0 && len(ctx.Presentations) == 0 {
+		ctx.Archetypes = widget.Consumes.Archetypes
+		ctx.Capabilities = widget.Consumes.Capabilities
+		ctx.Presentations = widget.Consumes.Presentations
+	}
+	reflection := WidgetReflection{}
+	for _, id := range ctx.Archetypes {
+		raw, ok := pkg.CoreModel.Archetypes[id]
+		resolvedArch, resolvedOK := resolved.Archetypes[id]
+		if !ok || !resolvedOK {
+			continue
+		}
+		reflection.Archetypes = append(reflection.Archetypes, ResolvedArchetypeReflection{ID: id, Description: raw.Description, LongDescription: raw.LongDescription, Abstract: raw.Abstract, Ancestors: resolvedArch.Ancestors, EffectiveDefaultCapabilities: resolvedArch.EffectiveDefaultCapabilities, EffectiveRecommendedPresentations: resolvedArch.EffectiveRecommendedPresentations})
+	}
+	for _, id := range ctx.Capabilities {
+		raw, ok := pkg.CoreModel.Capabilities[id]
+		resolvedCap, resolvedOK := resolved.Capabilities[id]
+		if !ok || !resolvedOK {
+			continue
+		}
+		projectionNames := sortedProjectionNames(resolvedCap.EffectiveProjections)
+		reflection.Capabilities = append(reflection.Capabilities, ResolvedCapabilityReflection{ID: id, Description: raw.Description, LongDescription: raw.LongDescription, Abstract: raw.Abstract, Ancestors: resolvedCap.Ancestors, EffectiveProjectionNames: projectionNames, RequiredProjectionNames: requiredProjectionNames(resolvedCap.EffectiveProjections), EffectivePresentations: resolvedCap.EffectivePresentations, EffectiveActions: resolvedCap.EffectiveActions, EffectiveFilters: resolvedCap.EffectiveFilters})
+	}
+	for _, id := range ctx.Presentations {
+		presentation, ok := pkg.CoreModel.Presentations[id]
+		if !ok {
+			continue
+		}
+		reflection.Presentations = append(reflection.Presentations, ResolvedPresentationReflection{ID: id, Description: presentation.Description, LongDescription: presentation.LongDescription, Layer: presentation.Layer, Role: presentation.Role, Requires: presentation.Requires, RequiresAny: presentation.RequiresAny, Optional: presentation.Optional})
+	}
+	return reflection
+}
+
+func sortedProjectionNames(projections map[string]validator.Projection) []string {
+	keys := make([]string, 0, len(projections))
+	for key := range projections {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+func requiredProjectionNames(projections map[string]validator.Projection) []string {
+	keys := []string{}
+	for key, projection := range projections {
+		if projection.Required {
+			keys = append(keys, key)
+		}
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 func loadLocalTemplates(path string) (validator.WidgetTemplatesFile, error) {

@@ -32,6 +32,10 @@ func TestGenerateReflectiveWidgetScaffold(t *testing.T) {
 				"Props": {Fields: map[string]validator.PropField{"subject": {Type: "unknown", Required: true}}},
 			}},
 		},
+		Reflection: WidgetReflection{
+			Archetypes:   []ResolvedArchetypeReflection{{ID: "ProductComposition", Ancestors: []string{"Archetype", "Composition"}, EffectiveDefaultCapabilities: []string{"composable", "ingredient_composable"}}},
+			Capabilities: []ResolvedCapabilityReflection{{ID: "ingredient_composable", Ancestors: []string{"Capability", "composable", "role_composable"}, EffectiveProjectionNames: []string{"parts", "role_profile", "ingredient_roles"}, RequiredProjectionNames: []string{"parts", "ingredient_roles"}}},
+		},
 	}}
 
 	files, err := Generate(instance, resolved, "")
@@ -53,8 +57,11 @@ func TestGenerateReflectiveWidgetScaffold(t *testing.T) {
 	assertContains(t, component, "Projection hints are scaffold guidance")
 	assertContains(t, metadata, "semanticContext")
 	assertContains(t, metadata, "projectionHints")
+	assertContains(t, metadata, "resolvedSemanticContext")
+	assertContains(t, metadata, "effectiveProjectionNames")
 	assertContains(t, metadata, "adapter_todos")
 	assertContains(t, adapter, "mapDomainToStreetDeliCompositionCardProps")
+	assertContains(t, adapter, "effective projections: parts, role_profile, ingredient_roles")
 	assertContains(t, adapter, "consider mapping recommended projection hint labelable.label")
 	assertContains(t, readme, "Semantic context: archetypes:ProductComposition")
 	assertContains(t, story, "Projection hints are scaffold guidance")

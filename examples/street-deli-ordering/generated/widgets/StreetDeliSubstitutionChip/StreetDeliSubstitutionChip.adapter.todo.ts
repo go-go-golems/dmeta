@@ -19,6 +19,18 @@ import type { StreetDeliSubstitutionChipProps } from "./StreetDeliSubstitutionCh
  * - substitution_badge
  * - substitution_pair
  *
+ * Resolved inherited context:
+ * - Archetype Substitution (ancestors: Archetype -> Entity -> Relation)
+ *   effective capabilities: identifiable, labelable, inspectable, relatable, substitutable
+ * - Capability role_preserving_substitutable (ancestors: Capability -> substitutable)
+ *   effective projections: allergen_flags, auto_suggest, dietary_compatibility, flavor_fit, price_delta_cents, replacement_candidates, replaces, role_overlap_score, role_preservation
+ * - Capability dietary_substitutable (ancestors: Capability -> substitutable -> role_preserving_substitutable -> dietary)
+ *   effective projections: allergen_contains, allergen_flags, allergen_may_contain, auto_suggest, dietary_compatibility, dietary_explanation, dietary_tags, flavor_fit, price_delta_cents, replacement_candidates, replaces, role_overlap_score, role_preservation
+ * - Capability price_aware_substitutable (ancestors: Capability -> substitutable -> role_preserving_substitutable -> measurable)
+ *   effective projections: allergen_flags, auto_suggest, dietary_compatibility, flavor_fit, price_delta_cents, price_delta_label, replacement_candidates, replaces, role_overlap_score, role_preservation, unit, value
+ * - Presentation substitution_badge (role: badge)
+ * - Presentation substitution_pair (role: substitution_pair)
+ *
  * Projection hints:
  * Recommended:
  * - substitutable.replaces

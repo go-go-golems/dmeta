@@ -32,6 +32,204 @@ export const StreetDeliCompositionCustomizerMetadata = {
     "required": null
   },
   "reason": "Ingredient removal and intelligent substitutions are the core sandwich customization workflow.",
+  "resolvedSemanticContext": {
+    "archetypes": [
+      {
+        "id": "ProductComposition",
+        "description": "Abstract composition intended to become a sellable or orderable deli product.",
+        "longDescription": "ProductComposition is the composition side of a menu item. It contributes ingredient-role semantics independently from product metadata so a MenuItem can inherit both.",
+        "abstract": true,
+        "ancestors": [
+          "Archetype",
+          "Composition"
+        ],
+        "effectiveDefaultCapabilities": [
+          "identifiable",
+          "labelable",
+          "composable",
+          "inspectable",
+          "ingredient_composable",
+          "dietary"
+        ],
+        "effectiveRecommendedPresentations": [
+          "composition_card",
+          "composition_detail",
+          "ingredient_list"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "ingredient_composable",
+        "description": "Food composition assembled from ingredients that fill structural, protein, richness, moisture, acidity, crunch, heat, or garnish roles.",
+        "longDescription": "Ingredient_composable is the concrete composition capability used by menu items and order items. It inherits parts and role requirements from composable/role_composable and adds ingredient-specific role mapping.",
+        "abstract": false,
+        "ancestors": [
+          "Capability",
+          "composable",
+          "role_composable"
+        ],
+        "effectiveProjectionNames": [
+          "ingredient_roles",
+          "optional_roles",
+          "part_count",
+          "parts",
+          "required_roles",
+          "role_profile"
+        ],
+        "requiredProjectionNames": [
+          "ingredient_roles",
+          "parts"
+        ],
+        "effectivePresentations": [
+          "ingredient_list",
+          "composition_card",
+          "composition_detail"
+        ],
+        "effectiveActions": [
+          "remove_part",
+          "add_part",
+          "substitute_part"
+        ],
+        "effectiveFilters": [
+          "has_ingredient",
+          "has_role_filled"
+        ]
+      },
+      {
+        "id": "role_preserving_substitutable",
+        "description": "Substitution that preserves one or more functional roles from the removed part.",
+        "longDescription": "Role_preserving_substitutable is the primary concrete substitution capability. It keeps the replacement engine honest by explaining which roles are preserved and how well.",
+        "abstract": false,
+        "ancestors": [
+          "Capability",
+          "substitutable"
+        ],
+        "effectiveProjectionNames": [
+          "allergen_flags",
+          "auto_suggest",
+          "dietary_compatibility",
+          "flavor_fit",
+          "price_delta_cents",
+          "replacement_candidates",
+          "replaces",
+          "role_overlap_score",
+          "role_preservation"
+        ],
+        "requiredProjectionNames": [
+          "replacement_candidates",
+          "replaces"
+        ],
+        "effectivePresentations": [
+          "substitution_badge",
+          "substitution_pair",
+          "substitution_detail"
+        ],
+        "effectiveActions": [
+          "apply_substitution",
+          "reject_substitution",
+          "see_alternatives"
+        ],
+        "effectiveFilters": [
+          "role_preservation"
+        ]
+      },
+      {
+        "id": "configurable",
+        "description": "Subject has customer-configurable options beyond ingredient composition, such as size, temperature, spice level, or doneness.",
+        "longDescription": "Configurable captures the ordering UX concept of menu item customization that goes beyond ingredient substitution. A sandwich can be configured for size (half, whole), spice level (mild, medium, hot), temperature (hot, cold), toast level (untoasted, light, well-done), and other axes. These are not ingredient substitutions—they are scalar or categorical options that modify the item without changing its role composition. The configurable capability keeps these distinct from composable/substitutable so the UI can present config options separately from ingredient modification.\n",
+        "abstract": false,
+        "ancestors": [
+          "Capability"
+        ],
+        "effectiveProjectionNames": [
+          "config_options",
+          "current_config"
+        ],
+        "requiredProjectionNames": [
+          "config_options"
+        ],
+        "effectivePresentations": [
+          "config_selector",
+          "config_summary"
+        ],
+        "effectiveActions": [
+          "change_config"
+        ]
+      },
+      {
+        "id": "dietary",
+        "description": "Subject carries dietary constraint tags that filter valid substitutions and display options.",
+        "longDescription": "Dietary means a subject carries dietary constraint metadata. In the deli domain, dietary tags are central to the ordering experience: customers with dairy-free, gluten-free, nut-free, vegan, or other constraints need to see which menu items and substitutions are safe. The dietary capability is used by the replacement engine to filter substitutions (a dairy-free customer removing cheese should not be offered more cheese as a replacement) and by the UI to display dietary badges and allergen warnings. Allergen tracking is split into \"contains\" (definite) and \"may_contain\" (possible cross-contamination) because street delis often share preparation surfaces and the distinction matters for severe allergies.\n",
+        "abstract": false,
+        "ancestors": [
+          "Capability"
+        ],
+        "effectiveProjectionNames": [
+          "allergen_contains",
+          "allergen_may_contain",
+          "dietary_tags"
+        ],
+        "requiredProjectionNames": [
+          "dietary_tags"
+        ],
+        "effectivePresentations": [
+          "dietary_badge",
+          "allergen_warning"
+        ],
+        "effectiveActions": [
+          "filter_by_dietary"
+        ],
+        "effectiveFilters": [
+          "has_dietary_tag",
+          "allergen_free"
+        ]
+      }
+    ],
+    "presentations": [
+      {
+        "id": "composition_detail",
+        "description": "Full menu item detail with ingredient list, substitution suggestions, config options, and add-to-order action.",
+        "longDescription": "Use composition_detail as the full-screen or bottom-sheet view for customizing a menu item before adding it to the order. It combines the ingredient_list (with per-ingredient swipe actions), substitution suggestions (inline suggestion chips), config selectors (size, spice, temperature), dietary information, price, and the add-to-order action. This is the primary interaction surface where the intelligent replacement engine's suggestions become visible.\n",
+        "layer": "archetype",
+        "role": "detail_panel",
+        "requiresAny": [
+          "id",
+          "label",
+          "parts"
+        ]
+      },
+      {
+        "id": "ingredient_list",
+        "description": "Ordered list of ingredients with role badges and dietary indicators.",
+        "longDescription": "Use ingredient_list to render the full composition of a menu item. Each ingredient should show its name, role badge (structural, protein, richness, etc.), and dietary flags. Ingredients should be swipeable on mobile to reveal quick-remove and substitution actions. The list should visually distinguish required vs optional parts so the customer understands which removals will compromise the composition.\n",
+        "layer": "capability",
+        "role": "composition_list",
+        "requires": [
+          "parts"
+        ],
+        "optional": [
+          "part_count",
+          "required_roles"
+        ]
+      },
+      {
+        "id": "substitution_badge",
+        "description": "Inline badge indicating an active or suggested substitution on an ingredient.",
+        "longDescription": "Use substitution_badge as a compact inline indicator that an ingredient has been or can be substituted. It should show what was removed (e.g., \"No cheese\") and optionally what replaces it (e.g., \"→ avocado\"). The badge should use semantic tone to indicate whether the substitution is active (success), suggested (info), or conflicting (warning). Tapping the badge opens the substitution_detail for full alternatives.\n",
+        "layer": "capability",
+        "role": "badge",
+        "requires": [
+          "replaces"
+        ],
+        "optional": [
+          "role_preservation",
+          "dietary_compatibility",
+          "auto_suggest"
+        ]
+      }
+    ]
+  },
   "selectedAs": "StreetDeliCompositionCustomizer",
   "semanticContext": {
     "archetypes": [

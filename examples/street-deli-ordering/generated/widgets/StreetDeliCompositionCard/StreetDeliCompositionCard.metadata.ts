@@ -34,6 +34,190 @@ export const StreetDeliCompositionCardMetadata = {
     "required": null
   },
   "reason": "Sandwiches and bowls need compact composition summaries with dietary and price data.",
+  "resolvedSemanticContext": {
+    "archetypes": [
+      {
+        "id": "ProductComposition",
+        "description": "Abstract composition intended to become a sellable or orderable deli product.",
+        "longDescription": "ProductComposition is the composition side of a menu item. It contributes ingredient-role semantics independently from product metadata so a MenuItem can inherit both.",
+        "abstract": true,
+        "ancestors": [
+          "Archetype",
+          "Composition"
+        ],
+        "effectiveDefaultCapabilities": [
+          "identifiable",
+          "labelable",
+          "composable",
+          "inspectable",
+          "ingredient_composable",
+          "dietary"
+        ],
+        "effectiveRecommendedPresentations": [
+          "composition_card",
+          "composition_detail",
+          "ingredient_list"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "ingredient_composable",
+        "description": "Food composition assembled from ingredients that fill structural, protein, richness, moisture, acidity, crunch, heat, or garnish roles.",
+        "longDescription": "Ingredient_composable is the concrete composition capability used by menu items and order items. It inherits parts and role requirements from composable/role_composable and adds ingredient-specific role mapping.",
+        "abstract": false,
+        "ancestors": [
+          "Capability",
+          "composable",
+          "role_composable"
+        ],
+        "effectiveProjectionNames": [
+          "ingredient_roles",
+          "optional_roles",
+          "part_count",
+          "parts",
+          "required_roles",
+          "role_profile"
+        ],
+        "requiredProjectionNames": [
+          "ingredient_roles",
+          "parts"
+        ],
+        "effectivePresentations": [
+          "ingredient_list",
+          "composition_card",
+          "composition_detail"
+        ],
+        "effectiveActions": [
+          "remove_part",
+          "add_part",
+          "substitute_part"
+        ],
+        "effectiveFilters": [
+          "has_ingredient",
+          "has_role_filled"
+        ]
+      },
+      {
+        "id": "dietary",
+        "description": "Subject carries dietary constraint tags that filter valid substitutions and display options.",
+        "longDescription": "Dietary means a subject carries dietary constraint metadata. In the deli domain, dietary tags are central to the ordering experience: customers with dairy-free, gluten-free, nut-free, vegan, or other constraints need to see which menu items and substitutions are safe. The dietary capability is used by the replacement engine to filter substitutions (a dairy-free customer removing cheese should not be offered more cheese as a replacement) and by the UI to display dietary badges and allergen warnings. Allergen tracking is split into \"contains\" (definite) and \"may_contain\" (possible cross-contamination) because street delis often share preparation surfaces and the distinction matters for severe allergies.\n",
+        "abstract": false,
+        "ancestors": [
+          "Capability"
+        ],
+        "effectiveProjectionNames": [
+          "allergen_contains",
+          "allergen_may_contain",
+          "dietary_tags"
+        ],
+        "requiredProjectionNames": [
+          "dietary_tags"
+        ],
+        "effectivePresentations": [
+          "dietary_badge",
+          "allergen_warning"
+        ],
+        "effectiveActions": [
+          "filter_by_dietary"
+        ],
+        "effectiveFilters": [
+          "has_dietary_tag",
+          "allergen_free"
+        ]
+      },
+      {
+        "id": "measurable",
+        "description": "Subject has numeric value semantics.",
+        "longDescription": "Measurable means a subject exposes numeric value semantics. The value may be duration, count, cost, throughput, latency, error rate, or capacity. Measurable values need units, alignment, comparison actions, and range filters. They should be rendered with tabular numeric treatment in dense tables.",
+        "abstract": false,
+        "ancestors": [
+          "Capability"
+        ],
+        "effectiveProjectionNames": [
+          "unit",
+          "value"
+        ],
+        "requiredProjectionNames": [
+          "value"
+        ],
+        "effectivePresentations": [
+          "metric_cell"
+        ],
+        "effectiveFilters": [
+          "lt",
+          "lte",
+          "gt",
+          "gte",
+          "between"
+        ]
+      },
+      {
+        "id": "available",
+        "description": "Subject has menu or inventory availability state that can be shown, filtered, and scheduled.",
+        "longDescription": "Available specializes stateful/temporal behavior for menu and ingredient availability. It lets widgets consume a specific availability projection while still matching generic stateful and temporal behavior through inheritance.",
+        "abstract": false,
+        "ancestors": [
+          "Capability",
+          "stateful",
+          "temporal"
+        ],
+        "effectiveProjectionNames": [
+          "availability_state",
+          "available_from",
+          "available_until",
+          "duration_ms",
+          "end_time",
+          "start_time",
+          "state",
+          "state_label",
+          "state_tone",
+          "timestamp"
+        ],
+        "requiredProjectionNames": [
+          "availability_state",
+          "state"
+        ],
+        "effectivePresentations": [
+          "status_badge",
+          "state_cell",
+          "timestamp_inline",
+          "duration_cell",
+          "prep_status_indicator"
+        ],
+        "effectiveActions": [
+          "filter_by_state"
+        ],
+        "effectiveFilters": [
+          "equals",
+          "not_equals",
+          "in",
+          "before",
+          "after",
+          "between",
+          "availability_state"
+        ]
+      }
+    ],
+    "presentations": [
+      {
+        "id": "composition_card",
+        "description": "Compact menu item card showing name, price, key ingredients, and dietary tags.",
+        "longDescription": "Use composition_card as the primary browsing surface for menu items. It should show the item name, a compact ingredient summary (not the full list), price, and dietary badges. Tapping the card opens the composition_detail for full customization. The card should be thumb-friendly on mobile and visually distinct from the dense-row style used for order items.\n",
+        "layer": "archetype",
+        "role": "summary_card",
+        "requiresAny": [
+          "id",
+          "label"
+        ],
+        "optional": [
+          "parts",
+          "dietary_tags",
+          "price"
+        ]
+      }
+    ]
+  },
   "selectedAs": "StreetDeliCompositionCard",
   "semanticContext": {
     "archetypes": [

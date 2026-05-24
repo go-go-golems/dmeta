@@ -137,6 +137,11 @@ func renderSemanticDocComment(name string, rt ResolvedTemplate) string {
 			writeWrappedDocLines(&b, ctx.InheritedContextNote)
 		}
 	}
+	if hasWidgetReflection(rt.Reflection) {
+		b.WriteString(" *\n")
+		b.WriteString(" * Resolved inherited context:\n")
+		writeReflectionDocLines(&b, rt.Reflection)
+	}
 	if hasProjectionHints(rt.Template.ProjectionHints) {
 		b.WriteString(" *\n")
 		b.WriteString(" * Projection hints are scaffold guidance, not rigid layout requirements unless strict mode is enabled.\n")
@@ -173,6 +178,9 @@ func renderMetadata(name string, instance InstanceManifest, rt ResolvedTemplate)
 		}
 		if hasProjectionHints(rt.Template.ProjectionHints) {
 			payload["projectionHints"] = projectionHintsPayload(rt.Template.ProjectionHints)
+		}
+		if hasWidgetReflection(rt.Reflection) {
+			payload["resolvedSemanticContext"] = rt.Reflection
 		}
 	}
 	jsonPayload, _ := json.MarshalIndent(payload, "", "  ")
@@ -242,6 +250,11 @@ func renderAdapterTODO(name string, rt ResolvedTemplate) string {
 		writeDocList(&b, "Capabilities", rt.Template.SemanticContext.Capabilities)
 		writeDocList(&b, "Presentations", rt.Template.SemanticContext.Presentations)
 	}
+	if hasWidgetReflection(rt.Reflection) {
+		b.WriteString(" *\n")
+		b.WriteString(" * Resolved inherited context:\n")
+		writeReflectionDocLines(&b, rt.Reflection)
+	}
 	if hasProjectionHints(rt.Template.ProjectionHints) {
 		b.WriteString(" *\n")
 		b.WriteString(" * Projection hints:\n")
@@ -290,6 +303,9 @@ func renderReadme(instance InstanceManifest, resolved []ResolvedTemplate) string
 		}
 		if hasProjectionHints(rt.Template.ProjectionHints) {
 			b.WriteString(fmt.Sprintf("  - Projection hints: %s\n", projectionHintSummary(rt.Template.ProjectionHints)))
+		}
+		if hasWidgetReflection(rt.Reflection) {
+			b.WriteString(fmt.Sprintf("  - Resolved context: %s\n", reflectionSummary(rt.Reflection)))
 		}
 		if rt.Template.Generation.ShouldEmitAdapterTODOs() {
 			b.WriteString(fmt.Sprintf("  - Adapter TODO scaffold: `%s.adapter.todo.ts`\n", componentName(rt)))
@@ -399,6 +415,10 @@ func hasProjectionHints(hints validator.WidgetProjectionHints) bool {
 	return len(hints.Required) > 0 || len(hints.Recommended) > 0 || len(hints.Optional) > 0 || len(hints.DocumentationOnly) > 0 || len(hints.AdapterTODOs) > 0
 }
 
+func hasWidgetReflection(reflection WidgetReflection) bool {
+	return len(reflection.Archetypes) > 0 || len(reflection.Capabilities) > 0 || len(reflection.Presentations) > 0
+}
+
 func semanticContextPayload(ctx validator.WidgetSemanticContext) map[string]any {
 	return map[string]any{
 		"archetypes":           ctx.Archetypes,
@@ -466,6 +486,50 @@ func writeDocList(b *strings.Builder, label string, values []string) {
 	for _, value := range values {
 		b.WriteString(fmt.Sprintf(" * - %s\n", value))
 	}
+}
+
+func writeReflectionDocLines(b *strings.Builder, reflection WidgetReflection) {
+	for _, arch := range reflection.Archetypes {
+		b.WriteString(fmt.Sprintf(" * - Archetype %s", arch.ID))
+		if len(arch.Ancestors) > 0 {
+			b.WriteString(fmt.Sprintf(" (ancestors: %s)", strings.Join(arch.Ancestors, " -> ")))
+		}
+		b.WriteString("\n")
+		if len(arch.EffectiveDefaultCapabilities) > 0 {
+			b.WriteString(fmt.Sprintf(" *   effective capabilities: %s\n", strings.Join(arch.EffectiveDefaultCapabilities, ", ")))
+		}
+	}
+	for _, cap := range reflection.Capabilities {
+		b.WriteString(fmt.Sprintf(" * - Capability %s", cap.ID))
+		if len(cap.Ancestors) > 0 {
+			b.WriteString(fmt.Sprintf(" (ancestors: %s)", strings.Join(cap.Ancestors, " -> ")))
+		}
+		b.WriteString("\n")
+		if len(cap.EffectiveProjectionNames) > 0 {
+			b.WriteString(fmt.Sprintf(" *   effective projections: %s\n", strings.Join(cap.EffectiveProjectionNames, ", ")))
+		}
+	}
+	for _, pres := range reflection.Presentations {
+		b.WriteString(fmt.Sprintf(" * - Presentation %s", pres.ID))
+		if pres.Role != "" {
+			b.WriteString(fmt.Sprintf(" (role: %s)", pres.Role))
+		}
+		b.WriteString("\n")
+	}
+}
+
+func reflectionSummary(reflection WidgetReflection) string {
+	parts := []string{}
+	if len(reflection.Archetypes) > 0 {
+		parts = append(parts, fmt.Sprintf("%d resolved archetypes", len(reflection.Archetypes)))
+	}
+	if len(reflection.Capabilities) > 0 {
+		parts = append(parts, fmt.Sprintf("%d resolved capabilities", len(reflection.Capabilities)))
+	}
+	if len(reflection.Presentations) > 0 {
+		parts = append(parts, fmt.Sprintf("%d resolved presentations", len(reflection.Presentations)))
+	}
+	return strings.Join(parts, ", ")
 }
 
 func writeWrappedDocLines(b *strings.Builder, text string) {

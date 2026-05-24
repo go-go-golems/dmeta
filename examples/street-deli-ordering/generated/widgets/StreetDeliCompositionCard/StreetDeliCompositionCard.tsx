@@ -22,6 +22,19 @@ import type { StreetDeliCompositionCardProps } from "./StreetDeliCompositionCard
  * Inherited context note:
  * MenuItem extends ProductSpec and ProductComposition, so it satisfies both product browsing and composition customization context.
  *
+ * Resolved inherited context:
+ * - Archetype ProductComposition (ancestors: Archetype -> Composition)
+ *   effective capabilities: identifiable, labelable, composable, inspectable, ingredient_composable, dietary
+ * - Capability ingredient_composable (ancestors: Capability -> composable -> role_composable)
+ *   effective projections: ingredient_roles, optional_roles, part_count, parts, required_roles, role_profile
+ * - Capability dietary (ancestors: Capability)
+ *   effective projections: allergen_contains, allergen_may_contain, dietary_tags
+ * - Capability measurable (ancestors: Capability)
+ *   effective projections: unit, value
+ * - Capability available (ancestors: Capability -> stateful -> temporal)
+ *   effective projections: availability_state, available_from, available_until, duration_ms, end_time, start_time, state, state_label, state_tone, timestamp
+ * - Presentation composition_card (role: summary_card)
+ *
  * Projection hints are scaffold guidance, not rigid layout requirements unless strict mode is enabled.
  * Recommended:
  * - labelable.label

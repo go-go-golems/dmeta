@@ -7,6 +7,18 @@ import type { StreetDeliMenuBrowserProps } from "./StreetDeliMenuBrowser.types";
  *
  * Reflection-first scaffold generated from `deli.menu_browser`.
  * Selected because: Primary mobile ordering entrypoint needs category browsing and menu-item cards.
+ *
+ * Resolved inherited context:
+ * - Archetype Composition (ancestors: Archetype)
+ *   effective capabilities: identifiable, labelable, composable, inspectable
+ * - Archetype Resource (ancestors: Archetype -> Entity)
+ *   effective capabilities: identifiable, labelable, inspectable, relatable
+ * - Capability dietary (ancestors: Capability)
+ *   effective projections: allergen_contains, allergen_may_contain, dietary_tags
+ * - Capability filter_source (ancestors: Capability)
+ *   effective projections: filter_keys, filter_label, filter_value
+ * - Presentation composition_card (role: summary_card)
+ * - Presentation compact_ref (role: compact_reference)
  */
 export function StreetDeliMenuBrowser(props: StreetDeliMenuBrowserProps) {
   return (

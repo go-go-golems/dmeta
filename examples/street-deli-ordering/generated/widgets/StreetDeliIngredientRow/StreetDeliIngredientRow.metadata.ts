@@ -13,6 +13,102 @@ export const StreetDeliIngredientRowMetadata = {
   },
   "instanceId": "street_deli_ordering",
   "reason": "Customizer needs explicit ingredient rows with remove/substitute actions.",
+  "resolvedSemanticContext": {
+    "capabilities": [
+      {
+        "id": "dietary",
+        "description": "Subject carries dietary constraint tags that filter valid substitutions and display options.",
+        "longDescription": "Dietary means a subject carries dietary constraint metadata. In the deli domain, dietary tags are central to the ordering experience: customers with dairy-free, gluten-free, nut-free, vegan, or other constraints need to see which menu items and substitutions are safe. The dietary capability is used by the replacement engine to filter substitutions (a dairy-free customer removing cheese should not be offered more cheese as a replacement) and by the UI to display dietary badges and allergen warnings. Allergen tracking is split into \"contains\" (definite) and \"may_contain\" (possible cross-contamination) because street delis often share preparation surfaces and the distinction matters for severe allergies.\n",
+        "abstract": false,
+        "ancestors": [
+          "Capability"
+        ],
+        "effectiveProjectionNames": [
+          "allergen_contains",
+          "allergen_may_contain",
+          "dietary_tags"
+        ],
+        "requiredProjectionNames": [
+          "dietary_tags"
+        ],
+        "effectivePresentations": [
+          "dietary_badge",
+          "allergen_warning"
+        ],
+        "effectiveActions": [
+          "filter_by_dietary"
+        ],
+        "effectiveFilters": [
+          "has_dietary_tag",
+          "allergen_free"
+        ]
+      },
+      {
+        "id": "substitutable",
+        "description": "Subject can be replaced by alternatives that preserve composition role integrity and dietary constraints.",
+        "longDescription": "Substitutable is the core capability of the intelligent replacement system. It encodes the knowledge that when a customer removes or replaces an ingredient, the system can find compatible alternatives based on role overlap, dietary constraints, allergen safety, flavor profile fit, and price impact. The key insight is that \"no cheese\" is not just a removal—it creates unfilled roles (richness, creaminess, umami) that the replacement engine should fill. Avocado replaces cheese well because it provides richness and creaminess; nutritional yeast is an alternative because it provides umami and sharpness; extra hummus is another because it provides moisture and richness. Each substitution candidate carries a compatibility assessment: role_preservation says which roles it fills, dietary_compatibility says which dietary constraints it satisfies, allergen_flags warns about allergen differences, flavor_fit provides a qualitative assessment, and price_delta_cents makes the cost impact transparent. The auto_suggest flag controls whether the system proactively offers the substitution or waits for the customer to ask.\n",
+        "abstract": true,
+        "ancestors": [
+          "Capability"
+        ],
+        "effectiveProjectionNames": [
+          "allergen_flags",
+          "auto_suggest",
+          "dietary_compatibility",
+          "flavor_fit",
+          "price_delta_cents",
+          "replacement_candidates",
+          "replaces",
+          "role_preservation"
+        ],
+        "requiredProjectionNames": [
+          "replacement_candidates",
+          "replaces"
+        ],
+        "effectivePresentations": [
+          "substitution_badge",
+          "substitution_pair",
+          "substitution_detail"
+        ],
+        "effectiveActions": [
+          "apply_substitution",
+          "reject_substitution",
+          "see_alternatives"
+        ]
+      }
+    ],
+    "presentations": [
+      {
+        "id": "ingredient_list",
+        "description": "Ordered list of ingredients with role badges and dietary indicators.",
+        "longDescription": "Use ingredient_list to render the full composition of a menu item. Each ingredient should show its name, role badge (structural, protein, richness, etc.), and dietary flags. Ingredients should be swipeable on mobile to reveal quick-remove and substitution actions. The list should visually distinguish required vs optional parts so the customer understands which removals will compromise the composition.\n",
+        "layer": "capability",
+        "role": "composition_list",
+        "requires": [
+          "parts"
+        ],
+        "optional": [
+          "part_count",
+          "required_roles"
+        ]
+      },
+      {
+        "id": "compact_ref",
+        "description": "Compact reference combining id and label.",
+        "longDescription": "Use compact_ref as the default compact representation of an identifiable and labelable semantic object. It combines stable identity with a readable label and may optionally include state tone or state indicator. It is the workhorse presentation for Actors, WorkItems, Resources, ActionSpecs, and related subjects when they appear inside rows, chips, detail panels, filters, and context menus. It should be dense, copyable, inspectable, and consistent across domains.",
+        "layer": "archetype",
+        "role": "compact_reference",
+        "requires": [
+          "id",
+          "label"
+        ],
+        "optional": [
+          "state",
+          "state_tone"
+        ]
+      }
+    ]
+  },
   "selectedAs": "StreetDeliIngredientRow",
   "templateId": "deli.ingredient_row",
   "variant": "mobile_default"

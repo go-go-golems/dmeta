@@ -22,6 +22,24 @@ import type { StreetDeliOrderCartProps } from "./StreetDeliOrderCart.types";
  * - order_item_row
  * - compact_ref
  *
+ * Resolved inherited context:
+ * - Archetype OrderItem (ancestors: Archetype -> Entity -> WorkItem -> Composition -> ProductComposition)
+ *   effective capabilities: identifiable, labelable, inspectable, relatable, stateful, temporal, actionable, composable, ingredient_composable, dietary, configurable
+ * - Archetype WorkItem (ancestors: Archetype -> Entity)
+ *   effective capabilities: identifiable, labelable, inspectable, relatable, stateful, temporal, actionable
+ * - Archetype ProductComposition (ancestors: Archetype -> Composition)
+ *   effective capabilities: identifiable, labelable, composable, inspectable, ingredient_composable, dietary
+ * - Capability ingredient_composable (ancestors: Capability -> composable -> role_composable)
+ *   effective projections: ingredient_roles, optional_roles, part_count, parts, required_roles, role_profile
+ * - Capability configurable (ancestors: Capability)
+ *   effective projections: config_options, current_config
+ * - Capability measurable (ancestors: Capability)
+ *   effective projections: unit, value
+ * - Capability stateful (ancestors: Capability)
+ *   effective projections: state, state_label, state_tone
+ * - Presentation order_item_row (role: dense_row)
+ * - Presentation compact_ref (role: compact_reference)
+ *
  * Projection hints:
  * Recommended:
  * - labelable.label
