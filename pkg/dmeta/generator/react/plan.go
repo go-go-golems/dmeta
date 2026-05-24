@@ -50,32 +50,39 @@ func BuildScaffoldPlan(ctx context.Context, opts PlanOptions) (ScaffoldPlan, err
 
 	semanticRoot := opts.SemanticRoot
 	if semanticRoot == "" {
-		semanticRoot = instance.InstanceRoot
+		semanticRoot = instance.SemanticRoot
 	}
 	if semanticRoot == "" {
-		semanticRoot = instance.CoreModelRoot
-	}
-	if semanticRoot == "" {
-		return ScaffoldPlan{}, errors.New("no semantic root supplied and instance_root/core_model_root are empty")
+		return ScaffoldPlan{}, errors.New("no semantic root supplied and semantic_root is empty")
 	}
 	semanticRoot = resolveRelative(instanceDir, semanticRoot)
 
 	interactionsRoot := opts.InteractionsRoot
 	if interactionsRoot == "" {
-		interactionsRoot = instance.TemplateSources.GlobalIRRoot
+		interactionsRoot = instance.InteractionsRoot
 	}
 	if interactionsRoot == "" {
-		return ScaffoldPlan{}, errors.New("no interactions root supplied and template_sources.global_ir_root is empty")
+		return ScaffoldPlan{}, errors.New("no interactions root supplied and interactions_root is empty")
 	}
 	interactionsRoot = resolveRelative(instanceDir, interactionsRoot)
 
+	webMDS, ok := instance.MetaDesignSystems["web"]
+	if !ok {
+		return ScaffoldPlan{}, errors.New("instance meta_design_systems.web is required")
+	}
 	webRoot := opts.WebRoot
 	if webRoot == "" {
-		webRoot = filepath.Join(semanticRoot, "meta-design-systems", "web")
+		webRoot = webMDS.Root
+	}
+	if webRoot == "" {
+		return ScaffoldPlan{}, errors.New("no Web MetaDesignSystem root supplied and meta_design_systems.web.root is empty")
 	}
 	webRoot = resolveRelative(instanceDir, webRoot)
 
 	targetFile := opts.TargetFile
+	if targetFile == "" {
+		targetFile = instance.Targets.React.TargetFile
+	}
 	if targetFile == "" {
 		targetFile = filepath.Join(interactionsRoot, "meta-design-systems", "web", "targets", "react.yaml")
 	}
@@ -120,12 +127,17 @@ func BuildScaffoldPlan(ctx context.Context, opts PlanOptions) (ScaffoldPlan, err
 	outputDir := opts.OutputDir
 	if outputDir != "" {
 		outputDir = resolveRelative(instanceDir, outputDir)
+	} else if instance.Targets.React.OutputDir != "" {
+		outputDir = resolveRelative(instanceDir, instance.Targets.React.OutputDir)
 	} else if target.Defaults.OutputDir != "" {
 		outputDir = resolveRelative(semanticRoot, target.Defaults.OutputDir)
 	} else {
 		return ScaffoldPlan{}, errors.New("React target has no defaults.output_dir and no --output-dir was supplied")
 	}
-	packageName := target.Defaults.PackageName
+	packageName := instance.Targets.React.PackageName
+	if packageName == "" {
+		packageName = target.Defaults.PackageName
+	}
 
 	plan := ScaffoldPlan{InstanceID: instance.ID, TargetID: target.ID, MetaDesignSystem: target.Provenance.MetaDesignSystem, OutputDir: outputDir, PackageName: packageName}
 	obligationsByTemplate := groupWebObligations(webObligations)

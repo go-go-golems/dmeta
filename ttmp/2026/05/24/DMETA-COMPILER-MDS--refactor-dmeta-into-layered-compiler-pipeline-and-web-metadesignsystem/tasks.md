@@ -186,7 +186,8 @@ Goal: React becomes a concrete codegen target of the Web MetaDesignSystem, not t
 - [x] Add `pkg/dmeta/cmds/plan_scaffold.go`.
 - [x] Add `dmeta plan-scaffold --target react` command.
 - [x] Add `dmeta scaffold-react` command with `--dry-run`, `--force`, and `--metadata-only`.
-- [ ] Rewrite `scaffold-instance` to call the React target path or replace it with a clearer command name.
+- [x] Rewrite `scaffold-instance` to call the React target path or replace it with a clearer command name.
+- [x] Remove `scaffold-instance` from the CLI hard-cutover surface.
 - [x] Add metadata fields: `metaDesignSystem`, `codegenTarget`, `realizes.representations`, `realizes.actions`, pass versions.
 - [x] Add generated component data attributes for MetaDesignSystem and representation ids.
 - [x] Add Storybook docs text that names representations/actions.
@@ -218,8 +219,9 @@ Goal: hard-cut the concrete deli representation to the new Web MetaDesignSystem 
 - [ ] Add `realizes.representations/actions` to `deli.web.order_cart`.
 - [ ] Add `realizes.representations/actions` to `deli.web.order_tracker`.
 - [ ] Add `realizes.representations/actions` to `deli.web.role_tag`.
-- [ ] Replace `generation` in `examples/street-deli-ordering/instantiations/street-deli-ordering.yaml` with explicit `targets`.
-- [ ] Replace `template_sources.local_template_files` with Web MetaDesignSystem local source references.
+- [x] Replace `generation` in `examples/street-deli-ordering/instantiations/street-deli-ordering.yaml` with explicit `targets`.
+- [x] Migrate `street-deli-coffee-counter.yaml` to the same explicit `targets.react` manifest schema.
+- [x] Replace `template_sources.local_template_files` with Web MetaDesignSystem local source references.
 - [ ] Regenerate scaffold output under the new React target output path.
 - [ ] Verify promoted React implementation remains separate from generated output.
 
@@ -228,7 +230,7 @@ Validation gate:
 - [ ] `go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table`
 - [x] `go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --output table`
 - [x] `go run ./cmd/dmeta lower-web --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --web-root ./examples/street-deli-ordering/meta-design-systems/web --output table`
-- [ ] `go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output table`
+- [x] `go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output table`
 
 ## Phase 9: Align promoted React app metadata and stories
 
@@ -256,7 +258,7 @@ Validation gate:
 
 Goal: finish the hard cutover by removing old names and documenting the clean target architecture.
 
-- [ ] Delete obsolete generic widget generator package files or move their useful code into Web/React packages.
+- [x] Delete obsolete generic widget generator package files or move their useful code into Web/React packages.
 - [ ] Delete obsolete top-level widget template docs.
 - [ ] Remove references to `sources/dmeta-ir/widget-templates/` from docs, tests, and examples.
 - [ ] Remove references to `examples/street-deli-ordering/widget-templates/` from docs, tests, and examples.
@@ -276,7 +278,7 @@ Final validation gate:
 - [ ] `go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table`
 - [x] `go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --output table`
 - [x] `go run ./cmd/dmeta lower-web --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --web-root ./examples/street-deli-ordering/meta-design-systems/web --output table`
-- [ ] `go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output table`
+- [x] `go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output table`
 - [ ] `cd examples/street-deli-ordering/www/mobile-react && npm run build`
 - [ ] `cd examples/street-deli-ordering/www/mobile-react && npm run build-storybook`
 - [ ] `docmgr doctor --ticket DMETA-COMPILER-MDS --stale-after 30`

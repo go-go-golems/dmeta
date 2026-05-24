@@ -3,25 +3,31 @@ package widgets
 import "github.com/go-go-golems/dmeta/pkg/dmeta/validator"
 
 type InstanceManifest struct {
-	SchemaVersion     int             `yaml:"schema_version"`
-	ArtifactType      string          `yaml:"artifact_type"`
-	ID                string          `yaml:"id"`
-	Name              string          `yaml:"name"`
-	Summary           string          `yaml:"summary"`
-	InstanceRoot      string          `yaml:"instance_root"`
-	CoreModelRoot     string          `yaml:"core_model_root"`
-	TemplateSources   TemplateSources `yaml:"template_sources"`
-	Generation        Generation      `yaml:"generation"`
-	SelectedTemplates []Selected      `yaml:"selected_templates"`
-	ExcludedTemplates []Excluded      `yaml:"excluded_templates"`
+	SchemaVersion     int                            `yaml:"schema_version"`
+	ArtifactType      string                         `yaml:"artifact_type"`
+	ID                string                         `yaml:"id"`
+	Name              string                         `yaml:"name"`
+	Summary           string                         `yaml:"summary"`
+	SemanticRoot      string                         `yaml:"semantic_root"`
+	InteractionsRoot  string                         `yaml:"interactions_root"`
+	MetaDesignSystems map[string]MetaDesignSystemRef `yaml:"meta_design_systems"`
+	Targets           Targets                        `yaml:"targets"`
+	SelectedTemplates []Selected                     `yaml:"selected_templates"`
+	ExcludedTemplates []Excluded                     `yaml:"excluded_templates"`
 }
 
-type TemplateSources struct {
-	GlobalIRRoot       string   `yaml:"global_ir_root"`
-	LocalTemplateFiles []string `yaml:"local_template_files"`
+type MetaDesignSystemRef struct {
+	Root          string   `yaml:"root"`
+	GlobalRoot    string   `yaml:"global_root"`
+	TemplateFiles []string `yaml:"template_files"`
 }
 
-type Generation struct {
+type Targets struct {
+	React ReactTarget `yaml:"react"`
+}
+
+type ReactTarget struct {
+	TargetFile  string `yaml:"target_file"`
 	OutputDir   string `yaml:"output_dir"`
 	PackageName string `yaml:"package_name"`
 }

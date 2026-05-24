@@ -60,7 +60,7 @@ Examples:
 		cmds.WithFlags(
 			fields.New("instance", fields.TypeString, fields.WithHelp("Path to dmeta_instance YAML manifest")),
 			fields.New("target-file", fields.TypeString, fields.WithDefault(""), fields.WithHelp("Optional React target YAML file; defaults to <interactions-root>/meta-design-systems/web/targets/react.yaml")),
-			fields.New("interactions-root", fields.TypeString, fields.WithDefault(""), fields.WithHelp("Optional root containing interactions/ and the React target file; defaults to instance template_sources.global_ir_root")),
+			fields.New("interactions-root", fields.TypeString, fields.WithDefault(""), fields.WithHelp("Optional root containing interactions/ and the React target file; defaults to instance interactions_root")),
 			fields.New("web-root", fields.TypeString, fields.WithDefault(""), fields.WithHelp("Optional Web MetaDesignSystem root; defaults to <semantic-root>/meta-design-systems/web")),
 			fields.New("semantic-root", fields.TypeString, fields.WithDefault(""), fields.WithHelp("Optional semantic DMETA package root; defaults to instance_root or core_model_root from the manifest")),
 			fields.New("output-dir", fields.TypeString, fields.WithDefault(""), fields.WithHelp("Optional output directory override")),

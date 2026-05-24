@@ -39,10 +39,10 @@ func NewPlanInstanceCommand() (*PlanInstanceCommand, error) {
 
 	desc := cmds.NewCommandDescription(
 		"plan-instance",
-		cmds.WithShort("Validate and summarize selected widget templates for a DMETA instance"),
-		cmds.WithLong(`Plan a concrete DMETA instance before scaffolding.
+		cmds.WithShort("Validate and summarize selected Web templates for a DMETA instance"),
+		cmds.WithLong(`Plan a concrete DMETA instance before target scaffolding.
 
-The command loads the global widget-template catalog and any local template files
+The command loads the global Web template catalog and local Web template files
 referenced by the instance manifest. It validates selected/excluded template ids,
 duplicate component aliases, variant names, and missing selection/exclusion reasons,
 then emits a compact plan table.
@@ -55,7 +55,7 @@ Examples:
 				"root",
 				fields.TypeString,
 				fields.WithDefault(""),
-				fields.WithHelp("Optional global DMETA IR root; when empty uses template_sources.global_ir_root from the instance manifest"),
+				fields.WithHelp("Optional global DMETA IR root; when empty uses interactions_root from the instance manifest"),
 			),
 			fields.New(
 				"instance",

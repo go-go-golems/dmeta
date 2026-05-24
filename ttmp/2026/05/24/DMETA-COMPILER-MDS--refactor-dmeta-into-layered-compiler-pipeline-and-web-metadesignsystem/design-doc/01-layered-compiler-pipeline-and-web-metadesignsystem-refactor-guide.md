@@ -17,10 +17,13 @@ RelatedFiles:
       Note: |-
         Street Deli domain mapping used to elaborate interaction obligations
         Street Deli domain example now maps to concrete semantic archetypes/capabilities
+    - Path: examples/street-deli-ordering/instantiations/street-deli-coffee-counter.yaml
+      Note: Alternate instance manifest migrated to explicit Web/React target schema
     - Path: examples/street-deli-ordering/instantiations/street-deli-ordering.yaml
       Note: |-
         Concrete instance manifest used as the migration acceptance test
         Instance manifest now points to local Web widget templates
+        Explicit Web/React target instance manifest after hard cutover
     - Path: examples/street-deli-ordering/meta-design-systems/web/lowering-rules.yaml
       Note: |-
         Local Street Deli Web lowering rules
@@ -44,7 +47,9 @@ RelatedFiles:
     - Path: pkg/dmeta/generator/react/model.go
       Note: React target scaffold plan and provenance model
     - Path: pkg/dmeta/generator/react/plan.go
-      Note: Planning pass from Web obligations to React files
+      Note: |-
+        Planning pass from Web obligations to React files
+        React planner now reads targets.react and meta_design_systems.web
     - Path: pkg/dmeta/generator/react/render.go
       Note: React metadata sidecar rendering from planned Web/React provenance
     - Path: pkg/dmeta/generator/react/render_test.go
@@ -52,7 +57,9 @@ RelatedFiles:
     - Path: pkg/dmeta/generator/react/write.go
       Note: React target write/dry-run behavior
     - Path: pkg/dmeta/generator/widgets/load.go
-      Note: Current instance/catalog planner validation to extend for abstract/selectable/realizes rules
+      Note: |-
+        Current instance/catalog planner validation to extend for abstract/selectable/realizes rules
+        Plan-instance catalog loading now reads hard-cut manifest fields
     - Path: pkg/dmeta/generator/widgets/render.go
       Note: Current React scaffold rendering and metadata sidecars to evolve into React target scaffold plans
     - Path: pkg/dmeta/interaction/elaborate.go
@@ -91,6 +98,7 @@ LastUpdated: 2026-05-24T18:15:00-04:00
 WhatFor: 'Use when implementing the next DMETA architecture step: Actions/Representations, MetaDesignSystem schemas, web-style UI lowering, React scaffold tooling, and migration of Street Deli templates.'
 WhenToUse: Read before changing pkg/dmeta/validator, pkg/dmeta/generator/widgets, sources/dmeta-ir widget templates, or examples/street-deli-ordering instance manifests for the compiler-pipeline refactor.
 ---
+
 
 
 
