@@ -135,33 +135,36 @@ Goal: derive modality-neutral interaction obligations from the semantic model be
 
 Validation gate:
 
-- [ ] `go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --output table`
+- [x] `go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --output table`
 - [ ] Street Deli elaboration golden test passes.
 
 ## Phase 6: Implement Web MetaDesignSystem loading, validation, and lowering
 
 Goal: lower Interaction IR into Web-specific widget/surface IR using the new canonical Web MetaDesignSystem package.
 
-- [ ] Add `pkg/dmeta/metadesign/web/load.go`.
-- [ ] Add `pkg/dmeta/metadesign/web/validate.go`.
-- [ ] Add `pkg/dmeta/metadesign/web/lower.go`.
-- [ ] Define `WebLoweringRule` model.
-- [ ] Load `sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml`.
-- [ ] Load web widget templates from `sources/dmeta-ir/meta-design-systems/web/widgets/` only.
+- [x] Add `pkg/dmeta/metadesign/web/load.go`.
+- [x] Add `pkg/dmeta/metadesign/web/validate.go`.
+- [x] Add `pkg/dmeta/metadesign/web/lower.go`.
+- [x] Define `WebLoweringRule` model.
+- [x] Add global and Street Deli `lowering-rules.yaml` Web catalogs.
+- [x] Load `sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml`.
+- [x] Load web widget templates from `sources/dmeta-ir/meta-design-systems/web/widgets/` only.
+- [x] Skip `lowering_rules` when loading Web widget template files in the existing validator.
 - [ ] Validate selected Web templates are not abstract and are selectable.
 - [ ] Validate Web templates realize known representations/actions.
 - [ ] Validate Web widgets use target-specific presentation terms only inside Web IR.
-- [ ] Implement lowering rule matching by representation id.
-- [ ] Implement lowering rule matching by action id.
+- [x] Implement lowering rule matching by representation id.
+- [x] Implement lowering rule matching by action id.
 - [ ] Implement lowering rule matching by target context such as density or surface preference.
-- [ ] Emit selected/lowered Web widget candidates with rationale.
-- [ ] Add `dmeta lower-metadesign --target web` command.
-- [ ] Add table output showing representation/action -> web template -> concrete component.
+- [x] Emit selected/lowered Web widget candidates with rationale.
+- [x] Add `dmeta lower-web` command.
+- [ ] Later rename/generalize to `dmeta lower-metadesign --target web` if multi-target lowering needs a single command.
+- [x] Add table output showing representation/action -> web template -> concrete component.
 - [ ] Add YAML output for generated Web widget IR.
 
 Validation gate:
 
-- [ ] `go run ./cmd/dmeta lower-metadesign --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target web --output table`
+- [x] `go run ./cmd/dmeta lower-web --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --web-root ./examples/street-deli-ordering/meta-design-systems/web --output table`
 
 ## Phase 7: Define the React target under Web and replace generic scaffold generation
 
@@ -215,8 +218,8 @@ Goal: hard-cut the concrete deli representation to the new Web MetaDesignSystem 
 Validation gate:
 
 - [ ] `go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table`
-- [ ] `go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --output table`
-- [ ] `go run ./cmd/dmeta lower-metadesign --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target web --output table`
+- [x] `go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --output table`
+- [x] `go run ./cmd/dmeta lower-web --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --web-root ./examples/street-deli-ordering/meta-design-systems/web --output table`
 - [ ] `go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output table`
 
 ## Phase 9: Align promoted React app metadata and stories
@@ -263,8 +266,8 @@ Final validation gate:
 
 - [ ] `go test ./... -count=1`
 - [ ] `go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table`
-- [ ] `go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --output table`
-- [ ] `go run ./cmd/dmeta lower-metadesign --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target web --output table`
+- [x] `go run ./cmd/dmeta elaborate-interactions --root ./examples/street-deli-ordering --output table`
+- [x] `go run ./cmd/dmeta lower-web --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --web-root ./examples/street-deli-ordering/meta-design-systems/web --output table`
 - [ ] `go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output table`
 - [ ] `cd examples/street-deli-ordering/www/mobile-react && npm run build`
 - [ ] `cd examples/street-deli-ordering/www/mobile-react && npm run build-storybook`

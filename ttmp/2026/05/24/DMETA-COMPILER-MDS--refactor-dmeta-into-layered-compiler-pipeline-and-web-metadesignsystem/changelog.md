@@ -80,3 +80,15 @@ Added semantic-to-interaction elaboration command and fixed split core-model loa
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/interaction/elaborate.go — Semantic-to-interaction elaboration implementation
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/validator/load.go — Split core-model loader now reads files.domain_example
 
+
+## 2026-05-24
+
+Added Web MetaDesignSystem lowering catalogs and lower-web command. Interaction obligations can now lower to Web widget template, slot, visual-state, and event-binding obligations for global Web and Street Deli local Web packages.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/web/lowering-rules.yaml — Street Deli Web lowering catalog
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/lower_web.go — lower-web CLI command
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/web/lower.go — Interaction-to-Web lowering pass
+- /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/web/lowering-rules.yaml — Global Web lowering catalog
+
