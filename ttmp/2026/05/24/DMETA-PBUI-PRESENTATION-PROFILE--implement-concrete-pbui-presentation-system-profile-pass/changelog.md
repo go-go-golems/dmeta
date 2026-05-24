@@ -78,7 +78,7 @@ Added Storybook-first scaffold guidance, implemented scaffold-pbui-react-app, an
 
 ## 2026-05-24
 
-Wrote an exhaustive PBUI MetaDesignSystem implementation report covering IRs, schemas, Go packages, commands, generated outputs, application author responsibilities, workflow, and current scaffold limitations.
+Wrote an exhaustive PBUI MetaDesignSystem implementation report covering IRs, schemas, Go packages, commands, generated outputs, application author responsibilities, workflow, and current scaffold limitations (commit 0785f2585d4f8ed3160922ebbd4f0eb3ff2fd746).
 
 ### Related Files
 
