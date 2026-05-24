@@ -34,3 +34,13 @@ Implemented Phase 1 by authoring the local Street Deli concrete PBUI profile YAM
 - /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/pbui/presentation-bindings.yaml — Concrete renderer binding catalog
 - /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/pbui/presentation-system.yaml — Profile package entrypoint
 
+
+## 2026-05-24
+
+Implemented Phase 2 by adding concrete PBUI profile Go model/load/validate support and the validate-pbui-profile CLI command (commit 3d8dd2d636b4317cbe927d9f78f3da4790d0b968).
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/validate_pbui_profile.go — Exposes validation as dmeta validate-pbui-profile
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/validate.go — Validates concrete profile structure and PBUI presentation type references
+
