@@ -1537,7 +1537,7 @@ This is a hard cutover, not a compatibility bridge. The old `scaffold-instance` 
 
 **Inferred user intent:** Finish the architectural cut from generic widget codegen to Web MetaDesignSystem + React target codegen without aliases or legacy shims.
 
-**Commit (code):** pending at time of diary entry — hard-cut instance manifest and CLI changes.
+**Commit (code):** 2b2da3ce4b3c5dc37647a4f0c3c728c02e678440 — "DMETA-COMPILER-MDS: hard cut instance manifests to react target"
 
 ### What I did
 
