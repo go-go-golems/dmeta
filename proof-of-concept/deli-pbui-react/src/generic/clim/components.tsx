@@ -33,7 +33,7 @@ export function ClimShell({
           <input
             id="clim-command-line"
             aria-label="Action command"
-            className="min-w-0 flex-1 bg-transparent text-clim-bright outline-none caret-clim-danger focus:bg-clim-panel/60"
+            className="min-w-0 flex-1 bg-transparent text-clim-bright outline-none caret-clim-danger focus:underline focus:decoration-clim-danger focus:underline-offset-4"
             value={value}
             onChange={(event) => onCommandChange?.(event.target.value)}
             spellCheck={false}
@@ -52,9 +52,9 @@ export function PresentationRefLine({ presentation, selected, selectable, onSele
       type="button"
       onClick={onSelect}
       className={[
-        'block w-full text-left px-2 py-1 border border-transparent transition-colors focus:outline-none focus:ring-1 focus:ring-clim-danger/70',
-        selected ? 'bg-clim-panel border-clim-border text-clim-bright' : '',
-        selectable || onSelect ? 'cursor-pointer text-clim-danger hover:bg-clim-panel/70 hover:border-clim-danger' : 'cursor-default',
+        'block w-full text-left px-0 py-1 transition-colors focus:outline-none focus:underline focus:decoration-clim-danger focus:underline-offset-4',
+        selected ? 'text-clim-bright underline decoration-clim-danger underline-offset-4' : '',
+        selectable || onSelect ? 'cursor-pointer text-clim-danger hover:text-clim-bright hover:underline hover:decoration-clim-danger hover:underline-offset-4' : 'cursor-default',
       ].filter(Boolean).join(' ')}
       data-presentation-type={presentation.type}
       data-presentation-id={presentation.id}
@@ -73,9 +73,9 @@ export function ActionPresentationInline({ action, onInvoke }: { action: ActionP
       onClick={onInvoke}
       disabled={Boolean(action.disabledReason)}
       className={[
-        'underline decoration-dotted mr-3 transition-colors focus:outline-none focus:ring-1 focus:ring-clim-danger/70',
+        'underline decoration-dotted mr-3 transition-colors focus:outline-none focus:decoration-clim-danger focus:underline-offset-4',
         action.descriptor.requiresConfirmation ? 'text-clim-danger' : 'text-clim-bright',
-        action.disabledReason ? 'cursor-not-allowed opacity-40' : 'cursor-pointer hover:bg-clim-panel hover:text-clim-danger',
+        action.disabledReason ? 'cursor-not-allowed opacity-40' : 'cursor-pointer hover:text-clim-danger hover:decoration-clim-danger',
       ].join(' ')}
       data-action-id={action.descriptor.id}
     >
@@ -86,7 +86,7 @@ export function ActionPresentationInline({ action, onInvoke }: { action: ActionP
 
 export function ActionHintBar({ actions, onInvoke }: { actions: ActionPresentation[]; onInvoke?: (action: ActionPresentation) => void }) {
   return (
-    <div className="border-y border-clim-border py-2 my-3 text-sm">
+    <div className="py-2 my-3 text-sm">
       {actions.map((action) => <ActionPresentationInline key={`${action.commandLabel ?? action.descriptor.id}:${action.subject?.id ?? 'global'}`} action={action} onInvoke={() => onInvoke?.(action)} />)}
     </div>
   );
@@ -105,13 +105,13 @@ export function ConfirmPrompt({
     return null;
   }
   return (
-    <div className="border border-clim-danger bg-clim-panel p-3 text-sm" data-testid="confirm-prompt">
-      <div className="text-clim-danger uppercase tracking-wide">Confirm</div>
+    <div className="py-3 text-sm" data-testid="confirm-prompt">
+      <div className="text-clim-danger uppercase tracking-wide underline decoration-clim-danger underline-offset-4">Confirm</div>
       <div className="my-2 text-clim-bright">{binding.confirmation.prompt}</div>
-      <button type="button" className="mr-3 cursor-pointer underline text-clim-danger hover:bg-clim-panel focus:outline-none focus:ring-1 focus:ring-clim-danger/70" onClick={onConfirm}>
+      <button type="button" className="mr-3 cursor-pointer underline text-clim-danger hover:text-clim-bright focus:outline-none focus:decoration-clim-danger focus:underline-offset-4" onClick={onConfirm}>
         {binding.confirmation.confirmLabel}
       </button>
-      <button type="button" className="cursor-pointer underline text-clim-bright hover:bg-clim-panel focus:outline-none focus:ring-1 focus:ring-clim-danger/70" onClick={onCancel}>
+      <button type="button" className="cursor-pointer underline text-clim-bright hover:text-clim-danger focus:outline-none focus:decoration-clim-danger focus:underline-offset-4" onClick={onCancel}>
         {binding.confirmation.cancelLabel}
       </button>
     </div>
