@@ -108,7 +108,7 @@ Do not remove the generic PBUI React scaffold during cleanup. It is useful proof
 The duplicate prototype directory has been removed; the canonical static CLIM reference is:
 
 ```text
-examples/street-deli-ordering/the static CLIM prototype/
+examples/street-deli-ordering/www/clim/
 ```
 
 The current profile references should continue to point at `../../www/clim` in:

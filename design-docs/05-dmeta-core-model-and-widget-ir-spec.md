@@ -29,6 +29,8 @@ WhenToUse: "Read before editing the semantic model, presentation/action definiti
 
 # DMETA Core Model and Widget IR Spec
 
+> **Current status (2026-05-25):** The core-model sections remain useful shared Semantic IR reference material. The widget IR sections are historical or Web-specific and should be superseded by a Web MetaDesignSystem spec. Active Web generation now uses `lower-web`, `plan-scaffold`, and `scaffold-react`; active PBUI generation uses the PBUI/CLIM commands described in the current playbooks.
+
 ## Executive Summary
 
 This document specifies two concrete DMETA v0 source artifacts:

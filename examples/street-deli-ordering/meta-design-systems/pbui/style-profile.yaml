@@ -2,7 +2,7 @@ schema_version: 0
 artifact_type: dmeta_pbui_style_profile
 id: street_deli_clim_mono
 name: Street Deli Monochrome CLIM Style
-summary: Monochrome text-object graphical style extracted from the Street Deli the static CLIM prototype CSS.
+summary: Monochrome text-object graphical style extracted from the Street Deli static CLIM prototype CSS.
 intent: >-
   Preserve the concrete visual grammar of the static CLIM prototype as data. Targets should
   render black background, gray and white text, Berkeley Mono typography, compact

@@ -27,6 +27,8 @@ WhenToUse: "Read before changing DMETA design tokens, density rules, generated d
 
 # DMETA Design Language and Tooling Spec
 
+> **Current status (2026-05-25):** The design-language concepts remain useful, but the tooling sequence is now split by target. Shared validation runs first, then either the Web React playbook or the PBUI/CLIM React playbook. Treat older single-path widget scaffolding language as historical until this spec is split.
+
 ## Executive Summary
 
 This document specifies the concrete v0 design-language source artifact and the first computational tooling plan for DMETA:

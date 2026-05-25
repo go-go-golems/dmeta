@@ -72,7 +72,7 @@ If the old playbooks are needed later for historical context, recover them from 
 | `04-concrete-dmeta-system-spec.md` | **Update or supersede** | It still explains Markdown/YAML split and v0 discipline, but its artifact layout predates Interaction IR, MetaDesignSystems, Web/PBUI split, and concrete PBUI profile pass. | Rewrite as “Current DMETA Compiler System Spec” or replace with a new doc that names Semantic IR, Interaction IR, Web MDS, PBUI MDS, and target apps. |
 | `05-dmeta-core-model-and-widget-ir-spec.md` | **Update/split** | The core-model sections are still useful. The widget IR sections now belong to Web MetaDesignSystem, not the shared core model. | Keep semantic/core-model parts; move widget-specific guidance into a Web MetaDesignSystem spec or mark as Web-only. |
 | `06-dmeta-design-language-and-tooling-spec.md` | **Update/split** | Shared design-language guidance remains useful, but tooling now includes Web and PBUI commands, not just generate-core/scaffold widgets. | Split shared design-language guidance from target-specific tooling commands. Add PBUI profile/style-profile relationship. |
-| `07-generated-instance-widget-review-guide.md` | **Archive or replace** | It reviews old generated instance widget scaffolds. Current review should happen through the Web playbook and PBUI/CLIM playbook. | Archive after extracting any still-useful promotion checklist into the Web playbook. |
+| `07-generated-instance-widget-review-guide.md` | **Archived** | It reviewed old generated instance widget scaffolds. Current review now happens through the Web playbook and PBUI/CLIM playbook. | Moved to `docs/archive/legacy-widget-ir-v0/07-generated-instance-widget-review-guide.md`. |
 | `00-document-map-and-cleanup-plan.md` | **Keep** | Current inventory and cleanup decision map. | Update when docs are rewritten, archived, or deleted. |
 
 ## Recommended design-doc cleanup sequence
@@ -130,13 +130,13 @@ This avoids putting widget-template rules, PBUI presentation types, concrete pro
 
 ### Step 4: Archive generated widget review guide
 
-Archive or remove:
+Archived:
 
 ```text
-design-docs/07-generated-instance-widget-review-guide.md
+docs/archive/legacy-widget-ir-v0/07-generated-instance-widget-review-guide.md
 ```
 
-Do this only after the Web playbook has enough promotion/review guidance. The new Web playbook already captures the important rule: generated Web scaffold output is a migration aid once a promoted app exists.
+The Web playbook now carries the active promotion/review guidance, including the rule that generated Web scaffold output is a migration aid once a promoted app exists.
 
 ## Active documentation set after cleanup
 

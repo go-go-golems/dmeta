@@ -29,6 +29,8 @@ WhenToUse: "Read after the general foundation docs and before working on dmeta/s
 
 # Concrete DMETA System Spec
 
+> **Current status (2026-05-25):** This document is retained as the original v0 system spec, but the active compiler architecture is now split into shared Semantic/Interaction IR plus two MetaDesignSystem target lines: Web React and PBUI/CLIM React. Use `playbooks/01-dmeta-shared-compiler-playbook.md`, `playbooks/02-dmeta-web-react-metadesignsystem-playbook.md`, `playbooks/03-dmeta-pbui-clim-metadesignsystem-playbook.md`, and `design-docs/00-document-map-and-cleanup-plan.md` for current operations. Mentions of `scaffold-instance`, `generated/widgets`, `generated/coffee-counter-widgets`, and the coffee-counter instance are historical.
+
 ## Executive Summary
 
 DMETA v0 is a small, concrete authoring system for producing dense operational React design systems. It keeps the successful HAIR-041 pattern — Markdown for reasoning/process, YAML for tooling-consumed source artifacts, deterministic generators, manual promotion, Storybook, lint, and audit — but adapts it to presentation-based UI and semantic archetypes.
