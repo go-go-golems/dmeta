@@ -327,3 +327,80 @@ export const dmetaGeneratedMetadata = {
   promotion: { promotable, status, instructions, changelog }
 } as const;
 ```
+
+## Step 4: Add shared metadata to Web React scaffolds
+
+This step wired the Web React scaffold renderer into the shared generated metadata package. The Web target already had sidecar metadata, but it used a target-local schema and the generated TypeScript files only had a short header. The renderer now emits the shared schema in sidecars and adds parseable `dmetaGeneratedMetadata` exports plus promotion instructions to generated TypeScript and TSX scaffold files.
+
+The Web path is the one that produces promotable React widget scaffolds. For that reason, Web component, props, story, barrel, style, adapter TODO, and README file kinds are now explicitly marked as promotable in metadata; package-level/generated-registry-style files remain regenerate-only.
+
+### Prompt Context
+
+**User prompt (verbatim):** (see Step 3)
+
+**Assistant interpretation:** Continue implementing ticket phases sequentially, committing the Web React metadata phase separately.
+
+**Inferred user intent:** Ensure the Web React target gives future LLMs/developers enough semantic and Web MetaDesignSystem context before a scaffold is promoted.
+
+### What I did
+
+- Added generation/source-root fields to the Web `ScaffoldPlan`.
+- Set `plan.Generated` in `scaffold-react` using the shared command/time/git context helper.
+- Replaced Web metadata sidecars with the shared `GeneratedFileMetadata` schema.
+- Added `dmetaGeneratedMetadata` and promotion guidance comments to generated Web React TypeScript/TSX files.
+- Marked Web component-oriented file kinds as promotable.
+- Updated Web renderer tests for the shared metadata envelope.
+- Ran a `scaffold-react --dry-run` command to inspect planned output sizes and confirm rendering still works.
+
+### Why
+
+- Web React scaffolds are the primary promotion path for visual widget code.
+- The metadata should stay beside the code in parseable form before and after promotion.
+
+### What worked
+
+- `go test ./pkg/dmeta/generator/react ./pkg/dmeta/cmds -count=1` passed.
+- `go run ./cmd/dmeta scaffold-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --dry-run --force --output table` rendered a full planned file set.
+
+### What didn't work
+
+- The old Web renderer test expected the target-local sidecar schema with fields such as `generatedBy`, `realizes`, and `provenance`. I updated the test to assert the shared envelope fields: `generated`, `artifact`, `pipeline`, `semantics`, and `web`.
+
+### What I learned
+
+- The old Web metadata sidecar content mapped cleanly into the shared envelope. No conceptual information had to be discarded.
+- The inline metadata makes generated files larger, but it directly satisfies the requirement that LLMs and tooling can inspect the system context from the final React files.
+
+### What was tricky to build
+
+- The Web renderer had function signatures that accepted only `ComponentPlan`. To emit full metadata, render functions also needed the top-level `ScaffoldPlan` and the specific `PlannedFile`.
+- CSS files still use a CSS comment header rather than a parseable TypeScript export. This is acceptable for now because parseable metadata is available in adjacent TS/TSX and JSON sidecar files.
+
+### What warrants a second pair of eyes
+
+- Review whether all Web file kinds marked promotable should be promotable, especially `barrel` and `adapter_todo`.
+- Review whether CSS files need a CSS-custom-property metadata block or whether adjacent TS/JSON metadata is enough.
+
+### What should be done in the future
+
+- Add a linter that checks promoted Web React files still export `dmetaGeneratedMetadata`.
+- Consider rendering a small `*.metadata.json` beside every non-TS promotable file.
+
+### Code review instructions
+
+- Review `pkg/dmeta/generator/react/render.go`, especially `webGeneratedMetadata` and `webFileIsPromotable`.
+- Review `pkg/dmeta/generator/react/render_test.go` for the shared envelope expectations.
+- Validate with:
+  - `go test ./pkg/dmeta/generator/react ./pkg/dmeta/cmds -count=1`
+  - `go run ./cmd/dmeta scaffold-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --dry-run --force --output table`
+
+### Technical details
+
+Web metadata includes:
+
+- semantic domain types;
+- Interaction IR representations and actions;
+- Web template id and variant;
+- Web slots, visual states, and event bindings;
+- React package/file references;
+- promotion instructions for scaffold files intended to become maintained React code.

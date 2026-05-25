@@ -31,7 +31,8 @@ func TestRenderMetadataSidecarIncludesWebAndReactProvenance(t *testing.T) {
 		},
 	}
 
-	content, err := RenderMetadataSidecar(component)
+	plan := ScaffoldPlan{TargetID: "react", MetaDesignSystem: "web", PackageName: "dmeta-web-react", SemanticRoot: "examples/street-deli-ordering", InteractionsRoot: "sources/dmeta-ir", WebRoot: "examples/street-deli-ordering/meta-design-systems/web", TargetFile: "sources/dmeta-ir/meta-design-systems/web/targets/react.yaml"}
+	content, err := RenderMetadataSidecar(plan, component)
 	if err != nil {
 		t.Fatalf("RenderMetadataSidecar returned error: %v", err)
 	}
@@ -41,25 +42,25 @@ func TestRenderMetadataSidecarIncludesWebAndReactProvenance(t *testing.T) {
 		t.Fatalf("metadata sidecar is not valid JSON: %v\n%s", err, string(content))
 	}
 
-	assertEqual(t, payload["generatedBy"], "dmeta scaffold-react")
-	assertEqual(t, payload["metaDesignSystem"], "web")
-	assertEqual(t, payload["codegenTarget"], "react")
-	assertEqual(t, payload["componentName"], "StreetDeliCompositionCard")
-	assertEqual(t, payload["templateId"], "deli.composition_card")
+	generated := payload["generated"].(map[string]any)
+	assertEqual(t, generated["by"], "dmeta scaffold-react")
+	artifact := payload["artifact"].(map[string]any)
+	assertEqual(t, artifact["symbol"], "StreetDeliCompositionCardMetadata")
+	pipeline := payload["pipeline"].(map[string]any)
+	assertEqual(t, pipeline["metaDesignSystem"], "web")
+	assertEqual(t, pipeline["target"], "react")
 
-	realizes := payload["realizes"].(map[string]any)
-	assertStringSlice(t, realizes["representations"], []string{"composition_summary", "dietary_summary"})
-	assertStringSlice(t, realizes["actions"], []string{"inspect_subject"})
+	semantics := payload["semantics"].(map[string]any)
+	assertStringSlice(t, semantics["representations"], []string{"composition_summary", "dietary_summary"})
+	assertStringSlice(t, semantics["actions"], []string{"inspect_subject"})
+	assertStringSlice(t, semantics["domainTypes"], []string{"MenuItem", "OrderItem"})
+	assertStringSlice(t, semantics["sourceRules"], []string{"composition_summary_to_deli_card"})
 
 	web := payload["web"].(map[string]any)
+	assertEqual(t, web["templateId"], "deli.composition_card")
 	assertStringSlice(t, web["slots"], []string{"description", "dietary_tags", "price", "title"})
 	assertStringSlice(t, web["visualStates"], []string{"default", "selected", "unavailable"})
 	assertStringSlice(t, web["eventBindings"], []string{"inspect_subject"})
-
-	provenance := payload["provenance"].(map[string]any)
-	assertStringSlice(t, provenance["domainTypes"], []string{"MenuItem", "OrderItem"})
-	assertStringSlice(t, provenance["sourceRules"], []string{"composition_summary_to_deli_card"})
-	assertStringSlice(t, provenance["passes"], []string{"semantic-ir", "interaction-elaboration", "web-lowering", "react-planning"})
 }
 
 func assertEqual(t *testing.T, got any, want string) {

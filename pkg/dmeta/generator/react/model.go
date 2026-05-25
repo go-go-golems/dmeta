@@ -1,5 +1,7 @@
 package react
 
+import genmeta "github.com/go-go-golems/dmeta/pkg/dmeta/generator/metadata"
+
 type TargetFile struct {
 	SchemaVersion int              `yaml:"schema_version"`
 	ArtifactType  string           `yaml:"artifact_type"`
@@ -33,6 +35,11 @@ type ScaffoldPlan struct {
 	MetaDesignSystem string
 	OutputDir        string
 	PackageName      string
+	Generated        genmeta.GeneratedInfo
+	SemanticRoot     string
+	InteractionsRoot string
+	WebRoot          string
+	TargetFile       string
 	Components       []ComponentPlan
 	Files            []PlannedFile
 }

@@ -3,6 +3,7 @@ package cmds
 import (
 	"context"
 
+	genmeta "github.com/go-go-golems/dmeta/pkg/dmeta/generator/metadata"
 	reactgen "github.com/go-go-golems/dmeta/pkg/dmeta/generator/react"
 	"github.com/go-go-golems/glazed/pkg/cli"
 	"github.com/go-go-golems/glazed/pkg/cmds"
@@ -93,6 +94,7 @@ func (c *ScaffoldReactCommand) RunIntoGlazeProcessor(ctx context.Context, vals *
 	if err != nil {
 		return err
 	}
+	plan.Generated = genmeta.CurrentGeneratedInfo("dmeta scaffold-react")
 	var files []reactgen.GeneratedFile
 	if s.MetadataOnly {
 		files, err = reactgen.GenerateMetadataSidecars(plan)
