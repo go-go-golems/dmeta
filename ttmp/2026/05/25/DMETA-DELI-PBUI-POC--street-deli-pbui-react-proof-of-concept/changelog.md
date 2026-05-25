@@ -58,3 +58,13 @@ Added interactive menu/detail/cart/confirm/tracker flow, Storybook states, and P
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.stories.tsx — Storybook states for the flow
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Interactive CLIM flow
 
+
+## 2026-05-25
+
+Cleaned up the Vite app document shell, restarted tmux verification servers, and reran Playwright app/Storybook checks (commit 91bdd6a).
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/index.html — Complete app document shell and favicon
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Browser-tested interactive order flow
+
