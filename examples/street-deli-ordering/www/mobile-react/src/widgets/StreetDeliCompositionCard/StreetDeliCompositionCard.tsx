@@ -14,7 +14,7 @@
  * Optional: available.availability_state, ingredient_composable.required_roles
  *
  * @see www/mobile/styles.css → .menu-card
- * @see generated/widgets/StreetDeliCompositionCard/StreetDeliCompositionCard.metadata.ts
+ * @see examples/street-deli-ordering/meta-design-systems/web/widgets/item-cards.yaml
  */
 
 import type { MenuItemViewModel } from '../../view-models/types';

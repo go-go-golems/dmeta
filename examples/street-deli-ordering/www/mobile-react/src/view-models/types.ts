@@ -6,7 +6,7 @@
  * and informed by the DMETA semantic context and projection hints.
  *
  * @see www/mobile/app.js -- MENU, SUBSTITUTIONS, state
- * @see generated/widgets - scaffold type stubs
+ * @see examples/street-deli-ordering/meta-design-systems/web - Web MetaDesignSystem provenance
  */
 
 // ─── INGREDIENT ────────────────────────────────────────────────────────
