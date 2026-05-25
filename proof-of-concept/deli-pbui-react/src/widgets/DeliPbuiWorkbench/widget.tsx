@@ -592,7 +592,7 @@ export function DeliPbuiWorkbench({
           <PbuiConfirmPrompt binding={session.pendingCommand} onConfirm={confirmPending} onCancel={cancelPending} />
         ) : null}
 
-        <PbuiActionBar actions={actions} onInvoke={handleInvoke} />
+        <PbuiActionBar actions={actions} selectedCommandLabel={session.pendingCommand?.id} onInvoke={handleInvoke} />
       </section>
     </PbuiShell>
   );
