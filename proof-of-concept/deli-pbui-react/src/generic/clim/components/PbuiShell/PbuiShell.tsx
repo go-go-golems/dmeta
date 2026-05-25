@@ -1,7 +1,16 @@
 import { PbuiCommandLine } from '../PbuiCommandLine';
 import type { PbuiShellProps } from './types';
 
-export function PbuiShell({ state, children, commandValue, onCommandChange, onCommandSubmit }: PbuiShellProps) {
+export function PbuiShell({
+  state,
+  children,
+  commandValue,
+  onCommandChange,
+  onCommandSubmit,
+  onCommandHistoryPrevious,
+  onCommandHistoryNext,
+  onCommandCancel,
+}: PbuiShellProps) {
   const value = commandValue ?? state.commandBuffer;
   return (
     <div className="min-h-screen bg-clim-bg text-clim-fg grid grid-rows-[auto_1fr_auto]">
@@ -10,7 +19,15 @@ export function PbuiShell({ state, children, commandValue, onCommandChange, onCo
         <span className="text-clim-bright">{state.modeLabel}</span>
       </header>
       <main className="p-3">{children}</main>
-      <PbuiCommandLine value={value} result={state.resultLine} onChange={onCommandChange} onSubmit={onCommandSubmit} />
+      <PbuiCommandLine
+        value={value}
+        result={state.resultLine}
+        onChange={onCommandChange}
+        onSubmit={onCommandSubmit}
+        onHistoryPrevious={onCommandHistoryPrevious}
+        onHistoryNext={onCommandHistoryNext}
+        onCancel={onCommandCancel}
+      />
     </div>
   );
 }

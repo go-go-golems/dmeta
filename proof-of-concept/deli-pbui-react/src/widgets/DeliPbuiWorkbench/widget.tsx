@@ -13,6 +13,7 @@ import {
   compatibleBindingsForPresentation,
   presentationVisualState,
 } from '../../generic/clim/compatibility';
+import { parseCommandLine } from '../../generic/clim/commandParser';
 import { assertCompatibilityRuleCoverage, canUsePresentationFromRules } from '../../generic/clim/compatibilityRules';
 import { runCommandHandler } from '../../generic/clim/handlerRegistry';
 import { pbuiSessionActions } from '../../generic/clim/pbuiSessionSlice';
@@ -382,18 +383,7 @@ export function DeliPbuiWorkbench({
     dispatch(pbuiSessionActions.setResult(result.resultLine ?? defaultResultLine));
   }
 
-  function handleCommandSubmit(value: string) {
-    dispatch(pbuiSessionActions.setCommandBuffer(value));
-    const [commandID, ...args] = value.trim().split(/\s+/);
-    if (!commandID) {
-      dispatch(pbuiSessionActions.setResult('Type a command such as CUSTOMIZE, CART, or HELP.'));
-      return;
-    }
-    const binding = commandBindings.find((candidate) => candidate.id === commandID.toUpperCase());
-    if (!binding) {
-      dispatch(pbuiSessionActions.setResult(`Unknown command for ${view.modeLabel}: ${commandID.toUpperCase()}`));
-      return;
-    }
+  function executeBindingFromRepl(binding: CommandBinding<DeliCommandId, DeliActionId>, args: string[]) {
     const availability = availabilityForBinding(binding);
     if (!availability.enabled) {
       dispatch(pbuiSessionActions.setResult(availability.reason ?? `${binding.id} is not available.`));
@@ -404,7 +394,55 @@ export function DeliPbuiWorkbench({
       dispatch(pbuiSessionActions.enterSelect({ command: binding, resultLine: `Select a compatible target for ${binding.id}.` }));
       return;
     }
-    invokeBinding(binding, subject, { tag: args[0] ?? 'vegetarian', category: args[0] ?? 'sandwiches' });
+    invokeBinding(binding, subject, { tag: args.join(' ') || 'vegetarian', category: args.join(' ') || 'sandwiches' });
+  }
+
+  function handleCommandSubmit(value: string) {
+    dispatch(pbuiSessionActions.setCommandBuffer(value));
+    dispatch(pbuiSessionActions.pushCommandHistory(value));
+    const parsed = parseCommandLine(value, Object.keys(deliCommandBindings) as DeliCommandId[]);
+
+    if (parsed.kind === 'empty') {
+      dispatch(pbuiSessionActions.setResult('Type a command such as CUSTOMIZE, CART, HELP, YES, or CANCEL.'));
+      return;
+    }
+
+    if (parsed.kind === 'cancel') {
+      if (session.mode === 'confirm') {
+        cancelPending();
+        return;
+      }
+      if (session.mode === 'select') {
+        dispatch(pbuiSessionActions.selectCancelled({ resultLine: 'Cancelled target selection.' }));
+        return;
+      }
+      dispatch(pbuiSessionActions.setResult('Nothing to cancel.'));
+      return;
+    }
+
+    if (parsed.kind === 'confirm') {
+      if (session.mode === 'confirm') {
+        confirmPending();
+        return;
+      }
+      dispatch(pbuiSessionActions.setResult('Nothing pending confirmation.'));
+      return;
+    }
+
+    if (parsed.kind === 'unknown') {
+      dispatch(pbuiSessionActions.setResult(`Unknown command: ${parsed.command}. Type HELP.`));
+      return;
+    }
+
+    const binding = commandBindings.find((candidate) => candidate.id === parsed.commandId);
+    if (!binding) {
+      const globalBinding = deliCommandBindings[parsed.commandId];
+      const views = globalBinding?.views.join(', ') ?? 'another view';
+      dispatch(pbuiSessionActions.setResult(`${parsed.commandId} is not available in ${view.modeLabel}. Available in: ${views}.`));
+      return;
+    }
+
+    executeBindingFromRepl(binding, parsed.args);
   }
 
   function confirmPending() {
@@ -534,9 +572,12 @@ export function DeliPbuiWorkbench({
   return (
     <PbuiShell
       state={state}
-      commandValue={mode === 'confirm' || mode === 'select' ? session.pendingCommand?.id ?? session.commandBuffer : session.commandBuffer}
+      commandValue={session.commandBuffer}
       onCommandChange={(value) => dispatch(pbuiSessionActions.setCommandBuffer(value))}
       onCommandSubmit={handleCommandSubmit}
+      onCommandHistoryPrevious={() => dispatch(pbuiSessionActions.recallPreviousCommand())}
+      onCommandHistoryNext={() => dispatch(pbuiSessionActions.recallNextCommand())}
+      onCommandCancel={() => handleCommandSubmit('ESC')}
     >
       <section className="grid gap-3">
         <div className="py-2">

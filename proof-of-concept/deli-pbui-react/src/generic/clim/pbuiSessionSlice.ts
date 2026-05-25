@@ -8,12 +8,15 @@ export interface PbuiSessionState {
   pendingCommand?: CommandBinding;
   pendingRequest?: ActionRequest;
   commandBuffer: string;
+  commandHistory: string[];
+  historyCursor?: number;
   resultLine?: string;
 }
 
 export const initialPbuiSessionState: PbuiSessionState = {
   mode: 'normal',
   commandBuffer: 'LIST',
+  commandHistory: [],
 };
 
 export const pbuiSessionSlice = createSlice({
@@ -35,7 +38,48 @@ export const pbuiSessionSlice = createSlice({
     },
     setCommandBuffer: (state, action: PayloadAction<string>) => {
       state.commandBuffer = action.payload;
+      state.historyCursor = undefined;
     },
+    pushCommandHistory: (state, action: PayloadAction<string>) => {
+      const command = action.payload.trim();
+      if (!command) {
+        return;
+      }
+      if (state.commandHistory[0] !== command) {
+        state.commandHistory.unshift(command);
+      }
+      if (state.commandHistory.length > 100) {
+        state.commandHistory.pop();
+      }
+      state.historyCursor = undefined;
+    },
+    recallPreviousCommand: (state) => {
+      if (state.commandHistory.length === 0) {
+        return;
+      }
+      const nextCursor = state.historyCursor === undefined
+        ? 0
+        : Math.min(state.historyCursor + 1, state.commandHistory.length - 1);
+      state.historyCursor = nextCursor;
+      state.commandBuffer = state.commandHistory[nextCursor];
+    },
+    recallNextCommand: (state) => {
+      if (state.historyCursor === undefined) {
+        return;
+      }
+      const nextCursor = state.historyCursor - 1;
+      if (nextCursor < 0) {
+        state.historyCursor = undefined;
+        state.commandBuffer = '';
+        return;
+      }
+      state.historyCursor = nextCursor;
+      state.commandBuffer = state.commandHistory[nextCursor];
+    },
+    clearCommandBuffer: (state) => {
+      state.commandBuffer = '';
+      state.historyCursor = undefined;
+    }, 
     setResult: (state, action: PayloadAction<string | undefined>) => {
       state.resultLine = action.payload;
     },

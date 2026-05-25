@@ -2370,3 +2370,138 @@ CommandBinding.inputMapping contains selected_presentation
   -> generic evaluator checks current PresentationRef
   -> compatibleBindingsForPresentation/select mode/action invocation share result
 ```
+
+## Step 22: Add a working CLIM-style REPL command line
+
+This step addressed the prototype gap that was still visible after the Redux and compatibility work: the footer looked like a REPL, but it behaved more like a thin command submit box. The original Readwise CLIM prototype had a command parser, normalized command lookup, command history, select-mode cancellation, and confirmation through typed commands. I added those mechanics to the Street Deli PBUI POC.
+
+The command line is now a usable CLIM-style REPL surface. It accepts normalized action names such as `customize`, `remove ingredient`, `add to order`, and `place order`; it supports typed `YES` confirmation; it supports `CANCEL`/`ESC`; and it has ArrowUp/ArrowDown command history backed by the PBUI session Redux slice.
+
+### Prompt Context
+
+**User prompt (verbatim):** "we need a working REPL, lke in the original readwise CLIM example, for example. 
+
+Add tasks and implement that, there is still work on the prototype. I also need to validate."
+
+**Assistant interpretation:** Add explicit ticket tasks, then implement a real CLIM-style command-line loop comparable to the Readwise prototype rather than leaving a minimal command field.
+
+**Inferred user intent:** Make the proof-of-concept reviewable as an interaction prototype, with typed command workflows for normal, select, confirm, history, and cancellation behavior.
+
+### What I did
+
+- Added and completed tasks for:
+  - generic command parser and command history;
+  - Deli REPL wiring for normalized commands, arguments, confirmation, cancellation, and history navigation;
+  - app and Storybook validation.
+- Added `proof-of-concept/deli-pbui-react/src/generic/clim/commandParser.ts` with:
+  - `normalizeCommandKey`
+  - `parseCommandLine`
+  - parse results for `empty`, `action`, `confirm`, `cancel`, and `unknown`.
+- Extended `pbuiSessionSlice` with:
+  - `commandHistory`
+  - `historyCursor`
+  - `pushCommandHistory`
+  - `recallPreviousCommand`
+  - `recallNextCommand`
+  - `clearCommandBuffer`
+- Updated `PbuiCommandLine` and `PbuiShell` to support:
+  - ArrowUp command history recall;
+  - ArrowDown forward recall / clear;
+  - Escape cancellation.
+- Updated `DeliPbuiWorkbench` so typed REPL commands:
+  - normalize space-separated names to command ids (`remove ingredient` -> `REMOVE-INGREDIENT`);
+  - execute currently available command bindings;
+  - enter select mode when a target is needed;
+  - confirm pending actions with `YES`, `Y`, `CONFIRM`, or `OK`;
+  - cancel select/confirm with `CANCEL`, `NO`, `ESC`, or Escape key;
+  - report unknown commands and view-unavailable commands clearly.
+- Fixed confirm/select command input so it remains editable. The previous shell forced the input value to the pending command id during `confirm`/`select`, which prevented typing `yes` in the confirm prompt.
+
+### Why
+
+- A CLIM/PBUI prototype needs a real command loop, not only clickable action presentations.
+- Typed commands are part of validating the interaction model: action lookup, argument prompting, target selection, confirmation, and cancellation.
+- Command history is a core REPL affordance and mirrors the Readwise CLIM reference behavior.
+
+### What worked
+
+Validation passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Playwright verified app REPL flow:
+
+```text
+customize -> detail for Hudson Classic
+remove ingredient -> SELECT mode
+click tomato -> remove_part request
+add to order -> cart
+place order -> confirm prompt
+yes -> tracker and confirmed submit_order request
+back -> cart
+ArrowUp recalls back
+wat -> Unknown command: wat. Type HELP.
+```
+
+Playwright verified Storybook REPL flow:
+
+```text
+DetailMode story
+remove ingredient -> SELECT mode
+Escape -> Cancelled target selection.
+remove ingredient again
+ArrowUp recalls remove ingredient
+```
+
+### What didn't work
+
+- The first app Playwright check assumed `customize` would enter select mode. It did not: because the menu item fallback selection is compatible, `customize` correctly entered detail immediately. I adjusted the check to validate the actual CLIM behavior.
+- The first typed confirmation attempt timed out because the shell forced the command input value to `PLACE-ORDER` while in confirm mode. The fix was to keep the input bound to `session.commandBuffer` in all modes so the user can type `yes` or `cancel`.
+
+### What I learned
+
+- Select/confirm mode state is not enough; the command line must remain editable during those modes.
+- Normalizing the whole command first allows both `PLACE-ORDER` and `place order`; falling back to normalized first token plus args allows commands like `FILTER-DIETARY vegan`.
+- REPL history belongs in `pbuiSession`, not local component state, because it is part of the interaction session.
+
+### What was tricky to build
+
+- Arrow history navigation had to be implemented at the command-line component boundary while the history itself lives in Redux. `PbuiCommandLine` now emits history intents, and `pbuiSessionSlice` owns the cursor and buffer updates.
+- `Escape` needs mode-sensitive behavior: in select mode it cancels target selection; in confirm mode it cancels confirmation; in normal mode it reports that there is nothing to cancel.
+- Confirmation through typed input uses the already-built pending request. It should not rebuild from the current command buffer after the user types `yes`.
+
+### What warrants a second pair of eyes
+
+- Review whether confirm words (`YES`, `Y`, `CONFIRM`, `OK`) and cancel words (`NO`, `N`, `CANCEL`, `ESC`, `ESCAPE`, `ABORT`) are the right grammar for PBUI generally.
+- Review whether command history should include failed/unknown commands. It currently does, like many REPLs.
+- Review whether view-unavailable global commands should offer route suggestions or auto-route in future.
+
+### What should be done in the future
+
+- Add committed tests for `parseCommandLine` and `pbuiSessionSlice` history reducers.
+- Add Storybook play tests for typed `remove ingredient`, Escape cancel, and typed `yes` confirmation.
+- Add richer command completion/help output after the basic REPL stabilizes.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/commandParser.ts`.
+- Review history reducers in `proof-of-concept/deli-pbui-react/src/generic/clim/pbuiSessionSlice.ts`.
+- Review keyboard wiring in `PbuiCommandLine` and `PbuiShell`.
+- Review `handleCommandSubmit` in `DeliPbuiWorkbench` for mode-sensitive REPL behavior.
+
+### Technical details
+
+The REPL flow is now:
+
+```text
+input string
+  -> parseCommandLine(command ids)
+  -> push command history
+  -> empty / cancel / confirm / unknown / action branch
+  -> action branch finds current-view binding
+  -> availability + compatibility checks
+  -> invoke command, enter select, or enter confirm
+```

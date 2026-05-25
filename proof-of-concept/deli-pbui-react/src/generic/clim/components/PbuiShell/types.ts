@@ -7,4 +7,7 @@ export interface PbuiShellProps {
   commandValue?: string;
   onCommandChange?: (value: string) => void;
   onCommandSubmit?: (value: string) => void;
+  onCommandHistoryPrevious?: () => void;
+  onCommandHistoryNext?: () => void;
+  onCommandCancel?: () => void;
 }

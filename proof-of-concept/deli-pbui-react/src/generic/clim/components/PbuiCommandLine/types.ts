@@ -4,4 +4,7 @@ export interface PbuiCommandLineProps {
   className?: string;
   onChange?: (value: string) => void;
   onSubmit?: (value: string) => void;
+  onHistoryPrevious?: () => void;
+  onHistoryNext?: () => void;
+  onCancel?: () => void;
 }
