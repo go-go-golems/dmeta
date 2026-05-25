@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	genmeta "github.com/go-go-golems/dmeta/pkg/dmeta/generator/metadata"
 	"github.com/go-go-golems/dmeta/pkg/dmeta/interaction"
 	pbuimds "github.com/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui"
 	"github.com/go-go-golems/dmeta/pkg/dmeta/validator"
@@ -115,6 +116,10 @@ func (c *ScaffoldPBUIReactCommand) RunIntoGlazeProcessor(ctx context.Context, va
 		pbuimds.DeriveActionDescriptors(interactionPkg),
 		outputDir,
 	)
+	plan.Generated = genmeta.CurrentGeneratedInfo("dmeta scaffold-pbui-react")
+	plan.SemanticRoot = s.Root
+	plan.InteractionsRoot = s.InteractionsRoot
+	plan.PBUIRoot = s.PBUIRoot
 	rendered, err := pbuimds.RenderReactPlan(plan)
 	if err != nil {
 		return err

@@ -4,6 +4,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	genmeta "github.com/go-go-golems/dmeta/pkg/dmeta/generator/metadata"
 )
 
 // ReactPlan is the PBUI React target planning result.
@@ -17,6 +19,10 @@ type ReactPlan struct {
 	MetaDesignSystem  string
 	OutputDir         string
 	PackageName       string
+	Generated         genmeta.GeneratedInfo
+	SemanticRoot      string
+	InteractionsRoot  string
+	PBUIRoot          string
 	ObjectDescriptors []ObjectTypeDescriptor
 	ActionDescriptors []ActionDescriptor
 	PresentationPlans []PresentationPlan
@@ -69,6 +75,7 @@ func BuildReactPlan(pkg *Package, target ReactTargetFile, obligations []Obligati
 		MetaDesignSystem:  target.Provenance.MetaDesignSystem,
 		OutputDir:         outputDir,
 		PackageName:       packageName,
+		Generated:         genmeta.GeneratedInfo{By: "dmeta plan-pbui-react/scaffold-pbui-react"},
 		ObjectDescriptors: append([]ObjectTypeDescriptor{}, objectDescriptors...),
 		ActionDescriptors: append([]ActionDescriptor{}, actionDescriptors...),
 	}

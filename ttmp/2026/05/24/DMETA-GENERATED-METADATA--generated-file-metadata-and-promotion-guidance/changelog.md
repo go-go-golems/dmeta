@@ -26,3 +26,15 @@ Phase 1: Added shared generated metadata model/render helpers and tests.
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/metadata/render.go — Header
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/metadata/render_test.go — Tests for generated metadata rendering
 
+
+## 2026-05-24
+
+Phase 2: Threaded shared metadata into generic PBUI React renderer and validated ignored proof package regeneration/build.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_pbui_react.go — CLI fills generation command/time/source roots
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_plan.go — PBUI React plan carries generation/source-root context
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_render.go — PBUI React renderer now emits shared metadata in TS/TSX and JSON sidecars
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/testdata/composition_metadata.golden.json — Golden fixture for shared generated metadata envelope
+
