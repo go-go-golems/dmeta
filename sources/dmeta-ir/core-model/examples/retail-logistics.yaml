@@ -1,0 +1,129 @@
+schema_version: 0
+artifact_type: dmeta_domain_example
+id: retail_logistics
+summary: Retail logistics/order pipeline pressure test.
+long_summary: This domain example pressure-tests the generic DMETA archetype and capability vocabulary. It is not a production
+  domain schema; it shows how concrete domain objects map to the reusable core model so validators, generators, and reviewers
+  can detect whether the abstractions are too narrow or too vague.
+references:
+  core_model_design_doc: ../../../../design-docs/02-semantic-archetype-and-capability-model.md
+  core_model_widget_ir_spec: ../../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
+domain_example:
+  description: Retail logistics/order pipeline pressure test.
+  domain_types:
+    Carrier:
+      description: Shipping carrier or delivery service.
+      archetypes:
+      - Actor
+      capabilities:
+        identifiable:
+          id: carrier_id
+        labelable:
+          label: carrier_name
+        stateful:
+          state: availability
+        filter_source:
+          filter_keys: [carrier_id]
+          filter_value: carrier_id
+          filter_label: carrier_name
+    Warehouse:
+      description: Warehouse/facility participating in fulfillment.
+      archetypes:
+      - Actor
+      - Resource
+      capabilities:
+        identifiable:
+          id: warehouse_id
+        labelable:
+          label: warehouse_name
+        spatial:
+          location: facility_location
+    Order:
+      description: Customer order moving through fulfillment.
+      archetypes:
+      - WorkItem
+      capabilities:
+        identifiable:
+          id: order_id
+        labelable:
+          label: order_number
+          subtitle: customer_name
+        stateful:
+          state: order_status
+        temporal:
+          timestamp: created_at
+        relatable:
+          actor_ref: customer_id
+    Shipment:
+      description: Shipment lifecycle for an order or package set.
+      archetypes:
+      - WorkItem
+      - TimelineSpan
+      capabilities:
+        identifiable:
+          id: shipment_id
+        labelable:
+          label: tracking_number
+          subtitle: destination
+        stateful:
+          state: shipment_status
+        temporal:
+          start_time: created_at
+          end_time: delivered_at
+        spatial:
+          origin: origin_facility
+          destination: destination_address
+        relatable:
+          actor_ref: carrier_id
+          resource_ref: order_id
+    Package:
+      description: Physical package/resource in fulfillment.
+      archetypes:
+      - Resource
+      capabilities:
+        identifiable:
+          id: package_id
+        labelable:
+          label: package_label
+        relatable:
+          work_item_ref: shipment_id
+    ScanEvent:
+      description: Append-only facility/carrier scan event.
+      archetypes:
+      - Event
+      capabilities:
+        identifiable:
+          id: scan_id
+        temporal:
+          timestamp: scanned_at
+        stateful:
+          state: scan_type
+        spatial:
+          location: facility_id
+        relatable:
+          work_item_ref: shipment_id
+        filter_source:
+          filter_keys: [scan_type, facility_id, shipment_id]
+          filter_value: scan_id
+          filter_label: scan_type
+    ScanEventResultSet:
+      description: Filterable/searchable scan-event stream or table for logistics operations.
+      archetypes:
+      - ResultSet
+      capabilities:
+        identifiable:
+          id: result_set_id
+        labelable:
+          label: result_label
+        filterable:
+          filter_target_id: logistics_scan_events
+          filter_dimensions: [shipment_id, carrier_id, facility_id, scan_type, scanned_at]
+          active_filters: active_filters
+        searchable:
+          search_scope: scan_notes
+          active_search: query
+        facetable:
+          facets: facets
+        windowable:
+          cursor: next_cursor
+          limit: page_size

@@ -27,8 +27,6 @@ RelatedFiles:
     Note: Street Deli concrete PBUI/CLIM profile entrypoint.
   - Path: ../examples/street-deli-ordering/www/mobile-react/package.json
     Note: Promoted Web React app.
-  - Path: ../examples/street-deli-ordering/generated/pbui-react/package.json
-    Note: Generic PBUI React proof package.
   - Path: ../examples/street-deli-ordering/www/clim-react/package.json
     Note: Concrete PBUI/CLIM React app.
 ExternalSources: []
@@ -52,7 +50,7 @@ Web MetaDesignSystem
   -> examples/street-deli-ordering/www/mobile-react
 
 PBUI MetaDesignSystem
-  -> generic PBUI React proof package
+  -> regenerable generic PBUI React proof package
   -> concrete PBUI profile
   -> CLIM React app target
   -> examples/street-deli-ordering/www/clim-react
@@ -213,7 +211,7 @@ The exact text form above belongs to a concrete profile, but the typed presentat
 
 ## 7. Generic PBUI React proof target
 
-The generic PBUI React proof package is:
+The regenerable generic PBUI React proof package is:
 
 ```text
 examples/street-deli-ordering/generated/pbui-react/
