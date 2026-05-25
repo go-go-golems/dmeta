@@ -7,7 +7,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: 'Standalone PBUI/CLIM proof-of-concept: generic CLIM shell components, Street Deli domain registries, RTK Query fixture data, and Tailwind styling in one widget entrypoint.',
+        component: 'Standalone PBUI/CLIM proof-of-concept: generic CLIM shell components, Street Deli domain registries, RTK Query fixture data, command/action bindings, and Tailwind styling in one widget entrypoint.',
       },
     },
   },
@@ -17,3 +17,24 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const MenuMode: Story = {};
+
+export const DetailMode: Story = {
+  args: {
+    initialView: 'detail',
+    initialSelectedItemId: 'sandwich.hudson-classic',
+  },
+};
+
+export const CartMode: Story = {
+  args: {
+    initialView: 'cart',
+    initialSelectedItemId: 'sandwich.hudson-classic',
+    initialCart: true,
+  },
+};
+
+export const HelpMode: Story = {
+  args: {
+    initialView: 'help',
+  },
+};

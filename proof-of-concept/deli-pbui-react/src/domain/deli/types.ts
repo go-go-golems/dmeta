@@ -1,5 +1,7 @@
 export type DeliDomainType = 'MenuItem' | 'Ingredient' | 'OrderItem' | 'Order';
 
+export type DeliViewId = 'menu' | 'detail' | 'substitution' | 'cart' | 'help' | 'tracker';
+
 export interface Ingredient {
   id: string;
   name: string;
