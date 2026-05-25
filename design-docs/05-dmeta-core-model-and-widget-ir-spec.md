@@ -37,43 +37,33 @@ WhenToUse: Read when designing a new domain package or changing shared compiler 
 
 # Shared Semantic and Interaction IR Spec
 
-## Executive summary
+## 1. What this document teaches
 
-This document specifies the shared front half of DMETA. These layers are target-neutral and feed both active MetaDesignSystems:
+This document explains the shared front half of DMETA: Semantic IR and Interaction IR. These layers are the foundation of every target. Web React, PBUI/CLIM React, and any future target all depend on the same discipline: first describe what the application means, then describe what users can perceive and do, and only then lower that material into target-specific UI.
+
+A new developer should read this document before editing archetypes, capabilities, domain examples, actions, representations, or elaboration rules. The goal is not only to learn file names. The goal is to understand where concepts belong and why the boundary matters.
+
+The shared pipeline is:
 
 ```text
 Semantic IR
   -> Interaction IR
-  -> Web MetaDesignSystem
-  -> PBUI MetaDesignSystem
+  -> target-specific MetaDesignSystem
 ```
 
-The shared layers answer domain and interaction questions before any specific UI target chooses cards, tables, presentation refs, command lines, or React components.
+Semantic IR answers: what is this domain made of? Interaction IR answers: what can a user see, select, inspect, or do with those things? MetaDesignSystems answer later: how should this interface family realize those obligations?
 
-## Semantic IR purpose
+## 2. Why shared IR exists
 
-Semantic IR describes what the application domain means.
+An application domain contains facts that should not be trapped inside one UI. A scheduling system may show appointments in a Web calendar, a mobile list, a command-oriented operator console, and an audit timeline. All of those targets need to agree that an appointment has identity, time, state, participants, services, resources, and possible actions. If those facts live only in React props, each target must rediscover them.
 
-It defines:
+Semantic IR and Interaction IR prevent that duplication. They record the shared domain and interaction structure once, then allow each target to lower it differently. This is why DMETA can keep a Web React path and a PBUI/CLIM React path without making one depend on the other's component model.
 
-- reusable archetypes;
-- reusable capabilities;
-- projections required by capabilities;
-- semantic presentation/action concepts;
-- domain examples and mappings;
-- inheritance relationships among archetypes and capabilities.
+## 3. Semantic IR
 
-It should not define:
+Semantic IR describes application meaning in reusable terms. It is not a database schema, although it may reference fields that come from one. It is not a UI schema, although it eventually feeds UI. It is a semantic model that tells the compiler how concrete domain objects participate in reusable operational patterns.
 
-- Web widget templates;
-- PBUI presentation types;
-- React component names;
-- CSS classes;
-- target-specific file paths.
-
-## Semantic package layout
-
-Global semantic package:
+The global Semantic IR package lives here:
 
 ```text
 sources/dmeta-ir/01-core-model.yaml
@@ -84,132 +74,143 @@ sources/dmeta-ir/core-model/presentations.yaml
 sources/dmeta-ir/core-model/examples/*.yaml
 ```
 
-Example semantic package:
+An application can also provide a local semantic package. Street Deli does this under:
 
 ```text
 examples/street-deli-ordering/01-core-model.yaml
 examples/street-deli-ordering/core-model/*.yaml
 ```
 
-`01-core-model.yaml` is a package index. It should not contain the whole model. It points to focused subfiles so the semantic model stays reviewable.
+The package index file points to the focused subfiles. The subfiles contain the actual model. This split keeps each file reviewable and gives authors enough room to write prose that explains intent.
 
-## Archetypes
+## 4. Archetypes
 
-Archetypes are reusable operational roles. They are not domain nouns.
+An archetype is a reusable operational role. It describes what kind of thing a domain object is from the perspective of dense operational software.
 
-Examples:
+Common archetypes include:
 
-- `Actor`
-- `WorkItem`
-- `Event`
-- `Resource`
-- `Relation`
-- `Metric`
-- `TimelineSpan`
-- `ActionSpec`
-- `ActionInvocation`
+- `Actor`, for people, organizations, agents, or systems that participate in work.
+- `WorkItem`, for something tracked through a process.
+- `Event`, for an observation or occurrence.
+- `Resource`, for something allocated, consumed, or scheduled.
+- `TimelineSpan`, for something that occupies time.
+- `Metric`, for a measurable value.
+- `Relation`, for a typed connection between objects.
+- `ActionSpec`, for the definition of an operation.
+- `ActionInvocation`, for a concrete execution of an operation.
 
-Rules:
+Archetypes form an inheritance structure. `Archetype` is the abstract root. Non-root archetypes declare `extends`. Abstract helper nodes can exist, but domain mappings should target concrete semantic roles. This lets validation catch vague mappings such as assigning a domain object directly to a root or helper type.
 
-- `Archetype` is the abstract root.
-- Every non-root archetype declares `extends`.
-- Use `abstract: true` for taxonomy/helper nodes that domain mappings should not target directly.
-- Domain types map to concrete archetypes.
-- Multiple inheritance is allowed when it represents a real semantic intersection.
+For appointment management, useful mappings are straightforward:
 
-For an appointment system:
+```text
+Client        -> Actor
+Practitioner  -> Actor
+Appointment   -> WorkItem + TimelineSpan
+TimeSlot      -> TimelineSpan
+Room          -> Resource
+Chair         -> Resource
+Cancellation  -> Event
+NoShow        -> Event
+Payment       -> WorkItem or Event, depending on the system
+```
 
-- `Client` maps to `Actor`.
-- `Practitioner` maps to `Actor` and may have schedulable/assignable capabilities.
-- `Appointment` maps to `WorkItem` and `TimelineSpan`.
-- `Room` or `Chair` maps to `Resource`.
-- `AvailabilityBlock` maps to `TimelineSpan`.
-- `NoShow` or `Cancellation` maps to `Event`.
+These mappings do not dictate the UI. They tell every target what kind of operational object it is receiving.
 
-## Capabilities
+## 5. Capabilities
 
-Capabilities are reusable affordances or semantic properties.
+A capability is a reusable affordance or property that can be attached to an archetype or domain type. Capabilities should be concrete enough to drive validation, presentations, actions, filters, or generated metadata.
 
-Examples:
+A good capability says what it contributes. For example, `stateful` contributes state projections and status presentations. `temporal` contributes timestamps or intervals. `schedulable` contributes start/end/duration/timezone semantics. `inspectable` contributes inspect actions and detail presentations.
 
-- `identifiable`
-- `labelable`
-- `stateful`
-- `temporal`
-- `inspectable`
-- `relatable`
-- `actionable`
-- `schedulable`
-- `measurable`
-- `available`
+Common capabilities include:
 
-Rules:
+- `identifiable`, for stable ids.
+- `labelable`, for human-readable names.
+- `stateful`, for lifecycle or status.
+- `temporal`, for time points and intervals.
+- `inspectable`, for detail views and inspectors.
+- `relatable`, for navigable relationships.
+- `actionable`, for objects that accept operations.
+- `schedulable`, for objects placed on a schedule.
+- `available`, for resources or slots with availability state.
+- `billable`, for money, invoices, copays, or payments.
 
-- `Capability` is the abstract root.
-- Every non-root capability declares `extends`.
-- Capabilities should contribute projections, presentations, actions, filters, validation rules, or generation metadata.
-- A capability should not be a vague tag.
-- Required projections, including inherited required projections, must be satisfied by domain examples that claim the capability.
+Capabilities also use inheritance. `Capability` is the abstract root. Non-root capabilities declare `extends`. Required projections inherited from parent capabilities must be satisfied by domain examples that claim the capability.
 
-For an appointment system, likely capabilities include:
+For an appointment system, `Appointment` might claim:
 
-- `schedulable`: start/end/duration/timezone.
-- `bookable`: can be reserved by a client.
-- `assignable`: can be assigned to staff or resources.
-- `cancelable`: can be canceled with policy/reason.
-- `reschedulable`: can move between slots.
-- `remindable`: has reminder channels/status.
-- `billable`: price/payment/insurance state.
-- `availability_constrained`: depends on staff, room, equipment, or policy.
+```text
+identifiable
+labelable
+stateful
+temporal
+schedulable
+assignable
+actionable
+relatable
+billable
+remindable
+```
 
-## Semantic presentations and actions
+Each capability implies obligations. A `temporal` appointment needs a start and end. A `stateful` appointment needs a state. A `billable` appointment needs payment or charge information if the billing UI uses it.
 
-A semantic presentation is a display contract, not a React component. It names a way semantic facts may be represented before a MetaDesignSystem chooses a target-specific realization.
+## 6. Projections
 
-Examples:
+A projection is a named piece of information a capability or presentation can rely on. Projections keep generated and promoted UI from guessing which field means what.
 
-- `compact_ref`
-- `inline_token`
-- `status_badge`
-- `timeline_marker`
-- `detail_panel`
-- `calendar_block`
-- `schedule_row`
+For appointment management:
 
-A semantic action is an operation described at the domain meaning level. It should not be a UI callback.
+```text
+starts_at
+ends_at
+duration_minutes
+timezone
+appointment_state
+client_label
+practitioner_label
+service_label
+room_label
+payment_state
+reminder_state
+intake_state
+```
 
-Examples for appointment management:
+The exact storage field may differ between verticals. A clinic may store `provider_id`; a salon may store `stylist_id`. The semantic projection can still say this object has an assigned practitioner. The target can then build stable UI around the projection rather than one vertical's database naming.
 
-- `book_appointment`
-- `reschedule_appointment`
-- `cancel_appointment`
-- `check_in_client`
-- `mark_no_show`
-- `assign_practitioner`
-- `assign_room`
-- `collect_payment`
-- `send_reminder`
-- `resolve_conflict`
+## 7. Semantic presentations and actions
 
-## Interaction IR purpose
+Semantic presentations are display contracts. They name ways semantic information can appear without deciding the target component. `status_badge`, `compact_ref`, `calendar_block`, `timeline_marker`, and `detail_panel` are presentation concepts. They are not React components.
 
-Interaction IR is the bridge between semantic facts and target-specific UI obligations.
+Semantic actions describe meaningful operations. They are not callbacks. An action such as `reschedule_appointment` may later become a button in Web React, an action presentation in PBUI, a keyboard command, or a menu item. The action itself belongs in the shared model if the operation is domain-level.
 
-It defines:
+Appointment-management actions include:
 
-- modality-neutral actions;
-- modality-neutral representations;
-- elaboration rules that derive interaction obligations from Semantic IR.
+```text
+book_appointment
+reschedule_appointment
+cancel_appointment
+check_in_client
+mark_arrived
+mark_no_show
+assign_practitioner
+assign_room
+collect_payment
+send_reminder
+open_intake_form
+resolve_conflict
+add_to_waitlist
+promote_waitlist_entry
+block_time
+```
 
-It should not define:
+The shared layer should say which kinds of objects these actions accept and which arguments they require. It should not decide whether the action appears as a red button, a context menu item, or a typed command.
 
-- Web cards or tables;
-- CLIM text styling;
-- React components;
-- CSS;
-- app shell layouts.
+## 8. Interaction IR
 
-## Interaction package layout
+Interaction IR sits after semantic meaning and before target realization. It is where DMETA records what the user can perceive and do in modality-neutral terms.
+
+The Interaction IR package lives here:
 
 ```text
 sources/dmeta-ir/interactions/00-index.yaml
@@ -218,94 +219,56 @@ sources/dmeta-ir/interactions/representations.yaml
 sources/dmeta-ir/interactions/elaboration-rules.yaml
 ```
 
-## Interaction actions
+Interaction IR has three important catalogs.
 
-Interaction actions are typed operations that can be triggered, selected, or filled from visible representations.
+The action catalog contains operations with typed acceptance rules. It describes actions such as inspection, filtering, copying references, selecting subjects, applying substitutions, or scheduling work.
 
-They should record:
+The representation catalog contains visible semantic forms. A representation is a thing a user can see and potentially use as an action argument. For appointment management, examples include `appointment_summary`, `appointment_calendar_block`, `client_reference`, `practitioner_reference`, `slot_candidate`, `availability_indicator`, `conflict_warning`, `payment_status`, and `waitlist_entry_summary`.
 
-- id;
-- summary/intent;
-- accepted semantic archetypes/capabilities/domain types;
-- required argument types;
-- confirmation or danger semantics if needed;
-- whether the action is navigation, selection, mutation, or inspection oriented.
+The elaboration rules connect Semantic IR to Interaction IR. They say which interaction obligations should be derived from which semantic facts.
 
-For appointment systems, representative Interaction IR actions are:
+## 9. Elaboration rules
 
-```text
-inspect_subject
-copy_reference
-filter_by_state
-filter_by_practitioner
-filter_by_service
-book_appointment
-reschedule_appointment
-cancel_appointment
-assign_practitioner
-assign_resource
-check_in_client
-mark_arrived
-mark_no_show
-collect_payment
-send_reminder
-open_intake_form
-resolve_conflict
-```
+Elaboration rules are one of the most important parts of the shared compiler. They are how DMETA turns a semantic model into useful interaction obligations.
 
-## Interaction representations
-
-Representations are things the user can see, inspect, select, copy, filter by, or use as action arguments.
-
-Appointment-system examples:
+Consider an appointment that is schedulable, stateful, and actionable. From that alone, the compiler can derive several interaction obligations:
 
 ```text
 appointment_summary
 appointment_calendar_block
-appointment_timeline_span
-client_reference
-practitioner_reference
-service_summary
-slot_candidate
-availability_indicator
-conflict_warning
-payment_status
-intake_status
-reminder_status
-room_resource_reference
-waitlist_entry_summary
+appointment_lifecycle_status
+inspect_appointment
+reschedule_appointment
+cancel_appointment
+filter_by_state
 ```
 
-A representation remains target-neutral. Web may lower `appointment_calendar_block` into a visual calendar item. PBUI may lower it into a `PresentationRef` line or action-compatible typed object.
+Those obligations are still not Web or PBUI. Web may lower `appointment_calendar_block` to an `AppointmentBlock` component. PBUI may lower it to a `PresentationRef` with compatible action presentations. Both targets benefit from the same elaboration.
 
-## Elaboration rules
+A useful elaboration rule has a clear source condition and a clear derived obligation. It should not smuggle in target details. If the rule mentions a CSS class or React component, it belongs later.
 
-Elaboration rules make implicit semantic consequences explicit.
+## 10. Validation invariants
 
-Example rule shape in prose:
+Shared validation protects the whole compiler. A target can only be reliable if its input semantics are coherent.
 
-- If a domain type is `schedulable` and `stateful`, derive an appointment/status representation.
-- If a domain type is `temporal` and `bookable`, derive a slot-candidate representation.
-- If a domain type is `actionable` and `cancelable`, derive a cancel action obligation.
-- If a domain type is `assignable`, derive assignment action obligations.
+Validation should ensure that:
 
-Elaboration rules are the right place to encode repeatable semantic-to-interaction consequences. They are not the right place to pick a calendar widget, command-line string, or CSS class.
-
-## Validation invariants
-
-Shared validation should ensure:
-
-- all referenced archetypes exist;
-- all referenced capabilities exist;
+- every referenced archetype exists;
+- every referenced capability exists;
 - inheritance roots are valid;
-- domain examples do not target abstract archetypes/capabilities directly;
+- abstract helper nodes are not used as concrete domain mappings;
 - required inherited projections are mapped;
-- semantic presentations/actions reference known concepts;
-- interaction actions reference known archetypes/capabilities/representations;
-- elaboration rules reference known semantic and interaction ids;
-- no target-specific concept leaks into the shared layers.
+- semantic presentations and actions reference known concepts;
+- interaction actions reference known accepted object types;
+- representations have stable ids and prose intent;
+- elaboration rules reference known semantic and interaction concepts;
+- target-specific concepts do not leak into shared layers.
 
-## Current commands
+These checks are not administrative overhead. They keep the compiler honest. If a Web widget expects a schedulable object, and the domain model never supplied the required temporal projections, the error should appear before React code is generated.
+
+## 11. Current commands
+
+Use these commands when working in shared layers:
 
 ```bash
 go run ./cmd/dmeta validate-ir \
@@ -329,21 +292,42 @@ go run ./cmd/dmeta elaborate-interactions \
   --output table
 ```
 
-## Authoring workflow for a new domain
+The first command checks the global IR package. The second checks the example application package. The third checks shared Interaction IR. The fourth shows what interaction obligations the compiler derives for an application.
 
-For a new appointment-management backend:
+## 12. Designing a new domain package
 
-1. List concrete domain objects.
-2. Map each object to reusable archetypes and capabilities.
-3. Add domain projections for required capabilities.
-4. Add or reuse semantic presentations/actions.
-5. Add or reuse Interaction IR actions and representations.
-6. Add elaboration rules only when the mapping is repeatable.
-7. Validate shared layers.
-8. Lower into Web and/or PBUI targets.
+A new domain package should be written from the domain outward. For an appointment backend, begin with the object inventory:
 
-## Boundary rule
+```text
+Client
+Practitioner
+Appointment
+AppointmentRequest
+TimeSlot
+Schedule
+Location
+Room
+Chair
+Service
+Payment
+Reminder
+IntakeForm
+WaitlistEntry
+Conflict
+Cancellation
+NoShow
+```
 
-If a concept would make sense in both a calendar grid and a command-line presentation interface, it probably belongs in Semantic IR or Interaction IR.
+Then map each object to archetypes and capabilities. Do not define `Doctor`, `Barber`, and `Stylist` as universal root concepts. They are vertical-specific forms of practitioners or actors. Preserve their domain names locally, but map them to reusable semantic roles.
 
-If a concept only makes sense as a card, drawer, React component, CLIM shell region, CSS class, or Storybook file kind, it belongs downstream in a MetaDesignSystem or target.
+Next, define interaction actions and representations. Ask what users need to inspect, select, filter, assign, schedule, cancel, or confirm. Only after this is stable should a target decide whether the UI uses a calendar grid, a list, a command line, or a detail drawer.
+
+## 13. Key points
+
+- Semantic IR describes domain meaning before target choice.
+- Archetypes describe reusable operational roles.
+- Capabilities describe reusable affordances and required projections.
+- Interaction IR describes what users can perceive and do in target-neutral terms.
+- Elaboration rules derive interaction obligations from semantic facts.
+- Web and PBUI targets should consume shared obligations rather than inventing their own domain model.
+- A concept belongs in the shared layer only if more than one target can reasonably use it.
