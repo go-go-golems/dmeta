@@ -100,3 +100,14 @@ Encoded reviewed PBUI visual/navigation rules in the style profile and added the
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx — Dotted underline selectable label styling
 - /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/25/DMETA-DELI-PBUI-POC--street-deli-pbui-react-proof-of-concept/design-doc/02-pbui-core-action-presentation-ref-navigation-select-engine.md — Core PBUI engine design guide
 
+
+## 2026-05-25
+
+Extracted generic PBUI React component primitives and normalized dotted underline rendering with skip-ink and fixed offset.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/pbui/style-profile.yaml — Style guide underline geometry
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiClickableText/PbuiClickableText.tsx — Shared dotted underline primitive
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiPresentationRef/PbuiPresentationRef.tsx — Semantic presentation ref renderer
+

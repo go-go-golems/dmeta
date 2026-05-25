@@ -69,6 +69,9 @@ visual_rules:
     actions: >-
       Action presentations are dotted-underlined by default. Hover/focus changes
       the underline color and foreground color; it must not add a background box.
+      Actions and selectable reference labels must share the same
+      text-decoration-skip-ink, underline offset, and thickness so lowercase
+      labels with descenders align visually with uppercase commands.
     presentation_refs: >-
       A presentation reference label gets dotted underline affordance when it can
       fill a slot for an action available in the current view or mode. Technical
@@ -81,6 +84,9 @@ visual_rules:
     color_token: selectable_ref
     cursor: pointer
     text_decoration: dotted underline
+    text_decoration_skip_ink: auto
+    text_underline_offset: 2.5px
+    text_decoration_thickness: 1px
     label_only: true
     techno_babble_treatment: muted foreground for type, id, and capability text
     notes: >-
