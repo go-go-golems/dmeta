@@ -9,3 +9,6 @@
 - [x] Extract generic PBUI engine types for views, availability, visual state, and registries
 - [x] Extract generic PBUI compatibility/action derivation helpers and use them in the Deli POC
 - [x] Add generic availability policy wiring and disable PLACE-ORDER for empty carts
+- [x] Add generic PBUI browser route adapter helpers
+- [x] Wire Street Deli POC view changes to URL routes and popstate
+- [x] Make BACK use browser history with menu fallback

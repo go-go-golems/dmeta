@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Provider } from 'react-redux';
 import { store } from '../../app/store';
 import { PbuiActionBar } from '../../generic/clim/components/PbuiActionBar';
@@ -11,6 +11,8 @@ import {
   presentationVisualState,
 } from '../../generic/clim/compatibility';
 import { buildActionRequestFromBinding, summarizeActionRequest } from '../../generic/clim/runtime';
+import { backOrFallback, currentRoute, listenToRouteChanges, pushRoute, replaceRoute } from '../../generic/clim/routing';
+import type { RouteCodec, RouteSnapshot } from '../../generic/clim/routing';
 import type { ActionPresentation, ActionRequest, ClimSessionState, CommandBinding, PresentationRef } from '../../generic/clim/types';
 import { deliActionDescriptors } from '../../domain/deli/actions';
 import { deliCommandBindings, commandBindingsForView } from '../../domain/deli/commandBindings';
@@ -80,14 +82,66 @@ function commandArgumentsFromBuffer(value: string) {
   return { tag: firstArg ?? 'vegetarian', category: firstArg ?? 'sandwiches' };
 }
 
+const deliRouteCodec: RouteCodec<DeliViewId> = {
+  parse(pathname) {
+    const parts = pathname.split('/').filter(Boolean);
+    const [view, firstParam] = parts;
+    switch (view) {
+      case 'detail':
+        return { view: 'detail', params: { itemId: firstParam ? decodeURIComponent(firstParam) : undefined } };
+      case 'substitution':
+        return { view: 'substitution', params: { draftId: firstParam ? decodeURIComponent(firstParam) : undefined } };
+      case 'cart':
+      case 'help':
+      case 'tracker':
+      case 'menu':
+        return { view };
+      default:
+        return { view: 'menu' };
+    }
+  },
+  format(snapshot) {
+    switch (snapshot.view) {
+      case 'detail':
+        return `/detail/${encodeURIComponent(snapshot.params?.itemId ?? '')}`;
+      case 'substitution':
+        return `/substitution/${encodeURIComponent(snapshot.params?.draftId ?? '')}`;
+      case 'cart':
+        return '/cart';
+      case 'help':
+        return '/help';
+      case 'tracker':
+        return '/tracker/current';
+      case 'menu':
+      default:
+        return '/menu';
+    }
+  },
+};
+
+function routeForView(view: DeliViewId, selectedItemId?: string): RouteSnapshot<DeliViewId> {
+  if (view === 'detail') {
+    return { view, params: { itemId: selectedItemId } };
+  }
+  return { view };
+}
+
+function initialRouteSnapshot(fallbackView: DeliViewId, fallbackItemId?: string): RouteSnapshot<DeliViewId> {
+  if (typeof window === 'undefined') {
+    return routeForView(fallbackView, fallbackItemId);
+  }
+  return currentRoute(deliRouteCodec);
+}
+
 export function DeliPbuiWorkbench({
   initialView = 'menu',
   initialSelectedItemId,
   initialCart = false,
 }: DeliPbuiWorkbenchProps) {
   const { data: menu = [] } = useGetMenuQuery();
-  const initialItemId = initialSelectedItemId ?? menu[0]?.id;
-  const [viewId, setViewId] = useState<DeliViewId>(initialView);
+  const routeInitial = initialRouteSnapshot(initialView, initialSelectedItemId);
+  const initialItemId = routeInitial.params?.itemId ?? initialSelectedItemId ?? menu[0]?.id;
+  const [viewId, setViewId] = useState<DeliViewId>(routeInitial.view);
   const [selectedItemId, setSelectedItemId] = useState<string | undefined>(initialItemId);
   const [selectedPresentation, setSelectedPresentation] = useState<PresentationRef | undefined>();
   const [removedIngredientIds, setRemovedIngredientIds] = useState<string[]>([]);
@@ -118,6 +172,31 @@ export function DeliPbuiWorkbench({
     commandBuffer: mode === 'confirm' ? pendingBinding?.id ?? '' : commandBuffer,
     resultLine,
   };
+  useEffect(() => {
+    if (window.location.pathname === '/') {
+      replaceRoute(deliRouteCodec, routeForView(viewId, selectedItemId));
+    }
+    return listenToRouteChanges(deliRouteCodec, (snapshot) => {
+      setViewId(snapshot.view);
+      if (snapshot.params?.itemId) {
+        setSelectedItemId(snapshot.params.itemId);
+      }
+      setCommandBuffer(`LIST ${deliViewModels[snapshot.view].modeLabel}`);
+    });
+  }, []);
+
+  function navigateToView(nextView: DeliViewId, params: { itemId?: string } = {}) {
+    if (params.itemId) {
+      setSelectedItemId(params.itemId);
+    }
+    setViewId(nextView);
+    pushRoute(deliRouteCodec, routeForView(nextView, params.itemId ?? selectedItemId));
+  }
+
+  function navigateBack() {
+    backOrFallback(deliRouteCodec, { view: 'menu' });
+  }
+
   const commandBindings = commandBindingsForView(view.id);
   const actions = actionPresentationsForBindings({
     bindings: commandBindings,
@@ -219,7 +298,7 @@ export function DeliPbuiWorkbench({
         if (request.subject?.type === 'MenuItem') {
           setSelectedItemId(request.subject.id);
         }
-        setViewId('detail');
+        navigateToView('detail', { itemId: request.subject?.id ?? selectedItemId });
         break;
       case 'REMOVE-INGREDIENT': {
         const part = request.inputs.part_ref as PresentationRef | undefined;
@@ -231,18 +310,20 @@ export function DeliPbuiWorkbench({
       case 'ADD-TO-ORDER':
         if (selectedItem) {
           setCartItems((items) => [...items, { id: `cart.${selectedItem.id}.${items.length + 1}`, item: selectedItem, removedIngredientIds, substitutions: {} }]);
-          setViewId('cart');
+          navigateToView('cart');
         }
         break;
       case 'CART':
-        setViewId('cart');
+        navigateToView('cart');
         break;
       case 'HELP':
-        setViewId('help');
+        navigateToView('help');
         break;
       case 'BACK':
+        navigateBack();
+        break;
       case 'MENU':
-        setViewId('menu');
+        navigateToView('menu');
         break;
       default:
         break;
@@ -277,7 +358,7 @@ export function DeliPbuiWorkbench({
     }
     setPendingBinding(undefined);
     setPendingRequest(undefined);
-    setViewId('tracker');
+    navigateToView('tracker');
     setCommandBuffer(pendingBinding.id);
     setResultLine(`Confirmed action request: ${pendingBinding.id} -> ${summarizeActionRequest(pendingRequest)}`);
   }
