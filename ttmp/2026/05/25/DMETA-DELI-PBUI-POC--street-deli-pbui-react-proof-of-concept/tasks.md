@@ -18,3 +18,7 @@
 - [x] Extend PBUI session reducer with explicit select mode events
 - [x] Wire Deli action invocation to enter select mode when a compatible presentation target is required
 - [x] Validate action-bar REMOVE-INGREDIENT select-mode target selection
+- [x] Add generic PBUI command handler registry helper
+- [x] Move Street Deli command execution switch into domain handler registry
+- [x] Validate handler-registry backed order, navigation, and select flows
+- [ ] Later: wrap the generic PBUI session reducer in a Redux slice for composable app integration

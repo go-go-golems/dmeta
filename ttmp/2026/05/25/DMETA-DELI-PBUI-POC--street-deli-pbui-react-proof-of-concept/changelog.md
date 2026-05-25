@@ -162,3 +162,14 @@ Added explicit PBUI select mode so action-bar commands requiring a compatible pr
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/modeMachine.ts — Select-mode reducer events
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Action invocation enters select mode and completes through compatible presentation refs
 
+
+## 2026-05-25
+
+Added generic PBUI command handler registry and moved Street Deli command execution out of the widget switch; recorded Redux-slice follow-up task.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/domain/deli/handlers.ts — Street Deli domain handler registry and coverage assertion
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/handlerRegistry.ts — Generic PBUI handler registry helper
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Uses handler registry for normal and confirmed command execution
+
