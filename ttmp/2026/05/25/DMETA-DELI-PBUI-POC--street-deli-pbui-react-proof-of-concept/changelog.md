@@ -265,3 +265,14 @@ Step 25: make selected object refs blink, keep ingredients white by default, hig
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiPresentationRef/PbuiPresentationRef.tsx — Selected-ref visual behavior
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Applicable-action derivation and action-slice formatting
 
+
+## 2026-05-25
+
+Step 26: split DeliPbuiWorkbench into named part widgets, stories, domain adapters, and controller hooks while preserving build/Storybook/interaction behavior (commits 244c3c6, b627fd0)
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/DeliPbuiWorkbench.tsx — Composition root after split
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/hooks/useDeliActionController.ts — Extracted action controller
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/parts/DeliDetailView/DeliDetailView.tsx — Extracted view part
+
