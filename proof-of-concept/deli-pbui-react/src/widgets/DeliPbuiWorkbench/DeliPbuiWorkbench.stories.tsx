@@ -1,5 +1,6 @@
 import { Provider } from 'react-redux';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, userEvent, within } from 'storybook/test';
 import { setupStore } from '../../app/store';
 import { DeliPbuiWorkbench } from './DeliPbuiWorkbench';
 
@@ -25,12 +26,65 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+function labelSpan(row: HTMLElement, text: string) {
+  const span = Array.from(row.querySelectorAll('span')).find((candidate) => candidate.textContent?.includes(text));
+  if (!span) {
+    throw new Error(`Could not find label span containing ${text}`);
+  }
+  return span;
+}
+
 export const MenuMode: Story = {};
 
 export const DetailMode: Story = {
   args: {
     initialView: 'detail',
     initialSelectedItemId: 'sandwich.hudson-classic',
+  },
+};
+
+export const DetailSelectionHighlightsAction: Story = {
+  args: {
+    initialView: 'detail',
+    initialSelectedItemId: 'sandwich.hudson-classic',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await canvas.findByTestId('detail-view');
+
+    const tomato = await canvas.findByRole('button', { name: /tomato/ });
+    const tomatoLabel = labelSpan(tomato, 'tomato');
+    expect(getComputedStyle(tomatoLabel).color).toBe('rgb(255, 255, 255)');
+    expect(getComputedStyle(tomatoLabel).animationName).toBe('none');
+
+    await userEvent.click(tomato);
+
+    expect(getComputedStyle(tomatoLabel).animationName).toBe('pulse');
+    const removeIngredient = await canvas.findByRole('button', { name: 'REMOVE-INGREDIENT' });
+    expect(removeIngredient.className).toContain('text-clim-danger');
+    expect(await canvas.findByText('ACTION SLICE selected_action=none filled_slots=none')).toBeInTheDocument();
+  },
+};
+
+export const DetailSelectModeFillsIngredientSlot: Story = {
+  args: {
+    initialView: 'detail',
+    initialSelectedItemId: 'sandwich.hudson-classic',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await canvas.findByTestId('detail-view');
+
+    const input = await canvas.findByLabelText('Action command');
+    await userEvent.clear(input);
+    await userEvent.type(input, 'remove ingredient{Enter}');
+
+    expect(await canvas.findByText('ACTION SLICE selected_action=REMOVE-INGREDIENT filled_slots=none')).toBeInTheDocument();
+    expect(getComputedStyle(await canvas.findByRole('button', { name: /sourdough/ })).cursor).toBe('default');
+    expect(getComputedStyle(await canvas.findByRole('button', { name: /tomato/ })).cursor).toBe('pointer');
+
+    await userEvent.click(await canvas.findByRole('button', { name: /tomato/ }));
+    expect(await canvas.findByText('ACTION SLICE selected_action=none filled_slots=ingredient=<Ingredient>#ingredient.tomato')).toBeInTheDocument();
   },
 };
 
