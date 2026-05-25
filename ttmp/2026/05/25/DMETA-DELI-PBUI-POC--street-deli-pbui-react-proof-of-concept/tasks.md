@@ -6,3 +6,6 @@
 - [x] Implement generic compatible-presentation click mechanism driven by current view command bindings
 - [x] Add Street Deli REMOVE-INGREDIENT command binding and wire detail ingredient clicks through the generic mechanism
 - [x] Replace footer command echo with an editable command REPL backed by command bindings
+- [x] Extract generic PBUI engine types for views, availability, visual state, and registries
+- [x] Extract generic PBUI compatibility/action derivation helpers and use them in the Deli POC
+- [x] Add generic availability policy wiring and disable PLACE-ORDER for empty carts

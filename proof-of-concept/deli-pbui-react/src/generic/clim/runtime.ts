@@ -49,21 +49,6 @@ export function resolveInputSource(source: string, context: CommandInputContext)
   return undefined;
 }
 
-export function bindingUsesInputSource(binding: CommandBinding, source: string): boolean {
-  return Object.values(binding.inputMapping).includes(source);
-}
-
-export function compatibleBindingsForPresentation<TCommand extends string, TAction extends string>(
-  bindings: CommandBinding<TCommand, TAction>[],
-  _presentation: PresentationRef,
-  commandOrder: TCommand[] = [],
-): CommandBinding<TCommand, TAction>[] {
-  const order = new Map(commandOrder.map((commandID, index) => [commandID, index]));
-  return bindings
-    .filter((binding) => bindingUsesInputSource(binding, 'selected_presentation'))
-    .sort((left, right) => (order.get(left.id) ?? Number.MAX_SAFE_INTEGER) - (order.get(right.id) ?? Number.MAX_SAFE_INTEGER));
-}
-
 export function summarizeActionRequest<TAction extends string>(request: ActionRequest<TAction>): string {
   const inputNames = Object.keys(request.inputs);
   const inputSummary = inputNames.length > 0 ? inputNames.join(', ') : 'no inputs';
