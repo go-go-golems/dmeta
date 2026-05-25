@@ -139,7 +139,17 @@ func BuildScaffoldPlan(ctx context.Context, opts PlanOptions) (ScaffoldPlan, err
 		packageName = target.Defaults.PackageName
 	}
 
-	plan := ScaffoldPlan{InstanceID: instance.ID, TargetID: target.ID, MetaDesignSystem: target.Provenance.MetaDesignSystem, OutputDir: outputDir, PackageName: packageName}
+	plan := ScaffoldPlan{
+		InstanceID:       instance.ID,
+		TargetID:         target.ID,
+		MetaDesignSystem: target.Provenance.MetaDesignSystem,
+		OutputDir:        outputDir,
+		PackageName:      packageName,
+		SemanticRoot:     semanticRoot,
+		InteractionsRoot: interactionsRoot,
+		WebRoot:          webRoot,
+		TargetFile:       targetFile,
+	}
 	obligationsByTemplate := groupWebObligations(webObligations)
 	for _, selected := range instance.SelectedTemplates {
 		componentName := selected.As

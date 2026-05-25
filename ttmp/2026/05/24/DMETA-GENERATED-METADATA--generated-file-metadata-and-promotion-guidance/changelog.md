@@ -38,3 +38,14 @@ Phase 2: Threaded shared metadata into generic PBUI React renderer and validated
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/react_render.go — PBUI React renderer now emits shared metadata in TS/TSX and JSON sidecars
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/testdata/composition_metadata.golden.json — Golden fixture for shared generated metadata envelope
 
+
+## 2026-05-24
+
+Phase 3: Added shared metadata exports, sidecars, and promotion guidance to Web React scaffolds.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_react.go — CLI fills generation context
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/model.go — Scaffold plan carries generation and source-root context
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render.go — Web React renderer now emits shared generated metadata
+
