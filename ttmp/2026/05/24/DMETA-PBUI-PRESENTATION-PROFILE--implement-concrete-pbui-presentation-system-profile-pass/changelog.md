@@ -93,3 +93,14 @@ Added repository cleanup assessment for reducing dmeta to the latest PBUI MetaDe
 
 - /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/analysis/02-repository-cleanup-assessment-for-latest-pbui-metadesignsystem-setup.md — Cleanup assessment and recommendations
 
+
+## 2026-05-24
+
+Updated repository cleanup assessment to keep both active target lines: Web React/mobile-react and PBUI React, including the Web MetaDesignSystem and generic PBUI React proof package.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/www/mobile-react/package.json — Web React app is now explicitly kept
+- /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml — Web MetaDesignSystem is now explicitly kept
+- /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/analysis/02-repository-cleanup-assessment-for-latest-pbui-metadesignsystem-setup.md — Updated cleanup assessment
+
