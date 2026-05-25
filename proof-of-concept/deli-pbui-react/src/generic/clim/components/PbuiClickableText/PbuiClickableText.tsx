@@ -10,9 +10,9 @@ const clickableDecorationStyle: CSSProperties = {
 };
 
 const toneClasses: Record<PbuiClickableTone, string> = {
-  normal: 'text-clim-bright hover:text-clim-danger hover:decoration-clim-danger',
-  selectable: 'text-clim-danger decoration-clim-danger hover:text-clim-bright',
-  danger: 'text-clim-danger decoration-clim-danger hover:text-clim-bright',
+  normal: 'text-clim-bright hover:text-clim-danger hover:decoration-clim-bright',
+  selectable: 'text-clim-danger decoration-clim-danger hover:text-clim-bright hover:decoration-clim-bright',
+  danger: 'text-clim-danger decoration-clim-danger hover:text-clim-bright hover:decoration-clim-bright',
   disabled: 'text-clim-muted opacity-40 cursor-not-allowed',
 };
 
