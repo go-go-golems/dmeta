@@ -5,7 +5,7 @@ name: Hudson Street Deli CLIM Presentation System
 summary: Concrete monochrome command-oriented PBUI presentation system for the Hudson Street Deli ordering flow.
 intent: >-
   Instantiate abstract PBUI presentation obligations as the actual Street Deli
-  CLIM-like browser interface. This profile follows the existing prototype-clim
+  CLIM-like browser interface. This profile follows the existing the static CLIM prototype
   user experience: a black monochrome shell, Berkeley Mono typography, text
   object presentations, selected presentations, red select-mode compatible
   targets, context menus, command bars, and a persistent command-line footer.
@@ -22,10 +22,10 @@ inherits:
   meta_design_system: pbui
   pbui_root: ../../../sources/dmeta-ir/meta-design-systems/pbui
 references:
-  visual_reference: ../../prototype-clim
-  visual_reference_index: ../../prototype-clim/index.html
-  visual_reference_styles: ../../prototype-clim/styles.css
-  visual_reference_runtime: ../../prototype-clim/js/app-main.js
+  visual_reference: ../../www/clim
+  visual_reference_index: ../../www/clim/index.html
+  visual_reference_styles: ../../www/clim/styles.css
+  visual_reference_runtime: ../../www/clim/js/app-main.js
   runtime_reference: /home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim
   runtime_types: /home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim/types.ts
   runtime_store: /home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim/store.ts
@@ -49,5 +49,5 @@ validation:
 notes: >-
   This profile is deliberately local to Street Deli. If another app adopts the
   same monochrome command-oriented CLIM idiom, extract a global reusable profile
-  later. For v1, locality keeps the profile honest to prototype-clim and avoids
+  later. For v1, locality keeps the profile honest to the static CLIM prototype and avoids
   pretending that all PBUI systems share this graphical design.

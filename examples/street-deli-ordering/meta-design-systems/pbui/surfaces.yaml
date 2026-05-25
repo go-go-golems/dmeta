@@ -2,12 +2,12 @@ schema_version: 0
 artifact_type: dmeta_pbui_surfaces
 summary: Concrete shell and surface layout for the Street Deli CLIM presentation system.
 intent: >-
-  Capture the structural shell from prototype-clim so the React app target can
+  Capture the structural shell from the static CLIM prototype so the React app target can
   generate or promote a real CLIM browser UI rather than a collection of generic
   presentation components. Surfaces describe where presentations, actions,
   command text, mode state, and feedback appear.
 source:
-  file: ../../prototype-clim/index.html
+  file: ../../www/clim/index.html
   rationale: >-
     The prototype shell has stable regions: header, active view area, per-view
     command bars, presentation containers, action bars, and a footer command
@@ -99,7 +99,7 @@ surfaces:
     summary: Documentation surface for actions, presentation types, and keyboard grammar.
     intent: >-
       Present the interface vocabulary as first-class readable material. This
-      mirrors prototype-clim's help view and supports the thesis idea that
+      mirrors the static CLIM prototype's help view and supports the thesis idea that
       commands and interface state can themselves be presented.
 notes: >-
   Surfaces do not decide which domain objects exist. They decide where concrete

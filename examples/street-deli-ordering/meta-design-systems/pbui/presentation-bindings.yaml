@@ -4,12 +4,12 @@ summary: Concrete renderer bindings from abstract PBUI presentation types to Str
 intent: >-
   Bind each abstract PBUI presentation type to concrete renderer components,
   classes, display decisions, and subpresentation roles. This is the main bridge
-  from abstract PBUI obligations to prototype-clim visual parity.
+  from abstract PBUI obligations to the static CLIM prototype visual parity.
 source:
-  visual_reference: ../../prototype-clim/js/app-main.js
+  visual_reference: ../../www/clim/js/app-main.js
   runtime_reference: /home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim/render.ts
   rationale: >-
-    prototype-clim shows how Street Deli objects should appear; Readwise shows
+    the static CLIM prototype shows how Street Deli objects should appear; Readwise shows
     how presentation refs and action presentations should be treated as runtime
     objects. These bindings combine the two sources.
 bindings:
@@ -48,7 +48,7 @@ bindings:
     summary: Render an available action as a first-class inline CLIM presentation.
     intent: >-
       Make actions visible and selectable as interface objects, following the
-      Readwise ActionPresentation pattern and prototype-clim action link style.
+      Readwise ActionPresentation pattern and the static CLIM prototype action link style.
     display:
       inline: true
       block: false
@@ -74,7 +74,7 @@ bindings:
     summary: Render compatible actions for the selected presentation in the command/action surface.
     intent: >-
       Preserve the CLIM rhythm where selecting a presentation exposes compatible
-      actions nearby. In prototype-clim this is the lower per-view command bar;
+      actions nearby. In the static CLIM prototype this is the lower per-view command bar;
       in Readwise this is a hint bar containing Action presentations.
     placement:
       preferred_surface: action_bar

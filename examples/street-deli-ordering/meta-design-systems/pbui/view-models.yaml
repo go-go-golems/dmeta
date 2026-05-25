@@ -3,12 +3,12 @@ artifact_type: dmeta_pbui_view_models
 summary: Concrete Street Deli CLIM view model definitions.
 intent: >-
   Define the concrete views that make up the Street Deli CLIM presentation
-  system. These views come from prototype-clim and organize abstract PBUI
+  system. These views come from the static CLIM prototype and organize abstract PBUI
   presentation types into menu browsing, item customization, substitution,
   cart, help, and tracker flows. View models describe presentation organization;
   they do not own domain data.
 source:
-  file: ../../prototype-clim/js/app-main.js
+  file: ../../www/clim/js/app-main.js
   rationale: >-
     The prototype already defines the view set and the command/action rhythm for
     each view. This catalog turns that implicit JavaScript structure into a

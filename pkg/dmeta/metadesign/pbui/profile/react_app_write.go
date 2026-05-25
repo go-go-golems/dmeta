@@ -83,7 +83,7 @@ func copyFontAsset(pkg *Package, dst string, force bool) error {
 		}
 	}
 	fontName := filepath.Base(dst)
-	src := filepath.Join(pkg.Root, "..", "..", "prototype-clim", "fonts", fontName)
+	src := filepath.Join(pkg.Root, "..", "..", "www", "clim", "fonts", fontName)
 	in, err := os.Open(filepath.Clean(src))
 	if err != nil {
 		return errors.Wrapf(err, "open font asset %s", src)
