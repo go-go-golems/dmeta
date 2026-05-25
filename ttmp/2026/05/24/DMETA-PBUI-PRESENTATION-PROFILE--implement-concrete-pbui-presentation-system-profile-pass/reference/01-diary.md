@@ -19,6 +19,14 @@ RelatedFiles:
         Registers validate-pbui-profile
         Registers instantiate-pbui
         Registers plan-pbui-react-app
+    - Path: design-docs/00-document-map-and-cleanup-plan.md
+      Note: Cleanup documentation decision matrix
+    - Path: docs/archive/legacy-widget-ir-v0/07-generated-instance-widget-review-guide.md
+      Note: Archived old generated widget review guide
+    - Path: examples/street-deli-ordering/00-index.yaml
+      Note: Updated active example compiler consumers
+    - Path: examples/street-deli-ordering/generated/pbui-react/package.json
+      Note: Retained generic PBUI React proof package
     - Path: examples/street-deli-ordering/meta-design-systems/pbui/presentation-bindings.yaml
       Note: PBUI presentation type to concrete renderer binding profile
     - Path: examples/street-deli-ordering/meta-design-systems/pbui/presentation-system.yaml
@@ -37,6 +45,12 @@ RelatedFiles:
       Note: Shared Storybook shell for CLIM stories
     - Path: examples/street-deli-ordering/www/clim-react/src/fixtures/presentationFixtures.ts
       Note: Deterministic Storybook fixtures for generated stories
+    - Path: examples/street-deli-ordering/www/clim/index.html
+      Note: Canonical static CLIM prototype retained during cleanup
+    - Path: examples/street-deli-ordering/www/mobile-react/package.json
+      Note: Retained Web React app validated after cleanup
+    - Path: examples/street-deli-ordering/www/mobile/index.html
+      Note: Canonical static mobile prototype retained during cleanup
     - Path: pkg/dmeta/cmds/instantiate_pbui.go
       Note: CLI command for producing concrete PBUI presentation plans
     - Path: pkg/dmeta/cmds/plan_pbui_react_app.go
@@ -65,6 +79,8 @@ RelatedFiles:
       Note: Writer/copy support for React app scaffold files and fonts
     - Path: pkg/dmeta/metadesign/pbui/profile/validate.go
       Note: Concrete PBUI profile validator
+    - Path: sources/dmeta-ir/00-index.yaml
+      Note: Updated active global compiler consumers
     - Path: ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/analysis/01-pbui-metadesignsystem-implementation-report.md
       Note: Step 8 exhaustive PBUI implementation report
     - Path: ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/design-doc/01-concrete-pbui-presentation-profile-pass-guide.md
@@ -77,6 +93,7 @@ LastUpdated: 2026-05-24T17:58:00-04:00
 WhatFor: Record ticket setup, evidence gathering, design decisions, implementation steps, failures, validation, and handoff notes for the PBUI concrete presentation profile pass.
 WhenToUse: Read before resuming work on DMETA-PBUI-PRESENTATION-PROFILE or implementing profile schemas, validators, instantiation, or the Street Deli clim-react app.
 ---
+
 
 
 
@@ -812,3 +829,271 @@ For now, write a detailed project report on the implementation of PBUI MetaDesig
 ### Technical details
 - The report links to the global PBUI IR, concrete Street Deli profile, Go packages, command wrappers, and generated app package.
 - It uses the current validated command outputs as factual evidence rather than restating architecture from memory.
+
+## Step 9: Canonicalize prototypes and remove obsolete generated experiments
+
+This cleanup pass turned the repository cleanup assessment into concrete source-tree changes. The first goal was to make `www/mobile` and `www/clim` the canonical static A/B prototypes, then remove duplicate prototype directories and old generated scaffolds that made obsolete experiments look active.
+
+The cleanup intentionally preserved both current target lines: Web React and PBUI/CLIM React. It removed old scaffold output and duplicate sources, but kept the Web MetaDesignSystem, the promoted `www/mobile-react` app, the global PBUI MetaDesignSystem, the generic `generated/pbui-react` proof package, and the concrete `www/clim-react` app.
+
+### Prompt Context
+
+**User prompt (verbatim):** "do the first reocommended delition set"
+
+**Assistant interpretation:** Apply the first recommended cleanup deletion set from the repository cleanup assessment, while respecting the corrected decision to keep Web React/mobile-react and PBUI React.
+
+**Inferred user intent:** Reduce repository noise by deleting duplicate prototypes and obsolete generated experiments, without deleting the current Web/PBUI compiler paths.
+
+**Commit (code):** `4579dec` — "Cleanup: canonicalize Street Deli prototypes"
+
+**Commit (code):** `8d792ab` — "Cleanup: remove obsolete generated experiments"
+
+**Commit (code):** `07c246c` — "Cleanup: refresh active compiler indexes"
+
+### What I did
+
+- Retargeted the concrete PBUI profile from the duplicate `examples/street-deli-ordering/prototype-clim/` directory to the canonical static CLIM prototype under `examples/street-deli-ordering/www/clim/`.
+- Updated `pkg/dmeta/metadesign/pbui/profile/react_app_write.go` so font copying reads from `www/clim/fonts` instead of `prototype-clim/fonts`.
+- Removed duplicate prototype directories:
+  - `examples/street-deli-ordering/prototype/`
+  - `examples/street-deli-ordering/prototype-clim/`
+- Removed obsolete generated Web/widget and coffee-counter experiment outputs:
+  - `examples/street-deli-ordering/generated/widgets/`
+  - `examples/street-deli-ordering/generated/coffee-counter-widgets/`
+  - `examples/street-deli-ordering/instantiations/street-deli-coffee-counter.yaml`
+- Removed committed generated core TypeScript output:
+  - `generated/dmeta-core/`
+- Preserved current target outputs:
+  - `examples/street-deli-ordering/www/mobile-react/`
+  - `examples/street-deli-ordering/generated/pbui-react/`
+  - `examples/street-deli-ordering/www/clim-react/`
+- Updated `examples/street-deli-ordering/00-index.yaml` and `sources/dmeta-ir/00-index.yaml` to name the active Web/PBUI command consumers instead of stale `scaffold-instance`-era consumers.
+- Updated small provenance comments in `www/mobile-react` so promoted code no longer points at deleted `generated/widgets` scaffolds as current references.
+
+### Why
+
+- `www/clim` was byte-for-byte identical to `prototype-clim`, so keeping both created needless ambiguity.
+- `www/mobile` appeared newer/richer than `prototype`, so `www/mobile` became the canonical mobile static prototype.
+- `generated/widgets` and `generated/coffee-counter-widgets` were outputs of the old generic widget scaffold path, not current source-of-truth artifacts.
+- `generated/dmeta-core` is regenerable by `dmeta generate-core`; it should not be treated as hand-maintained source.
+- The current repository should clearly show the two retained target lines: Web React and PBUI/CLIM React.
+
+### What worked
+
+- PBUI profile validation still passed after retargeting references to `www/clim`.
+- Web lowering and planning still worked after removing old generated outputs.
+- Go tests passed after deleting the obsolete files.
+- The promoted Web app and CLIM app remained buildable after cleanup.
+
+### What didn't work
+
+- The initial active-reference search returned a very large number of historical references from `ttmp/` ticket diaries and old design guides. Those were not active source references, so I repeated searches excluding `ttmp/`, deleted generated dirs, `node_modules`, `dist`, and `storybook-static`.
+- While retargeting prose from `prototype-clim` to the canonical CLIM prototype, a broad string replacement briefly produced awkward phrases such as `existing the static CLIM prototype` and an invalid playbook path `examples/street-deli-ordering/the static CLIM prototype/`. I corrected those during the documentation refresh.
+
+### What I learned
+
+- The active cleanup boundary needs to exclude ticket history. Historical `ttmp` documents are allowed to mention deleted files because they record past work.
+- The correct canonical CLIM reference is not just `www/clim/index.html`; the PBUI profile also depends on `www/clim/styles.css`, `www/clim/js/app-main.js`, `www/clim/js/data.js`, and `www/clim/fonts/*` as reference/material inputs.
+- The Web React path still plans output under `examples/street-deli-ordering/generated/react`, even though the old `generated/widgets` directory is gone. That is consistent with the new Web target path.
+
+### What was tricky to build
+
+- The cleanup had to remove obsolete generated outputs without deleting the generic PBUI proof package. The names are similar (`generated/widgets`, `generated/react`, `generated/pbui-react`), so I verified the intended keep/delete set before staging commits.
+- The PBUI profile contained both machine-consumed paths and human prose references to `prototype-clim`. The paths needed exact retargeting to `../../www/clim`, while prose needed to keep explaining that the static CLIM prototype is the visual reference.
+- The static prototype directories were related to generated app assets: `react_app_write.go` copies fonts during scaffold generation. Removing `prototype-clim` without changing the writer would have broken future `scaffold-pbui-react-app` runs.
+
+### What warrants a second pair of eyes
+
+- Confirm that deleting `examples/street-deli-ordering/prototype/` loses no unique mobile behavior that should be copied into `www/mobile`.
+- Confirm that `generated/dmeta-core/` should remain uncommitted and regenerated on demand rather than kept as a fixture.
+- Confirm whether `examples/street-deli-ordering/generated/react/` should be generated and committed later, or remain only a planned output path.
+
+### What should be done in the future
+
+- Consider adding a short `examples/street-deli-ordering/www/README.md` that names `mobile` and `clim` as the canonical static prototypes.
+- If `generate-core` becomes part of a frontend build, direct its output into the consuming package or a temp/generated fixture location intentionally.
+- Remove or archive old design-doc sections that still describe `scaffold-instance` as active.
+
+### Code review instructions
+
+- Start with `pkg/dmeta/metadesign/pbui/profile/react_app_write.go` and confirm font source paths now point at `www/clim/fonts`.
+- Review PBUI profile files under `examples/street-deli-ordering/meta-design-systems/pbui/` and confirm all `references` paths point at `../../www/clim`.
+- Confirm the deleted directories are only obsolete duplicates/generated outputs.
+- Validate with:
+  - `go test ./pkg/dmeta/... ./cmd/dmeta -count=1`
+  - `go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table`
+  - `go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
+
+### Technical details
+
+Deleted directories/files:
+
+```text
+examples/street-deli-ordering/prototype/
+examples/street-deli-ordering/prototype-clim/
+examples/street-deli-ordering/generated/widgets/
+examples/street-deli-ordering/generated/coffee-counter-widgets/
+examples/street-deli-ordering/instantiations/street-deli-coffee-counter.yaml
+generated/dmeta-core/
+```
+
+Retained current target outputs:
+
+```text
+examples/street-deli-ordering/www/mobile-react/
+examples/street-deli-ordering/generated/pbui-react/
+examples/street-deli-ordering/www/clim-react/
+```
+
+## Step 10: Refresh docs and validate the cleaned two-target setup
+
+After the deletion commits, I completed the cleanup sequence by updating documentation to reflect the new active repository shape. The result is not PBUI-only: the active docs now say that Web React and PBUI/CLIM React are sibling target lines over shared Semantic IR and Interaction IR.
+
+This step also validated the repository after cleanup. The only validation hiccup was an environment issue in `www/clim-react`: its local `node_modules` directory was missing, so `npm run build` could not find `tsc` until I ran `npm ci`.
+
+### Prompt Context
+
+**User prompt (verbatim):** "continue. 
+
+do what you describe under commit 1- 4 basically. Commit at appropriate intervals and keep a detailed diary"
+
+**Assistant interpretation:** Continue beyond the first deletion set and execute the staged cleanup plan: canonicalize prototypes, remove obsolete outputs, preserve Web/PBUI target paths, refresh docs, commit in logical chunks, and record the work in the diary.
+
+**Inferred user intent:** Finish the repository cleanup pass in a reviewable, auditable way rather than leaving partial deletions and stale docs.
+
+**Commit (code):** `a7fbce3` — "Docs: refresh cleanup guidance after deletions"
+
+### What I did
+
+- Archived the old generated widget review guide out of the active `design-docs/` set:
+  - from `design-docs/07-generated-instance-widget-review-guide.md`
+  - to `docs/archive/legacy-widget-ir-v0/07-generated-instance-widget-review-guide.md`
+- Added current-status notices to older design docs so readers know which parts are historical:
+  - `design-docs/04-concrete-dmeta-system-spec.md`
+  - `design-docs/05-dmeta-core-model-and-widget-ir-spec.md`
+  - `design-docs/06-dmeta-design-language-and-tooling-spec.md`
+- Updated `design-docs/00-document-map-and-cleanup-plan.md` to record that the generated widget review guide is archived.
+- Updated `README.md` so it says `generated/dmeta-core/` is not kept as committed source-of-truth after cleanup and should be generated intentionally when needed.
+- Fixed awkward prose introduced while retargeting PBUI profile references from `prototype-clim` to the canonical static CLIM prototype.
+- Ran shared, Web, PBUI, and app validation/build checks.
+
+### Why
+
+- Removing files without updating docs would leave future contributors following dead paths.
+- The older v0 docs are still useful context, but they should not read like the current operational instructions.
+- The active operational docs are now the three playbooks plus the cleanup/document map.
+
+### What worked
+
+- Frontmatter validation passed for `design-docs/*.md`, `playbooks/*.md`, and the archived guide.
+- Go tests passed:
+  - `go test ./pkg/dmeta/... ./cmd/dmeta -count=1`
+- Shared IR validation passed:
+  - `go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table`
+  - `go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table`
+  - `go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table`
+- PBUI validation passed:
+  - `go run ./cmd/dmeta validate-pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
+  - `go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table`
+- Target planning passed:
+  - `lower-web`
+  - `plan-scaffold --target react`
+  - `lower-pbui`
+  - `instantiate-pbui`
+  - `plan-pbui-react-app`
+- React builds passed for both apps after installing missing CLIM app dependencies:
+  - `www/mobile-react`: `npm run build`, `npm run build-storybook`
+  - `www/clim-react`: `npm ci --no-audit --no-fund`, `npm run build`, `npm run build-storybook`
+
+### What didn't work
+
+- First attempt to build `www/clim-react` failed because dependencies were not installed in that package:
+
+```text
+> street-deli-clim-react@0.0.0 build
+> tsc -b && vite build
+
+sh: 1: tsc: not found
+```
+
+- Fix:
+
+```bash
+cd examples/street-deli-ordering/www/clim-react
+npm ci --no-audit --no-fund
+npm run build
+npm run build-storybook
+```
+
+- Storybook emitted non-fatal warnings in both apps:
+  - `No story files found for the specified pattern: src/**/*.mdx`
+  - large chunk warnings for Storybook bundles over 500 kB.
+- While preparing the diary commit, `git status` showed accidental staged deletions for `sources/dmeta-ir/core-model/examples/agent-workflow.yaml` and `sources/dmeta-ir/core-model/examples/retail-logistics.yaml`. These files were not part of the requested cleanup, so I restored them from `HEAD` before committing the diary.
+
+### What I learned
+
+- The cleaned repository still has a larger docs surface than code surface. The next documentation cleanup should rewrite or split design docs 04-06 instead of only adding status notices.
+- Both React apps can build after the deletion set; removing old generated widget output did not break the promoted Web app.
+- Retargeting `prototype-clim` to `www/clim` is enough for future CLIM app scaffolding because the required fonts are present under `www/clim/fonts`.
+
+### What was tricky to build
+
+- Commit boundaries mattered. Prototype canonicalization, generated-output deletion, index refresh, and documentation refresh were separated so review can inspect each logical decision independently.
+- The older design docs still contain historical references to deleted paths. Rather than rewriting them all in this pass, I added current-status notices and archived the most misleading active review guide.
+- Build outputs and `node_modules` are ignored, so running `npm ci` and Storybook builds did not dirty the working tree.
+
+### What warrants a second pair of eyes
+
+- Review whether old design docs 04-06 should be fully rewritten now or kept with status notices until the next documentation pass.
+- Review whether `docs/archive/legacy-widget-ir-v0/` is the right archive location or whether historical docs should stay only in Git history.
+- Review the new index entries for `pbui_meta_design_system`; `validate-ir` accepts them, but future tooling may need to consume them explicitly.
+
+### What should be done in the future
+
+- Rewrite `design-docs/04-concrete-dmeta-system-spec.md` as a current compiler-system spec.
+- Split `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` into shared Semantic/Interaction IR and Web MetaDesignSystem specs.
+- Split `design-docs/06-dmeta-design-language-and-tooling-spec.md` into shared design-language guidance plus target-specific tooling docs.
+- Consider adding CI checks for both React apps if they are intended to stay buildable in every cleanup commit.
+
+### Code review instructions
+
+- Review commits in order:
+  1. `4579dec` — prototype canonicalization and PBUI profile retargeting.
+  2. `8d792ab` — generated-output and coffee-counter cleanup.
+  3. `07c246c` — active compiler index refresh.
+  4. `a7fbce3` — docs refresh and archive move.
+- Confirm Web/PBUI keep policy is preserved:
+  - Web MetaDesignSystem remains.
+  - `www/mobile-react` remains.
+  - `generated/pbui-react` remains.
+  - `www/clim-react` remains.
+- Re-run validation commands listed in `What worked` if needed.
+
+### Technical details
+
+Final validation/build command groups used:
+
+```bash
+go test ./pkg/dmeta/... ./cmd/dmeta -count=1
+
+go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table
+
+go run ./cmd/dmeta lower-web --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --web-root ./examples/street-deli-ordering/meta-design-systems/web --output table
+go run ./cmd/dmeta plan-scaffold --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --target react --output table
+go run ./cmd/dmeta lower-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output table
+go run ./cmd/dmeta instantiate-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output table
+go run ./cmd/dmeta plan-pbui-react-app --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output-dir ./examples/street-deli-ordering/www/clim-react --output table
+
+cd examples/street-deli-ordering/www/mobile-react
+npm run build
+npm run build-storybook
+
+cd ../clim-react
+npm ci --no-audit --no-fund
+npm run build
+npm run build-storybook
+```

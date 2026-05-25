@@ -116,3 +116,14 @@ Replaced stale DMETA playbooks with shared, Web React, and PBUI/CLIM playbooks; 
 - /home/manuel/code/wesen/go-go-golems/dmeta/playbooks/02-dmeta-web-react-metadesignsystem-playbook.md — Web React MetaDesignSystem workflow
 - /home/manuel/code/wesen/go-go-golems/dmeta/playbooks/03-dmeta-pbui-clim-metadesignsystem-playbook.md — PBUI/CLIM MetaDesignSystem workflow
 
+
+## 2026-05-24
+
+Executed staged repository cleanup: canonicalized Street Deli static prototypes, removed obsolete generated/widget/coffee-counter/core outputs, refreshed active compiler indexes, archived stale widget review docs, and recorded detailed diary steps (commits 4579dec, 8d792ab, 07c246c, a7fbce3).
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/docs/archive/legacy-widget-ir-v0/07-generated-instance-widget-review-guide.md — Archived stale guide
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/00-index.yaml — Active compiler index
+- /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/reference/01-diary.md — Detailed cleanup diary
+
