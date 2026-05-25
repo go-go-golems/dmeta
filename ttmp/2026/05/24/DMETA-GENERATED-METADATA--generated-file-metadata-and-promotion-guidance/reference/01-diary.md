@@ -230,3 +230,100 @@ go run ./cmd/dmeta plan-pbui-react \
   --output-dir ./examples/street-deli-ordering/generated/pbui-react \
   --output table
 ```
+
+## Step 3: Add shared metadata helpers and wire generic PBUI React output
+
+This step implemented the first two ticket phases. I added a shared generated-file metadata package, then wired the generic PBUI React renderer to emit the new metadata envelope in TypeScript/TSX files and JSON metadata sidecars.
+
+The generic PBUI package remains ignored/regenerable, but when regenerated it now explains what command produced it, which source roots matter, which PBUI presentation type is being represented, and which Semantic/Interaction concepts are relevant to each presentation file.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Add phaseas and tasks to the ticket, then implement them one by one, committing at appropriate intervals, keeping a detailed diary as you work"
+
+**Assistant interpretation:** Add concrete implementation phases to the docmgr ticket, execute them sequentially, commit coherent increments, and keep this diary current.
+
+**Inferred user intent:** Turn the generated metadata guide into working compiler functionality, without losing traceability across commits.
+
+**Commit (code):** `fa1cd0d` — "DMETA-GENERATED-METADATA: add shared metadata renderer"
+
+### What I did
+
+- Added ticket tasks for five phases.
+- Implemented `pkg/dmeta/generator/metadata`:
+  - shared `GeneratedFileMetadata` schema;
+  - generation, artifact, pipeline, source, semantic, Web, PBUI, React, guidance, and promotion structs;
+  - TypeScript prelude renderer;
+  - JSON renderer;
+  - default promotion guidance;
+  - current command/time/git context helper.
+- Wired generic PBUI React rendering to use the shared metadata envelope.
+- Added `dmetaGeneratedMetadata` exports to generated PBUI registries, runtime helpers, presentation hooks, components, stories, and barrels.
+- Changed PBUI `.metadata.json` sidecars from raw `ReactFileProvenance` to the shared metadata schema.
+- Updated PBUI renderer tests and golden fixture.
+- Proved ignored package regeneration and TypeScript build:
+  - `go run ./cmd/dmeta scaffold-pbui-react ... --dry-run=false --force --output table`
+  - `cd examples/street-deli-ordering/generated/pbui-react && npm install --no-audit --no-fund && npm run build`
+- Deleted the ignored generated output again after validation.
+
+### Why
+
+- The shared metadata package prevents each renderer from inventing a different metadata format.
+- The PBUI generic renderer is a good first target because it already has rich provenance in `ReactFileProvenance` and metadata sidecars.
+
+### What worked
+
+- Shared metadata tests pass.
+- PBUI package tests pass after updating the golden sidecar schema.
+- The regenerated ignored PBUI proof package compiles with TypeScript.
+
+### What didn't work
+
+- The first PBUI test run failed because the old tests expected metadata sidecars to unmarshal directly into `ReactFileProvenance`. The sidecars now use the shared `GeneratedFileMetadata` envelope, so tests were updated accordingly.
+- The golden fixture initially included a temp directory path and therefore changed on every test run. I normalized the path in the golden test before comparing.
+
+### What I learned
+
+- The old `ReactFileProvenance` struct is still useful internally, but the exported metadata format should be the shared schema so downstream tooling has one contract.
+- JSON sidecars and inline TypeScript metadata should carry the same conceptual envelope.
+
+### What was tricky to build
+
+- The PBUI renderer renders many file kinds with different signatures. Adding a common prelude meant changing renderer signatures so each function receives both the overall plan and the planned file.
+- Golden tests needed deterministic paths because render plans use temporary output directories during tests.
+
+### What warrants a second pair of eyes
+
+- Review whether generic PBUI proof files should remain marked `promotable: false` even though a developer might copy them into a maintained package.
+- Review the exact TypeScript prelude size; it is useful for LLM/tooling but verbose.
+
+### What should be done in the future
+
+- Thread richer source-file references than just source roots.
+- Add lints that parse `dmetaGeneratedMetadata` and verify source paths exist.
+
+### Code review instructions
+
+- Start with `pkg/dmeta/generator/metadata/model.go` and `render.go`.
+- Then review `pkg/dmeta/metadesign/pbui/react_render.go`, especially `pbuiGeneratedMetadata`.
+- Validate with:
+  - `go test ./pkg/dmeta/generator/metadata ./pkg/dmeta/metadesign/pbui ./pkg/dmeta/cmds -count=1`
+  - `go run ./cmd/dmeta scaffold-pbui-react ... --dry-run=false --force --output table`
+  - `npm run build` inside the ignored generated package.
+
+### Technical details
+
+The shared TypeScript prelude has this shape:
+
+```ts
+export const dmetaGeneratedMetadata = {
+  schemaVersion: 1,
+  generated: { at, by, command, workingDirectory, gitCommit },
+  artifact: { path, kind, language, symbol, promotable },
+  pipeline: { semanticRoot, interactionsRoot, metaDesignSystem, target, passes },
+  sources: [{ path, role, why }],
+  semantics: { domainTypes, representations, actions, sourceRules },
+  pbui: { presentationType, presenterIntent, recognizerIntent },
+  promotion: { promotable, status, instructions, changelog }
+} as const;
+```

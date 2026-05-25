@@ -9,6 +9,7 @@ import (
 	"sort"
 	"testing"
 
+	genmeta "github.com/go-go-golems/dmeta/pkg/dmeta/generator/metadata"
 	"github.com/go-go-golems/dmeta/pkg/dmeta/interaction"
 	"github.com/go-go-golems/dmeta/pkg/dmeta/validator"
 )
@@ -59,10 +60,11 @@ func TestGoldenRenderedCompositionMetadata(t *testing.T) {
 	}
 	for _, file := range files {
 		if file.Kind == "metadata" && file.Symbol == "PbuiCompositionPresentationMetadata" {
-			var decoded ReactFileProvenance
+			var decoded genmeta.GeneratedFileMetadata
 			if err := json.Unmarshal([]byte(file.Content), &decoded); err != nil {
 				t.Fatalf("metadata is not valid JSON: %v", err)
 			}
+			decoded.Artifact.Path = "<output>/presentations/PbuiCompositionPresentation/PbuiCompositionPresentation.metadata.json"
 			assertGoldenJSON(t, "composition_metadata.golden.json", decoded)
 			return
 		}

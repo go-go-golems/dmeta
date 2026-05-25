@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	genmeta "github.com/go-go-golems/dmeta/pkg/dmeta/generator/metadata"
 	"github.com/go-go-golems/dmeta/pkg/dmeta/interaction"
 	"github.com/go-go-golems/dmeta/pkg/dmeta/validator"
 )
@@ -27,12 +28,12 @@ func TestRenderReactPlanIncludesMetadataAndRegistries(t *testing.T) {
 		}
 		if file.Kind == "metadata" {
 			seenMetadata = true
-			var provenance ReactFileProvenance
-			if err := json.Unmarshal([]byte(file.Content), &provenance); err != nil {
+			var generated genmeta.GeneratedFileMetadata
+			if err := json.Unmarshal([]byte(file.Content), &generated); err != nil {
 				t.Fatalf("metadata content should be valid JSON: %v\n%s", err, file.Content)
 			}
-			if provenance.PresentationTypeID == "" || provenance.PresenterIntent == "" || provenance.RecognizerIntent == "" {
-				t.Fatalf("metadata should preserve PBUI provenance and intent: %#v", provenance)
+			if generated.PBUI == nil || generated.PBUI.PresentationType == "" || generated.PBUI.PresenterIntent == "" || generated.PBUI.RecognizerIntent == "" {
+				t.Fatalf("metadata should preserve PBUI provenance and intent: %#v", generated.PBUI)
 			}
 		}
 	}

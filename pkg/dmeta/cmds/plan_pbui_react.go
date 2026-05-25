@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	genmeta "github.com/go-go-golems/dmeta/pkg/dmeta/generator/metadata"
 	"github.com/go-go-golems/dmeta/pkg/dmeta/interaction"
 	pbuimds "github.com/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui"
 	"github.com/go-go-golems/dmeta/pkg/dmeta/validator"
@@ -114,6 +115,10 @@ func (c *PlanPBUIReactCommand) RunIntoGlazeProcessor(ctx context.Context, vals *
 		outputDir = resolvePlanOutputDir(s.Root, pbuiPkg.ReactTarget.Defaults.OutputDir)
 	}
 	plan := pbuimds.BuildReactPlan(pbuiPkg, pbuiPkg.ReactTarget, pbuiObligations, objectDescriptors, actionDescriptors, outputDir)
+	plan.Generated = genmeta.CurrentGeneratedInfo("dmeta plan-pbui-react")
+	plan.SemanticRoot = s.Root
+	plan.InteractionsRoot = s.InteractionsRoot
+	plan.PBUIRoot = s.PBUIRoot
 
 	for _, file := range plan.Files {
 		row := types.NewRow(
