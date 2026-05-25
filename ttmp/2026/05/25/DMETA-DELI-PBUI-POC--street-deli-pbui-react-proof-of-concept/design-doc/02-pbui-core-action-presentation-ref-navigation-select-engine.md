@@ -25,10 +25,16 @@ RelatedFiles:
       Note: |-
         Concrete Street Deli view models and default command sets.
         View model source for command availability examples
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components
+      Note: Extracted PBUI React component kit baseline with per-widget Storybook stories
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx
       Note: |-
         Current proof-of-concept generic CLIM shell and presentation components.
         Current generic CLIM renderer baseline for style states
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiClickableText/PbuiClickableText.tsx
+      Note: Shared dotted underline primitive for actions and selectable refs
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiPresentationRef/PbuiPresentationRef.tsx
+      Note: Semantic presentation ref renderer with muted techno-babble and selectable label
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts
       Note: |-
         Current proof-of-concept command-binding and action-request helper baseline.
@@ -46,6 +52,7 @@ LastUpdated: 2026-05-25T13:18:01.895217141-04:00
 WhatFor: Use this document to implement the reusable core interaction engine shared by PBUI applications before moving the Street Deli POC behavior into generated/runtime code.
 WhenToUse: Read before extending proof-of-concept/deli-pbui-react beyond local widget state, generating command/action registries, or adding select-mode/navigation behavior to PBUI targets.
 ---
+
 
 
 # PBUI Core Action Presentation Ref Navigation Select Engine
@@ -897,7 +904,45 @@ YAML/IR/profile
 
 This prevents templates from reimplementing behavior in every generated widget.
 
-## 18. Testing plan
+## 18. Component kit baseline
+
+The engine should not emit Tailwind class strings directly into application widgets. It should emit semantic state, and a small PBUI/CLIM React component kit should render that state consistently. The proof of concept now starts that extraction under:
+
+```text
+proof-of-concept/deli-pbui-react/src/generic/clim/components/
+```
+
+Each component has its own directory with implementation, Storybook story, `types.ts`, and `index.ts`. This structure gives generators a stable target. A generated or hand-authored view should render semantic data through these components instead of reconstructing the visual grammar locally.
+
+The current baseline components are:
+
+| Component | Responsibility |
+|---|---|
+| `PbuiText` | Render normal, bright, muted, danger, and removed text tones. |
+| `PbuiClickableText` | Render the shared dotted underline affordance for actions and selectable reference labels. |
+| `PbuiSectionLabel` | Render non-clickable section labels such as `VIEW MODEL` and `COMPOSITION DRAFT`. |
+| `PbuiPresentationRef` | Render `<Type> label #id capabilities` while keeping technical text muted and making only the semantic label selectable. |
+| `PbuiAction` | Render one action/command presentation through `PbuiClickableText`. |
+| `PbuiActionBar` | Render the current command/action set without box styling. |
+| `PbuiCommandLine` | Render the editable command input and result line. |
+| `PbuiConfirmPrompt` | Render confirmation prompts using text affordances, not panels. |
+| `PbuiShell` | Render the global CLIM shell and command line. |
+
+`PbuiClickableText` owns the underline implementation:
+
+```ts
+const clickableDecorationStyle = {
+  textDecorationLine: 'underline',
+  textDecorationStyle: 'dotted',
+  textDecorationSkipInk: 'auto',
+  textUnderlineOffset: '2.5px',
+  textDecorationThickness: '1px',
+};
+```
+
+The fixed pixel underline offset is intentional. If the offset is expressed in `em`, uppercase action labels and lowercase ingredient labels with descenders compute different pixel offsets. A shared `2.5px` offset keeps command labels and selectable reference labels aligned while `text-decoration-skip-ink: auto` avoids drawing through glyph ink.
+
+## 19. Testing plan
 
 ### Unit tests
 
@@ -940,7 +985,7 @@ confirm
 expect /tracker/<orderId>
 ```
 
-## 19. Design decisions
+## 20. Design decisions
 
 ### Decision 1: Command bindings are concrete profile data
 
@@ -962,7 +1007,7 @@ A PBUI application is still a React application. View state must be reflected in
 
 Direct ref click is useful, but select mode is still required. Some actions should be chosen first, then filled by clicking a compatible ref. The engine must support both policies.
 
-## 20. Open questions
+## 21. Open questions
 
 - Should the first route adapter use query params, hash routing, or `history.pushState` paths in the standalone POC?
 - Should `action-bindings.yaml` include an explicit argument schema for command-line parsing?
@@ -970,7 +1015,7 @@ Direct ref click is useful, but select mode is still required. Some actions shou
 - Should disabled actions remain visible by default, or should each view decide visibility policy?
 - Should passive selection get a textual marker such as `SELECTED`, or should it remain bright text only?
 
-## 21. Key points
+## 22. Key points
 
 - The next reusable PBUI layer is an action/presentation/ref/navigation/select engine.
 - The engine connects refs, actions, command bindings, selection, slot filling, availability, confirmation, and routing.

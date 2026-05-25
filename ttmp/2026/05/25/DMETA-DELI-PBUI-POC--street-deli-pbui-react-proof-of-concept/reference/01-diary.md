@@ -1236,3 +1236,119 @@ registries + domain context + route adapter
   -> renderer events
   -> action request / navigation / confirm transitions
 ```
+
+## Step 12: Extract PBUI React component primitives and normalize dotted underline rendering
+
+This step started splitting the generic CLIM renderer out of the old monolithic `components.tsx` file. The goal is to give future PBUI generators stable semantic React targets: presentation refs, action presentations, command lines, section labels, and confirmation prompts should be emitted as components with semantic props, not as repeated local Tailwind class strings.
+
+The immediate styling fix was the dotted underline. Actions and selectable reference labels now share one `PbuiClickableText` primitive. That primitive sets `text-decoration-skip-ink: auto`, dotted underline style, one-pixel thickness, and a fixed `2.5px` underline offset. The fixed pixel offset is deliberate because `em` offsets made uppercase action labels and lowercase ingredient labels compute different pixel positions.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Use  text-decoration-skip-ink: auto; and properly adjust the underline offset so that the ACTION     
+dotter underline matches the selectable ref underline, even if ingredients uses lowercase letters    
+with descenders. Update the style guide too.    
+
+then continue"
+
+**Assistant interpretation:** Continue the component extraction and ensure the shared clickable underline implementation gives actions and selectable refs identical dotted underline geometry.
+
+**Inferred user intent:** Stop styling PBUI affordances with duplicated CSS/Tailwind fragments and establish reusable React primitives that preserve the style profile rules.
+
+### What I did
+
+- Created per-widget directories under `proof-of-concept/deli-pbui-react/src/generic/clim/components/`:
+  - `PbuiText`
+  - `PbuiClickableText`
+  - `PbuiSectionLabel`
+  - `PbuiPresentationRef`
+  - `PbuiAction`
+  - `PbuiActionBar`
+  - `PbuiCommandLine`
+  - `PbuiConfirmPrompt`
+  - `PbuiShell`
+- Added `*.tsx`, `*.stories.tsx`, `index.ts`, and `types.ts` files for the extracted widgets.
+- Rewrote `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx` as a compatibility barrel that re-exports the new components under the old names used by the POC widget.
+- Centralized dotted underline behavior in `PbuiClickableText`:
+  - `textDecorationLine: underline`
+  - `textDecorationStyle: dotted`
+  - `textDecorationSkipInk: auto`
+  - `textUnderlineOffset: 2.5px`
+  - `textDecorationThickness: 1px`
+- Updated `style-profile.yaml` to encode the shared dotted underline geometry.
+- Updated the engine design guide with a component kit baseline section.
+
+### Why
+
+- The old component file made it too easy to spread one-off class strings across renderers.
+- A generator should output semantic components such as `PbuiPresentationRef` and `PbuiAction`, not styling decisions.
+- The underline offset must be common for actions and selectable refs even when their glyph shapes differ.
+
+### What worked
+
+Validation/build checks passed:
+
+```bash
+go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./examples/street-deli-ordering --include-info --output table
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Playwright verified that `CUSTOMIZE` and selectable `turkey [protein]` both use:
+
+```text
+text-decoration-skip-ink: auto
+text-underline-offset: 2.5px
+text-decoration-style: dotted
+cursor: pointer
+```
+
+It also confirmed that the `<Ingredient>` prefix remains muted gray while the selectable ingredient label turns red.
+
+### What didn't work
+
+- The first underline-offset check failed because `0.18em` produced different computed pixel offsets for uppercase action text and lowercase ingredient labels. I changed the shared primitive and style profile to use `2.5px`.
+- Storybook's stricter `StoryObj` typing required `args` for stories whose components have required props. I added minimal args to the component stories.
+
+### What I learned
+
+- `text-decoration-skip-ink: auto` solves glyph ink overlap, but it does not make underline offset consistent if the offset is relative to font metrics. A fixed pixel offset is more reliable for this UI.
+- The component kit is a natural bridge between the engine design and future code generation.
+
+### What was tricky to build
+
+- `PbuiPresentationRef` must render a single semantic ref while applying different visual rules to its parts: type/id/capability text is muted, while only the domain label becomes selectable/red/dotted-underlined.
+- The old import path still needed to work, so `components.tsx` temporarily re-exports the new components under the old names.
+
+### What warrants a second pair of eyes
+
+- Review whether `2.5px` is the right fixed underline offset across browser/font combinations.
+- Review whether the compatibility barrel should remain or whether POC imports should move directly to the new component directories.
+- Review whether `PbuiShell` should take brand/title as props before it becomes reusable across non-Deli PBUI apps.
+
+### What should be done in the future
+
+- Replace POC imports with explicit component-kit imports.
+- Add visual regression checks for the underline geometry.
+- Continue extracting engine-aware components once `PresentationVisualState` exists.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiClickableText/PbuiClickableText.tsx`.
+- Then review `PbuiPresentationRef` and `PbuiAction` to see how both reuse the same clickable primitive.
+- Review the new Storybook stories under each component directory.
+- Compare the style constants against `examples/street-deli-ordering/meta-design-systems/pbui/style-profile.yaml`.
+
+### Technical details
+
+The shared underline style is:
+
+```ts
+const clickableDecorationStyle = {
+  textDecorationLine: 'underline',
+  textDecorationStyle: 'dotted',
+  textDecorationSkipInk: 'auto',
+  textUnderlineOffset: '2.5px',
+  textDecorationThickness: '1px',
+};
+```
