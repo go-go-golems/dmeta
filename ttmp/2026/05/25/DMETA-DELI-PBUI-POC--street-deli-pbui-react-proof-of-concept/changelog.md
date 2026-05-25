@@ -255,3 +255,13 @@ Step 24: hard-cut the Deli PBUI POC action engine from command bindings/input ma
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/actionEngine.ts — Pure typed argument matching helpers
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/types.ts — Typed ActionSpec runtime contract
 
+
+## 2026-05-25
+
+Step 25: make selected object refs blink, keep ingredients white by default, highlight actions applicable to the selected ref in red, and show selected action / filled slots in the status bar (commit baf18f4)
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiPresentationRef/PbuiPresentationRef.tsx — Selected-ref visual behavior
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Applicable-action derivation and action-slice formatting
+
