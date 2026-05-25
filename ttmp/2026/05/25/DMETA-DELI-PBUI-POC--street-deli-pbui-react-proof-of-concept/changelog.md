@@ -276,3 +276,13 @@ Step 26: split DeliPbuiWorkbench into named part widgets, stories, domain adapte
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/hooks/useDeliActionController.ts — Extracted action controller
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/parts/DeliDetailView/DeliDetailView.tsx — Extracted view part
 
+
+## 2026-05-25
+
+Step 27: add Storybook play checks for PBUI ingredient selection, red compatible actions, select-mode target validity, and action-slice filled slot display (commit d6ab810)
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/DeliPbuiWorkbench.stories.tsx — Top-level interaction plays
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/parts/DeliDetailView/DeliDetailView.stories.tsx — Part-level visual plays
+
