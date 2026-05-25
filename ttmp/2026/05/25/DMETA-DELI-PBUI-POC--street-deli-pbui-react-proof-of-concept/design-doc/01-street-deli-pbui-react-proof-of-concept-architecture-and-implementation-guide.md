@@ -15,6 +15,8 @@ Owners: []
 RelatedFiles:
     - Path: examples/street-deli-ordering/meta-design-systems/pbui
       Note: Street Deli PBUI profile now keeps app-specific overrides and view models.
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml
+      Note: Concrete Street Deli CLIM command/action binding catalog
     - Path: proof-of-concept/deli-pbui-react
       Note: |-
         Standalone hand-authored Vite/React/Tailwind/RTK Query/Storybook proof-of-concept package.
@@ -23,6 +25,8 @@ RelatedFiles:
       Note: Street Deli-specific domain types, fixtures, action descriptors, view models, and RTK Query fixture API.
     - Path: proof-of-concept/deli-pbui-react/src/domain/deli/actions.ts
       Note: Street Deli action descriptor baseline
+    - Path: proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts
+      Note: Hand-authored TypeScript mirror of the command/action binding target shape
     - Path: proof-of-concept/deli-pbui-react/src/domain/deli/viewModels.ts
       Note: Street Deli view model registry baseline
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim
@@ -52,6 +56,7 @@ LastUpdated: 2026-05-25T00:00:00-04:00
 WhatFor: Use to understand why the proof of concept exists, how it separates reusable CLIM/PBUI code from Street Deli domain code, and how it should feed future DMETA generation templates.
 WhenToUse: Before extending proof-of-concept/deli-pbui-react or converting its proven patterns back into PBUI React generation.
 ---
+
 
 
 # Street Deli PBUI React Proof of Concept Architecture and Implementation Guide
@@ -440,7 +445,56 @@ function menuItemPresentation(item: MenuItem): PresentationRef<'MenuItem'> {
 
 This function is the kind of thing that future generation might scaffold from Semantic IR capabilities. The exact projection may become hand-maintained, but the signature and placement are useful: domain object in, generic presentation object out.
 
-## 8. Storybook as the review surface
+## 8. Command/action bindings
+
+The proof of concept now has a first concrete command/action binding layer. This layer is separate from Interaction IR.
+
+Interaction IR defines the semantic action id and its meaning:
+
+```text
+submit_order
+  inputs: cart_ref
+  effects: backend_mutation
+  safety: requires_confirmation
+```
+
+The PBUI profile defines how a concrete CLIM command exposes that action in the Street Deli app:
+
+```text
+PLACE-ORDER
+  action: submit_order
+  views: cart
+  surface: confirm_prompt
+  handler: deli.submitOrder
+  input_mapping:
+    cart_ref: current_cart
+```
+
+The profile file is:
+
+```text
+examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml
+```
+
+The proof-of-concept TypeScript registry is:
+
+```text
+proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts
+```
+
+This layer matters because command labels are not the same thing as action ids. `submit_order` is a stable Interaction IR action. `PLACE-ORDER` is the command label shown by this concrete Street Deli CLIM profile. Different apps or different profiles may expose the same action through different labels, surfaces, confirmation prompts, or handlers.
+
+The profile validator now checks that command bindings reference:
+
+- known Interaction IR actions from the effective interaction package;
+- known Street Deli views from `view-models.yaml`;
+- known PBUI presentation types;
+- known concrete/inherited surfaces;
+- confirmation blocks when an action binding requires confirmation.
+
+It also checks that every view model `default_actions` entry has a corresponding command binding. This makes `view-models.yaml` and `action-bindings.yaml` a coupled concrete profile contract.
+
+## 9. Storybook as the review surface
 
 The Storybook file is:
 
@@ -462,7 +516,7 @@ Storybook is not optional for this work. PBUI is a presentation-system project, 
 
 The first proof of concept has one story, `MenuMode`, because the initial package is a baseline. The next increments should add states before adding more infrastructure.
 
-## 9. What should become reusable
+## 10. What should become reusable
 
 A large part of the proof of concept should eventually become reusable.
 
@@ -474,17 +528,18 @@ A large part of the proof of concept should eventually become reusable.
 | Surface defaults | `sources/dmeta-ir/meta-design-systems/pbui/profiles/clim/surfaces.yaml` | reusable PBUI CLIM profile |
 | Presentation binding defaults | `sources/dmeta-ir/meta-design-systems/pbui/profiles/clim/presentation-bindings.yaml` | reusable PBUI CLIM profile |
 | Deli domain types | `src/domain/deli/types.ts` | generated/app-specific |
-| Deli action descriptors | `src/domain/deli/actions.ts` | generated from Interaction IR plus action bindings |
+| Deli action descriptors | `src/domain/deli/actions.ts` | generated from Interaction IR |
+| Deli command bindings | `src/domain/deli/commandBindings.ts` | generated from `action-bindings.yaml` |
 | Deli view models | `src/domain/deli/viewModels.ts` | generated from `view-models.yaml` |
 | Deli projection functions | `widget.tsx` for now | generated stubs plus promoted code |
 
-## 10. What is still missing
+## 11. What is still missing
 
 The proof of concept is intentionally small. It does not yet solve the full app.
 
 Missing but important:
 
-- a real `action-bindings.yaml` that maps command labels like `PLACE-ORDER` to Interaction IR action ids like `submit_order`;
+- generated TypeScript from `action-bindings.yaml` instead of the current hand-authored `commandBindings.ts` mirror;
 - typed action request builders for each action;
 - action handler stubs and real handlers;
 - compatible action selectors based on current selection and view mode;
@@ -498,7 +553,7 @@ Missing but important:
 
 These are not failures. They are the next design targets. The proof of concept should grow toward them by hand before we template them.
 
-## 11. How to run the proof of concept
+## 12. How to run the proof of concept
 
 From the package directory:
 
@@ -515,7 +570,7 @@ Validated result:
 - `npm run build-storybook` passes.
 - Storybook emits the usual large chunk warning, but the build completes successfully.
 
-## 12. Implementation plan for the next intern
+## 13. Implementation plan for the next intern
 
 ### Phase 1: Expand the hand-authored baseline
 
@@ -607,7 +662,7 @@ src/generic/clim/stateMachine.ts
 src/generic/clim/actionRequests.ts
 ```
 
-## 13. Review checklist
+## 14. Review checklist
 
 A reviewer should check the proof of concept using these questions:
 
@@ -620,7 +675,7 @@ A reviewer should check the proof of concept using these questions:
 - Are the pieces named in a way that future code generation could reproduce?
 - Does the package build independently from the rest of the repo?
 
-## 14. Key decisions
+## 15. Key decisions
 
 - **Hand-authored before generated:** The target shape is still unknown, so a hand-authored baseline is more valuable than more scaffolding.
 - **Standalone package:** The proof of concept should build independently and not depend on the current generated `www/clim-react` app.
@@ -629,7 +684,7 @@ A reviewer should check the proof of concept using these questions:
 - **Generic/domain split:** This is the architectural invariant. It is more important than visual completeness in the first pass.
 - **Storybook first:** The widget must have a Storybook surface because PBUI behavior needs visual and interaction review.
 
-## 15. Acceptance criteria for this ticket
+## 16. Acceptance criteria for this ticket
 
 This ticket is complete when:
 
