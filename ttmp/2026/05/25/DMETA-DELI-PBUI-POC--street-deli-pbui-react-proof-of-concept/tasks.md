@@ -21,4 +21,7 @@
 - [x] Add generic PBUI command handler registry helper
 - [x] Move Street Deli command execution switch into domain handler registry
 - [x] Validate handler-registry backed order, navigation, and select flows
-- [ ] Later: wrap the generic PBUI session reducer in a Redux slice for composable app integration
+- [x] Later: wrap the generic PBUI session reducer in a Redux slice for composable app integration
+- [x] Replace local PBUI session useReducer with a Redux Toolkit slice
+- [x] Add app store factory and typed Redux hooks for PBUI Storybook isolation
+- [x] Set up per-story mock Redux stores for Deli PBUI Storybook stories

@@ -2011,3 +2011,129 @@ CommandBinding.handler
   -> domain handler mutates app/domain state or navigates
   -> widget records default or handler-provided result line
 ```
+
+## Step 19: Replace local PBUI reducer with Redux Toolkit slice and isolate Storybook stores
+
+This step turned the PBUI session state machine into a proper Redux Toolkit slice. The previous plain reducer was useful for discovering the state transitions, but the desired target architecture is slice-based composition: app data, RTK Query cache, PBUI session state, and domain slices should all be composable through the same store setup.
+
+The Deli workbench now reads PBUI session state from Redux and dispatches generated slice actions instead of using React `useReducer`. Storybook stories also get a fresh per-story store, which prevents session state leakage between stories and makes Storybook a better preview of generated app integration.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Replace reducer with a proper redux slice, set up mock store for the storybook"
+
+**Assistant interpretation:** Implement the Redux-slice follow-up now: replace the local PBUI reducer with a Redux slice and make Storybook use an isolated mock/app store.
+
+**Inferred user intent:** Align the POC with a composable Redux-slice architecture instead of keeping local reducer state hidden inside the widget.
+
+### What I did
+
+- Checked the earlier Redux-slice follow-up task and added/checked concrete tasks for:
+  - replacing local PBUI `useReducer` state with Redux Toolkit;
+  - adding app store factory and typed hooks;
+  - setting up per-story mock Redux stores.
+- Added `proof-of-concept/deli-pbui-react/src/generic/clim/pbuiSessionSlice.ts` with:
+  - `PbuiSessionState`
+  - `pbuiSessionSlice`
+  - `pbuiSessionActions`
+  - `pbuiSessionReducer`
+- Removed `proof-of-concept/deli-pbui-react/src/generic/clim/modeMachine.ts`.
+- Updated `proof-of-concept/deli-pbui-react/src/app/store.ts` to use:
+  - `combineReducers`
+  - `setupStore(preloadedState?)`
+  - `pbuiSession` slice reducer
+  - RTK Query middleware
+- Added typed hooks in `proof-of-concept/deli-pbui-react/src/app/hooks.ts`.
+- Updated `DeliPbuiWorkbench` to use:
+  - `useAppSelector((state) => state.pbuiSession)`
+  - `useAppDispatch()`
+  - `pbuiSessionActions.*`
+- Updated Storybook stories to render `DeliPbuiWorkbench` inside a fresh `Provider store={setupStore()}` per story.
+
+### Why
+
+- Redux slices are the desired composable target for generated PBUI apps.
+- A slice can be combined with RTK Query and future domain slices without creating parallel state-management styles.
+- Storybook should not share a global app store across stories when the component mutates interaction/session state.
+
+### What worked
+
+Validation passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Playwright verified the Redux-slice-backed app flow:
+
+```text
+/ -> /menu
+Hudson Classic -> /detail/sandwich.hudson-classic
+REMOVE-INGREDIENT -> SELECT mode
+tomato click -> tomato removed
+ADD-TO-ORDER -> /cart
+PLACE-ORDER -> confirm prompt
+CONFIRM PLACE-ORDER -> /tracker/current
+/cart empty -> PLACE-ORDER disabled and command input reports Cart is empty.
+```
+
+Playwright also verified Storybook store isolation:
+
+```text
+DetailMode story enters SELECT after clicking REMOVE-INGREDIENT
+CartMode story still renders a clean cart story with one Hudson Classic item
+```
+
+### What didn't work
+
+- N/A. Build, Storybook build, app flow, and Storybook checks passed.
+
+### What I learned
+
+- The previously extracted pure reducer mapped cleanly to Redux Toolkit actions.
+- The store factory is the right seam for Storybook isolation and later test setup.
+- Resetting the PBUI session slice on workbench mount preserves the old initial result/command behavior while allowing the state to live globally.
+
+### What was tricky to build
+
+- The slice is generic PBUI infrastructure, but Redux slices are concrete runtime modules. The slice stores plain `CommandBinding`, `ActionRequest`, and `PresentationRef` objects using broad string-typed generics; the Deli widget casts pending commands back to Deli-specific command/action ids at the few typed domain boundaries.
+- Storybook runs under `/iframe.html`, while the app route codec handles `/menu`, `/detail/...`, and other app routes. The existing Storybook-safe route initialization remains necessary so story args are not overridden by the Storybook iframe path.
+
+### What warrants a second pair of eyes
+
+- Review whether `pbuiSessionSlice` should store only command ids/request ids instead of full plain command/request objects.
+- Review whether resetting the PBUI session on every workbench mount is the right default for generated apps.
+- Review whether store factory preloaded state should become the standard Storybook/testing API for all generated PBUI apps.
+
+### What should be done in the future
+
+- Add committed tests for the Redux slice reducers.
+- Add a generated slice template for PBUI session state.
+- Consider moving remaining Deli-local cart and composition state into a Deli domain slice.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/pbuiSessionSlice.ts`.
+- Then review `proof-of-concept/deli-pbui-react/src/app/store.ts` and `src/app/hooks.ts`.
+- Review the Storybook decorator in `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.stories.tsx`.
+- Finally review `DeliPbuiWorkbench` to confirm it no longer uses React `useReducer` for PBUI session state.
+
+### Technical details
+
+The composed Redux store now has this shape:
+
+```text
+RootState
+  deliApi: RTK Query cache/reducer
+  pbuiSession: PBUI session slice
+```
+
+The widget dispatches slice actions such as:
+
+```text
+pbuiSessionActions.enterSelect(...)
+pbuiSessionActions.enterConfirm(...)
+pbuiSessionActions.confirmCompleted(...)
+pbuiSessionActions.routeChanged(...)
+```

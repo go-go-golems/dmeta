@@ -173,3 +173,16 @@ Added generic PBUI command handler registry and moved Street Deli command execut
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/handlerRegistry.ts — Generic PBUI handler registry helper
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Uses handler registry for normal and confirmed command execution
 
+
+## 2026-05-25
+
+Replaced the local PBUI session reducer with a Redux Toolkit slice and set up per-story Storybook stores.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/app/hooks.ts — Typed Redux hooks
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/app/store.ts — Store factory composing RTK Query and PBUI session slice
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/pbuiSessionSlice.ts — Redux Toolkit PBUI session slice
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.stories.tsx — Per-story mock Redux store decorator
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Consumes PBUI session slice actions/selectors
+

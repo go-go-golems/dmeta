@@ -1,12 +1,23 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { deliApi } from '../domain/deli/deliApi';
+import { pbuiSessionReducer } from '../generic/clim/pbuiSessionSlice';
 
-export const store = configureStore({
-  reducer: {
-    [deliApi.reducerPath]: deliApi.reducer,
-  },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(deliApi.middleware),
+const rootReducer = combineReducers({
+  [deliApi.reducerPath]: deliApi.reducer,
+  pbuiSession: pbuiSessionReducer,
 });
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof rootReducer>;
+
+export function setupStore(preloadedState?: Partial<RootState>) {
+  return configureStore({
+    reducer: rootReducer,
+    preloadedState: preloadedState as RootState | undefined,
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(deliApi.middleware),
+  });
+}
+
+export const store = setupStore();
+
+export type AppStore = ReturnType<typeof setupStore>;
+export type AppDispatch = AppStore['dispatch'];
