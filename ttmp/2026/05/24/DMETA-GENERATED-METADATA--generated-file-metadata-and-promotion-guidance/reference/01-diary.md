@@ -484,3 +484,104 @@ Concrete app metadata includes source references to:
 - local Street Deli concrete PBUI profile root.
 
 For presentation/view files, metadata also records the presentation type, view id, surface id, concrete component, and style profile id.
+
+## Step 6: Run full validation and close the implementation phases
+
+This step ran the full validation set after all metadata renderer phases were implemented. It checked Go packages, Semantic IR, Interaction IR, PBUI MetaDesignSystem validation, concrete PBUI profile validation, Web React dry-run rendering, generic PBUI planning, concrete PBUI/CLIM planning, and both committed React apps.
+
+The validation passed. The only notable output was the existing Storybook/Vite warning about large chunks and the expected warning that no `src/**/*.mdx` story files exist. Both Storybook builds completed successfully.
+
+### Prompt Context
+
+**User prompt (verbatim):** (see Step 3)
+
+**Assistant interpretation:** Finish the implementation loop by validating all target paths, recording results, and closing the remaining task.
+
+**Inferred user intent:** Leave the ticket in a reviewable state with code, docs, regenerated committed artifacts, and validation evidence.
+
+### What I did
+
+- Ran Go tests for all DMETA packages and the CLI.
+- Validated shared Semantic IR and Street Deli Semantic IR.
+- Validated Interaction IR.
+- Validated global PBUI MetaDesignSystem.
+- Validated Street Deli concrete PBUI profile.
+- Ran Web React scaffold dry-run.
+- Ran generic PBUI React planning against the ignored `generated/pbui-react` output path.
+- Ran concrete PBUI/CLIM React app planning.
+- Built `www/mobile-react` and its Storybook.
+- Built `www/clim-react` and its Storybook.
+- Ran `docmgr doctor` for `DMETA-GENERATED-METADATA`.
+
+### Why
+
+- Metadata work touches multiple compiler targets, so validating only one renderer would not prove the repo remains coherent.
+- The committed concrete CLIM app and the promoted mobile React app both need to remain buildable.
+
+### What worked
+
+All validation commands completed successfully:
+
+```bash
+go test ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta scaffold-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --dry-run --force --output table
+go run ./cmd/dmeta plan-pbui-react --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --output-dir ./examples/street-deli-ordering/generated/pbui-react --output table
+go run ./cmd/dmeta plan-pbui-react-app --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output-dir ./examples/street-deli-ordering/www/clim-react --output table
+cd examples/street-deli-ordering/www/mobile-react && npm run build && npm run build-storybook
+cd examples/street-deli-ordering/www/clim-react && npm run build && npm run build-storybook
+docmgr doctor --ticket DMETA-GENERATED-METADATA --stale-after 30
+```
+
+### What didn't work
+
+No validation command failed in this phase.
+
+Storybook emitted non-fatal warnings:
+
+- `No story files found for the specified pattern: src/**/*.mdx`
+- Vite chunk-size warnings for Storybook bundles larger than 500 kB.
+
+### What I learned
+
+- The parseable metadata prelude does not break Vite, TypeScript, or Storybook for the committed CLIM app.
+- The ignored generic PBUI proof package remains plannable after being removed from committed source.
+
+### What was tricky to build
+
+- The validation matrix spans generated-but-ignored output, generated-and-committed scaffold output, and manually maintained promoted output. Each needs a slightly different validation command.
+- Storybook warnings are noisy but not failures; the important signal is the completed build.
+
+### What warrants a second pair of eyes
+
+- Review final metadata verbosity in committed CLIM React files.
+- Review whether the current metadata JSON should include full concrete plan snapshots or stay as compact provenance/guidance.
+
+### What should be done in the future
+
+- Implement metadata lints/checks now that the metadata shape exists.
+- Consider refreshing the reMarkable upload if the implementation guide should include exact commit hashes from this implementation pass.
+
+### Code review instructions
+
+- Review commits in order:
+  - shared metadata package;
+  - generic PBUI React metadata;
+  - Web React metadata;
+  - concrete CLIM React metadata;
+  - diary/changelog validation closeout.
+- Use the validation command list above as the review checklist.
+
+### Technical details
+
+The ticket tasks now reflect the completed implementation phases:
+
+1. Shared metadata model/render helpers.
+2. Generic PBUI React metadata.
+3. Web React metadata.
+4. Concrete PBUI/CLIM React metadata.
+5. Final validation and diary/changelog closeout.
