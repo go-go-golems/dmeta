@@ -1666,3 +1666,133 @@ RouteCodec.format(snapshot) -> pathname
 pushRoute(codec, snapshot) -> history.pushState
 listenToRouteChanges(codec, handler) -> popstate bridge
 ```
+
+## Step 16: Move session mode, confirmation, command buffer, result line, and selected ref onto a generic reducer
+
+This step extracted the first reducer-based PBUI mode machine. The POC still has Deli-specific application state for cart contents, removed ingredients, and selected menu item, but the CLIM/PBUI session state is now handled by a reusable reducer: normal/confirm mode, selected presentation ref, pending command/request, command buffer, and result line.
+
+This is an architectural cleanup more than a visual change. The existing confirm/order, command input, clickable ref, disabled action, and URL route flows should behave the same, but their state transitions now go through explicit generic events instead of scattered `useState` setters.
+
+### Prompt Context
+
+**User prompt (verbatim):** "continue"
+
+**Assistant interpretation:** Continue the next PBUI engine implementation phase after compatibility and route extraction.
+
+**Inferred user intent:** Keep moving local widget behavior into reusable PBUI engine modules while preserving the Street Deli proof-of-concept behavior.
+
+### What I did
+
+- Added `proof-of-concept/deli-pbui-react/src/generic/clim/modeMachine.ts` with:
+  - `PbuiSessionState`
+  - `PbuiSessionEvent`
+  - `initialPbuiSessionState`
+  - `pbuiSessionReducer`
+- Refactored `DeliPbuiWorkbench` to replace local `useState` for:
+  - selected presentation ref;
+  - pending command binding;
+  - pending action request;
+  - command buffer;
+  - result line.
+- Kept Deli-specific state local for now:
+  - selected menu item id;
+  - removed ingredient ids;
+  - cart items;
+  - current view id.
+- Fixed Storybook route initialization so Storybook iframe paths such as `/iframe.html` do not override explicit story args like `initialView: 'detail'`.
+
+### Why
+
+- PBUI mode transitions should be explicit events, not implicit coordination across several local state setters.
+- Confirmation mode is part of the reusable PBUI engine contract.
+- The widget should eventually compose engine state and domain handlers rather than owning the PBUI session state model itself.
+
+### What worked
+
+Validation passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Playwright verified the reducer-backed app flow:
+
+```text
+/ -> /menu
+Hudson Classic -> /detail/sandwich.hudson-classic
+turkey click -> REMOVE-INGREDIENT request
+ADD-TO-ORDER -> /cart
+PLACE-ORDER -> confirm prompt
+CONFIRM PLACE-ORDER -> /tracker/current
+/cart with empty cart disables PLACE-ORDER
+command input PLACE-ORDER on empty cart reports "Cart is empty."
+/detail/salad.market-greens direct route renders Market Greens
+```
+
+Playwright also verified Storybook args still work after route initialization changes:
+
+```text
+DetailMode story -> detail view for Hudson Classic
+CartMode story -> cart view with one Hudson Classic item
+```
+
+### What didn't work
+
+- No build/runtime blocker in this step.
+- I noticed that route initialization needed to distinguish application routes from Storybook iframe routes. Without that distinction, story args could be silently overridden by parsing `/iframe.html` as an unknown route and falling back to menu.
+
+### What I learned
+
+- The session reducer boundary is small and useful: confirmation state, command text, selected ref, and result/status text are generic enough to move now.
+- Cart mutation and route mutation still belong outside this reducer until the domain handler registry exists.
+- Storybook is an important guardrail for route-aware widgets because it runs the component under a non-application pathname.
+
+### What was tricky to build
+
+- `confirmPending` needs to snapshot the pending command/request before dispatching `confirm-completed`, otherwise the values are conceptually cleared before composing the result text. The code now stores `confirmedCommand` and `confirmedRequest` first.
+- The route-aware initial state must support two modes: app/direct-link paths should seed view state from the URL, while Storybook/non-app host paths should honor component props.
+
+### What warrants a second pair of eyes
+
+- Review whether `route-changed` should clear `selectedRef` by default instead of preserving it.
+- Review whether view id should also move into the generic reducer now, or remain route/domain-owned until the handler registry is extracted.
+- Review whether `PbuiSessionEvent` names are stable enough for generated code to target.
+
+### What should be done in the future
+
+- Add explicit select mode for actions that need a compatible target but have no selected presentation.
+- Extract domain handler registration so `executeBinding` is not a local switch statement.
+- Add committed interaction/play tests for the reducer-backed confirmation and BACK flows.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/modeMachine.ts`.
+- Then review the `useReducer` wiring in `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx`.
+- Check that the only remaining local state is Deli/domain state or route/view state.
+- Validate with `npm run build`, `npm run build-storybook`, and the Playwright flow listed above.
+
+### Technical details
+
+The reducer now owns this subset of PBUI state:
+
+```text
+mode: normal | select | confirm
+selectedRef?: PresentationRef
+pendingCommand?: CommandBinding
+pendingRequest?: ActionRequest
+commandBuffer: string
+resultLine?: string
+```
+
+The widget dispatches explicit events such as:
+
+```text
+select-ref
+set-command-buffer
+set-result
+enter-confirm
+confirm-completed
+confirm-cancelled
+route-changed
+```

@@ -142,3 +142,13 @@ Added generic browser route adapter helpers and wired Street Deli PBUI views to 
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/routing.ts — Reusable PBUI route codec/history helpers
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Street Deli route codec and view navigation wiring
 
+
+## 2026-05-25
+
+Added a generic reducer-based PBUI session mode machine and refactored Deli confirm/command/result/selected-ref state onto it.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/modeMachine.ts — Reusable PBUI session reducer and events
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Consumes reducer for confirm mode
+
