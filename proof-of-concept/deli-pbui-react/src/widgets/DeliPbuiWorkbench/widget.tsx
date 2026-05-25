@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Provider } from 'react-redux';
 import { store } from '../../app/store';
 import { ActionHintBar, ClimShell, PresentationRefLine } from '../../generic/clim/components';
+import { buildActionRequestFromBinding, summarizeActionRequest } from '../../generic/clim/runtime';
 import type { ActionPresentation, ClimSessionState, PresentationRef } from '../../generic/clim/types';
 import { deliActionDescriptors } from '../../domain/deli/actions';
 import { commandBindingsForView } from '../../domain/deli/commandBindings';
@@ -33,17 +35,34 @@ function actionForCommand(viewId: string, commandId: DeliCommandId, subject?: Pr
 export function DeliPbuiWorkbench() {
   const { data: menu = [] } = useGetMenuQuery();
   const selected = menu[0] ? menuItemPresentation(menu[0]) : undefined;
+  const [resultLine, setResultLine] = useState('Proof of concept: generic CLIM shell + Deli domain registry + RTK Query fixture data.');
   const view = deliViewModels.menu;
   const state: ClimSessionState = {
     mode: 'normal',
     modeLabel: view.modeLabel,
     selected,
     commandBuffer: 'LIST MENU',
-    resultLine: 'Proof of concept: generic CLIM shell + Deli domain registry + RTK Query fixture data.',
+    resultLine,
   };
+  const commandBindings = commandBindingsForView(view.id);
   const actions = view.defaultActions.map((commandId) =>
     actionForCommand(view.id, commandId, commandId === 'CUSTOMIZE' ? selected : undefined),
   );
+
+  function handleInvoke(action: ActionPresentation) {
+    const binding = commandBindings.find(
+      (candidate) => candidate.actionId === action.descriptor.id && candidate.label === action.commandLabel,
+    );
+    if (!binding) {
+      setResultLine(`No command binding found for ${action.commandLabel ?? action.descriptor.id}`);
+      return;
+    }
+    const request = buildActionRequestFromBinding(binding, action.descriptor, {
+      selected: action.subject ?? selected,
+      commandArguments: { tag: 'vegetarian', category: 'sandwiches' },
+    });
+    setResultLine(`Built action request: ${binding.id} -> ${summarizeActionRequest(request)}`);
+  }
 
   return (
     <ClimShell state={state}>
@@ -65,7 +84,7 @@ export function DeliPbuiWorkbench() {
           ))}
         </div>
 
-        <ActionHintBar actions={actions} />
+        <ActionHintBar actions={actions} onInvoke={handleInvoke} />
       </section>
     </ClimShell>
   );
