@@ -4,24 +4,25 @@ import type { ActionPresentation } from '../../types';
 
 const actions: ActionPresentation[] = [
   {
-    descriptor: {
-      id: 'remove_part',
+    action: {
+      id: 'REMOVE-INGREDIENT',
       label: 'REMOVE-INGREDIENT',
       description: 'Remove an ingredient.',
-      inputTypes: { part_ref: 'SemanticRef' },
-      mutatesBackend: false,
-      requiresConfirmation: false,
+      views: ['detail'],
+      args: [{ name: 'ingredient', kind: 'ref', objectType: 'Ingredient' }],
+      run: () => undefined,
     },
     commandLabel: 'REMOVE-INGREDIENT',
   },
   {
-    descriptor: {
-      id: 'submit_order',
+    action: {
+      id: 'PLACE-ORDER',
       label: 'PLACE-ORDER',
       description: 'Submit order.',
-      inputTypes: { cart_ref: 'SemanticRef' },
-      mutatesBackend: true,
+      views: ['cart'],
+      args: [],
       requiresConfirmation: true,
+      run: () => undefined,
     },
     commandLabel: 'PLACE-ORDER',
   },
@@ -36,6 +37,6 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const InlineActions: Story = {
-  args: { actions },
-  render: () => <div className="bg-clim-bg p-4 font-mono"><PbuiActionBar actions={actions} /></div>,
+  args: { actions, selectedCommandLabel: 'REMOVE-INGREDIENT' },
+  render: () => <div className="bg-clim-bg p-4 font-mono"><PbuiActionBar actions={actions} selectedCommandLabel="REMOVE-INGREDIENT" /></div>,
 };

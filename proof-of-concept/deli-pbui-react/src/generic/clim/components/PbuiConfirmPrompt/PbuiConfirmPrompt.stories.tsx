@@ -1,39 +1,41 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PbuiConfirmPrompt } from './PbuiConfirmPrompt';
-import type { CommandBinding } from '../../types';
+import type { ActionSpec } from '../../types';
 
-const binding: CommandBinding = {
+const action: ActionSpec = {
   id: 'PLACE-ORDER',
-  actionId: 'submit_order',
   label: 'PLACE-ORDER',
-  summary: 'Submit cart as an order.',
+  description: 'Submit order.',
   views: ['cart'],
-  presentationType: 'pbui.action_presentation',
-  surface: 'confirm_prompt',
-  handler: 'deli.submitOrder',
-  inputMapping: { cart_ref: 'current_cart' },
+  args: [],
   requiresConfirmation: true,
   confirmation: {
-    surface: 'confirm_prompt',
     prompt: 'Submit the current cart as an order?',
     confirmLabel: 'CONFIRM PLACE-ORDER',
     cancelLabel: 'CANCEL',
   },
+  run: () => undefined,
 };
 
 const meta = {
   title: 'Generic/CLIM/PbuiConfirmPrompt',
   component: PbuiConfirmPrompt,
+  args: {
+    action,
+    onConfirm: () => undefined,
+    onCancel: () => undefined,
+  },
 } satisfies Meta<typeof PbuiConfirmPrompt>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Prompt: Story = {
-  args: { binding, onConfirm: () => undefined, onCancel: () => undefined },
+export const Default: Story = {};
+
+export const Inline: Story = {
   render: () => (
-    <div className="bg-clim-bg p-4 font-mono">
-      <PbuiConfirmPrompt binding={binding} onConfirm={() => undefined} onCancel={() => undefined} />
+    <div className="bg-clim-bg p-4 font-mono text-sm">
+      <PbuiConfirmPrompt action={action} onConfirm={() => undefined} onCancel={() => undefined} />
     </div>
   ),
 };

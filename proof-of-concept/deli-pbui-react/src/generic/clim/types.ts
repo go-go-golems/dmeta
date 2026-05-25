@@ -4,56 +4,69 @@ export interface PresentationRef<TType extends string = string> {
   type: TType;
   id: string;
   label: string;
+  presentationType?: string;
   capabilities: string[];
-  metadata?: Record<string, string | number | string[]>;
+  metadata?: Record<string, unknown>;
 }
 
-export interface ActionDescriptor<TAction extends string = string> {
+export type ActionArgSpec = RefActionArgSpec | ValueActionArgSpec;
+
+export interface RefActionArgSpec {
+  name: string;
+  kind: 'ref';
+  objectType: string;
+  required?: boolean;
+  accepts?: (ref: PresentationRef, context: unknown) => boolean;
+}
+
+export interface ValueActionArgSpec {
+  name: string;
+  kind: 'value';
+  valueType: string;
+  required?: boolean;
+  presentation?: {
+    kind: 'text-input' | 'number-input' | 'select' | 'autocomplete';
+    label?: string;
+    placeholder?: string;
+  };
+  accepts?: (value: unknown, context: unknown) => boolean;
+}
+
+export interface ActionResult {
+  message?: string;
+}
+
+export interface ActionSpec<TAction extends string = string> {
   id: TAction;
   label: string;
   description: string;
-  inputTypes: Record<string, 'SemanticRef' | 'string' | 'number' | 'boolean'>;
-  mutatesBackend: boolean;
-  requiresConfirmation: boolean;
-}
-
-export interface ActionPresentation<TAction extends string = string> {
-  descriptor: ActionDescriptor<TAction>;
-  commandLabel?: string;
-  disabledReason?: string;
-  subject?: PresentationRef;
-}
-
-export interface CommandBinding<TCommand extends string = string, TAction extends string = string> {
-  id: TCommand;
-  actionId: TAction;
-  label: string;
-  summary: string;
   views: string[];
-  presentationType: string;
-  surface: string;
-  handler: string;
-  inputMapping: Record<string, string>;
-  requiresConfirmation: boolean;
+  args: ActionArgSpec[];
+  requiresConfirmation?: boolean;
   confirmation?: {
-    surface: string;
     prompt: string;
     confirmLabel: string;
     cancelLabel: string;
   };
+  run: (args: Record<string, unknown>, context: unknown) => ActionResult | void;
+}
+
+export interface ActionPresentation<TAction extends string = string> {
+  action: ActionSpec<TAction>;
+  commandLabel?: string;
+  disabledReason?: string;
 }
 
 export interface ActionRequest<TAction extends string = string> {
   actionId: TAction;
-  subject?: PresentationRef;
-  inputs: Record<string, unknown>;
+  args: Record<string, unknown>;
 }
 
 export interface ClimSessionState {
   mode: InteractionMode;
   modeLabel: string;
   selected?: PresentationRef;
-  pendingAction?: ActionDescriptor;
+  pendingAction?: ActionSpec;
   commandBuffer: string;
   resultLine?: string;
 }

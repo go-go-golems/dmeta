@@ -3,33 +3,28 @@ import { Provider } from 'react-redux';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { store } from '../../app/store';
 import type { AppStore } from '../../app/store';
+import {
+  actionPresentationsForSpecs,
+  canFillRefArg,
+  canFillValueArg,
+  nextOpenArg,
+  presentationVisualState,
+} from '../../generic/clim/actionEngine';
+import { parseCommandLine } from '../../generic/clim/commandParser';
 import { PbuiActionBar } from '../../generic/clim/components/PbuiActionBar';
 import { PbuiConfirmPrompt } from '../../generic/clim/components/PbuiConfirmPrompt';
 import { PbuiPresentationRef } from '../../generic/clim/components/PbuiPresentationRef';
 import { PbuiShell } from '../../generic/clim/components/PbuiShell';
-import {
-  actionPresentationsForBindings,
-  bindingUsesInputSource,
-  compatibleBindingsForPresentation,
-  presentationVisualState,
-} from '../../generic/clim/compatibility';
-import { parseCommandLine } from '../../generic/clim/commandParser';
-import { assertCompatibilityRuleCoverage, canUsePresentationFromRules } from '../../generic/clim/compatibilityRules';
-import { runCommandHandler } from '../../generic/clim/handlerRegistry';
 import { pbuiSessionActions } from '../../generic/clim/pbuiSessionSlice';
-import { buildActionRequestFromBinding, summarizeActionRequest } from '../../generic/clim/runtime';
 import { backOrFallback, currentRoute, listenToRouteChanges, pushRoute, replaceRoute } from '../../generic/clim/routing';
 import type { RouteCodec, RouteSnapshot } from '../../generic/clim/routing';
-import type { ActionPresentation, ClimSessionState, CommandBinding, PresentationRef } from '../../generic/clim/types';
-import { deliActionDescriptors } from '../../domain/deli/actions';
-import { deliCommandBindings, commandBindingsForView } from '../../domain/deli/commandBindings';
-import { deliCompatibilityRules } from '../../domain/deli/compatibilityRules';
-import { assertDeliHandlerCoverage, deliCommandHandlers } from '../../domain/deli/handlers';
-import type { DeliCommandHandlerEnvironment } from '../../domain/deli/handlers';
+import type { ActionPresentation, ActionRequest, ActionSpec, ClimSessionState, PresentationRef } from '../../generic/clim/types';
+import { deliActions, deliActionsForView } from '../../domain/deli/actions';
+import type { DeliActionRuntimeContext } from '../../domain/deli/actions';
 import { useGetMenuQuery } from '../../domain/deli/deliApi';
 import { deliWorkbenchActions } from '../../domain/deli/deliWorkbenchSlice';
 import { deliViewModels } from '../../domain/deli/viewModels';
-import type { DeliActionId, DeliCartItem, DeliCommandId, DeliViewId, Ingredient, MenuItem } from '../../domain/deli/types';
+import type { DeliCartItem, DeliCommandId, DeliViewId, Ingredient, MenuItem } from '../../domain/deli/types';
 
 export interface DeliPbuiWorkbenchProps {
   initialView?: DeliViewId;
@@ -42,6 +37,7 @@ function menuItemPresentation(item: MenuItem): PresentationRef<'MenuItem'> {
     type: 'MenuItem',
     id: item.id,
     label: `${item.name} $${item.price.toFixed(2)}`,
+    presentationType: 'pbui.presentation_ref',
     capabilities: ['labelable', 'composable', 'substitutable'],
     metadata: { category: item.category, tags: item.tags },
   };
@@ -52,6 +48,7 @@ function ingredientPresentation(ingredient: Ingredient, removed: boolean): Prese
     type: 'Ingredient',
     id: ingredient.id,
     label: `${ingredient.name} [${ingredient.role}]${removed ? ' (removed)' : ''}`,
+    presentationType: 'pbui.presentation_ref',
     capabilities: ingredient.removable ? ['labelable', 'removable'] : ['labelable'],
     metadata: { role: ingredient.role, removable: ingredient.removable ? 'yes' : 'no', removed: removed ? 'yes' : 'no' },
   };
@@ -62,6 +59,7 @@ function cartPresentation(cartItems: DeliCartItem[]): PresentationRef<'Order'> {
     type: 'Order',
     id: 'cart.current',
     label: `${cartItems.length} item${cartItems.length === 1 ? '' : 's'} / $${cartItems.reduce((sum, item) => sum + item.item.price, 0).toFixed(2)}`,
+    presentationType: 'pbui.presentation_ref',
     capabilities: ['stateful', 'submittable'],
     metadata: { items: cartItems.length },
   };
@@ -75,22 +73,10 @@ function draftPresentation(item: MenuItem | undefined): PresentationRef<'OrderIt
     type: 'OrderItem',
     id: `draft.${item.id}`,
     label: `Draft ${item.name}`,
+    presentationType: 'pbui.presentation_ref',
     capabilities: ['composable', 'substitutable'],
     metadata: { source: item.id },
   };
-}
-
-function actionForBinding(binding: CommandBinding<DeliCommandId, DeliActionId>, subject?: PresentationRef): ActionPresentation<DeliActionId> {
-  return {
-    descriptor: deliActionDescriptors[binding.actionId],
-    commandLabel: binding.label,
-    subject,
-  };
-}
-
-function commandArgumentsFromBuffer(value: string) {
-  const [, firstArg] = value.trim().split(/\s+/);
-  return { tag: firstArg ?? 'vegetarian', category: firstArg ?? 'sandwiches' };
 }
 
 const deliRouteCodec: RouteCodec<DeliViewId> = {
@@ -167,9 +153,6 @@ function rehydratePresentationRef(
   return presentation;
 }
 
-assertDeliHandlerCoverage(Object.values(deliCommandBindings));
-assertCompatibilityRuleCoverage(Object.values(deliCommandBindings), deliCompatibilityRules);
-
 export function DeliPbuiWorkbench({
   initialView = 'menu',
   initialSelectedItemId,
@@ -189,15 +172,18 @@ export function DeliPbuiWorkbench({
   const draft = draftPresentation(selectedItem);
   const cart = cartPresentation(cartItems);
   const view = deliViewModels[viewId];
+  const visibleActions = deliActionsForView(view.id);
+  const pendingAction = session.pendingActionId ? deliActions[session.pendingActionId as DeliCommandId] : undefined;
   const mode = session.mode;
   const state: ClimSessionState = {
     mode,
     modeLabel: mode === 'confirm' ? 'CONFIRM' : mode === 'select' ? 'SELECT' : view.modeLabel,
     selected: activeSelected,
-    pendingAction: session.pendingCommand ? deliActionDescriptors[session.pendingCommand.actionId as DeliActionId] : undefined,
-    commandBuffer: mode === 'confirm' ? session.pendingCommand?.id ?? '' : session.commandBuffer,
+    pendingAction,
+    commandBuffer: session.commandBuffer,
     resultLine: session.resultLine,
   };
+
   useEffect(() => {
     dispatch(deliWorkbenchActions.resetWorkbench({ viewId: routeInitial.view, selectedItemId: initialItemId }));
     dispatch(pbuiSessionActions.resetSession({
@@ -239,132 +225,14 @@ export function DeliPbuiWorkbench({
     backOrFallback(deliRouteCodec, { view: 'menu' });
   }
 
-  const commandBindings = commandBindingsForView(view.id);
-  const actions = actionPresentationsForBindings({
-    bindings: commandBindings,
-    actions: deliActionDescriptors,
-    selected: activeSelected,
-    defaultActionOrder: view.defaultActions,
-    availability: availabilityForBinding,
-  });
-
-  function availabilityForBinding(binding: CommandBinding<DeliCommandId, DeliActionId>) {
-    if (binding.id === 'PLACE-ORDER' && cartItems.length === 0) {
-      return { enabled: false, reason: 'Cart is empty.' };
-    }
-    return { enabled: true };
-  }
-
-  function canUsePresentation(binding: CommandBinding<DeliCommandId, DeliActionId>, presentation: PresentationRef) {
-    return canUsePresentationFromRules(binding, presentation, deliCompatibilityRules);
-  }
-
-  function compatibleBindingsFor(presentation: PresentationRef) {
-    if (session.mode === 'select' && session.pendingCommand) {
-      const pendingCommand = session.pendingCommand as CommandBinding<DeliCommandId, DeliActionId>;
-      return bindingUsesInputSource(pendingCommand, 'selected_presentation') && canUsePresentation(pendingCommand, presentation)
-        ? [pendingCommand]
-        : [];
-    }
-    return compatibleBindingsForPresentation({
-      bindings: commandBindings,
-      presentation,
-      defaultActionOrder: view.defaultActions,
-      canUsePresentation,
-    });
-  }
-
-  function bindingHasCompatibleSubject(binding: CommandBinding<DeliCommandId, DeliActionId>, subject: PresentationRef | undefined) {
-    if (!bindingUsesInputSource(binding, 'selected_presentation')) {
-      return true;
-    }
-    return subject ? canUsePresentation(binding, subject) : false;
-  }
-
-  function buildRequest(
-    binding: CommandBinding<DeliCommandId, DeliActionId>,
-    action: ActionPresentation<DeliActionId>,
-    commandArguments = commandArgumentsFromBuffer(session.commandBuffer),
-  ) {
-    return buildActionRequestFromBinding(binding, action.descriptor, {
-      selected: action.subject ?? activeSelected,
-      currentDraft: draft,
-      currentCart: cart,
-      commandArguments,
-    });
-  }
-
-  function invokeBinding(
-    binding: CommandBinding<DeliCommandId, DeliActionId>,
-    subject?: PresentationRef,
-    commandArguments = commandArgumentsFromBuffer(session.commandBuffer),
-  ) {
-    dispatch(pbuiSessionActions.setCommandBuffer(binding.id));
-    const action = actionForBinding(binding, subject);
-    const request = buildRequest(binding, action, commandArguments);
-    if (binding.requiresConfirmation) {
-      dispatch(pbuiSessionActions.enterConfirm({
-        command: binding,
-        request,
-        resultLine: `Pending confirmation: ${binding.id} -> ${summarizeActionRequest(request)}`,
-      }));
-      return;
-    }
-    executeBinding(binding, request);
-  }
-
-  function handleInvoke(action: ActionPresentation) {
-    const typedAction = action as ActionPresentation<DeliActionId>;
-    if (typedAction.disabledReason) {
-      dispatch(pbuiSessionActions.setResult(typedAction.disabledReason));
-      return;
-    }
-    const binding = commandBindings.find(
-      (candidate) => candidate.actionId === typedAction.descriptor.id && candidate.label === typedAction.commandLabel,
-    );
-    if (!binding) {
-      dispatch(pbuiSessionActions.setResult(`No command binding found for ${typedAction.commandLabel ?? typedAction.descriptor.id}`));
-      return;
-    }
-    const subject = typedAction.subject ?? activeSelected;
-    if (!bindingHasCompatibleSubject(binding, subject)) {
-      dispatch(pbuiSessionActions.enterSelect({ command: binding, resultLine: `Select a compatible target for ${binding.id}.` }));
-      return;
-    }
-    invokeBinding(binding, subject);
-  }
-
-  function handlePresentationClick(presentation: PresentationRef) {
-    if (presentation.type === 'MenuItem') {
-      dispatch(deliWorkbenchActions.setSelectedItemId(presentation.id));
-    }
-
-    if (session.mode === 'select' && session.pendingCommand) {
-      if (!canUsePresentation(session.pendingCommand as CommandBinding<DeliCommandId, DeliActionId>, presentation)) {
-        dispatch(pbuiSessionActions.setResult(`${presentation.label} is not a compatible target for ${session.pendingCommand.id}.`));
-        return;
-      }
-      dispatch(pbuiSessionActions.selectCompleted({ selectedRef: presentation, commandBuffer: session.pendingCommand.id }));
-      invokeBinding(session.pendingCommand as CommandBinding<DeliCommandId, DeliActionId>, presentation);
-      return;
-    }
-
-    dispatch(pbuiSessionActions.selectRef({ presentation }));
-    const [binding] = compatibleBindingsFor(presentation);
-    if (!binding) {
-      dispatch(pbuiSessionActions.setResult(`Selected ${presentation.label}`));
-      return;
-    }
-    invokeBinding(binding, presentation);
-  }
-
-  function commandHandlerEnvironment(): DeliCommandHandlerEnvironment {
+  function actionContext(): DeliActionRuntimeContext {
     return {
       selectedItem,
       selectedItemId,
       removedIngredientIds,
-      cartItemCount: cartItems.length,
+      cartItems,
       selectItem: (id) => dispatch(deliWorkbenchActions.setSelectedItemId(id)),
+      isRemovableIngredient: (id) => menu.some((item) => item.ingredients.some((ingredient) => ingredient.id === id && ingredient.removable)),
       removeIngredient: (id) => dispatch(deliWorkbenchActions.removeIngredient(id)),
       addCartItem: (item) => dispatch(deliWorkbenchActions.addCartItem(item)),
       navigateToView,
@@ -372,35 +240,112 @@ export function DeliPbuiWorkbench({
     };
   }
 
-  function executeBinding(binding: CommandBinding<DeliCommandId, DeliActionId>, request: ReturnType<typeof buildRequest>) {
-    const result = runCommandHandler({
-      registry: deliCommandHandlers,
-      binding,
-      request,
-      environment: commandHandlerEnvironment(),
-    });
-    const defaultResultLine = `Built action request: ${binding.id} -> ${summarizeActionRequest(request)}`;
-    dispatch(pbuiSessionActions.setResult(result.resultLine ?? defaultResultLine));
+  function availabilityForAction(action: ActionSpec<DeliCommandId>) {
+    if (action.id === 'PLACE-ORDER' && cartItems.length === 0) {
+      return { enabled: false, reason: 'Cart is empty.' };
+    }
+    return { enabled: true };
   }
 
-  function executeBindingFromRepl(binding: CommandBinding<DeliCommandId, DeliActionId>, args: string[]) {
-    const availability = availabilityForBinding(binding);
+  const actions = actionPresentationsForSpecs({
+    actions: visibleActions,
+    availability: availabilityForAction,
+  });
+
+  function runAction(action: ActionSpec<DeliCommandId>, filledArgs: Record<string, unknown>) {
+    const result = action.run(filledArgs, actionContext());
+    dispatch(pbuiSessionActions.setResult(result?.message ?? `${action.label} complete.`));
+  }
+
+  function actionRequest(action: ActionSpec<DeliCommandId>, filledArgs: Record<string, unknown>): ActionRequest<DeliCommandId> {
+    return { actionId: action.id, args: filledArgs };
+  }
+
+  function continueAction(action: ActionSpec<DeliCommandId>, filledArgs: Record<string, unknown>) {
+    const nextArg = nextOpenArg(action, filledArgs);
+    if (nextArg?.kind === 'ref') {
+      dispatch(pbuiSessionActions.enterSelect({
+        actionId: action.id,
+        filledArgs,
+        resultLine: `Select ${nextArg.objectType} for ${action.label}.`,
+      }));
+      return;
+    }
+    if (nextArg?.kind === 'value') {
+      dispatch(pbuiSessionActions.setResult(`Enter ${nextArg.valueType} for ${action.label}.`));
+      return;
+    }
+    const request = actionRequest(action, filledArgs);
+    if (action.requiresConfirmation) {
+      dispatch(pbuiSessionActions.enterConfirm({
+        actionId: action.id,
+        request,
+        filledArgs,
+        resultLine: `Pending confirmation: ${action.id}`,
+      }));
+      return;
+    }
+    runAction(action, filledArgs);
+  }
+
+  function startAction(action: ActionSpec<DeliCommandId>, initialArgs: Record<string, unknown> = {}) {
+    const availability = availabilityForAction(action);
     if (!availability.enabled) {
-      dispatch(pbuiSessionActions.setResult(availability.reason ?? `${binding.id} is not available.`));
+      dispatch(pbuiSessionActions.setResult(availability.reason));
       return;
     }
-    const subject = bindingUsesInputSource(binding, 'selected_presentation') ? activeSelected : undefined;
-    if (!bindingHasCompatibleSubject(binding, subject)) {
-      dispatch(pbuiSessionActions.enterSelect({ command: binding, resultLine: `Select a compatible target for ${binding.id}.` }));
+    const filledArgs = { ...initialArgs };
+    const nextArg = nextOpenArg(action, filledArgs);
+    if (nextArg?.kind === 'ref' && activeSelected && canFillRefArg(nextArg, activeSelected, actionContext())) {
+      filledArgs[nextArg.name] = activeSelected;
+    }
+    continueAction(action, filledArgs);
+  }
+
+  function handleInvoke(actionPresentation: ActionPresentation) {
+    if (actionPresentation.disabledReason) {
+      dispatch(pbuiSessionActions.setResult(actionPresentation.disabledReason));
       return;
     }
-    invokeBinding(binding, subject, { tag: args.join(' ') || 'vegetarian', category: args.join(' ') || 'sandwiches' });
+    startAction(actionPresentation.action as ActionSpec<DeliCommandId>);
+  }
+
+  function handlePresentationClick(presentation: PresentationRef) {
+    if (presentation.type === 'MenuItem') {
+      dispatch(deliWorkbenchActions.setSelectedItemId(presentation.id));
+    }
+
+    if (session.mode === 'select' && pendingAction) {
+      const nextArg = nextOpenArg(pendingAction, session.filledArgs);
+      if (!nextArg || nextArg.kind !== 'ref' || !canFillRefArg(nextArg, presentation, actionContext())) {
+        dispatch(pbuiSessionActions.setResult(`${presentation.label} cannot fill the current action argument.`));
+        return;
+      }
+      const filledArgs = { ...session.filledArgs, [nextArg.name]: presentation };
+      dispatch(pbuiSessionActions.selectCompleted({ selectedRef: presentation, filledArgs, commandBuffer: pendingAction.id }));
+      continueAction(pendingAction, filledArgs);
+      return;
+    }
+
+    dispatch(pbuiSessionActions.selectRef({ presentation, resultLine: `Selected ${presentation.label}.` }));
+  }
+
+  function valueArgsFromRepl(action: ActionSpec<DeliCommandId>, args: string[]) {
+    const filledArgs: Record<string, unknown> = {};
+    const valueArg = action.args.find((arg) => arg.kind === 'value');
+    if (valueArg && args.length > 0) {
+      const value = args.join(' ');
+      if (canFillValueArg(valueArg, value, actionContext())) {
+        filledArgs[valueArg.name] = value;
+      }
+    }
+    return filledArgs;
   }
 
   function handleCommandSubmit(value: string) {
     dispatch(pbuiSessionActions.setCommandBuffer(value));
     dispatch(pbuiSessionActions.pushCommandHistory(value));
-    const parsed = parseCommandLine(value, Object.keys(deliCommandBindings) as DeliCommandId[]);
+    const parsed = parseCommandLine(value, Object.keys(deliActions) as DeliCommandId[]);
 
     if (parsed.kind === 'empty') {
       dispatch(pbuiSessionActions.setResult('Type a command such as CUSTOMIZE, CART, HELP, YES, or CANCEL.'));
@@ -434,33 +379,26 @@ export function DeliPbuiWorkbench({
       return;
     }
 
-    const binding = commandBindings.find((candidate) => candidate.id === parsed.commandId);
-    if (!binding) {
-      const globalBinding = deliCommandBindings[parsed.commandId];
-      const views = globalBinding?.views.join(', ') ?? 'another view';
+    const action = visibleActions.find((candidate) => candidate.id === parsed.commandId);
+    if (!action) {
+      const globalAction = deliActions[parsed.commandId];
+      const views = globalAction?.views.join(', ') ?? 'another view';
       dispatch(pbuiSessionActions.setResult(`${parsed.commandId} is not available in ${view.modeLabel}. Available in: ${views}.`));
       return;
     }
 
-    executeBindingFromRepl(binding, parsed.args);
+    startAction(action, valueArgsFromRepl(action, parsed.args));
   }
 
   function confirmPending() {
-    if (!session.pendingCommand || !session.pendingRequest) {
+    if (!pendingAction || !session.pendingRequest) {
       return;
     }
-    const confirmedCommand = session.pendingCommand as CommandBinding<DeliCommandId, DeliActionId>;
-    const confirmedRequest = session.pendingRequest;
-    const result = runCommandHandler({
-      registry: deliCommandHandlers,
-      binding: confirmedCommand,
-      request: confirmedRequest as ReturnType<typeof buildRequest>,
-      environment: commandHandlerEnvironment(),
-    });
+    runAction(pendingAction, session.pendingRequest.args);
     navigateToView('tracker');
     dispatch(pbuiSessionActions.confirmCompleted({
-      commandBuffer: confirmedCommand.id,
-      resultLine: result.resultLine ?? `Confirmed action request: ${confirmedCommand.id} -> ${summarizeActionRequest(confirmedRequest)}`,
+      commandBuffer: pendingAction.id,
+      resultLine: `Confirmed action request: ${pendingAction.id}`,
     }));
   }
 
@@ -480,11 +418,12 @@ export function DeliPbuiWorkbench({
           {selectedItem?.ingredients.map((ingredient) => {
             const removed = removedIngredientIds.includes(ingredient.id);
             const presentation = ingredientPresentation(ingredient, removed);
-            const compatible = compatibleBindingsFor(presentation);
             const visual = presentationVisualState({
               presentation,
               selected: activeSelected,
-              compatibleBindings: compatible,
+              selectedAction: session.mode === 'select' ? pendingAction : undefined,
+              filledArgs: session.filledArgs,
+              context: actionContext(),
               removed,
             });
             return (
@@ -492,7 +431,7 @@ export function DeliPbuiWorkbench({
                 key={ingredient.id}
                 presentation={presentation}
                 state={visual}
-                onSelect={visual.selectable ? () => handlePresentationClick(presentation) : undefined}
+                onSelect={visual.selectable || session.mode !== 'select' ? () => handlePresentationClick(presentation) : undefined}
               />
             );
           })}
@@ -524,11 +463,11 @@ export function DeliPbuiWorkbench({
     if (viewId === 'help') {
       return (
         <div className="grid gap-2 text-sm" data-testid="help-view">
-          {Object.values(deliCommandBindings).map((binding) => (
-            <div key={binding.id} className="py-1">
-              <span className="text-clim-bright">{binding.id}</span>{' '}
-              <span className="text-clim-muted">-&gt; {binding.actionId} / {binding.handler}</span>
-              <div>{binding.summary}</div>
+          {Object.values(deliActions).map((action) => (
+            <div key={action.id} className="py-1">
+              <span className="text-clim-bright">{action.id}</span>{' '}
+              <span className="text-clim-muted">-&gt; {action.args.map((arg) => `${arg.name}:${arg.kind === 'ref' ? arg.objectType : arg.valueType}`).join(', ') || 'no args'}</span>
+              <div>{action.description}</div>
             </div>
           ))}
         </div>
@@ -550,18 +489,19 @@ export function DeliPbuiWorkbench({
       <div className="grid gap-1" data-testid="menu-view">
         {menu.map((item) => {
           const presentation = menuItemPresentation(item);
-          const compatible = compatibleBindingsFor(presentation);
           const visual = presentationVisualState({
             presentation,
             selected: activeSelected?.id === presentation.id ? activeSelected : selectedItemId === item.id ? presentation : activeSelected,
-            compatibleBindings: compatible,
+            selectedAction: session.mode === 'select' ? pendingAction : undefined,
+            filledArgs: session.filledArgs,
+            context: actionContext(),
           });
           return (
             <PbuiPresentationRef
               key={item.id}
               presentation={presentation}
               state={visual}
-              onSelect={visual.selectable ? () => handlePresentationClick(presentation) : undefined}
+              onSelect={visual.selectable || session.mode !== 'select' ? () => handlePresentationClick(presentation) : undefined}
             />
           );
         })}
@@ -588,11 +528,11 @@ export function DeliPbuiWorkbench({
 
         {renderView()}
 
-        {session.pendingCommand ? (
-          <PbuiConfirmPrompt binding={session.pendingCommand} onConfirm={confirmPending} onCancel={cancelPending} />
+        {pendingAction && session.mode === 'confirm' ? (
+          <PbuiConfirmPrompt action={pendingAction} onConfirm={confirmPending} onCancel={cancelPending} />
         ) : null}
 
-        <PbuiActionBar actions={actions} selectedCommandLabel={session.pendingCommand?.id} onInvoke={handleInvoke} />
+        <PbuiActionBar actions={actions} selectedCommandLabel={session.pendingActionId} onInvoke={handleInvoke} />
       </section>
     </PbuiShell>
   );
