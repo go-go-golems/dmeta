@@ -63,9 +63,9 @@ rules:
       without waiting for a specific target menu or toolbar design. The v1 rule
       intentionally keys off the currently emitted `copy_reference` and
       `inspect_subject` actions instead of requiring a separate `select_subject`
-      obligation, because Street Deli domain-specific selection currently
-      appears as actions such as `select_menu_item` rather than a universal
-      selection obligation.
+      obligation, because some domains currently express selection through
+      domain-specific actions, such as `select_menu_item`, rather than through a
+      universal selection obligation.
     when:
       representations:
         - compact_reference
@@ -88,12 +88,11 @@ rules:
     rationale: >-
       Lifecycle progress has enough structure to deserve a presentation type:
       current state, phase ordering, temporal hints, and navigation/inspection
-      actions. Street Deli order tracking is the first concrete dogfooding case.
-      The v1 rule intentionally matches the more common `state_indicator`
-      obligation rather than requiring the narrower `order_lifecycle_progress`
-      obligation, because current Street Deli semantic data exposes state for
-      orders and prep entities even when temporal lifecycle projections are not
-      yet complete.
+      actions. Order tracking is the first concrete dogfooding case, but the rule is
+      intentionally generic for stateful lifecycle-like subjects. The v1 rule
+      matches the more common `state_indicator` obligation rather than requiring
+      the narrower `order_lifecycle_progress` obligation so domains can adopt it
+      before their temporal lifecycle projections are complete.
     when:
       representations:
         - state_indicator
@@ -108,14 +107,14 @@ rules:
       Treat lifecycle controls as navigation or inspection unless an explicit
       mutating action is selected.
 
-  - id: pbui.composition_for_editable_deli_item
-    description: Lower composition and substitution obligations into a structured composition presentation.
+  - id: pbui.composition_for_editable_subject
+    description: Lower composition obligations into a structured composition presentation.
     rationale: >-
-      Street Deli composition editing is the richest current fixture for PBUI.
-      A single target component is not enough to explain it; the PBUI obligation
-      should preserve part roles, substitutions, configuration, local edit
-      actions, and cart actions as presentation-system concepts that React can
-      compile into selectors, hooks, components, and event adapters.
+      Editable composition is the richest current fixture for PBUI. A single target
+      component is not enough to explain it; the PBUI obligation should preserve
+      part roles, substitutions, configuration, local edit actions, and summary
+      actions as presentation-system concepts that React can compile into
+      selectors, hooks, components, and event adapters.
     when:
       representations:
         - composition_summary
@@ -131,7 +130,7 @@ rules:
       action presentations near each actionable part.
     recognizer_intent: >-
       Build typed action requests for part removal, addition, substitution,
-      configuration, and order/cart actions.
+      configuration, and contextual summary actions.
 
   - id: pbui.substitution_actions_for_composition_parts
     description: Add action presentations for substitution candidates and alternatives.

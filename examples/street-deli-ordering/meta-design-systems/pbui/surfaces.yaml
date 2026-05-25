@@ -1,107 +1,20 @@
 schema_version: 0
 artifact_type: dmeta_pbui_surfaces
-summary: Concrete shell and surface layout for the Street Deli CLIM presentation system.
+summary: Street Deli CLIM surface overrides.
 intent: >-
-  Capture the structural shell from the static CLIM prototype so the React app target can
-  generate or promote a real CLIM browser UI rather than a collection of generic
-  presentation components. Surfaces describe where presentations, actions,
-  command text, mode state, and feedback appear.
+  Inherit the reusable CLIM shell/surface layout and attach Street Deli prototype
+  source references. The common shell, header, view, command line, context menu,
+  confirmation prompt, and help surface definitions live in the global PBUI CLIM
+  profile.
 source:
   file: ../../www/clim/index.html
   rationale: >-
-    The prototype shell has stable regions: header, active view area, per-view
-    command bars, presentation containers, action bars, and a footer command
-    line. These regions are part of the concrete presentation system.
-surfaces:
-  shell:
-    component: ClimShell
-    summary: Root application frame containing header, active view region, context overlays, and command-line footer.
-    intent: >-
-      Provide a persistent CLIM browser frame. The shell keeps the mode visible,
-      maintains the command-line affordance, and lets the active view swap
-      without changing global interaction semantics.
-    regions:
-      - id: header
-        role: mode_and_brand
-        component: ClimHeader
-        source_selector: "#header"
-      - id: main
-        role: active_view
-        component: ClimMain
-        source_selector: "#main"
-      - id: command_line
-        role: command_input_and_feedback
-        component: ClimCommandLine
-        source_selector: "#command-line"
-  header:
-    component: ClimHeader
-    summary: Brand and current mode label.
-    intent: >-
-      Keep the current view/mode legible at all times. In select mode, the mode
-      label should include the pending action, matching prototype behavior such
-      as `DETAIL ▸ REMOVE-INGREDIENT`.
-    regions:
-      - id: brand
-        role: application_identity
-        component: BrandLabel
-      - id: mode_label
-        role: current_view_and_interaction_mode
-        component: ModeLabel
-  view:
-    component: ClimViewFrame
-    summary: Reusable active-view frame with command echo, presentation area, and action bar.
-    intent: >-
-      Give each concrete view the same CLIM rhythm: command echo at the top,
-      presentations in the middle, compatible/no-arg actions below.
-    regions:
-      - id: command_echo
-        role: view_local_command_echo
-        component: ClimCommandBar
-      - id: presentations
-        role: primary_presentation_area
-        component: PresentationRegion
-      - id: action_bar
-        role: selected_object_action_surface
-        component: ActionHintBar
-  command_line:
-    component: ClimCommandLine
-    summary: Persistent command buffer, action result, and hint surface.
-    intent: >-
-      Preserve the keyboard-oriented CLIM affordance. The command line displays
-      action results, current typed command buffer, cursor, and context-sensitive
-      hints.
-    regions:
-      - id: action_result
-        role: latest_action_result
-        component: ActionResultLine
-      - id: command_buffer
-        role: typed_command_buffer
-        component: CommandBufferLine
-      - id: command_hint
-        role: contextual_help
-        component: CommandHintLine
-  context_menu:
-    component: ClimContextMenu
-    summary: Pointer-invoked compatible-action menu for one presentation.
-    intent: >-
-      Preserve the prototype right-click path while using Readwise-style
-      compatible-action derivation. The menu should show actions as documented
-      objects, including disabled/danger state where available.
-  confirm_prompt:
-    component: ClimConfirmPrompt
-    summary: Confirmation surface for dangerous actions.
-    intent: >-
-      Make irreversible or backend-mutating actions explicit. For Street Deli,
-      order submission should pass through this surface once the runtime uses
-      Interaction IR safety metadata.
-  help_surface:
-    component: ClimHelpSurface
-    summary: Documentation surface for actions, presentation types, and keyboard grammar.
-    intent: >-
-      Present the interface vocabulary as first-class readable material. This
-      mirrors the static CLIM prototype's help view and supports the thesis idea that
-      commands and interface state can themselves be presented.
+    The Street Deli prototype supplies concrete visual evidence for how the
+    reusable CLIM surfaces should feel in this app: monochrome shell, current
+    mode label, active view area, action bars, and persistent command-line
+    footer.
+surfaces: {}
 notes: >-
-  Surfaces do not decide which domain objects exist. They decide where concrete
-  presentations are placed and which component family owns each piece of the
-  graphical shell.
+  This file intentionally contains only Street Deli-local surface context. The
+  reusable surface contract is inherited from
+  sources/dmeta-ir/meta-design-systems/pbui/profiles/clim/surfaces.yaml.

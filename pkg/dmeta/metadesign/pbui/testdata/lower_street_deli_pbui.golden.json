@@ -151,7 +151,7 @@
     "example_id": "street_deli_ordering",
     "domain_type_id": "MenuItem",
     "presentation_type_id": "pbui.composition_presentation",
-    "source_rule_id": "pbui.composition_for_editable_deli_item",
+    "source_rule_id": "pbui.composition_for_editable_subject",
     "representations": [
       "composition_summary",
       "composition_breakdown"
@@ -161,7 +161,7 @@
       "add_part"
     ],
     "presenter_intent": "Project a composed item and its parts into role-aware sections with local action presentations near each actionable part.",
-    "recognizer_intent": "Build typed action requests for part removal, addition, substitution, configuration, and order/cart actions."
+    "recognizer_intent": "Build typed action requests for part removal, addition, substitution, configuration, and contextual summary actions."
   },
   {
     "example_id": "street_deli_ordering",
@@ -313,7 +313,7 @@
     "example_id": "street_deli_ordering",
     "domain_type_id": "OrderItem",
     "presentation_type_id": "pbui.composition_presentation",
-    "source_rule_id": "pbui.composition_for_editable_deli_item",
+    "source_rule_id": "pbui.composition_for_editable_subject",
     "representations": [
       "composition_summary",
       "composition_breakdown"
@@ -323,7 +323,7 @@
       "add_part"
     ],
     "presenter_intent": "Project a composed item and its parts into role-aware sections with local action presentations near each actionable part.",
-    "recognizer_intent": "Build typed action requests for part removal, addition, substitution, configuration, and order/cart actions."
+    "recognizer_intent": "Build typed action requests for part removal, addition, substitution, configuration, and contextual summary actions."
   },
   {
     "example_id": "street_deli_ordering",

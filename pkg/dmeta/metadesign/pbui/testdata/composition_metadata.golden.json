@@ -58,14 +58,14 @@
       "see_alternatives"
     ],
     "sourceRules": [
-      "pbui.composition_for_editable_deli_item",
+      "pbui.composition_for_editable_subject",
       "pbui.substitution_actions_for_composition_parts"
     ]
   },
   "pbui": {
     "presentationType": "pbui.composition_presentation",
     "presenterIntent": "Project a composed item and its parts into role-aware sections with local action presentations near each actionable part.",
-    "recognizerIntent": "Build typed action requests for part removal, addition, substitution, configuration, and order/cart actions."
+    "recognizerIntent": "Build typed action requests for part removal, addition, substitution, configuration, and contextual summary actions."
   },
   "guidance": {
     "summary": "Generated generic PBUI React proof artifact. Regenerate from DMETA sources; promote only by copying into a maintained target and preserving the metadata trail.",

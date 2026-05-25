@@ -53,6 +53,16 @@ func LoadPackage(ctx context.Context, root string) (*Package, error) {
 	if surfaces.ArtifactType != SurfacesArtifactType {
 		return nil, errors.Errorf("PBUI surfaces artifact_type is %q, expected %s", surfaces.ArtifactType, SurfacesArtifactType)
 	}
+	if inherited := meta.Inherits["surfaces"]; inherited != "" {
+		baseSurfaces, err := loadYAML[SurfacesFile](resolveProfilePath(absRoot, inherited))
+		if err != nil {
+			return nil, errors.Wrap(err, "load inherited PBUI surfaces")
+		}
+		if baseSurfaces.ArtifactType != SurfacesArtifactType {
+			return nil, errors.Errorf("inherited PBUI surfaces artifact_type is %q, expected %s", baseSurfaces.ArtifactType, SurfacesArtifactType)
+		}
+		surfaces = mergeSurfaces(baseSurfaces, surfaces)
+	}
 
 	viewModels, err := loadYAML[ViewModelsFile](filepath.Join(absRoot, fileOrDefault(meta.Files["view_models"], "./view-models.yaml")))
 	if err != nil {
@@ -68,6 +78,16 @@ func LoadPackage(ctx context.Context, root string) (*Package, error) {
 	}
 	if bindings.ArtifactType != PresentationBindingsArtifactType {
 		return nil, errors.Errorf("PBUI presentation bindings artifact_type is %q, expected %s", bindings.ArtifactType, PresentationBindingsArtifactType)
+	}
+	if inherited := meta.Inherits["presentation_bindings"]; inherited != "" {
+		baseBindings, err := loadYAML[PresentationBindingsFile](resolveProfilePath(absRoot, inherited))
+		if err != nil {
+			return nil, errors.Wrap(err, "load inherited PBUI presentation bindings")
+		}
+		if baseBindings.ArtifactType != PresentationBindingsArtifactType {
+			return nil, errors.Errorf("inherited PBUI presentation bindings artifact_type is %q, expected %s", baseBindings.ArtifactType, PresentationBindingsArtifactType)
+		}
+		bindings = mergePresentationBindings(baseBindings, bindings)
 	}
 
 	reactAppTarget, err := loadYAML[ReactAppTargetFile](filepath.Join(absRoot, fileOrDefault(meta.Files["react_app_target"], "./targets/react-app.yaml")))
@@ -94,6 +114,56 @@ func fileOrDefault(value string, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+func resolveProfilePath(root string, path string) string {
+	if filepath.IsAbs(path) {
+		return path
+	}
+	return filepath.Join(root, path)
+}
+
+func mergeSurfaces(base SurfacesFile, local SurfacesFile) SurfacesFile {
+	out := base
+	out.Summary = firstNonEmpty(local.Summary, base.Summary)
+	out.Intent = firstNonEmpty(local.Intent, base.Intent)
+	if local.Source.File != "" || local.Source.Rationale != "" {
+		out.Source = local.Source
+	}
+	out.Notes = firstNonEmpty(local.Notes, base.Notes)
+	out.Surfaces = map[string]Surface{}
+	for id, surface := range base.Surfaces {
+		out.Surfaces[id] = surface
+	}
+	for id, surface := range local.Surfaces {
+		out.Surfaces[id] = surface
+	}
+	return out
+}
+
+func mergePresentationBindings(base PresentationBindingsFile, local PresentationBindingsFile) PresentationBindingsFile {
+	out := base
+	out.Summary = firstNonEmpty(local.Summary, base.Summary)
+	out.Intent = firstNonEmpty(local.Intent, base.Intent)
+	if len(local.Source) > 0 {
+		out.Source = local.Source
+	}
+	out.Notes = firstNonEmpty(local.Notes, base.Notes)
+	out.Bindings = map[string]PresentationBinding{}
+	for id, binding := range base.Bindings {
+		out.Bindings[id] = binding
+	}
+	for id, binding := range local.Bindings {
+		out.Bindings[id] = binding
+	}
+	return out
+}
+
+func firstNonEmpty(value string, fallback string) string {
+	if value != "" {
+		return value
+	}
+	return fallback
 }
 
 func loadYAML[T any](path string) (T, error) {

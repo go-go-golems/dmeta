@@ -228,23 +228,21 @@ presentation_types:
         rather than direct mutation unless an action explicitly says otherwise.
       preferred_target_shape: event_adapter
     notes: >-
-      This type exists partly to test Street Deli order tracking through PBUI.
+      This type exists to test lifecycle and progress tracking through PBUI across domains.
 
   pbui.composition_presentation:
     name: Composition Presentation
     summary: Presentation for composed objects made of parts with roles, substitutions, and local edit actions.
     intent: >-
-      Exercise PBUI against the richest Street Deli case: a composed menu item
-      or order item with ingredients, roles, configuration, substitutions,
-      and cart actions. This type should reveal whether the first-pass presenter
-      and recognizer model is expressive enough for nontrivial structured data.
+      Exercise PBUI against composed domain objects: an object made of parts with
+      roles, configuration, substitutions, and contextual actions. This type
+      should reveal whether the first-pass presenter and recognizer model is
+      expressive enough for nontrivial structured data.
     description: >-
       A composition presentation organizes parts, role labels, dietary metadata,
       configuration options, substitution candidates, and local mutation actions.
     presents:
-      object_types:
-        - MenuItem
-        - OrderItem
+      object_types: []
       type_descriptors: true
       action_descriptors: true
     realizes:
