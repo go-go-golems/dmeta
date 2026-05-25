@@ -104,3 +104,15 @@ Updated repository cleanup assessment to keep both active target lines: Web Reac
 - /home/manuel/code/wesen/go-go-golems/dmeta/sources/dmeta-ir/meta-design-systems/web/meta-design-system.yaml — Web MetaDesignSystem is now explicitly kept
 - /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/analysis/02-repository-cleanup-assessment-for-latest-pbui-metadesignsystem-setup.md — Updated cleanup assessment
 
+
+## 2026-05-24
+
+Replaced stale DMETA playbooks with shared, Web React, and PBUI/CLIM playbooks; added design-doc cleanup matrix and refreshed README pointers.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/design-docs/00-document-map-and-cleanup-plan.md — Design-doc keep/update/archive matrix
+- /home/manuel/code/wesen/go-go-golems/dmeta/playbooks/01-dmeta-shared-compiler-playbook.md — Shared compiler workflow
+- /home/manuel/code/wesen/go-go-golems/dmeta/playbooks/02-dmeta-web-react-metadesignsystem-playbook.md — Web React MetaDesignSystem workflow
+- /home/manuel/code/wesen/go-go-golems/dmeta/playbooks/03-dmeta-pbui-clim-metadesignsystem-playbook.md — PBUI/CLIM MetaDesignSystem workflow
+

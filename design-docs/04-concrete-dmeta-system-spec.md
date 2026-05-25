@@ -1,5 +1,6 @@
 ---
 Title: Concrete DMETA System Spec
+Ticket: DMETA-001
 Status: active
 Topics:
     - design-system
@@ -17,8 +18,8 @@ RelatedFiles:
       Note: Semantic archetype/capability model refined into the concrete artifact layout
     - Path: ./03-dense-operational-ui-graphic-design-and-ux-archetype.md
       Note: Visual/UX archetype refined into concrete design-language artifacts
-    - Path: ../playbooks/02-dmeta-design-system-factory-runthrough-playbook.md
-      Note: Process playbook that this concrete spec operationalizes
+    - Path: ../playbooks/01-dmeta-shared-compiler-playbook.md
+      Note: Current shared compiler playbook that supersedes the original runthrough playbook
 ExternalSources: []
 Summary: "Concrete v0 system architecture for DMETA: artifact layout, Markdown/YAML split, source IR files, generators, validation, and implementation lifecycle."
 LastUpdated: 2026-05-19T18:20:00-04:00
@@ -117,8 +118,9 @@ The first implementation should be small enough that humans can inspect the whol
 dmeta/
   README.md
   playbooks/
-    01-collaborative-schema-design-sessions-for-presentation-based-ui.md
-    02-dmeta-design-system-factory-runthrough-playbook.md
+    01-dmeta-shared-compiler-playbook.md
+    02-dmeta-web-react-metadesignsystem-playbook.md
+    03-dmeta-pbui-clim-metadesignsystem-playbook.md
   design-docs/
     01-design-system-factory-vision-and-scope.md
     02-semantic-archetype-and-capability-model.md
