@@ -55,6 +55,7 @@ export interface ActionPresentation<TAction extends string = string> {
   action: ActionSpec<TAction>;
   commandLabel?: string;
   disabledReason?: string;
+  applicableToSelected?: boolean;
 }
 
 export interface ActionRequest<TAction extends string = string> {
@@ -69,4 +70,5 @@ export interface ClimSessionState {
   pendingAction?: ActionSpec;
   commandBuffer: string;
   resultLine?: string;
+  actionStatusLine?: string;
 }

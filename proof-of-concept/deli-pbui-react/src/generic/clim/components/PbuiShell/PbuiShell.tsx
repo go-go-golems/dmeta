@@ -22,6 +22,7 @@ export function PbuiShell({
       <PbuiCommandLine
         value={value}
         result={state.resultLine}
+        actionStatus={state.actionStatusLine}
         onChange={onCommandChange}
         onSubmit={onCommandSubmit}
         onHistoryPrevious={onCommandHistoryPrevious}

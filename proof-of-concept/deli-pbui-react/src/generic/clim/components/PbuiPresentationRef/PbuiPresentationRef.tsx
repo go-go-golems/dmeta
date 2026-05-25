@@ -27,6 +27,7 @@ export function PbuiPresentationRef({
     interactive ? 'cursor-pointer' : 'cursor-default',
     className,
   ].filter(Boolean).join(' ');
+  const labelClasses = ['font-normal', effectiveState.selected ? 'animate-pulse' : ''].filter(Boolean).join(' ');
 
   return (
     <button
@@ -39,11 +40,11 @@ export function PbuiPresentationRef({
     >
       <PbuiText tone="muted">&lt;{presentation.type}&gt;</PbuiText>{' '}
       {interactive ? (
-        <PbuiClickableText as="span" tone="selectable" className="font-normal">
+        <PbuiClickableText as="span" tone="normal" className={labelClasses}>
           {presentation.label}
         </PbuiClickableText>
       ) : (
-        <PbuiText tone={effectiveState.muted ? 'removed' : 'normal'}>{presentation.label}</PbuiText>
+        <PbuiText tone={effectiveState.muted ? 'removed' : 'bright'} className={effectiveState.selected ? 'animate-pulse' : undefined}>{presentation.label}</PbuiText>
       )}{' '}
       <PbuiText tone="muted">#{presentation.id}</PbuiText>{' '}
       <PbuiText tone="muted">{presentation.capabilities.join(' ')}</PbuiText>
