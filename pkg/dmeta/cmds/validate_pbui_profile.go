@@ -57,7 +57,7 @@ style classes are present, and that the React app target describes the CLIM
 runtime states needed by the profile pass.
 
 Examples:
-  dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./sources/dmeta-ir --output table
+  dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./examples/street-deli-ordering --output table
   dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --include-info
 `),
 		cmds.WithFlags(
@@ -76,8 +76,8 @@ Examples:
 			fields.New(
 				"interactions-root",
 				fields.TypeString,
-				fields.WithDefault("sources/dmeta-ir"),
-				fields.WithHelp("Directory containing interactions/ actions, representations, and elaboration rules"),
+				fields.WithDefault("examples/street-deli-ordering"),
+				fields.WithHelp("Directory containing the effective interaction package used by this profile"),
 			),
 			fields.New(
 				"strict",
@@ -132,7 +132,7 @@ func (c *ValidatePBUIProfileCommand) RunIntoGlazeProcessor(ctx context.Context, 
 	if err != nil {
 		return err
 	}
-	findings := profile.ValidatePackage(profilePkg, pbuiPkg)
+	findings := profile.ValidatePackage(profilePkg, pbuiPkg, interactionPkg)
 	if s.IncludeInfo && !validator.HasErrors(findings) {
 		findings = append(findings, validator.Info("pbui_presentation_profile", "", "validation_ok", "DMETA PBUI presentation profile has no error-severity findings", ""))
 	}

@@ -13,6 +13,7 @@ type Package struct {
 	Surfaces             SurfacesFile
 	ViewModels           ViewModelsFile
 	PresentationBindings PresentationBindingsFile
+	ActionBindings       ActionBindingsFile
 	ReactAppTarget       ReactAppTargetFile
 }
 
@@ -112,6 +113,37 @@ type PresentationBindingsFile struct {
 	Source        map[string]string              `yaml:"source"`
 	Bindings      map[string]PresentationBinding `yaml:"bindings"`
 	Notes         string                         `yaml:"notes"`
+}
+
+type ActionBindingsFile struct {
+	SchemaVersion int                      `yaml:"schema_version"`
+	ArtifactType  string                   `yaml:"artifact_type"`
+	Summary       string                   `yaml:"summary"`
+	Intent        string                   `yaml:"intent"`
+	Source        SourceRef                `yaml:"source"`
+	Bindings      map[string]ActionBinding `yaml:"bindings"`
+	Notes         string                   `yaml:"notes"`
+}
+
+type ActionBinding struct {
+	Action               string              `yaml:"action"`
+	Label                string              `yaml:"label"`
+	Summary              string              `yaml:"summary"`
+	Views                []string            `yaml:"views"`
+	PresentationType     string              `yaml:"presentation_type"`
+	Surface              string              `yaml:"surface"`
+	Handler              string              `yaml:"handler"`
+	InputMapping         map[string]string   `yaml:"input_mapping"`
+	RequiresConfirmation bool                `yaml:"requires_confirmation"`
+	Confirmation         *ActionConfirmation `yaml:"confirmation"`
+	Notes                string              `yaml:"notes"`
+}
+
+type ActionConfirmation struct {
+	Surface      string `yaml:"surface"`
+	Prompt       string `yaml:"prompt"`
+	ConfirmLabel string `yaml:"confirm_label"`
+	CancelLabel  string `yaml:"cancel_label"`
 }
 
 type PresentationBinding struct {

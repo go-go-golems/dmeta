@@ -1,0 +1,143 @@
+schema_version: 0
+artifact_type: dmeta_pbui_action_bindings
+summary: Concrete Street Deli CLIM command/action bindings.
+intent: >-
+  Map view-facing CLIM command labels to Street Deli Interaction IR actions,
+  concrete input sources, presentation surfaces, confirmation behavior, and
+  handler identifiers. Interaction IR owns the action semantics; this profile
+  file owns how those actions appear in the Street Deli PBUI application.
+source:
+  file: ../../www/clim/js/app-main.js
+  rationale: >-
+    The static CLIM prototype exposes command labels such as CUSTOMIZE,
+    ADD-TO-ORDER, APPLY, CART, MENU, HELP, and PLACE-ORDER. This catalog makes
+    that command grammar explicit for React targets and future generators.
+bindings:
+  CUSTOMIZE:
+    action: select_menu_item
+    label: CUSTOMIZE
+    summary: Enter the item customization/detail view for a selected menu item.
+    views: [menu]
+    presentation_type: pbui.action_presentation
+    surface: context_menu
+    handler: deli.selectMenuItem
+    input_mapping:
+      item_ref: selected_presentation
+    requires_confirmation: false
+  FILTER-DIETARY:
+    action: filter_by_dietary
+    label: FILTER-DIETARY
+    summary: Filter menu or substitution choices by a dietary/allergen tag.
+    views: [menu]
+    presentation_type: pbui.action_presentation
+    surface: command_line
+    handler: deli.filterByDietary
+    input_mapping:
+      dietary_tag: command_argument:tag
+    requires_confirmation: false
+  FILTER-BY-CATEGORY:
+    action: filter_by_category
+    label: FILTER-BY-CATEGORY
+    summary: Filter menu choices by menu category.
+    views: [menu]
+    presentation_type: pbui.action_presentation
+    surface: command_line
+    handler: deli.filterByCategory
+    input_mapping:
+      category: command_argument:category
+    requires_confirmation: false
+  ADD-TO-ORDER:
+    action: add_to_order
+    label: ADD-TO-ORDER
+    summary: Add the current configured item draft to the order/cart.
+    views: [detail]
+    presentation_type: pbui.action_presentation
+    surface: context_menu
+    handler: deli.addToOrder
+    input_mapping:
+      draft_ref: current_draft
+    requires_confirmation: false
+  APPLY:
+    action: apply_substitution
+    label: APPLY
+    summary: Apply the selected substitution candidate to the current draft.
+    views: [substitution]
+    presentation_type: pbui.action_presentation
+    surface: context_menu
+    handler: deli.applySubstitution
+    input_mapping:
+      composition_ref: current_draft
+      original_part_ref: selected_removed_part
+      replacement_candidate_ref: selected_presentation
+    requires_confirmation: false
+  DESCRIBE:
+    action: describe_subject
+    label: DESCRIBE
+    summary: Inspect or describe the selected presentation.
+    views: [substitution]
+    presentation_type: pbui.action_presentation
+    surface: help_surface
+    handler: deli.describeSubject
+    input_mapping:
+      subject_ref: selected_presentation
+    requires_confirmation: false
+  CART:
+    action: navigate_to_cart
+    label: CART
+    summary: Navigate to the cart/review view.
+    views: [menu, detail]
+    presentation_type: pbui.action_presentation
+    surface: command_line
+    handler: deli.navigateToCart
+    input_mapping: {}
+    requires_confirmation: false
+  BACK:
+    action: return_to_menu
+    label: BACK
+    summary: Return from detail or substitution flow to the previous/menu surface.
+    views: [detail, substitution]
+    presentation_type: pbui.action_presentation
+    surface: command_line
+    handler: deli.returnToMenu
+    input_mapping: {}
+    requires_confirmation: false
+  MENU:
+    action: return_to_menu
+    label: MENU
+    summary: Return to the menu browsing surface.
+    views: [cart, help, tracker]
+    presentation_type: pbui.action_presentation
+    surface: command_line
+    handler: deli.returnToMenu
+    input_mapping: {}
+    requires_confirmation: false
+  HELP:
+    action: show_help
+    label: HELP
+    summary: Open the help/documentation surface.
+    views: [menu, detail, cart, tracker]
+    presentation_type: pbui.action_presentation
+    surface: command_line
+    handler: deli.showHelp
+    input_mapping: {}
+    requires_confirmation: false
+  PLACE-ORDER:
+    action: submit_order
+    label: PLACE-ORDER
+    summary: Submit the cart as an order after confirmation.
+    views: [cart]
+    presentation_type: pbui.action_presentation
+    surface: confirm_prompt
+    handler: deli.submitOrder
+    input_mapping:
+      cart_ref: current_cart
+    requires_confirmation: true
+    confirmation:
+      surface: confirm_prompt
+      prompt: Submit the current cart as an order?
+      confirm_label: CONFIRM PLACE-ORDER
+      cancel_label: CANCEL
+notes: >-
+  Command labels are intentionally separate from Interaction IR action ids.
+  Multiple command labels may map to the same action when the concrete UI wants
+  different view-local wording, such as BACK and MENU both using return_to_menu.

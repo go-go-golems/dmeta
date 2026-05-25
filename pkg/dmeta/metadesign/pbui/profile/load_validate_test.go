@@ -47,9 +47,33 @@ func TestLoadAndValidateStreetDeliProfile(t *testing.T) {
 		t.Fatalf("expected PresentationRefLine component, got %q", binding.Component)
 	}
 
-	findings := ValidatePackage(profilePkg, pbuiPkg)
+	findings := ValidatePackage(profilePkg, pbuiPkg, interactionPkg)
 	if validator.HasErrors(findings) {
 		t.Fatalf("PBUI profile package has error findings: %#v", findings)
+	}
+}
+
+func TestLoadStreetDeliActionBindings(t *testing.T) {
+	ctx := context.Background()
+	repoRoot := filepath.Join("..", "..", "..", "..", "..")
+
+	profilePkg, err := LoadPackage(ctx, filepath.Join(repoRoot, "examples", "street-deli-ordering", "meta-design-systems", "pbui"))
+	if err != nil {
+		t.Fatalf("load PBUI profile package: %v", err)
+	}
+
+	placeOrder, ok := profilePkg.ActionBindings.Bindings["PLACE-ORDER"]
+	if !ok {
+		t.Fatalf("expected PLACE-ORDER action binding")
+	}
+	if placeOrder.Action != "submit_order" {
+		t.Fatalf("expected PLACE-ORDER to bind submit_order, got %q", placeOrder.Action)
+	}
+	if !placeOrder.RequiresConfirmation {
+		t.Fatalf("expected PLACE-ORDER to require confirmation")
+	}
+	if placeOrder.Confirmation == nil || placeOrder.Confirmation.Prompt == "" {
+		t.Fatalf("expected PLACE-ORDER confirmation prompt")
 	}
 }
 
@@ -57,6 +81,10 @@ func TestValidateProfileRejectsUnknownBindingPresentationType(t *testing.T) {
 	ctx := context.Background()
 	repoRoot := filepath.Join("..", "..", "..", "..", "..")
 
+	interactionPkg, err := interaction.LoadPackage(ctx, filepath.Join(repoRoot, "examples", "street-deli-ordering"))
+	if err != nil {
+		t.Fatalf("load interaction package: %v", err)
+	}
 	pbuiPkg, err := pbuimds.LoadPackage(ctx, filepath.Join(repoRoot, "sources", "dmeta-ir", "meta-design-systems", "pbui"))
 	if err != nil {
 		t.Fatalf("load PBUI package: %v", err)
@@ -72,7 +100,7 @@ func TestValidateProfileRejectsUnknownBindingPresentationType(t *testing.T) {
 		Classes:   map[string]string{"base": "pres"},
 	}
 
-	findings := ValidatePackage(profilePkg, pbuiPkg)
+	findings := ValidatePackage(profilePkg, pbuiPkg, interactionPkg)
 	if !validator.HasErrors(findings) {
 		t.Fatalf("expected error finding for unknown binding presentation type; got %#v", findings)
 	}

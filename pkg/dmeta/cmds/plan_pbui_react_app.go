@@ -57,7 +57,7 @@ registry integration, and metadata for a promoted app such as Street Deli
 www/clim-react.
 
 Examples:
-  dmeta plan-pbui-react-app --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output table
+  dmeta plan-pbui-react-app --root ./examples/street-deli-ordering --interactions-root ./examples/street-deli-ordering --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output table
 `),
 		cmds.WithFlags(
 			fields.New(
@@ -69,8 +69,8 @@ Examples:
 			fields.New(
 				"interactions-root",
 				fields.TypeString,
-				fields.WithDefault("sources/dmeta-ir"),
-				fields.WithHelp("Directory containing interactions/ actions, representations, and elaboration rules"),
+				fields.WithDefault("examples/street-deli-ordering"),
+				fields.WithHelp("Directory containing the effective interaction package used by this profile"),
 			),
 			fields.New(
 				"pbui-root",
@@ -165,7 +165,7 @@ func buildConcreteProfilePlan(ctx context.Context, root, interactionsRoot, pbuiR
 	if err != nil {
 		return nil, profile.ConcretePresentationPlan{}, err
 	}
-	profileFindings := profile.ValidatePackage(profilePkg, pbuiPkg)
+	profileFindings := profile.ValidatePackage(profilePkg, pbuiPkg, interactionPkg)
 	if validator.HasErrors(profileFindings) {
 		return nil, profile.ConcretePresentationPlan{}, fmt.Errorf("PBUI presentation profile has error-severity findings; run validate-pbui-profile")
 	}
