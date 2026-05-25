@@ -106,11 +106,11 @@ bindings:
   BACK:
     action: return_to_menu
     label: BACK
-    summary: Return from detail or substitution flow to the previous/menu surface.
-    views: [detail, substitution]
+    summary: Return from the current non-root flow to the previous route or menu fallback.
+    views: [detail, substitution, cart, help, tracker]
     presentation_type: pbui.action_presentation
     surface: command_line
-    handler: deli.returnToMenu
+    handler: deli.navigateBack
     input_mapping: {}
     requires_confirmation: false
   MENU:

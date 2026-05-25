@@ -93,6 +93,7 @@ views:
       - pbui.presentation_ref
     default_actions:
       - PLACE-ORDER
+      - BACK
       - MENU
       - HELP
   help:
@@ -110,6 +111,7 @@ views:
       - pbui.action_presentation
       - pbui.inspector_panel
     default_actions:
+      - BACK
       - MENU
   tracker:
     mode_label: TRACKER
@@ -126,6 +128,7 @@ views:
       - pbui.lifecycle_status
       - pbui.action_presentation
     default_actions:
+      - BACK
       - MENU
       - HELP
 notes: >-

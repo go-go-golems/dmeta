@@ -2,19 +2,22 @@ schema_version: 0
 artifact_type: dmeta_pbui_style_profile
 id: street_deli_clim_mono
 name: Street Deli Monochrome CLIM Style
-summary: Monochrome text-object graphical style extracted from the Street Deli static CLIM prototype CSS.
+summary: Monochrome text-object graphical style extracted from the Street Deli static CLIM prototype CSS and refined by PBUI proof-of-concept review.
 intent: >-
-  Preserve the concrete visual grammar of the static CLIM prototype as data. Targets should
-  render black background, gray and white text, Berkeley Mono typography, compact
-  command bars, text-object presentations, selected-object highlighting, red
-  select-mode compatible targets, dimmed incompatible targets, and dotted action
-  affordances from this profile rather than inventing target-local styling.
+  Preserve the concrete visual grammar of the Street Deli CLIM-style interface
+  as data. Targets should render a black background, gray and white text,
+  Berkeley Mono typography, compact command surfaces, dotted-underlined clickable
+  actions, red selectable reference labels, faint removed presentations, and a
+  normal React URL/history navigation contract. Targets should not invent
+  bordered card boxes or heavy panels for ordinary presentations and section
+  metadata.
 source:
   file: ../../www/clim/styles.css
   rationale: >-
-    The static prototype already encodes the desired visual feel. The profile
-    copies the stable design decisions and class semantics so React app
-    generation can be compared directly against the prototype.
+    The static prototype encodes the starting visual feel. The proof-of-concept
+    React review refined the stable rules: clickability is signaled by dotted
+    underline and color, selectable ref labels turn red, titles remain plain text, removed rows
+    become faint, and per-section border boxes are avoided.
 tokens:
   color:
     background: "#000000"
@@ -22,12 +25,13 @@ tokens:
     foreground_dim: "#666666"
     foreground_bright: "#FFFFFF"
     accent: "#CCCCCC"
-    highlight_bg: "#333333"
-    selection_bg: "#444444"
+    clickable: "#FFFFFF"
+    selectable_ref: "#ff4444"
+    dangerous_action: "#ff4444"
     removed_fg: "#555555"
+    removed_opacity: "0.38"
     substitution_fg: "#FFFFFF"
-    border: "#333333"
-    select_mode_target: "#ff4444"
+    shell_rule: "#333333"
   typography:
     family: Berkeley Mono
     fallback: monospace
@@ -49,7 +53,70 @@ tokens:
     indent: 16px
     indent2: 32px
   motion:
-    hover_transition: border-color 0.05s
+    hover_transition: color 0.05s, text-decoration-color 0.05s, opacity 0.05s
+visual_rules:
+  no_boxes:
+    summary: >-
+      Ordinary sections and presentation rows are text, not cards. Do not put
+      borders, filled backgrounds, or panel boxes around headings such as VIEW
+      MODEL, COMPOSITION DRAFT, LIFECYCLE, HELP rows, cart rows, or individual
+      presentation references.
+    allowed_exceptions:
+      - Shell-level header/footer separators may remain while useful as global terminal boundaries.
+      - Temporary debug overlays may use boxes only when clearly marked as debug UI.
+  clickability:
+    summary: Dotted underline signals clickability and valid invocation.
+    actions: >-
+      Action presentations are dotted-underlined by default. Hover/focus changes
+      the underline color and foreground color; it must not add a background box.
+    presentation_refs: >-
+      A presentation reference label gets dotted underline affordance when it can
+      fill a slot for an action available in the current view or mode. Technical
+      type/id/capability text stays muted and is not colored as the active target.
+    disabled: >-
+      Disabled actions stay dim, keep a not-allowed cursor, and should explain
+      their disabled reason when the engine supports tooltips/help text.
+  selectable_refs:
+    summary: Selectable reference labels turn red in addition to dotted underline/cursor affordance.
+    color_token: selectable_ref
+    cursor: pointer
+    text_decoration: dotted underline
+    label_only: true
+    techno_babble_treatment: muted foreground for type, id, and capability text
+    notes: >-
+      Red means the ref label is a valid target for at least one current action
+      or pending action. It should not be used for passive selection state, and
+      it should not color technical prefixes such as `<Ingredient>`, ids, or
+      capability lists.
+  selected_refs:
+    summary: Current selection is a lightweight text state, not a red error/action marker.
+    preferred_treatment:
+      - bright foreground
+      - optional small textual marker such as SELECTED or *
+      - no filled background
+      - no bordered box
+    notes: >-
+      Avoid red underline for passive selection. Red is reserved for valid
+      selectable targets and dangerous/confirmation actions.
+  titles_and_section_labels:
+    summary: Titles and labels are not clickable and should not be underlined.
+    examples:
+      - VIEW MODEL
+      - COMPOSITION DRAFT
+      - LIFECYCLE
+      - HELP
+    treatment:
+      - uppercase or muted text is allowed
+      - no underline unless the title itself becomes an action
+      - no border box
+  removed_presentations:
+    summary: Removed/voided items should be much fainter across the entire row.
+    foreground_token: removed_fg
+    opacity_token: removed_opacity
+    treatment:
+      - apply dimming to the whole row, including type, label, id, and capability text
+      - optional strikethrough on the domain label
+      - do not use red unless the removed row is also a current valid target
 classes:
   shell: clim-shell
   header: header
@@ -93,14 +160,48 @@ classes:
   tracker_step_pending: pending
 state_styles:
   normal:
-    summary: Default mode. Presentations are clickable, selected presentation is highlighted, and actions appear in the command/action bar.
+    summary: >-
+      Default mode. Presentation refs can be selected and can pre-fill action
+      slots. Only refs that are valid for at least one available action get the
+      selectable red/underline/cursor treatment.
   select:
-    summary: Pending-action mode. Compatible presentations use `presentation_selectable` and incompatible presentations use `presentation_select_disabled`.
-    compatible_color_token: select_mode_target
+    summary: >-
+      Pending-action mode. Compatible presentations use the selectable ref
+      treatment. Incompatible presentations stay dim and are not clickable.
+    compatible_color_token: selectable_ref
   confirm:
-    summary: Dangerous action confirmation mode. Target should show an explicit confirm prompt or command-line confirmation text.
+    summary: >-
+      Dangerous action confirmation mode. Target should show an explicit confirm
+      prompt or command-line confirmation text without adding a heavy box.
+navigation_rules:
+  back_command:
+    summary: BACK should be available in almost every non-root view.
+    preferred_views:
+      - detail
+      - substitution
+      - cart
+      - help
+      - tracker
+    root_behavior: >-
+      In the root menu view, BACK should either be unavailable with an explicit
+      disabled reason or map to browser/history back if a previous route exists.
+  url_routing:
+    summary: View changes should update the URL like a normal React application.
+    preferred_shape:
+      - /menu
+      - /detail/:menuItemId
+      - /substitution/:draftId/:partId
+      - /cart
+      - /help
+      - /tracker/:orderId
+    proof_of_concept_fallback: >-
+      A hash or query-param route is acceptable in the standalone POC, but the
+      engine should expose route/view synchronization as a generic adapter.
 notes: >-
-  The profile intentionally keeps class names close to the static CLIM prototype because
-  visual parity is more important than inventing a new naming convention. A
-  later cleanup can map these class names into CSS modules if the promoted React
-  app needs stricter local scoping.
+  The profile intentionally keeps class names close to the static CLIM prototype
+  while making the reviewed visual rules explicit. A later generator should read
+  these rules before emitting CSS so new interactions remain typographically
+  consistent: no local card boxes, dotted underlines and color for valid
+  clickability, red only for selectable ref labels/danger, muted techno-babble
+  type/id/capability text, faint rows for removed items, plain titles, and
+  URL/history-backed navigation.
