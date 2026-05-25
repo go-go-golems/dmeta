@@ -28,3 +28,6 @@
 - [x] Move Deli workbench view, selection, removed ingredients, and cart state into a Redux slice
 - [x] Refactor Deli handlers and workbench to dispatch Deli slice actions instead of local state setters
 - [x] Validate Deli domain-slice backed Storybook and app flows
+- [x] Add PBUI compatibility rule metadata for Street Deli selected-presentation targets
+- [x] Add generic PBUI compatibility-rule evaluator and Deli compatibility registry
+- [x] Replace Deli workbench hard-coded canUsePresentation branches with metadata-derived rules

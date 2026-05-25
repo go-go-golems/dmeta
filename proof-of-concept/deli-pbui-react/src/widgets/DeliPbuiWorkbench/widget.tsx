@@ -13,6 +13,7 @@ import {
   compatibleBindingsForPresentation,
   presentationVisualState,
 } from '../../generic/clim/compatibility';
+import { assertCompatibilityRuleCoverage, canUsePresentationFromRules } from '../../generic/clim/compatibilityRules';
 import { runCommandHandler } from '../../generic/clim/handlerRegistry';
 import { pbuiSessionActions } from '../../generic/clim/pbuiSessionSlice';
 import { buildActionRequestFromBinding, summarizeActionRequest } from '../../generic/clim/runtime';
@@ -21,6 +22,7 @@ import type { RouteCodec, RouteSnapshot } from '../../generic/clim/routing';
 import type { ActionPresentation, ClimSessionState, CommandBinding, PresentationRef } from '../../generic/clim/types';
 import { deliActionDescriptors } from '../../domain/deli/actions';
 import { deliCommandBindings, commandBindingsForView } from '../../domain/deli/commandBindings';
+import { deliCompatibilityRules } from '../../domain/deli/compatibilityRules';
 import { assertDeliHandlerCoverage, deliCommandHandlers } from '../../domain/deli/handlers';
 import type { DeliCommandHandlerEnvironment } from '../../domain/deli/handlers';
 import { useGetMenuQuery } from '../../domain/deli/deliApi';
@@ -145,7 +147,27 @@ function initialRouteSnapshot(fallbackView: DeliViewId, fallbackItemId?: string)
   return routeForView(fallbackView, fallbackItemId);
 }
 
+function rehydratePresentationRef(
+  presentation: PresentationRef | undefined,
+  menu: MenuItem[],
+  removedIngredientIds: string[],
+): PresentationRef | undefined {
+  if (!presentation) {
+    return undefined;
+  }
+  if (presentation.type === 'MenuItem') {
+    const item = menu.find((candidate) => candidate.id === presentation.id);
+    return item ? menuItemPresentation(item) : presentation;
+  }
+  if (presentation.type === 'Ingredient') {
+    const ingredient = menu.flatMap((item) => item.ingredients).find((candidate) => candidate.id === presentation.id);
+    return ingredient ? ingredientPresentation(ingredient, removedIngredientIds.includes(ingredient.id)) : presentation;
+  }
+  return presentation;
+}
+
 assertDeliHandlerCoverage(Object.values(deliCommandBindings));
+assertCompatibilityRuleCoverage(Object.values(deliCommandBindings), deliCompatibilityRules);
 
 export function DeliPbuiWorkbench({
   initialView = 'menu',
@@ -161,7 +183,8 @@ export function DeliPbuiWorkbench({
 
   const selectedItem = menu.find((item) => item.id === selectedItemId) ?? menu[0];
   const selectedMenuPresentation = selectedItem ? menuItemPresentation(selectedItem) : undefined;
-  const activeSelected = session.selectedRef ?? selectedMenuPresentation;
+  const currentSessionSelected = rehydratePresentationRef(session.selectedRef, menu, removedIngredientIds);
+  const activeSelected = currentSessionSelected ?? selectedMenuPresentation;
   const draft = draftPresentation(selectedItem);
   const cart = cartPresentation(cartItems);
   const view = deliViewModels[viewId];
@@ -232,13 +255,7 @@ export function DeliPbuiWorkbench({
   }
 
   function canUsePresentation(binding: CommandBinding<DeliCommandId, DeliActionId>, presentation: PresentationRef) {
-    if (binding.id === 'CUSTOMIZE') {
-      return presentation.type === 'MenuItem';
-    }
-    if (binding.id === 'REMOVE-INGREDIENT') {
-      return presentation.type === 'Ingredient' && presentation.capabilities.includes('removable') && presentation.metadata?.removed !== 'yes';
-    }
-    return true;
+    return canUsePresentationFromRules(binding, presentation, deliCompatibilityRules);
   }
 
   function compatibleBindingsFor(presentation: PresentationRef) {

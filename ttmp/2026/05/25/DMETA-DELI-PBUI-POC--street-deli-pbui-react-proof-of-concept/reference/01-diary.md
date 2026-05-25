@@ -2252,3 +2252,121 @@ RootState
   pbuiSession: PBUI session and mode state
   deliWorkbench: Deli view/selection/composition/cart state
 ```
+
+## Step 21: Replace hard-coded Deli compatibility checks with profile-shaped compatibility rules
+
+This step turned another piece of ad hoc Street Deli widget behavior into PBUI design-system metadata plus a generic evaluator. Before this change, `DeliPbuiWorkbench` knew directly that `CUSTOMIZE` only accepts `MenuItem` refs and `REMOVE-INGREDIENT` only accepts removable, not-yet-removed `Ingredient` refs. That made the React widget the owner of PBUI compatibility semantics.
+
+The widget now asks a generic compatibility-rule evaluator. The Deli-specific rule registry is a TypeScript stand-in for generated profile output, and the concrete PBUI profile YAML now carries the same compatibility metadata next to the command bindings. This keeps the POC behavior intact while moving the source of truth toward the PBUI profile.
+
+### Prompt Context
+
+**User prompt (verbatim):** "go ahead, keep a detailed diary."
+
+**Assistant interpretation:** Implement the profile-derived compatibility-rule direction and document the work in the ticket diary.
+
+**Inferred user intent:** Continue converting ad hoc Deli behavior into reusable PBUI design-system/runtime machinery, while preserving reviewable implementation history.
+
+### What I did
+
+- Added compatibility metadata to `examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml` for selected-presentation commands:
+  - `CUSTOMIZE` accepts `MenuItem` refs with `composable` capability.
+  - `REMOVE-INGREDIENT` accepts `Ingredient` refs with `removable` capability and `metadata.removed != "yes"`.
+  - `APPLY` accepts `Ingredient` refs with `substitution-candidate` capability.
+  - `DESCRIBE` accepts any selected presentation for `subject_ref`.
+- Added generic evaluator module:
+  - `proof-of-concept/deli-pbui-react/src/generic/clim/compatibilityRules.ts`
+- Added Deli rule registry:
+  - `proof-of-concept/deli-pbui-react/src/domain/deli/compatibilityRules.ts`
+- Updated `DeliPbuiWorkbench` so `canUsePresentation(...)` delegates to `canUsePresentationFromRules(...)` instead of using command-id `if` branches.
+- Added compatibility-rule coverage checking for every command binding that uses `selected_presentation`.
+- Added selected-ref rehydration in the widget so a selected ingredient ref reflects current removed-state metadata after domain state changes.
+
+### Why
+
+- Compatibility constraints are PBUI profile semantics, not widget implementation details.
+- The same rule should drive direct presentation clicks, select mode, action-bar target checking, and visual clickability.
+- Removed refs must stop being compatible after domain state changes, even if the session previously selected the old ref object.
+
+### What worked
+
+Validation passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./examples/street-deli-ordering --include-info --output table
+```
+
+Playwright verified compatibility behavior:
+
+```text
+/detail/sandwich.hudson-classic
+sourdough cursor is default
+removable tomato cursor is pointer
+REMOVE-INGREDIENT -> SELECT
+sourdough remains non-pointer in SELECT mode
+tomato click removes tomato
+clicking REMOVE-INGREDIENT again enters SELECT instead of reusing stale removed tomato
+```
+
+Playwright also verified the full app flow still works:
+
+```text
+menu -> detail -> remove tomato -> add to cart -> confirm order -> tracker
+empty cart PLACE-ORDER remains disabled and command input reports Cart is empty.
+```
+
+Storybook check passed:
+
+```text
+DetailMode SELECT mode uses compatibility rules: sourdough not clickable, tomato clickable
+CartMode still renders the seeded cart story
+```
+
+### What didn't work
+
+- The first Playwright check used `getByText(/sourdough/)`, which matched both the semantic label and the id text. I changed the check to target the row button by accessible name.
+- A second check exposed a stale selected-ref issue: after removing tomato, the session still held the old `PresentationRef` with `metadata.removed = "no"`, so invoking `REMOVE-INGREDIENT` again reused a stale compatible subject. I fixed this by rehydrating the selected ref from current menu/domain state before compatibility checks.
+
+### What I learned
+
+- Metadata-derived compatibility is only correct if presentation refs are current. A selected ref is a pointer into domain state, not a forever-valid snapshot.
+- The same evaluator can serve normal mode and select mode; select mode simply narrows the binding list to the pending command.
+- Coverage assertions are useful because any selected-presentation command without rules would silently fall back to permissive behavior.
+
+### What was tricky to build
+
+- `DESCRIBE` intentionally accepts any selected presentation, so its rule has only the selected input name and no type/capability predicates. The evaluator treats missing predicates as permissive while still counting the command as covered.
+- `APPLY` is represented even though the POC does not render substitution candidates yet. It uses a future-facing `substitution-candidate` capability so the metadata shape can cover the command without special widget code.
+- Rehydrating selected refs is domain-aware in this POC. A future generic engine should probably model selected refs as ids plus resolver functions rather than storing presentation snapshots.
+
+### What warrants a second pair of eyes
+
+- Review the compatibility YAML shape before promoting it into Go profile structs and code generation.
+- Review whether the evaluator should default to permissive behavior when no rule exists, or fail closed outside development.
+- Review whether selected refs should become stable references resolved from Redux/domain selectors instead of copied presentation objects.
+
+### What should be done in the future
+
+- Add typed Go model/validation for `compatibility` sections in action bindings.
+- Generate `deliCompatibilityRules` from the PBUI profile instead of hand-authoring the TypeScript registry.
+- Add unit tests for metadata constraints such as `notEquals` and required capabilities.
+
+### Code review instructions
+
+- Start with `examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml` to see the profile metadata shape.
+- Review `proof-of-concept/deli-pbui-react/src/generic/clim/compatibilityRules.ts` for generic evaluator semantics.
+- Review `proof-of-concept/deli-pbui-react/src/domain/deli/compatibilityRules.ts` for the hand-authored Deli registry that mirrors profile metadata.
+- Review `DeliPbuiWorkbench` changes around `canUsePresentation` and `rehydratePresentationRef`.
+
+### Technical details
+
+Compatibility-rule flow:
+
+```text
+CommandBinding.inputMapping contains selected_presentation
+  -> rule registry provides accepted type/capability/metadata predicates
+  -> generic evaluator checks current PresentationRef
+  -> compatibleBindingsForPresentation/select mode/action invocation share result
+```
