@@ -101,7 +101,7 @@ examples/street-deli-ordering/generated/pbui-react/
 examples/street-deli-ordering/www/clim-react/
 ```
 
-Do not remove the generic PBUI React scaffold during cleanup. It is useful proof output for the abstract PBUI target. Do not remove `www/clim-react`; it is the concrete profile-applied app scaffold.
+`generated/pbui-react` is ignored regenerable proof output. Generate it on demand when inspecting the abstract PBUI target. Do not remove `www/clim-react`; it is the concrete profile-applied app scaffold.
 
 ## Remove or retarget around this path
 
@@ -164,7 +164,7 @@ go run ./cmd/dmeta lower-pbui \
 
 Review output for expected presentation types such as presentation refs, action presentations, composition presentations, lifecycle/status presentations, inspector panels, and command affordances.
 
-### 4. Maintain the generic PBUI React proof package
+### 4. Maintain the regenerable generic PBUI React proof package
 
 Plan:
 
@@ -286,7 +286,7 @@ npm run build
 npm run build-storybook
 ```
 
-If `generated/pbui-react` is refreshed, check it too:
+If `generated/pbui-react` is generated locally for inspection, check it if needed and delete it before committing:
 
 ```bash
 cd examples/street-deli-ordering/generated/pbui-react

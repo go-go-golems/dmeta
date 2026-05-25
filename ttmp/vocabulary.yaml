@@ -31,6 +31,8 @@ topics:
       description: Presentation-based UI / PBUI architecture and implementation topics
     - slug: clim
       description: CLIM-style command and presentation based interface topics
+    - slug: documentation
+      description: Documentation, guides, reference material, and doc maintenance topics
 docTypes:
     - slug: design-doc
       description: Structured rationale and architecture notes

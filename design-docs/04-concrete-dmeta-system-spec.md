@@ -52,7 +52,7 @@ Semantic IR
 Semantic IR
   -> Interaction IR
   -> PBUI MetaDesignSystem
-     -> generic PBUI React proof package
+     -> regenerable generic PBUI React proof package
      -> Concrete PBUI presentation profile
      -> CLIM React app target
      -> examples/street-deli-ordering/www/clim-react
@@ -159,7 +159,7 @@ examples/street-deli-ordering/
     clim/
     mobile-react/
     clim-react/
-  generated/pbui-react/
+  generated/pbui-react/  # ignored/regenerable
 ```
 
 The static prototypes are canonical references:
@@ -173,7 +173,7 @@ The active React outputs are:
 
 ```text
 examples/street-deli-ordering/www/mobile-react/       # promoted Web React app
-examples/street-deli-ordering/generated/pbui-react/   # generic PBUI React proof package
+examples/street-deli-ordering/generated/pbui-react/   # regenerable generic PBUI React proof package
 examples/street-deli-ordering/www/clim-react/         # concrete PBUI/CLIM React app
 ```
 
