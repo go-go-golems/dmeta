@@ -18,7 +18,7 @@ export const deliViewModels: Record<DeliViewId, DeliViewModelDefinition> = {
     id: 'detail',
     modeLabel: 'DETAIL',
     primaryPresentations: ['pbui.composition_presentation', 'pbui.action_presentation', 'pbui.presentation_ref'],
-    defaultActions: ['ADD-TO-ORDER', 'BACK', 'CART', 'HELP'],
+    defaultActions: ['REMOVE-INGREDIENT', 'ADD-TO-ORDER', 'BACK', 'CART', 'HELP'],
   },
   substitution: {
     id: 'substitution',
