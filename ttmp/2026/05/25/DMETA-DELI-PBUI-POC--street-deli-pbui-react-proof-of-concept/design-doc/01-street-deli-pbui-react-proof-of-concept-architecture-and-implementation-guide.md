@@ -517,7 +517,14 @@ Storybook is not optional for this work. PBUI is a presentation-system project, 
 - action disabled states;
 - inspector/help surfaces.
 
-The first proof of concept has one story, `MenuMode`, because the initial package is a baseline. The next increments should add states before adding more infrastructure.
+The proof of concept now has multiple stories:
+
+- `MenuMode`
+- `DetailMode`
+- `CartMode`
+- `HelpMode`
+
+The widget also supports an interactive flow in the Vite app: choose `CUSTOMIZE`, add the draft with `ADD-TO-ORDER`, invoke `PLACE-ORDER`, confirm the prompt, and land on the tracker view. This is still a small state machine, but it proves the path from command binding to action request to concrete view transition.
 
 ## 10. What should become reusable
 
@@ -547,8 +554,8 @@ Missing but important:
 - richer typed per-action request builders on top of the generic command-binding request helper;
 - action handler stubs and real handlers;
 - compatible action selectors based on current selection and view mode;
-- normal/select/confirm state transitions;
-- domain reducers for cart and composition drafts;
+- a full normal/select/confirm state machine; the POC currently proves normal-to-confirm for `PLACE-ORDER` but not select-mode compatible-target picking;
+- durable domain reducers for cart and composition drafts; the POC currently keeps local component state;
 - substitution candidate projection and application flow;
 - generated object type descriptors in the concrete app;
 - generated action descriptors in the concrete app;
@@ -580,11 +587,12 @@ Validated result:
 
 Add more stories before adding abstractions:
 
-- Menu mode with selected item.
-- Detail mode with ingredient rows.
-- Select mode for `REMOVE-INGREDIENT`.
-- Cart mode with `PLACE-ORDER` requiring confirmation.
-- Confirm prompt story.
+- Menu mode with selected item. Done in the baseline interactive widget.
+- Detail mode with ingredient rows. Done as `DetailMode`.
+- Cart mode with `PLACE-ORDER` requiring confirmation. Done as `CartMode` plus the interactive Vite flow.
+- Help mode showing command/action bindings. Done as `HelpMode`.
+- Select mode for `REMOVE-INGREDIENT`. Still pending.
+- Standalone confirm prompt story. Still pending; the prompt is currently reached by clicking `PLACE-ORDER` in Cart mode.
 
 ### Phase 2: Extend action request construction
 
@@ -606,9 +614,17 @@ command_argument:tag
 
 The next increment should add typed per-action wrappers on top of this helper. Those wrappers should preserve the generic implementation while giving domain code stronger compile-time checks for inputs such as `cart_ref`, `draft_ref`, and `replacement_candidate_ref`.
 
-### Phase 3: Add a small CLIM state machine
+### Phase 3: Extend the small CLIM state machine
 
-Implement normal/select/confirm transitions:
+The current widget proves this subset:
+
+```text
+normal + PLACE-ORDER -> confirm
+confirm + accept -> tracker
+confirm + cancel -> cart/normal
+```
+
+Next, implement normal/select/confirm transitions:
 
 ```text
 normal + choose action needing subject -> select

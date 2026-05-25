@@ -638,3 +638,146 @@ CUSTOMIZE -> select_menu_item(item_ref)
 FILTER-DIETARY -> filter_by_dietary(dietary_tag)
 CART -> navigate_to_cart(no inputs)
 ```
+
+## Step 7: Add interactive menu/detail/cart/confirm/tracker flow and test with Playwright
+
+This step turned the proof-of-concept widget from a static menu review surface into a small interactive CLIM flow. The widget now supports menu selection, detail view, adding a draft item to the cart, invoking a confirmation-required `PLACE-ORDER` command, confirming it, and landing on a tracker view.
+
+This is not the final PBUI runtime. It is a concrete target sketch for the next compiler pass: command bindings can drive runtime action requests, view transitions, confirmation prompts, and Storybook states.
+
+### Prompt Context
+
+**User prompt (verbatim):** "ok continue. Once you think you are ready, you can use playwright to test the whole thing."
+
+**Assistant interpretation:** Continue extending the POC, then use browser automation to test the live app and Storybook once it is in a reviewable state.
+
+**Inferred user intent:** Move beyond static generated-looking code and prove that the concrete Street Deli PBUI React target can execute a basic ordering flow in the browser.
+
+**Commit (code):** `a50f38c` — "DMETA-DELI-PBUI-POC: add interactive CLIM flow stories"
+
+### What I did
+
+- Extended `DeliPbuiWorkbench` with local proof-of-concept state:
+  - current view id;
+  - selected menu item;
+  - cart items;
+  - pending confirmation binding/request;
+  - CLIM footer result line.
+- Added concrete view rendering for:
+  - menu;
+  - detail/composition draft;
+  - cart;
+  - help;
+  - tracker.
+- Added `ConfirmPrompt` to the generic CLIM component layer.
+- Extended POC view models to include `substitution`, `help`, and `tracker` in addition to `menu`, `detail`, and `cart`.
+- Added Storybook stories:
+  - `MenuMode`
+  - `DetailMode`
+  - `CartMode`
+  - `HelpMode`
+- Ran production build and Storybook build.
+- Restarted the tmux Storybook/Vite servers.
+- Tested the live app and Storybook with Playwright.
+
+### Why
+
+- The previous POC proved the file boundaries but only rendered a menu.
+- The next useful target shape is a small runtime loop: command binding -> action request -> transition/confirmation -> new view.
+- Playwright testing gives evidence that the browser-visible behavior matches the intended CLIM flow.
+
+### What worked
+
+Production checks passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react
+npm run build
+npm run build-storybook
+```
+
+Live app Playwright flow passed:
+
+```text
+http://localhost:5173/
+CUSTOMIZE -> detail view
+ADD-TO-ORDER -> cart view
+PLACE-ORDER -> confirm prompt
+CONFIRM PLACE-ORDER -> tracker view
+```
+
+Storybook Playwright check passed for:
+
+```text
+http://localhost:6010/?path=/story/poc-deli-pbui-workbench--cart-mode
+```
+
+The Storybook iframe contained the expected cart text:
+
+```text
+HUDSON STREET DELI
+CART
+<Order> 1 item / $12.50
+PLACE-ORDER MENU HELP
+```
+
+### What didn't work
+
+- The first TypeScript build failed because JSX treated `->` in the help view as an invalid token. I escaped it as `-&gt;`.
+- The next TypeScript build failed because `ActionRequest<string>` was too broad for `ActionRequest<DeliActionId>`. I tightened the widget helper types and cast the generic `ActionPresentation` callback value back to `ActionPresentation<DeliActionId>` at the component boundary.
+- The Vite app still logs a favicon 404 in the browser console. This is harmless but should be fixed by adding a favicon or removing the request path if console cleanliness matters.
+- Storybook still logs the non-fatal Storybook 11 `PopoverProvider ariaLabel` warning.
+
+### What I learned
+
+- Even a small interactive flow makes the target architecture much clearer than static components alone.
+- The POC now demonstrates which parts are generic (`ConfirmPrompt`, request construction, CLIM shell) and which are app-specific (view transitions, cart state, Deli item projections).
+- The action-presentation callback boundary is currently a little too generic; future reusable components may need generic type parameters or a stronger command/action presenter abstraction.
+
+### What was tricky to build
+
+- The widget has to remain a proof-of-concept rather than a full app. I kept state local to avoid prematurely designing Redux slices, while still making the flow concrete enough for generator design.
+- The `initialCart` story prop had to synthesize a cart item without writing it into state during render. I used a memoized effective cart list so stories can present cart state without side effects.
+- The generic `ActionHintBar` accepts generic actions, but Street Deli needs typed action ids. The temporary cast in `handleInvoke` is acceptable for the POC but should be improved before extraction.
+
+### What warrants a second pair of eyes
+
+- Review whether local component state is still the right place for this phase or whether the next increment should introduce a session reducer.
+- Review whether `ConfirmPrompt` belongs in generic CLIM components or should be split into a lower-level surface plus app-specific copy.
+- Review whether the command/action callback should be typed more strongly before any code generation targets it.
+
+### What should be done in the future
+
+- Add select mode for compatible target picking, especially `REMOVE-INGREDIENT`.
+- Add a standalone confirm-prompt Storybook story or a story play function that clicks `PLACE-ORDER`.
+- Move cart/draft/session state into explicit reducers after the flow stabilizes.
+- Add a favicon or configure Vite to avoid the browser console 404.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx`.
+- Review `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx` for `ConfirmPrompt`.
+- Review `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.stories.tsx` for the added review states.
+- Validate with:
+  - `cd proof-of-concept/deli-pbui-react && npm run build && npm run build-storybook`
+  - Playwright against `http://localhost:5173/` and Storybook cart mode.
+
+### Technical details
+
+The tested flow is:
+
+```text
+menu / normal
+  click CUSTOMIZE
+
+detail / normal
+  click ADD-TO-ORDER
+
+cart / normal
+  click PLACE-ORDER
+
+cart / confirm
+  click CONFIRM PLACE-ORDER
+
+tracker / normal
+```
