@@ -1446,3 +1446,119 @@ Current preferred import style:
 import { PbuiActionBar } from '../../generic/clim/components/PbuiActionBar';
 import { PbuiPresentationRef } from '../../generic/clim/components/PbuiPresentationRef';
 ```
+
+## Step 14: Extract first generic engine types and compatibility helpers
+
+This step started implementing the engine described in the new design guide. The goal was not to finish the full reducer, routing, and select-mode engine in one pass. The goal was to remove another set of generic rules from `DeliPbuiWorkbench`: view/action typing, compatible binding derivation, presentation visual-state derivation, action-presentation derivation, and availability handling.
+
+The Street Deli widget now consumes generic PBUI helper functions for compatible presentation refs and action bar derivation. It still owns domain handlers and local proof-of-concept state, but the logic that answers “which bindings can use this ref?” and “which actions should be enabled or disabled?” has moved into reusable `generic/clim` modules.
+
+### Prompt Context
+
+**User prompt (verbatim):** "continue."
+
+**Assistant interpretation:** Continue the next documented PBUI engine implementation phase after removing the component compatibility barrel.
+
+**Inferred user intent:** Keep turning the proof-of-concept from local widget behavior into reusable PBUI runtime structure that future generators can target.
+
+### What I did
+
+- Added engine task entries for:
+  - generic engine types;
+  - compatibility/action derivation helpers;
+  - availability policy wiring and empty-order prevention.
+- Added `proof-of-concept/deli-pbui-react/src/generic/clim/engineTypes.ts` with:
+  - view model type;
+  - presentation visual state;
+  - availability result;
+  - engine registries/state sketches;
+  - derivation contexts.
+- Added `proof-of-concept/deli-pbui-react/src/generic/clim/compatibility.ts` with:
+  - `bindingUsesInputSource`;
+  - `sortBindingsByCommandOrder`;
+  - `compatibleBindingsForPresentation`;
+  - `actionPresentationForBinding`;
+  - `actionPresentationsForBindings`;
+  - `presentationVisualState`.
+- Removed duplicated compatibility helpers from `runtime.ts` so runtime stays focused on request construction.
+- Updated `DeliPbuiWorkbench` to use generic helpers for:
+  - action bar derivation;
+  - compatible presentation derivation;
+  - presentation visual state;
+  - PLACE-ORDER disabled reason when cart is empty.
+
+### Why
+
+- The widget should not be the owner of generic PBUI compatibility logic.
+- `PLACE-ORDER` on an empty cart is a concrete example of the generic availability layer the engine needs.
+- Presentation refs should render from derived visual state rather than ad hoc booleans computed inline.
+
+### What worked
+
+Build and Storybook passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+The live tmux servers were restarted and Playwright verified:
+
+```text
+click Hudson Classic -> detail
+click turkey -> REMOVE-INGREDIENT request
+ADD-TO-ORDER -> cart
+PLACE-ORDER -> confirm
+CONFIRM PLACE-ORDER -> tracker
+empty cart PLACE-ORDER is disabled
+submitting PLACE-ORDER in command input on empty cart reports "Cart is empty."
+```
+
+### What didn't work
+
+- My first Playwright empty-order check tried to click the disabled `PLACE-ORDER` button. Playwright correctly waited for the disabled button to become enabled and timed out. I changed the check to assert that the button is disabled, then submitted `PLACE-ORDER` through the command input to verify the disabled reason.
+
+### What I learned
+
+- Availability must be checked in both UI click paths and command-line submission paths.
+- The generic compatibility layer can be extracted incrementally without forcing the whole widget into a reducer immediately.
+- Disabled actions are still useful in the action bar because they teach the user which action exists and why it is unavailable.
+
+### What was tricky to build
+
+- The generic compatibility helper still needs application-specific predicates. For example, `REMOVE-INGREDIENT` should accept only removable, not-yet-removed ingredient refs. The helper accepts `canUsePresentation` so the generic engine can call back into domain/profile constraints until those constraints are generated.
+- The POC action descriptors and command bindings use concrete Deli ids, so the generic helper types had to preserve command/action generics without making the widget unreadable.
+
+### What warrants a second pair of eyes
+
+- Review whether `canUsePresentation` should be replaced by generated action input constraints in the next pass.
+- Review whether `AvailabilityResult` should include a severity or visibility flag in addition to enabled/reason.
+- Review whether disabled action presentations should stay in the action bar by default for all PBUI apps.
+
+### What should be done in the future
+
+- Add route adapter and URL synchronization.
+- Move mode transitions into a reducer-based engine.
+- Replace the POC widget's remaining command execution switch with domain handler registration.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/engineTypes.ts`.
+- Then review `proof-of-concept/deli-pbui-react/src/generic/clim/compatibility.ts`.
+- Finally review `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx` to see which logic moved out of the widget.
+- Validate with build, Storybook build, and Playwright checks described above.
+
+### Technical details
+
+The current engine extraction is deliberately derivation-first:
+
+```text
+bindings + actions + selected ref + availability policy
+  -> action presentations
+
+bindings + presentation ref + command order + compatibility predicate
+  -> compatible bindings
+
+presentation ref + selected ref + compatible bindings + removed flag
+  -> visual state
+```

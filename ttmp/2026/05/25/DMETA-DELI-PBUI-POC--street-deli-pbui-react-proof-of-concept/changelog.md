@@ -121,3 +121,14 @@ Removed the old generic/clim/components.tsx compatibility barrel and moved the P
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components — Authoritative per-widget PBUI component kit
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Uses explicit PBUI component-kit imports
 
+
+## 2026-05-25
+
+Extracted first generic PBUI engine types/compatibility helpers and wired availability so empty carts disable PLACE-ORDER.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/compatibility.ts — Generic compatibility/action derivation helpers
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/engineTypes.ts — Generic PBUI engine state and derivation types
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Consumes engine compatibility helpers and empty-cart availability
+

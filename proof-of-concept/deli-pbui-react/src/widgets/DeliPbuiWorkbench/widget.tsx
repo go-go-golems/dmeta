@@ -5,7 +5,12 @@ import { PbuiActionBar } from '../../generic/clim/components/PbuiActionBar';
 import { PbuiConfirmPrompt } from '../../generic/clim/components/PbuiConfirmPrompt';
 import { PbuiPresentationRef } from '../../generic/clim/components/PbuiPresentationRef';
 import { PbuiShell } from '../../generic/clim/components/PbuiShell';
-import { buildActionRequestFromBinding, compatibleBindingsForPresentation, summarizeActionRequest } from '../../generic/clim/runtime';
+import {
+  actionPresentationsForBindings,
+  compatibleBindingsForPresentation,
+  presentationVisualState,
+} from '../../generic/clim/compatibility';
+import { buildActionRequestFromBinding, summarizeActionRequest } from '../../generic/clim/runtime';
 import type { ActionPresentation, ActionRequest, ClimSessionState, CommandBinding, PresentationRef } from '../../generic/clim/types';
 import { deliActionDescriptors } from '../../domain/deli/actions';
 import { deliCommandBindings, commandBindingsForView } from '../../domain/deli/commandBindings';
@@ -70,14 +75,6 @@ function actionForBinding(binding: CommandBinding<DeliCommandId, DeliActionId>, 
   };
 }
 
-function actionForCommand(viewId: string, commandId: DeliCommandId, subject?: PresentationRef): ActionPresentation<DeliActionId> {
-  const binding = commandBindingsForView(viewId).find((candidate) => candidate.id === commandId);
-  if (!binding) {
-    throw new Error(`No command binding for ${commandId}`);
-  }
-  return actionForBinding(binding, subject);
-}
-
 function commandArgumentsFromBuffer(value: string) {
   const [, firstArg] = value.trim().split(/\s+/);
   return { tag: firstArg ?? 'vegetarian', category: firstArg ?? 'sandwiches' };
@@ -122,14 +119,38 @@ export function DeliPbuiWorkbench({
     resultLine,
   };
   const commandBindings = commandBindingsForView(view.id);
-  const actions = view.defaultActions.map((commandId) => {
-    const binding = commandBindings.find((candidate) => candidate.id === commandId);
-    const subject = binding && Object.values(binding.inputMapping).includes('selected_presentation') ? activeSelected : undefined;
-    return actionForCommand(view.id, commandId, subject);
+  const actions = actionPresentationsForBindings({
+    bindings: commandBindings,
+    actions: deliActionDescriptors,
+    selected: activeSelected,
+    defaultActionOrder: view.defaultActions,
+    availability: availabilityForBinding,
   });
 
+  function availabilityForBinding(binding: CommandBinding<DeliCommandId, DeliActionId>) {
+    if (binding.id === 'PLACE-ORDER' && effectiveCartItems.length === 0) {
+      return { enabled: false, reason: 'Cart is empty.' };
+    }
+    return { enabled: true };
+  }
+
+  function canUsePresentation(binding: CommandBinding<DeliCommandId, DeliActionId>, presentation: PresentationRef) {
+    if (binding.id === 'CUSTOMIZE') {
+      return presentation.type === 'MenuItem';
+    }
+    if (binding.id === 'REMOVE-INGREDIENT') {
+      return presentation.type === 'Ingredient' && presentation.capabilities.includes('removable') && presentation.metadata?.removed !== 'yes';
+    }
+    return true;
+  }
+
   function compatibleBindingsFor(presentation: PresentationRef) {
-    return compatibleBindingsForPresentation(commandBindings, presentation, view.defaultActions);
+    return compatibleBindingsForPresentation({
+      bindings: commandBindings,
+      presentation,
+      defaultActionOrder: view.defaultActions,
+      canUsePresentation,
+    });
   }
 
   function buildRequest(
@@ -164,6 +185,10 @@ export function DeliPbuiWorkbench({
 
   function handleInvoke(action: ActionPresentation) {
     const typedAction = action as ActionPresentation<DeliActionId>;
+    if (typedAction.disabledReason) {
+      setResultLine(typedAction.disabledReason);
+      return;
+    }
     const binding = commandBindings.find(
       (candidate) => candidate.actionId === typedAction.descriptor.id && candidate.label === typedAction.commandLabel,
     );
@@ -237,6 +262,11 @@ export function DeliPbuiWorkbench({
       setResultLine(`Unknown command for ${view.modeLabel}: ${commandID.toUpperCase()}`);
       return;
     }
+    const availability = availabilityForBinding(binding);
+    if (!availability.enabled) {
+      setResultLine(availability.reason ?? `${binding.id} is not available.`);
+      return;
+    }
     const subject = Object.values(binding.inputMapping).includes('selected_presentation') ? activeSelected : undefined;
     invokeBinding(binding, subject, { tag: args[0] ?? 'vegetarian', category: args[0] ?? 'sandwiches' });
   }
@@ -270,15 +300,19 @@ export function DeliPbuiWorkbench({
           {selectedItem?.ingredients.map((ingredient) => {
             const removed = removedIngredientIds.includes(ingredient.id);
             const presentation = ingredientPresentation(ingredient, removed);
-            const compatible = ingredient.removable ? compatibleBindingsFor(presentation) : [];
+            const compatible = compatibleBindingsFor(presentation);
+            const visual = presentationVisualState({
+              presentation,
+              selected: activeSelected,
+              compatibleBindings: compatible,
+              removed,
+            });
             return (
               <PbuiPresentationRef
                 key={ingredient.id}
                 presentation={presentation}
-                selected={activeSelected?.id === ingredient.id}
-                selectable={compatible.length > 0}
-                muted={removed}
-                onSelect={compatible.length > 0 ? () => handlePresentationClick(presentation) : undefined}
+                state={visual}
+                onSelect={visual.selectable ? () => handlePresentationClick(presentation) : undefined}
               />
             );
           })}
@@ -337,13 +371,17 @@ export function DeliPbuiWorkbench({
         {menu.map((item) => {
           const presentation = menuItemPresentation(item);
           const compatible = compatibleBindingsFor(presentation);
+          const visual = presentationVisualState({
+            presentation,
+            selected: activeSelected?.id === presentation.id ? activeSelected : selectedItemId === item.id ? presentation : activeSelected,
+            compatibleBindings: compatible,
+          });
           return (
             <PbuiPresentationRef
               key={item.id}
               presentation={presentation}
-              selected={activeSelected?.id === presentation.id || selectedItemId === item.id}
-              selectable={compatible.length > 0}
-              onSelect={compatible.length > 0 ? () => handlePresentationClick(presentation) : undefined}
+              state={visual}
+              onSelect={visual.selectable ? () => handlePresentationClick(presentation) : undefined}
             />
           );
         })}
