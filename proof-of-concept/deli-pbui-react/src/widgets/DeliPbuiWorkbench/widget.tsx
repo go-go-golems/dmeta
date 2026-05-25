@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { store } from '../../app/store';
 import type { AppStore } from '../../app/store';
 import {
+  actionAcceptsRef,
   actionPresentationsForSpecs,
   canFillRefArg,
   canFillValueArg,
@@ -153,6 +154,22 @@ function rehydratePresentationRef(
   return presentation;
 }
 
+function describeFilledArg(value: unknown): string {
+  if (typeof value === 'object' && value !== null && 'type' in value && 'id' in value) {
+    const ref = value as PresentationRef;
+    return `<${ref.type}>#${ref.id}`;
+  }
+  return String(value);
+}
+
+function formatFilledSlots(filledArgs: Record<string, unknown>): string {
+  const entries = Object.entries(filledArgs);
+  if (entries.length === 0) {
+    return 'none';
+  }
+  return entries.map(([name, value]) => `${name}=${describeFilledArg(value)}`).join(', ');
+}
+
 export function DeliPbuiWorkbench({
   initialView = 'menu',
   initialSelectedItemId,
@@ -182,6 +199,7 @@ export function DeliPbuiWorkbench({
     pendingAction,
     commandBuffer: session.commandBuffer,
     resultLine: session.resultLine,
+    actionStatusLine: `ACTION SLICE selected_action=${session.pendingActionId ?? 'none'} filled_slots=${formatFilledSlots(session.filledArgs)}`,
   };
 
   useEffect(() => {
@@ -250,7 +268,14 @@ export function DeliPbuiWorkbench({
   const actions = actionPresentationsForSpecs({
     actions: visibleActions,
     availability: availabilityForAction,
-  });
+  }).map((actionPresentation) => ({
+    ...actionPresentation,
+    applicableToSelected: Boolean(
+      activeSelected
+      && !actionPresentation.disabledReason
+      && actionAcceptsRef(actionPresentation.action, activeSelected, actionContext()),
+    ),
+  }));
 
   function runAction(action: ActionSpec<DeliCommandId>, filledArgs: Record<string, unknown>) {
     const result = action.run(filledArgs, actionContext());

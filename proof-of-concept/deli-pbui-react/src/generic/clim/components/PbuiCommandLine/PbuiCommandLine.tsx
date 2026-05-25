@@ -4,6 +4,7 @@ import type { PbuiCommandLineProps } from './types';
 export function PbuiCommandLine({
   value,
   result,
+  actionStatus,
   className,
   onChange,
   onSubmit,
@@ -47,6 +48,7 @@ export function PbuiCommandLine({
         <span className="text-clim-bright">█</span>
       </form>
       <div className="text-clim-muted">{result ?? 'Select a presentation or type a command.'}</div>
+      {actionStatus ? <div className="text-clim-muted">{actionStatus}</div> : null}
     </footer>
   );
 }
