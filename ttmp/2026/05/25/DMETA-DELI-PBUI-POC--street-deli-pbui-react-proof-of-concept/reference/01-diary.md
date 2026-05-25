@@ -2505,3 +2505,103 @@ input string
   -> availability + compatibility checks
   -> invoke command, enter select, or enter confirm
 ```
+
+## Step 23: Write minimal PBUI core simplification guide
+
+This step paused implementation and turned the current design discussion into a concrete refactor guide. The proof-of-concept has accumulated enough behavior to reveal which parts are essential and which parts are discovery scaffolding. The new guide explains how to cut the system down to a minimal action/presentation dispatch core centered on typed action arguments, semantic refs, an action invocation slice, and `accepts` lambdas.
+
+The resulting document is meant for a new intern or implementer. It explains the current file layout, why `DeliPbuiWorkbench` is a god component, what current modules are superfluous, what the new core API should look like, how events flow through the engine, and how to implement a hard cutover without preserving legacy compatibility layers.
+
+### Prompt Context
+
+**User prompt (verbatim):** "4. action invocation state sohuld be its own slice yes,.
+
+---
+
+Ok now that we have this core engine, we want to remove any superfluous code, remove all legacy, no backwards compability, this is really about deriving a solid minimal core as a proof of concept. 
+
+Go through the setup and find things to simplify.
+
+Create  a detailed analysis / design / implementation guide that is for a new intern, explaining all the parts of the system needed to understand what it is, with prose paragraphs and bullet point sand pseudocode and diagrams and api references and file references. It should be very clear and technical. Store in the ticket and the nupload to remarkable."
+
+**Assistant interpretation:** Produce a long-form, intern-ready design/implementation guide for simplifying the PBUI POC into a minimal core, store it in docmgr, and upload it to reMarkable.
+
+**Inferred user intent:** Establish a clear refactor spec before more code changes, so implementation does not preserve accidental complexity from the exploratory POC.
+
+### What I did
+
+- Created a new docmgr design document:
+  - `ttmp/2026/05/25/DMETA-DELI-PBUI-POC--street-deli-pbui-react-proof-of-concept/design-doc/03-minimal-pbui-clim-core-simplification-analysis-and-implementation-guide.md`
+- Wrote an intern-facing guide covering:
+  - current system inventory;
+  - superfluous/misplaced modules;
+  - proposed minimal action engine;
+  - typed `SemanticRef`, `ActionArgSpec`, `ActionSpec`, and `ActionInvocationState` shapes;
+  - matching pseudocode;
+  - event-flow diagrams;
+  - proposed module layout;
+  - Deli adapter shape;
+  - deletion/replacement table;
+  - implementation phases;
+  - acceptance criteria;
+  - API reference sketch;
+  - file reference map.
+- Related the most important current POC files to the new guide with docmgr file notes.
+
+### Why
+
+- The current POC proved the behavior but is not the architecture we want to generate.
+- A written guide makes the hard cutover explicit: no backwards compatibility, no preservation of stringly `inputMapping`, and no metadata compatibility engine if typed action args plus `accepts` lambdas are enough.
+- Interns need prose and pseudocode, not only scattered source files.
+
+### What worked
+
+- `docmgr doc add` created the new design document successfully.
+- `docmgr doc relate` linked the current god widget, generic types, compatibility modules, PBUI session slice, and Deli workbench slice to the guide.
+- `docmgr validate frontmatter` and `docmgr doctor` passed.
+- reMarkable upload succeeded:
+  - `OK: uploaded DMETA PBUI Minimal Core Guide.pdf -> /ai/2026/05/25/DMETA-DELI-PBUI-POC`
+
+### What didn't work
+
+- N/A for this writing step so far.
+
+### What I learned
+
+- The next implementation should start in a fresh `generic/clim/core/` path so old compatibility code does not shape the new API by accident.
+- The key invariant is simple: a presentation is selectable only when the selected action has an open ref argument slot that accepts it.
+- `ActionInvocationState` deserves its own slice and should replace the current session state once the hard cutover starts.
+
+### What was tricky to build
+
+- The guide needed to preserve lessons from the POC without blessing current accidental structures. I handled this by separating “current system inventory” from “what to delete or replace.”
+- The design had to keep `presentationType`, `metadata`, and `capabilities` on semantic refs, while still making clear that the core matcher should use object type plus `accepts`, not metadata/capability predicates.
+
+### What warrants a second pair of eyes
+
+- Review whether `ActionSpec.run` should perform domain effects directly or return effect descriptions.
+- Review whether command aliases belong on `ActionSpec` or in a separate REPL command registry.
+- Review the proposed hard deletion list before implementation begins.
+
+### What should be done in the future
+
+- Implement the hard cutover described in the guide.
+- Add reducer/engine tests for the new core.
+- Update compiler passes only after the POC runtime proves the simplified model.
+
+### Code review instructions
+
+- Start with the new guide document.
+- Then inspect `widget.tsx`, `types.ts`, `compatibility.ts`, and `compatibilityRules.ts` alongside the deletion/replacement table.
+- Validate the guide by checking whether every proposed API can express current Deli flows: customize, remove ingredient, filter dietary, add to order, place order.
+
+### Technical details
+
+The proposed minimal invariant is:
+
+```text
+selected action + open arg slot + candidate semantic ref
+  -> objectType equality
+  -> optional accepts(ref, ctx)
+  -> fill arg / reject candidate
+```
