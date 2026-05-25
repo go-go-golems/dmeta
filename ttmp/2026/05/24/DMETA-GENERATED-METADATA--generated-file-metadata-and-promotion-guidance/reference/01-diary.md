@@ -404,3 +404,83 @@ Web metadata includes:
 - Web slots, visual states, and event bindings;
 - React package/file references;
 - promotion instructions for scaffold files intended to become maintained React code.
+
+## Step 5: Add shared metadata to the concrete PBUI/CLIM React app scaffold
+
+This step wired the concrete Street Deli PBUI/CLIM React app renderer into the shared metadata system and regenerated `www/clim-react`. The concrete app is the most important downstream target for the user's requirement because it is the place where LLMs and developers are expected to edit promoted React files.
+
+After this change, generated CLIM app TypeScript and TSX files export `dmetaGeneratedMetadata`. The metadata points back to the Semantic IR, Interaction IR, global PBUI MetaDesignSystem, and the concrete Street Deli PBUI profile that owns presentation-system, style-profile, surface, view-model, and presentation-binding decisions.
+
+### Prompt Context
+
+**User prompt (verbatim):** (see Step 3)
+
+**Assistant interpretation:** Continue implementing the concrete PBUI/CLIM target metadata phase and commit it separately.
+
+**Inferred user intent:** Ensure final promoted CLIM React files visibly carry the semantic and presentation-system context that future LLM/tooling work should respect.
+
+### What I did
+
+- Added generation/source-root fields to `ReactAppPlan`.
+- Set generation command/time/git context in `scaffold-pbui-react-app`.
+- Added `dmetaGeneratedMetadata` preludes to concrete PBUI/CLIM React TS/TSX files.
+- Replaced `concretePresentationPlan.metadata.json` with the shared generated metadata envelope.
+- Marked concrete React app TS/TSX file kinds as promotable where they are intended to become maintained app code.
+- Regenerated `examples/street-deli-ordering/www/clim-react/` with `scaffold-pbui-react-app --force`.
+- Validated the regenerated app with `npm run build`.
+
+### Why
+
+- `www/clim-react` is the current concrete CLIM React app scaffold. It is the highest-value place to surface PBUI profile metadata because this is where future runtime/action/presentation work will happen.
+- The profile roots are necessary context: abstract PBUI alone cannot explain Berkeley Mono styling, CLIM shell layout, surface bindings, or concrete component names.
+
+### What worked
+
+- `go test ./pkg/dmeta/metadesign/pbui/profile ./pkg/dmeta/cmds -count=1` passed.
+- `go run ./cmd/dmeta scaffold-pbui-react-app ... --force --output table` regenerated the CLIM app.
+- `cd examples/street-deli-ordering/www/clim-react && npm run build` passed.
+
+### What didn't work
+
+- My first metadata-sidecar replacement did not actually replace the old `json.MarshalIndent(concretePlan)` branch, so `concretePresentationPlan.metadata.json` initially stayed in the old shape. I corrected the branch to call `genmeta.RenderJSON(reactAppGeneratedMetadata(...))` and regenerated.
+- Removing the old JSON marshal made `encoding/json` unused in `react_app_render.go`; I removed the import.
+
+### What I learned
+
+- Concrete app metadata needs to point to both the abstract PBUI system and the local concrete profile. Otherwise the final React files can explain presentation type ids but not why a particular view, surface, or component was chosen.
+- Regenerating the concrete app after renderer changes is important because this path is committed, unlike the ignored generic PBUI proof package.
+
+### What was tricky to build
+
+- The concrete renderer has many file kinds. Instead of changing every render function signature, I wrapped TS/TSX bodies at the `RenderReactAppFile` dispatch boundary.
+- JSON metadata sidecars cannot carry `dmetaGeneratedMetadata` as a TypeScript export, so they use the shared JSON envelope directly.
+
+### What warrants a second pair of eyes
+
+- Review `reactAppFileIsPromotable`; it intentionally marks many app TS/TSX files promotable, but package/config files remain regenerate-only.
+- Review whether `concretePresentationPlan.metadata.json` should also embed a compact copy of the full concrete plan in addition to the shared envelope.
+
+### What should be done in the future
+
+- Add a generated `concretePresentationPlan.data.json` if tooling needs the full instantiated plan at runtime.
+- Add linting that checks every committed `www/clim-react/src/**/*.ts*` file has `dmetaGeneratedMetadata` until manually detached.
+
+### Code review instructions
+
+- Start with `pkg/dmeta/metadesign/pbui/profile/react_app_render.go`, especially `reactAppGeneratedMetadata`.
+- Review regenerated files under `examples/street-deli-ordering/www/clim-react/src/` for metadata placement and TypeScript validity.
+- Validate with:
+  - `go test ./pkg/dmeta/metadesign/pbui/profile ./pkg/dmeta/cmds -count=1`
+  - `go run ./cmd/dmeta scaffold-pbui-react-app ... --force --output table`
+  - `cd examples/street-deli-ordering/www/clim-react && npm run build`
+
+### Technical details
+
+Concrete app metadata includes source references to:
+
+- Street Deli Semantic IR root;
+- Interaction IR root;
+- global PBUI MetaDesignSystem root;
+- local Street Deli concrete PBUI profile root.
+
+For presentation/view files, metadata also records the presentation type, view id, surface id, concrete component, and style profile id.
