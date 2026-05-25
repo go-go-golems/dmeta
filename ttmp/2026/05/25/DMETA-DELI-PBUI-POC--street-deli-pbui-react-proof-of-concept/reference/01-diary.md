@@ -1796,3 +1796,108 @@ confirm-completed
 confirm-cancelled
 route-changed
 ```
+
+## Step 17: Add explicit select mode for action-bar target selection
+
+This step made select mode concrete. Before this change, ingredient rows could be clicked directly because compatible-presentation derivation already made them selectable. However, invoking `REMOVE-INGREDIENT` from the action bar without first selecting an ingredient was ambiguous and could accidentally use the default selected menu item as the action subject. The PBUI session reducer now supports an explicit `select` mode, and the Deli POC enters that mode when an action needs a `selected_presentation` input but the current selected ref is not compatible.
+
+The result is closer to the CLIM/PBUI model: commands can ask the user to select a compatible presentation target, the UI mode changes to `SELECT`, and the next compatible presentation click completes the action.
+
+### Prompt Context
+
+**User prompt (verbatim):** "continue"
+
+**Assistant interpretation:** Continue implementing the remaining PBUI core engine behavior after reducer extraction, especially explicit select mode.
+
+**Inferred user intent:** Make action invocation work through reusable PBUI interaction states instead of depending only on direct presentation clicks.
+
+### What I did
+
+- Extended `proof-of-concept/deli-pbui-react/src/generic/clim/modeMachine.ts` with select-mode events:
+  - `enter-select`
+  - `select-completed`
+  - `select-cancelled`
+- Updated `DeliPbuiWorkbench` so action invocation checks whether a binding that uses `selected_presentation` has a compatible selected subject.
+- If no compatible subject exists, the widget dispatches `enter-select` and shows:
+  - mode label `SELECT`
+  - result text `Select a compatible target for REMOVE-INGREDIENT.`
+- Updated compatible presentation derivation during select mode so the pending command determines which presentation refs are selectable.
+- Updated presentation click handling so selecting a compatible target completes select mode and invokes the pending command with that target.
+
+### Why
+
+- `REMOVE-INGREDIENT` requires an ingredient target, not the currently selected menu item.
+- PBUI actions should be able to ask for missing compatible inputs interactively.
+- Select mode is a core part of the engine contract described in the PBUI guide.
+
+### What worked
+
+Validation passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Playwright verified:
+
+```text
+open /detail/sandwich.hudson-classic
+click REMOVE-INGREDIENT action bar item
+mode changes to SELECT
+result says Select a compatible target for REMOVE-INGREDIENT.
+click tomato presentation
+tomato becomes removed
+result says Built action request: REMOVE-INGREDIENT -> remove_part(composition_ref, part_ref)
+ADD-TO-ORDER -> cart
+PLACE-ORDER -> confirm
+CANCEL -> normal cart state with cancellation result
+```
+
+### What didn't work
+
+- No build or runtime blocker in this step.
+- The visual language for select mode is still minimal: mode label plus selectable refs. It does not yet add a separate instruction banner or keyboard escape binding.
+
+### What I learned
+
+- Select mode needs the pending command, not just a generic selected state. The pending command is what defines which refs are compatible.
+- The existing `canUsePresentation` predicate became more valuable once action-bar invocation needed to distinguish compatible and incompatible selected refs.
+- Direct presentation clicks and action-bar-driven selection can share the same compatibility helper once select mode narrows the binding list to the pending command.
+
+### What was tricky to build
+
+- `activeSelected` falls back to the selected menu item so the detail view has a useful default subject for some commands. That fallback is wrong for `REMOVE-INGREDIENT`, so action invocation now calls `bindingHasCompatibleSubject` before building the request.
+- Selection completion must dispatch `select-completed` before invoking the binding so the mode returns to normal while the command execution path records the final action request result.
+
+### What warrants a second pair of eyes
+
+- Review whether select mode should suppress unrelated actions in the action bar until selection completes.
+- Review whether selecting an incompatible ref should be impossible at the component level or should produce an explicit result-line error.
+- Review whether `select-cancelled` should be wired to `BACK`, `ESC`, or a visible cancel action next.
+
+### What should be done in the future
+
+- Add keyboard cancellation for select mode.
+- Add Storybook play tests for select mode.
+- Move `canUsePresentation` into generated/profile-derived constraints rather than local Deli widget code.
+
+### Code review instructions
+
+- Start with the new select events in `proof-of-concept/deli-pbui-react/src/generic/clim/modeMachine.ts`.
+- Then review `handleInvoke`, `compatibleBindingsFor`, and `handlePresentationClick` in `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx`.
+- Validate manually by opening `/detail/sandwich.hudson-classic`, clicking the `REMOVE-INGREDIENT` action bar command, and selecting `tomato`.
+
+### Technical details
+
+Select-mode flow:
+
+```text
+invoke action with selected_presentation input
+  -> selected subject missing/incompatible
+  -> enter-select(pendingCommand)
+  -> compatible refs derive from pendingCommand
+  -> click compatible ref
+  -> select-completed(selectedRef)
+  -> invoke pendingCommand with selectedRef
+```

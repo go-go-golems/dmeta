@@ -15,6 +15,9 @@ export type PbuiSessionEvent<TCommand extends string = string, TAction extends s
   | { type: 'set-command-buffer'; value: string }
   | { type: 'set-result'; resultLine?: string }
   | { type: 'route-changed'; commandBuffer?: string; selectedRef?: PresentationRef }
+  | { type: 'enter-select'; command: CommandBinding<TCommand, TAction>; resultLine?: string }
+  | { type: 'select-completed'; selectedRef: PresentationRef; commandBuffer?: string; resultLine?: string }
+  | { type: 'select-cancelled'; resultLine?: string }
   | {
       type: 'enter-confirm';
       command: CommandBinding<TCommand, TAction>;
@@ -72,6 +75,33 @@ export function pbuiSessionReducer<TCommand extends string = string, TAction ext
         pendingRequest: undefined,
         selectedRef: event.selectedRef ?? state.selectedRef,
         commandBuffer: event.commandBuffer ?? state.commandBuffer,
+      };
+    case 'enter-select':
+      return {
+        ...state,
+        mode: 'select',
+        pendingCommand: event.command,
+        pendingRequest: undefined,
+        commandBuffer: event.command.id,
+        resultLine: event.resultLine ?? state.resultLine,
+      };
+    case 'select-completed':
+      return {
+        ...state,
+        mode: 'normal',
+        selectedRef: event.selectedRef,
+        pendingCommand: undefined,
+        pendingRequest: undefined,
+        commandBuffer: event.commandBuffer ?? state.commandBuffer,
+        resultLine: event.resultLine ?? state.resultLine,
+      };
+    case 'select-cancelled':
+      return {
+        ...state,
+        mode: 'normal',
+        pendingCommand: undefined,
+        pendingRequest: undefined,
+        resultLine: event.resultLine ?? state.resultLine,
       };
     case 'enter-confirm':
       return {

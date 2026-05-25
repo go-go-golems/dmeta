@@ -15,3 +15,6 @@
 - [x] Add generic reducer-based PBUI session/mode machine
 - [x] Refactor Deli POC confirm, command, result, and selected-ref state onto the mode machine
 - [x] Validate reducer-backed confirm/order and route flows
+- [x] Extend PBUI session reducer with explicit select mode events
+- [x] Wire Deli action invocation to enter select mode when a compatible presentation target is required
+- [x] Validate action-bar REMOVE-INGREDIENT select-mode target selection
