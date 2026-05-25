@@ -1352,3 +1352,11 @@ const clickableDecorationStyle = {
   textDecorationThickness: '1px',
 };
 ```
+
+### Upload note
+
+After committing Step 12, I re-uploaded the updated engine guide to reMarkable:
+
+```text
+OK: uploaded DMETA PBUI Core Engine Guide.pdf -> /ai/2026/05/25/DMETA-DELI-PBUI-POC
+```
