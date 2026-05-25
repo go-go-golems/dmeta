@@ -26,7 +26,9 @@ RelatedFiles:
     - Path: examples/street-deli-ordering/meta-design-systems/pbui
       Note: Street Deli PBUI profile now inherits reusable CLIM surfaces/bindings and keeps local overrides.
     - Path: examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml
-      Note: Concrete Street Deli CLIM command/action binding catalog
+      Note: |-
+        Concrete Street Deli CLIM command/action binding catalog
+        Step 24 removes old selected-presentation compatibility metadata from the profile (commit 8897aec)
     - Path: pkg/dmeta/interaction/load.go
       Note: Interaction package inheritance/overlay loader
     - Path: pkg/dmeta/metadesign/pbui/profile/load.go
@@ -37,10 +39,20 @@ RelatedFiles:
       Note: |-
         Standalone proof-of-concept React package.
         Proof-of-concept package created during diary Step 2
+    - Path: proof-of-concept/deli-pbui-react/src/domain/deli/actions.ts
+      Note: Step 24 moves Deli commands into typed ActionSpec definitions with accepts lambdas (commit 8897aec)
     - Path: proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts
       Note: Hand-authored TypeScript mirror of the command/action binding target shape
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/actionEngine.ts
+      Note: Step 24 adds pure typed argument matching and presentation visual-state helpers (commit 8897aec)
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/pbuiSessionSlice.ts
+      Note: Step 24 stores pending action ids and filled args instead of command bindings (commit 8897aec)
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts
       Note: Generic command-binding to action-request helper
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/types.ts
+      Note: Step 24 replaces legacy command/action descriptor runtime types with typed ActionSpec and ActionArgSpec (commit 8897aec)
+    - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx
+      Note: Step 24 rewires the workbench to the typed action engine while deferring component splitting (commit 8897aec)
     - Path: sources/dmeta-ir/meta-design-systems/pbui/profiles/clim
       Note: Reusable CLIM PBUI profile extracted before creating the proof of concept.
     - Path: ttmp/2026/05/25/DMETA-DELI-PBUI-POC--street-deli-pbui-react-proof-of-concept/design-doc/01-street-deli-pbui-react-proof-of-concept-architecture-and-implementation-guide.md
@@ -51,6 +63,7 @@ LastUpdated: 2026-05-25T00:00:00-04:00
 WhatFor: Record implementation decisions, validation, failures, and review instructions for the proof-of-concept setup.
 WhenToUse: Read before extending proof-of-concept/deli-pbui-react or converting it back into DMETA generation templates.
 ---
+
 
 
 
@@ -2604,4 +2617,156 @@ selected action + open arg slot + candidate semantic ref
   -> objectType equality
   -> optional accepts(ref, ctx)
   -> fill arg / reject candidate
+```
+
+## Step 24: Hard-cut the POC action engine to typed action specs
+
+This step implemented the first cleanup pass from the minimal PBUI core guide. Instead of keeping the binding-oriented discovery scaffolding, the proof-of-concept now uses typed `ActionSpec` objects with `ActionArgSpec` entries, filled argument maps, and per-action `accepts` lambdas for domain-specific eligibility checks.
+
+The important behavioral change is that the runtime no longer asks a separate compatibility metadata engine or an input-mapping layer whether a presentation may be selected. The selected action, its next open argument slot, the candidate presentation's object type, and an optional `accepts(ref, ctx)` function are now enough to decide whether a ref is selectable.
+
+### Prompt Context
+
+**User prompt (verbatim):** (unavailable after conversation compaction; compacted turn context says the user asked to add detailed cleanup tasks, defer splitting the god object, remove cruft while cleaning up the action engine, then work through tasks one by one with appropriate commits and a detailed diary.)
+
+**Assistant interpretation:** Add concrete cleanup tasks, implement the action-engine cleanup before decomposing `DeliPbuiWorkbench`, remove obsolete compatibility/input-mapping modules, validate the app, and record the work.
+
+**Inferred user intent:** Turn the written minimal-core plan into code without preserving legacy abstractions that would confuse the future generator target.
+
+**Commit (code):** `8897aec60938eb1ff7dc13589b9b4a6ec0739d02` — "DMETA-DELI-PBUI-POC: simplify PBUI action engine"
+
+### What I did
+
+- Added and completed docmgr cleanup tasks 33-36 for the hard-cut action-engine simplification.
+- Replaced the generic runtime model in `proof-of-concept/deli-pbui-react/src/generic/clim/types.ts`:
+  - removed `CommandBinding` and `ActionDescriptor`;
+  - added `ActionSpec`, `ActionArgSpec`, `RefActionArgSpec`, `ValueActionArgSpec`, and `ActionResult`;
+  - changed `ActionPresentation` to carry `action: ActionSpec`;
+  - changed `ActionRequest` to carry `args` instead of `subject`/`inputs`.
+- Added `proof-of-concept/deli-pbui-react/src/generic/clim/actionEngine.ts` with pure helpers for:
+  - finding the next open argument;
+  - checking ref/value fillability;
+  - deriving actions for a view/ref;
+  - building action presentations;
+  - deriving presentation visual state.
+- Rewrote `proof-of-concept/deli-pbui-react/src/domain/deli/actions.ts` as the Deli action registry:
+  - actions now include typed arguments such as `MenuItem`, `Ingredient`, `Order`, `DietaryTag`, and `Category`;
+  - `REMOVE-INGREDIENT` uses an `accepts` lambda that checks the Deli runtime context for removability and removed state;
+  - action execution is colocated with each `ActionSpec.run` instead of a separate handler registry.
+- Rewired `proof-of-concept/deli-pbui-react/src/generic/clim/pbuiSessionSlice.ts` around:
+  - `pendingActionId`;
+  - `pendingRequest`;
+  - `filledArgs`;
+  - select and confirm transitions that no longer store command binding objects.
+- Rewired `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx` to:
+  - use `deliActions`, `deliActionsForView`, and `actionEngine` helpers;
+  - execute actions directly through `ActionSpec.run`;
+  - build REPL value args from typed value-argument slots;
+  - keep select mode driven by the selected action's next ref arg;
+  - keep existing URL, cart, confirm, and REPL flows working.
+- Updated component stories and props for `PbuiAction`, `PbuiActionBar`, and `PbuiConfirmPrompt` to use the new `ActionSpec` shape.
+- Deleted obsolete runtime modules:
+  - `src/domain/deli/commandBindings.ts`
+  - `src/domain/deli/compatibilityRules.ts`
+  - `src/domain/deli/handlers.ts`
+  - `src/generic/clim/compatibility.ts`
+  - `src/generic/clim/compatibilityRules.ts`
+  - `src/generic/clim/engineTypes.ts`
+  - `src/generic/clim/handlerRegistry.ts`
+  - `src/generic/clim/runtime.ts`
+- Removed selected-presentation compatibility metadata blocks from `examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml` so the profile no longer documents the old matcher shape.
+
+### Why
+
+- The old `CommandBinding` / `inputMapping` path was useful discovery scaffolding, but it spread one action invocation across command metadata, runtime mapping helpers, compatibility metadata, and a domain handler registry.
+- The new model makes the core invariant local and obvious: an action declares its typed slots, the session fills those slots, and the action runs once all required slots are filled.
+- Removing the old files now prevents future compiler templates from accidentally targeting deprecated shapes.
+
+### What worked
+
+- TypeScript build passed:
+  - `cd proof-of-concept/deli-pbui-react && npm run build`
+- Storybook build passed:
+  - `cd proof-of-concept/deli-pbui-react && npm run build-storybook`
+- PBUI profile validation still passed after removing compatibility metadata:
+  - `go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./examples/street-deli-ordering --include-info --output table`
+- Playwright verified the app flow:
+  - `customize` navigates from menu to detail;
+  - `remove ingredient` enters SELECT;
+  - non-removable sourdough has default cursor while removable tomato has pointer cursor;
+  - clicking tomato removes it;
+  - `add to order` navigates to cart and preserves removed ingredient state;
+  - `place order` enters confirmation;
+  - `yes` confirms and navigates to tracker.
+
+### What didn't work
+
+- The first post-cutover build failed because deleted legacy types were still referenced by untouched files and stories:
+  - `Module '"../../generic/clim/types"' has no exported member 'CommandBinding'.`
+  - `Property 'descriptor' does not exist on type 'ActionPresentation<TAction>'.`
+  - `Property 'subject' does not exist on type 'ActionRequest<DeliActionId>'.`
+- The fix was to delete obsolete modules after the workbench no longer referenced them and to update component stories to construct `ActionSpec`-backed `ActionPresentation` values.
+- The first Storybook visual-state check showed `sourdough` still had a pointer cursor in REMOVE-INGREDIENT select mode. The cause was that `REMOVE-INGREDIENT` only rejected already-removed refs. The fix was to add `isRemovableIngredient(id)` to the Deli runtime context and make the action's `accepts` lambda require both removable and not already removed.
+
+### What I learned
+
+- The typed action model is substantially smaller than the binding-oriented model for the POC because action availability, argument filling, confirmation, and execution all hang off the same object.
+- `presentationType`, `metadata`, and `capabilities` can stay on refs for rendering/debugging, while matching no longer depends on them.
+- Domain-specific matching still needs a runtime context. For Deli, object type equality says “this is an Ingredient,” but the `accepts` lambda says “this ingredient is removable and not already removed.”
+
+### What was tricky to build
+
+- The main sharp edge was preserving existing REPL behavior while replacing its backing model. The command parser still returns normalized command ids, but those ids now resolve directly to current-view `ActionSpec` objects instead of command bindings. Confirmation also had to preserve a filled `ActionRequest.args` map instead of rebuilding from the command buffer.
+- Another subtle point was selection state. The app still keeps the user's selected presentation, but selectability now depends on `session.mode === 'select'`, the pending action id, and the pending action's next open ref slot. This prevents ordinary refs from looking valid unless the runtime is actually waiting for an argument.
+
+### What warrants a second pair of eyes
+
+- Review whether `ActionSpec.run(args, ctx)` is acceptable for the POC or whether a later pass should return effect descriptions instead of performing Redux/navigation effects through context callbacks.
+- Review `DeliPbuiWorkbench` for any remaining god-component responsibilities. The user explicitly deferred splitting it, but the next cleanup phase should likely extract runtime adapters and view renderers.
+- Review whether `ActionSpec.views` should remain on the action or move into a separate presentation/profile layer before compiler generation consumes this shape.
+
+### What should be done in the future
+
+- Split `DeliPbuiWorkbench` after the action engine stabilizes; do not mix that refactor into this engine cleanup commit.
+- Add committed unit tests for `actionEngine.ts` and `pbuiSessionSlice.ts`.
+- Decide whether `ActionSpec.run` remains imperative or becomes effect-description based.
+- Update compiler generation later so generated PBUI React code targets `ActionSpec`/typed args instead of command bindings/input mappings.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/types.ts` to understand the new runtime contract.
+- Read `proof-of-concept/deli-pbui-react/src/generic/clim/actionEngine.ts` next; it contains the new matching invariant.
+- Review `proof-of-concept/deli-pbui-react/src/domain/deli/actions.ts` for Deli-specific action definitions and `accepts` lambdas.
+- Review `proof-of-concept/deli-pbui-react/src/generic/clim/pbuiSessionSlice.ts` for pending action/request/arg state.
+- Review `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx` last; it is still intentionally the integration point.
+- Validate with:
+  - `cd proof-of-concept/deli-pbui-react && npm run build`
+  - `cd proof-of-concept/deli-pbui-react && npm run build-storybook`
+  - `go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./examples/street-deli-ordering --include-info --output table`
+
+### Technical details
+
+The new action selection invariant is:
+
+```text
+pending action id
+  -> ActionSpec
+  -> nextOpenArg(action, filledArgs)
+  -> if arg.kind == ref:
+       candidate.type == arg.objectType OR arg.objectType == Any
+       AND (arg.accepts(candidate, ctx) if present)
+```
+
+The cutover deleted these old concepts from the POC source tree:
+
+```text
+CommandBinding
+ActionDescriptor
+inputMapping
+bindingUsesInputSource
+compatibility metadata evaluator
+handler registry
+command-binding-to-action-request runtime helper
+ActionPresentation.subject
+ActionRequest.subject / ActionRequest.inputs
 ```
