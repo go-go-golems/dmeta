@@ -15,3 +15,14 @@ Created generated-file metadata ticket, removed committed PBUI proof output in f
 - /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-GENERATED-METADATA--generated-file-metadata-and-promotion-guidance/design-doc/01-generated-file-metadata-and-promotion-guidance-implementation-guide.md — Primary generated metadata guide
 - /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-GENERATED-METADATA--generated-file-metadata-and-promotion-guidance/reference/01-diary.md — Implementation diary
 
+
+## 2026-05-24
+
+Phase 1: Added shared generated metadata model/render helpers and tests.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/metadata/model.go — Shared generated metadata schema
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/metadata/render.go — Header
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/metadata/render_test.go — Tests for generated metadata rendering
+
