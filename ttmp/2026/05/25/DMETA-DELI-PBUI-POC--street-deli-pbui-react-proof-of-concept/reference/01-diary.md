@@ -43,6 +43,10 @@ RelatedFiles:
       Note: Step 24 moves Deli commands into typed ActionSpec definitions with accepts lambdas (commit 8897aec)
     - Path: proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts
       Note: Hand-authored TypeScript mirror of the command/action binding target shape
+    - Path: proof-of-concept/deli-pbui-react/src/domain/deli/pbuiPresentations.ts
+      Note: Step 26 moves Deli PBUI presentation factories out of the workbench (commit 244c3c6)
+    - Path: proof-of-concept/deli-pbui-react/src/domain/deli/pbuiRouting.ts
+      Note: Step 26 moves Deli route codec/helpers out of the workbench (commit 244c3c6)
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/actionEngine.ts
       Note: Step 24 adds pure typed argument matching and presentation visual-state helpers (commit 8897aec)
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiAction/PbuiAction.tsx
@@ -57,6 +61,14 @@ RelatedFiles:
       Note: Generic command-binding to action-request helper
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/types.ts
       Note: Step 24 replaces legacy command/action descriptor runtime types with typed ActionSpec and ActionArgSpec (commit 8897aec)
+    - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/DeliPbuiWorkbench.tsx
+      Note: Step 26 turns the workbench into a composition root after extracting parts and hooks (commits 244c3c6
+    - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/hooks/useDeliActionController.ts
+      Note: Step 26 extracts action invocation
+    - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/hooks/useDeliWorkbenchRouting.ts
+      Note: Step 26 extracts route initialization
+    - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/parts/DeliDetailView/DeliDetailView.tsx
+      Note: Step 26 extracts the detail-view rendering branch into a named widget part (commit 244c3c6)
     - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx
       Note: |-
         Step 24 rewires the workbench to the typed action engine while deferring component splitting (commit 8897aec)
@@ -71,6 +83,7 @@ LastUpdated: 2026-05-25T00:00:00-04:00
 WhatFor: Record implementation decisions, validation, failures, and review instructions for the proof-of-concept setup.
 WhenToUse: Read before extending proof-of-concept/deli-pbui-react or converting it back into DMETA generation templates.
 ---
+
 
 
 
@@ -2880,4 +2893,151 @@ The status line is intentionally simple text for now:
 
 ```text
 ACTION SLICE selected_action=<pendingActionId|none> filled_slots=<slot=value,...|none>
+```
+
+## Step 26: Split the Deli PBUI workbench into named widget parts and controller hooks
+
+This step decomposed the large `DeliPbuiWorkbench` without changing the user-facing interaction model. The first commit extracted rendering branches into named widget folders, following the corrected convention that each component file is named after the widget, for example `DeliDetailView.tsx` and `DeliDetailView.stories.tsx` rather than `widget.tsx`.
+
+The second commit moved the remaining routing and action-controller logic into focused hooks. The top-level workbench now composes Redux state, route/action hooks, PBUI shell components, and the current Deli view part instead of owning every rendering and control-flow branch inline.
+
+### Prompt Context
+
+**User prompt (verbatim):** "go ahead, do it all. COmmit at appropriate interval, keep a detailed diary"
+
+**Assistant interpretation:** Implement the full workbench split plan, commit at sensible boundaries, and update the implementation diary with details and validation.
+
+**Inferred user intent:** Turn the refactor plan into a maintained component structure that is easier to review, story, and eventually generate from DMETA.
+
+**Commit (code):** `244c3c608862faffe3d8fa98065381ce3304575f` — "DMETA-DELI-PBUI-POC: split Deli workbench view parts"
+
+**Commit (code):** `b627fd0423488fc265e721aa4cd64ed2ffd6ac2b` — "DMETA-DELI-PBUI-POC: extract Deli workbench controller hooks"
+
+### What I did
+
+- Renamed the top-level files from generic widget names to component names:
+  - `DeliPbuiWorkbench.tsx`
+  - `DeliPbuiWorkbench.stories.tsx`
+  - `types.ts`
+  - `index.ts`
+- Added domain adapter modules:
+  - `src/domain/deli/pbuiPresentations.ts`
+  - `src/domain/deli/pbuiRouting.ts`
+- Added generic status formatting:
+  - `src/generic/clim/actionStatus.ts`
+- Extracted named workbench part widgets, each with component file, stories, types, and index:
+  - `parts/DeliViewHeader/DeliViewHeader.tsx`
+  - `parts/DeliMenuView/DeliMenuView.tsx`
+  - `parts/DeliDetailView/DeliDetailView.tsx`
+  - `parts/DeliCartView/DeliCartView.tsx`
+  - `parts/DeliHelpView/DeliHelpView.tsx`
+  - `parts/DeliTrackerView/DeliTrackerView.tsx`
+- Added Storybook stories for each extracted part.
+- Extracted controller hooks:
+  - `hooks/useDeliWorkbenchRouting.ts`
+  - `hooks/useDeliActionController.ts`
+  - `hooks/index.ts`
+- Updated `App.tsx` to import the workbench from the folder index instead of the old `widget` module.
+- Verified no `widget.tsx`, `widget.stories.tsx`, or `./widget` imports remain under the workbench source tree.
+
+### Why
+
+- The previous `DeliPbuiWorkbench.tsx` was still a god component even after the typed action-engine cleanup.
+- View rendering is the easiest and safest split: it gives each UI branch a reviewable Storybook surface without changing action semantics.
+- Routing and action invocation are separate controller responsibilities, so they belong in hooks rather than inline with JSX rendering.
+- Named component files make the tree clearer for humans and generators than repeating `widget.tsx` in every directory.
+
+### What worked
+
+Validation passed after the view-part extraction:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Validation passed again after extracting controller hooks:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Playwright verified the key post-split interaction state:
+
+```text
+/detail/sandwich.hudson-classic
+remove ingredient -> ACTION SLICE selected_action=REMOVE-INGREDIENT filled_slots=none
+sourdough cursor -> default
+ tomato cursor -> pointer
+click tomato -> ACTION SLICE selected_action=none filled_slots=ingredient=<Ingredient>#ingredient.tomato
+```
+
+### What didn't work
+
+- After creating the first part widgets, the user clarified that files should not be named `widget.tsx` and `widget.stories.tsx`; they should be named after the component. I renamed the files before committing the extraction and updated all `./widget` imports/exports.
+- An initial broad Playwright check expected the action-slice filled-slot line after typing `remove ingredient` with tomato already selected. In that path the action auto-filled and completed immediately, so the durable status line returned to no pending action. I validated the intended filled-slot state through explicit select mode instead.
+
+### What I learned
+
+- The cleanest component contract is: parts render one view and receive already-derived refs, pending action, filled args, runtime context, and presentation-click callback.
+- The action controller hook is still large, but it now has a clear boundary: it owns action context, action availability, action invocation, presentation clicks, command parsing, confirmation, and cancellation.
+- The top-level workbench is now a composition root rather than the only place where all PBUI behavior lives.
+
+### What was tricky to build
+
+- The view components need enough runtime context to compute presentation visual state locally, but they should not know Redux. Passing `actionContext`, `pendingAction`, `filledArgs`, and `selectMode` keeps them pure while preserving visual behavior.
+- The routing hook has an intentionally empty dependency array for its initialization/listener effect, mirroring the previous one-shot behavior. This is acceptable for the POC, but it is a place to review if the component ever needs to respond to changing `initialView` props during one mounted session.
+- The action controller hook returns a freshly built `actionContext` object. That is fine for current render-time usage, but memoization may be useful later if lower-level components become sensitive to referential identity.
+
+### What warrants a second pair of eyes
+
+- Review whether `useDeliActionController` should be split once more into `useDeliActionInvocation` and `useDeliCommandRepl`, or whether keeping all command/action orchestration together is clearer for the POC.
+- Review whether part widgets should receive `actionContext` directly or a narrower `canUsePresentation` callback.
+- Review the story args for extracted parts; they are intentionally fixture-based and may need richer examples as the PBUI core grows.
+
+### What should be done in the future
+
+- Add play tests on `DeliDetailView` and the top-level workbench stories for object selection and action highlighting.
+- Consider extracting a `DeliCurrentView` switch component if additional views are added.
+- If generator templates target this structure, make named component files mandatory and avoid generic `widget.tsx` naming.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/DeliPbuiWorkbench.tsx`; it should read as a composition root.
+- Review the extracted view parts under `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/parts/`.
+- Review domain adapters:
+  - `proof-of-concept/deli-pbui-react/src/domain/deli/pbuiPresentations.ts`
+  - `proof-of-concept/deli-pbui-react/src/domain/deli/pbuiRouting.ts`
+- Review controller hooks:
+  - `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/hooks/useDeliWorkbenchRouting.ts`
+  - `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/hooks/useDeliActionController.ts`
+- Validate with:
+  - `cd proof-of-concept/deli-pbui-react && npm run build`
+  - `cd proof-of-concept/deli-pbui-react && npm run build-storybook`
+
+### Technical details
+
+The new top-level layering is:
+
+```text
+DeliPbuiWorkbench
+  -> useGetMenuQuery + Redux selectors
+  -> useDeliWorkbenchRouting
+  -> useDeliActionController
+  -> PbuiShell
+       -> DeliViewHeader
+       -> DeliMenuView | DeliDetailView | DeliCartView | DeliHelpView | DeliTrackerView
+       -> PbuiConfirmPrompt
+       -> PbuiActionBar
+```
+
+The extracted part-widget folder convention is:
+
+```text
+parts/PartName/
+  PartName.tsx
+  PartName.stories.tsx
+  types.ts
+  index.ts
 ```
