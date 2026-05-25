@@ -31,7 +31,7 @@ RelatedFiles:
       Note: Street Deli view model registry baseline
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim
       Note: Reusable CLIM/PBUI runtime types and components that should inform future package extraction.
-    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components/
       Note: Reusable CLIM/PBUI component baseline
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts
       Note: Generic command-binding to action-request helper
@@ -179,7 +179,7 @@ proof-of-concept/deli-pbui-react/
     generic/
       clim/
         types.ts
-        components.tsx
+        components/
     domain/
       deli/
         types.ts
@@ -274,7 +274,7 @@ This is the minimum vocabulary for a CLIM-like app. A presentation ref is a type
 File:
 
 ```text
-src/generic/clim/components.tsx
+src/generic/clim/components/
 ```
 
 Components:
@@ -534,7 +534,7 @@ A large part of the proof of concept should eventually become reusable.
 |---|---|---|
 | CLIM runtime types | `src/generic/clim/types.ts` | reusable PBUI React CLIM package |
 | CLIM command runtime | `src/generic/clim/runtime.ts` | reusable PBUI React CLIM package |
-| CLIM shell/components | `src/generic/clim/components.tsx` | reusable PBUI React CLIM package |
+| CLIM shell/components | `src/generic/clim/components/` | reusable PBUI React CLIM package |
 | Storybook shell | add under `src/generic/clim/storybook` later | reusable PBUI React CLIM package |
 | Surface defaults | `sources/dmeta-ir/meta-design-systems/pbui/profiles/clim/surfaces.yaml` | reusable PBUI CLIM profile |
 | Presentation binding defaults | `sources/dmeta-ir/meta-design-systems/pbui/profiles/clim/presentation-bindings.yaml` | reusable PBUI CLIM profile |
@@ -669,7 +669,7 @@ The likely reusable package files are:
 
 ```text
 src/generic/clim/types.ts
-src/generic/clim/components.tsx
+src/generic/clim/components/
 src/generic/clim/stateMachine.ts
 src/generic/clim/actionRequests.ts
 ```

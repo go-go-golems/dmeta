@@ -756,7 +756,7 @@ PLACE-ORDER MENU HELP
 ### Code review instructions
 
 - Start with `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx`.
-- Review `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx` for `ConfirmPrompt`.
+- Review `proof-of-concept/deli-pbui-react/src/generic/clim/components/` for `ConfirmPrompt`.
 - Review `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.stories.tsx` for the added review states.
 - Validate with:
   - `cd proof-of-concept/deli-pbui-react && npm run build && npm run build-storybook`
@@ -980,7 +980,7 @@ Storybook detail-mode iframe check passed for clickable ingredient behavior.
 
 ### Code review instructions
 
-- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx` for cursor/input affordances.
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/components/` for cursor/input affordances.
 - Review `proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts` for generic compatible-binding helpers.
 - Review `examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml` and `proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts` for `REMOVE-INGREDIENT`.
 - Review `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx` for the click and REPL dispatch paths.
@@ -1088,7 +1088,7 @@ turkey click still builds REMOVE-INGREDIENT -> remove_part(composition_ref, part
 
 ### Code review instructions
 
-- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx` for generic clickable styling.
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/components/` for generic clickable styling.
 - Then review `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx` for local section wrapper styling.
 - Validate visually in Vite/Storybook and with Playwright cursor/border checks.
 
@@ -1213,7 +1213,7 @@ click turkey -> REMOVE-INGREDIENT -> remove_part(composition_ref, part_ref)
 - Then read `design-doc/02-pbui-core-action-presentation-ref-navigation-select-engine.md`.
 - Compare the design against current POC code in:
   - `proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts`
-  - `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx`
+  - `proof-of-concept/deli-pbui-react/src/generic/clim/components/`
   - `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx`
 
 ### Technical details
@@ -1239,7 +1239,7 @@ registries + domain context + route adapter
 
 ## Step 12: Extract PBUI React component primitives and normalize dotted underline rendering
 
-This step started splitting the generic CLIM renderer out of the old monolithic `components.tsx` file. The goal is to give future PBUI generators stable semantic React targets: presentation refs, action presentations, command lines, section labels, and confirmation prompts should be emitted as components with semantic props, not as repeated local Tailwind class strings.
+This step started splitting the generic CLIM renderer out of the old monolithic `components/` file. The goal is to give future PBUI generators stable semantic React targets: presentation refs, action presentations, command lines, section labels, and confirmation prompts should be emitted as components with semantic props, not as repeated local Tailwind class strings.
 
 The immediate styling fix was the dotted underline. Actions and selectable reference labels now share one `PbuiClickableText` primitive. That primitive sets `text-decoration-skip-ink: auto`, dotted underline style, one-pixel thickness, and a fixed `2.5px` underline offset. The fixed pixel offset is deliberate because `em` offsets made uppercase action labels and lowercase ingredient labels compute different pixel positions.
 
@@ -1268,7 +1268,7 @@ then continue"
   - `PbuiConfirmPrompt`
   - `PbuiShell`
 - Added `*.tsx`, `*.stories.tsx`, `index.ts`, and `types.ts` files for the extracted widgets.
-- Rewrote `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx` as a compatibility barrel that re-exports the new components under the old names used by the POC widget.
+- Removed the old `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx` compatibility barrel and updated the POC widget to import explicit per-widget component directories.
 - Centralized dotted underline behavior in `PbuiClickableText`:
   - `textDecorationLine: underline`
   - `textDecorationStyle: dotted`
@@ -1318,12 +1318,12 @@ It also confirmed that the `<Ingredient>` prefix remains muted gray while the se
 ### What was tricky to build
 
 - `PbuiPresentationRef` must render a single semantic ref while applying different visual rules to its parts: type/id/capability text is muted, while only the domain label becomes selectable/red/dotted-underlined.
-- The old import path still needed to work, so `components.tsx` temporarily re-exports the new components under the old names.
+- The old compatibility import path was removed; the POC widget now imports `PbuiActionBar`, `PbuiConfirmPrompt`, `PbuiPresentationRef`, and `PbuiShell` from their per-widget directories.
 
 ### What warrants a second pair of eyes
 
 - Review whether `2.5px` is the right fixed underline offset across browser/font combinations.
-- Review whether the compatibility barrel should remain or whether POC imports should move directly to the new component directories.
+- Review whether the aggregate `components/index.ts` package export is useful long-term, while keeping the old `components.tsx` compatibility shim removed.
 - Review whether `PbuiShell` should take brand/title as props before it becomes reusable across non-Deli PBUI apps.
 
 ### What should be done in the future
@@ -1359,4 +1359,90 @@ After committing Step 12, I re-uploaded the updated engine guide to reMarkable:
 
 ```text
 OK: uploaded DMETA PBUI Core Engine Guide.pdf -> /ai/2026/05/25/DMETA-DELI-PBUI-POC
+```
+
+## Step 13: Remove the old component compatibility barrel
+
+This step removed the temporary `components.tsx` compatibility shim after the PBUI component-kit extraction. The proof-of-concept widget now imports the specific component directories it uses, which makes the new per-widget structure the real baseline instead of hiding it behind the old monolithic filename.
+
+The change is intentionally small but important for future generation. If generators are going to target `PbuiPresentationRef`, `PbuiActionBar`, `PbuiCommandLine`, and related widgets, the application code should demonstrate those imports directly.
+
+### Prompt Context
+
+**User prompt (verbatim):** "remove compatibility barrel. continue"
+
+**Assistant interpretation:** Delete the old compatibility layer, move the POC widget onto explicit component-kit imports, and continue validating the extracted component baseline.
+
+**Inferred user intent:** Make the extracted component structure authoritative and avoid carrying a backwards-compatibility shim that would encourage new code to keep depending on the old monolithic `components.tsx` shape.
+
+### What I did
+
+- Deleted `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx`.
+- Updated `DeliPbuiWorkbench` to import directly from per-widget component directories:
+  - `components/PbuiActionBar`
+  - `components/PbuiConfirmPrompt`
+  - `components/PbuiPresentationRef`
+  - `components/PbuiShell`
+- Updated current design docs/diary references so the new component directory is the documented baseline.
+- Rebuilt the app and Storybook.
+- Restarted the tmux review servers.
+- Ran a Playwright check against the live app.
+
+### Why
+
+- The compatibility barrel was useful for one commit while splitting the file, but keeping it would obscure the new structure.
+- New generated or hand-authored PBUI code should import semantic widgets directly.
+
+### What worked
+
+Validation passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Playwright verified the live app still works after the import change:
+
+```text
+turkey selectable label skip-ink: auto
+turkey selectable label underline offset: 2.5px
+turkey selectable label decoration style: dotted
+click turkey -> REMOVE-INGREDIENT -> remove_part(composition_ref, part_ref)
+```
+
+### What didn't work
+
+- N/A. The build and browser check passed after replacing the imports.
+
+### What I learned
+
+- The component extraction is now visible at the call site. `DeliPbuiWorkbench` reads more like a client of a PBUI component kit rather than a consumer of a legacy components file.
+
+### What was tricky to build
+
+- The only sharp edge was documentation drift: some active guide text still mentioned `components.tsx`. I updated the active design docs and diary references where they described the current target shape. Historical changelog entries still mention the old path because they describe earlier commits.
+
+### What warrants a second pair of eyes
+
+- Review whether the aggregate `components/index.ts` export should remain. It is a package convenience export, not the removed compatibility shim, but generated code may prefer explicit per-widget imports.
+
+### What should be done in the future
+
+- Continue moving engine-aware behavior into reusable modules under `generic/clim`.
+- Decide whether generated code should import from each widget directory or from the aggregate `components/index.ts`.
+
+### Code review instructions
+
+- Confirm `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx` is gone.
+- Review `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx` imports.
+- Validate with build, Storybook build, and the live Playwright click check.
+
+### Technical details
+
+Current preferred import style:
+
+```ts
+import { PbuiActionBar } from '../../generic/clim/components/PbuiActionBar';
+import { PbuiPresentationRef } from '../../generic/clim/components/PbuiPresentationRef';
 ```

@@ -27,7 +27,7 @@ RelatedFiles:
         View model source for command availability examples
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components
       Note: Extracted PBUI React component kit baseline with per-widget Storybook stories
-    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components/
       Note: |-
         Current proof-of-concept generic CLIM shell and presentation components.
         Current generic CLIM renderer baseline for style states
@@ -106,7 +106,7 @@ The current proof-of-concept files are the evidence base for this design.
 ```text
 proof-of-concept/deli-pbui-react/src/generic/clim/types.ts
 proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts
-proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx
+proof-of-concept/deli-pbui-react/src/generic/clim/components/
 proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts
 proof-of-concept/deli-pbui-react/src/domain/deli/viewModels.ts
 proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx

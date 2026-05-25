@@ -111,3 +111,13 @@ Extracted generic PBUI React component primitives and normalized dotted underlin
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiClickableText/PbuiClickableText.tsx — Shared dotted underline primitive
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiPresentationRef/PbuiPresentationRef.tsx — Semantic presentation ref renderer
 
+
+## 2026-05-25
+
+Removed the old generic/clim/components.tsx compatibility barrel and moved the POC widget to explicit per-widget PBUI component imports.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components — Authoritative per-widget PBUI component kit
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Uses explicit PBUI component-kit imports
+

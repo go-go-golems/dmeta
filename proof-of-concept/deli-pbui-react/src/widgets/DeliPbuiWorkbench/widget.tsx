@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Provider } from 'react-redux';
 import { store } from '../../app/store';
-import { ActionHintBar, ClimShell, ConfirmPrompt, PresentationRefLine } from '../../generic/clim/components';
+import { PbuiActionBar } from '../../generic/clim/components/PbuiActionBar';
+import { PbuiConfirmPrompt } from '../../generic/clim/components/PbuiConfirmPrompt';
+import { PbuiPresentationRef } from '../../generic/clim/components/PbuiPresentationRef';
+import { PbuiShell } from '../../generic/clim/components/PbuiShell';
 import { buildActionRequestFromBinding, compatibleBindingsForPresentation, summarizeActionRequest } from '../../generic/clim/runtime';
 import type { ActionPresentation, ActionRequest, ClimSessionState, CommandBinding, PresentationRef } from '../../generic/clim/types';
 import { deliActionDescriptors } from '../../domain/deli/actions';
@@ -269,7 +272,7 @@ export function DeliPbuiWorkbench({
             const presentation = ingredientPresentation(ingredient, removed);
             const compatible = ingredient.removable ? compatibleBindingsFor(presentation) : [];
             return (
-              <PresentationRefLine
+              <PbuiPresentationRef
                 key={ingredient.id}
                 presentation={presentation}
                 selected={activeSelected?.id === ingredient.id}
@@ -286,7 +289,7 @@ export function DeliPbuiWorkbench({
     if (viewId === 'cart') {
       return (
         <div className="grid gap-2" data-testid="cart-view">
-          <PresentationRefLine presentation={cart} selected selectable={false} />
+          <PbuiPresentationRef presentation={cart} selected selectable={false} />
           {effectiveCartItems.length === 0 ? (
             <div className="text-clim-muted">Cart is empty. Use CUSTOMIZE then ADD-TO-ORDER to create an item.</div>
           ) : (
@@ -335,7 +338,7 @@ export function DeliPbuiWorkbench({
           const presentation = menuItemPresentation(item);
           const compatible = compatibleBindingsFor(presentation);
           return (
-            <PresentationRefLine
+            <PbuiPresentationRef
               key={item.id}
               presentation={presentation}
               selected={activeSelected?.id === presentation.id || selectedItemId === item.id}
@@ -349,7 +352,7 @@ export function DeliPbuiWorkbench({
   }
 
   return (
-    <ClimShell
+    <PbuiShell
       state={state}
       commandValue={mode === 'confirm' ? pendingBinding?.id ?? commandBuffer : commandBuffer}
       onCommandChange={setCommandBuffer}
@@ -365,12 +368,12 @@ export function DeliPbuiWorkbench({
         {renderView()}
 
         {pendingBinding ? (
-          <ConfirmPrompt binding={pendingBinding} onConfirm={confirmPending} onCancel={cancelPending} />
+          <PbuiConfirmPrompt binding={pendingBinding} onConfirm={confirmPending} onCancel={cancelPending} />
         ) : null}
 
-        <ActionHintBar actions={actions} onInvoke={handleInvoke} />
+        <PbuiActionBar actions={actions} onInvoke={handleInvoke} />
       </section>
-    </ClimShell>
+    </PbuiShell>
   );
 }
 
