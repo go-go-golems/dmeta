@@ -61,12 +61,16 @@ RelatedFiles:
       Note: Generic command-binding to action-request helper
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/types.ts
       Note: Step 24 replaces legacy command/action descriptor runtime types with typed ActionSpec and ActionArgSpec (commit 8897aec)
+    - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/DeliPbuiWorkbench.stories.tsx
+      Note: Step 27 adds top-level Storybook play checks for selection/action highlighting and action-slice slot filling (commit d6ab810)
     - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/DeliPbuiWorkbench.tsx
       Note: Step 26 turns the workbench into a composition root after extracting parts and hooks (commits 244c3c6
     - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/hooks/useDeliActionController.ts
       Note: Step 26 extracts action invocation
     - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/hooks/useDeliWorkbenchRouting.ts
       Note: Step 26 extracts route initialization
+    - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/parts/DeliDetailView/DeliDetailView.stories.tsx
+      Note: Step 27 adds part-level Storybook play checks for selected ingredient and select-mode target affordances (commit d6ab810)
     - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/parts/DeliDetailView/DeliDetailView.tsx
       Note: Step 26 extracts the detail-view rendering branch into a named widget part (commit 244c3c6)
     - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx
@@ -83,6 +87,7 @@ LastUpdated: 2026-05-25T00:00:00-04:00
 WhatFor: Record implementation decisions, validation, failures, and review instructions for the proof-of-concept setup.
 WhenToUse: Read before extending proof-of-concept/deli-pbui-react or converting it back into DMETA generation templates.
 ---
+
 
 
 
@@ -3040,4 +3045,100 @@ parts/PartName/
   PartName.stories.tsx
   types.ts
   index.ts
+```
+
+## Step 27: Add Storybook play coverage for PBUI selection and slot filling
+
+This step added executable Storybook play checks for the interaction behavior that motivated the workbench split. The stories now assert that selected ingredients blink, compatible actions turn red, select mode only allows valid targets, and the footer action-slice line reflects pending action and filled slots.
+
+The checks are intentionally attached to both the top-level workbench stories and the extracted `DeliDetailView` part stories. The top-level stories verify Redux/controller integration, while the part stories verify the pure rendering contract of the detail view.
+
+### Prompt Context
+
+**User prompt (verbatim):** "yes"
+
+**Assistant interpretation:** Proceed with the previously suggested next step: add focused Storybook/play tests for object selection, action highlighting, select mode, and action-slice status.
+
+**Inferred user intent:** Preserve the just-refactored PBUI selection behavior with reviewable, executable Storybook interaction checks.
+
+**Commit (code):** `d6ab8102d39863b647a292d5ebe387124ed8c10c` — "DMETA-DELI-PBUI-POC: add PBUI selection story plays"
+
+### What I did
+
+- Added Storybook play coverage to `DeliPbuiWorkbench.stories.tsx`:
+  - `DetailSelectionHighlightsAction`
+  - `DetailSelectModeFillsIngredientSlot`
+- Added Storybook play coverage to `parts/DeliDetailView/DeliDetailView.stories.tsx`:
+  - `SelectedIngredient`
+  - `RemoveIngredientSelectMode`
+- The top-level workbench plays check:
+  - tomato starts white and not blinking;
+  - clicking tomato makes it pulse;
+  - `REMOVE-INGREDIENT` receives the red action class for the selected ingredient;
+  - footer status shows `ACTION SLICE selected_action=none filled_slots=none` after simple selection;
+  - typed `remove ingredient` enters select mode;
+  - sourdough is not selectable in select mode;
+  - tomato is selectable in select mode;
+  - clicking tomato fills `ingredient=<Ingredient>#ingredient.tomato`.
+- The extracted detail-view plays check:
+  - selected tomato is white and pulsing;
+  - select mode exposes pointer cursor for removable tomato but default cursor for non-removable sourdough.
+
+### Why
+
+- The workbench split made the code easier to read, but it also introduced more seams. The most important PBUI behavior should now be guarded at both the composition-root and part-widget levels.
+- Storybook plays are the right lightweight place for these checks because they document the intended visual/interaction contract where reviewers already inspect the widgets.
+
+### What worked
+
+Validation passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+I also opened the new stories in the running Storybook instance and confirmed the interaction panel reported successful completion for the top-level selection story.
+
+### What didn't work
+
+- N/A. The Storybook play imports from `storybook/test` were available through the installed Storybook 10 package and typechecked successfully.
+
+### What I learned
+
+- The split structure makes it clear which behaviors are integration-level and which are pure rendering-level. The same detail-view behavior can now be tested without Redux in the part story and with Redux/action controller wiring in the top-level story.
+
+### What was tricky to build
+
+- Style assertions need to avoid transient hover/transition colors. The plays assert stable class names for the red action state and use computed style for stable label color, animation, and cursor values.
+- The top-level filled-slot assertion needs to drive explicit select mode with the typed REPL. If a compatible object is already selected before invoking an action, the action may auto-fill and complete immediately, which is valid but does not exercise the pending select-mode slot display.
+
+### What warrants a second pair of eyes
+
+- Review whether these Storybook plays are enough or whether a dedicated test-runner script should be added later.
+- Review whether cursor style is the best assertion for selectability or whether the components should expose explicit `data-selectable` attributes for tests.
+
+### What should be done in the future
+
+- Add a package script for Storybook test-runner if we decide these plays should run in CI.
+- Add similar plays for confirm/cancel and empty-cart disabled `PLACE-ORDER` behavior.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/DeliPbuiWorkbench.stories.tsx`.
+- Then review `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/parts/DeliDetailView/DeliDetailView.stories.tsx`.
+- Validate with:
+  - `cd proof-of-concept/deli-pbui-react && npm run build`
+  - `cd proof-of-concept/deli-pbui-react && npm run build-storybook`
+
+### Technical details
+
+The new play-test boundary is:
+
+```text
+Top-level workbench stories
+  -> Redux + hooks + action controller + shell + view parts
+
+DeliDetailView part stories
+  -> pure view rendering + visual state props + runtime context fixture
 ```
