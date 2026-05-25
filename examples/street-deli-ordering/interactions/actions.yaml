@@ -36,6 +36,52 @@ actions:
       mutates_backend: false
     result:
       kind: filter_applied
+  filter_by_category:
+    extends: [Action]
+    intent: Constrain menu choices by a concrete Street Deli menu category.
+    description: Apply a category filter in the menu browsing surface.
+    inputs:
+      category:
+        type: string
+        required: true
+    effects:
+      scope: query_or_local_filter
+      mutates_backend: false
+    result:
+      kind: filter_applied
+  describe_subject:
+    extends: [inspect_subject]
+    intent: Describe or inspect the currently selected Street Deli presentation.
+    description: View-facing description command for selected menu items, ingredients, substitutions, or order items.
+    inputs:
+      subject_ref:
+        type: SemanticRef
+        required: true
+    effects:
+      scope: local_inspection
+      mutates_backend: false
+    result:
+      kind: inspection_surface
+  navigate_to_cart:
+    extends: [Action]
+    intent: Navigate to the current cart/order draft review surface.
+    description: View-facing command for opening the cart.
+    inputs: {}
+    effects:
+      scope: local_navigation
+      mutates_backend: false
+    result:
+      kind: navigation_changed
+  show_help:
+    extends: [Action]
+    intent: Navigate to the CLIM help/documentation surface.
+    description: View-facing command for opening help.
+    inputs: {}
+    effects:
+      scope: local_navigation
+      mutates_backend: false
+    result:
+      kind: navigation_changed
   mutate_composition:
     abstract: true
     extends: [Action]

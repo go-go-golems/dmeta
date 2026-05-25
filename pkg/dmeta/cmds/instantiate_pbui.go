@@ -57,7 +57,7 @@ types, actions, representations, presenter intent, recognizer intent, and style
 profile.
 
 Examples:
-  dmeta instantiate-pbui --root ./examples/street-deli-ordering --interactions-root ./sources/dmeta-ir --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output table
+  dmeta instantiate-pbui --root ./examples/street-deli-ordering --interactions-root ./examples/street-deli-ordering --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output table
 `),
 		cmds.WithFlags(
 			fields.New(
@@ -69,8 +69,8 @@ Examples:
 			fields.New(
 				"interactions-root",
 				fields.TypeString,
-				fields.WithDefault("sources/dmeta-ir"),
-				fields.WithHelp("Directory containing interactions/ actions, representations, and elaboration rules"),
+				fields.WithDefault("examples/street-deli-ordering"),
+				fields.WithHelp("Directory containing the effective interaction package used by this profile"),
 			),
 			fields.New(
 				"pbui-root",
@@ -133,7 +133,7 @@ func (c *InstantiatePBUICommand) RunIntoGlazeProcessor(ctx context.Context, vals
 	if err != nil {
 		return err
 	}
-	profileFindings := profile.ValidatePackage(profilePkg, pbuiPkg)
+	profileFindings := profile.ValidatePackage(profilePkg, pbuiPkg, interactionPkg)
 	if validator.HasErrors(profileFindings) {
 		return fmt.Errorf("PBUI presentation profile has error-severity findings; run validate-pbui-profile")
 	}

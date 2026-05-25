@@ -45,7 +45,7 @@ export function ActionPresentationInline({ action, onInvoke }: { action: ActionP
       className={["underline decoration-dotted mr-3", action.descriptor.requiresConfirmation ? 'text-clim-danger' : 'text-clim-bright', action.disabledReason ? 'opacity-40' : ''].join(' ')}
       data-action-id={action.descriptor.id}
     >
-      {action.descriptor.label}
+      {action.commandLabel ?? action.descriptor.label}
     </button>
   );
 }

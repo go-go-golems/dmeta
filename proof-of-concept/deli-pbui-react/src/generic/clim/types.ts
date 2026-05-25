@@ -19,8 +19,28 @@ export interface ActionDescriptor<TAction extends string = string> {
 
 export interface ActionPresentation<TAction extends string = string> {
   descriptor: ActionDescriptor<TAction>;
+  commandLabel?: string;
   disabledReason?: string;
   subject?: PresentationRef;
+}
+
+export interface CommandBinding<TCommand extends string = string, TAction extends string = string> {
+  id: TCommand;
+  actionId: TAction;
+  label: string;
+  summary: string;
+  views: string[];
+  presentationType: string;
+  surface: string;
+  handler: string;
+  inputMapping: Record<string, string>;
+  requiresConfirmation: boolean;
+  confirmation?: {
+    surface: string;
+    prompt: string;
+    confirmLabel: string;
+    cancelLabel: string;
+  };
 }
 
 export interface ActionRequest<TAction extends string = string> {

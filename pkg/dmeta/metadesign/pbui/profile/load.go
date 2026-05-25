@@ -15,6 +15,7 @@ const (
 	SurfacesArtifactType             = "dmeta_pbui_surfaces"
 	ViewModelsArtifactType           = "dmeta_pbui_view_models"
 	PresentationBindingsArtifactType = "dmeta_pbui_presentation_bindings"
+	ActionBindingsArtifactType       = "dmeta_pbui_action_bindings"
 	ReactAppTargetArtifactType       = "dmeta_pbui_react_app_target"
 )
 
@@ -90,6 +91,14 @@ func LoadPackage(ctx context.Context, root string) (*Package, error) {
 		bindings = mergePresentationBindings(baseBindings, bindings)
 	}
 
+	actionBindings, err := loadYAML[ActionBindingsFile](filepath.Join(absRoot, fileOrDefault(meta.Files["action_bindings"], "./action-bindings.yaml")))
+	if err != nil {
+		return nil, errors.Wrap(err, "load PBUI action bindings")
+	}
+	if actionBindings.ArtifactType != ActionBindingsArtifactType {
+		return nil, errors.Errorf("PBUI action bindings artifact_type is %q, expected %s", actionBindings.ArtifactType, ActionBindingsArtifactType)
+	}
+
 	reactAppTarget, err := loadYAML[ReactAppTargetFile](filepath.Join(absRoot, fileOrDefault(meta.Files["react_app_target"], "./targets/react-app.yaml")))
 	if err != nil {
 		return nil, errors.Wrap(err, "load PBUI React app target")
@@ -105,6 +114,7 @@ func LoadPackage(ctx context.Context, root string) (*Package, error) {
 		Surfaces:             surfaces,
 		ViewModels:           viewModels,
 		PresentationBindings: bindings,
+		ActionBindings:       actionBindings,
 		ReactAppTarget:       reactAppTarget,
 	}, nil
 }

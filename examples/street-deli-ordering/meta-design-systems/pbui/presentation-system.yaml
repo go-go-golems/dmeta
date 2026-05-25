@@ -40,6 +40,7 @@ files:
   surfaces: ./surfaces.yaml
   view_models: ./view-models.yaml
   presentation_bindings: ./presentation-bindings.yaml
+  action_bindings: ./action-bindings.yaml
   react_app_target: ./targets/react-app.yaml
 validation:
   require_style_tokens: true
@@ -47,9 +48,13 @@ validation:
   require_view_mode_labels: true
   require_known_pbui_presentation_types: true
   require_binding_components: true
+  require_action_bindings: true
   require_prose_intent_fields: true
 notes: >-
   This profile is deliberately local to Street Deli where it defines views,
   style choices, app-specific composition binding details, and the React app
   target. Generic CLIM shell surfaces and common PBUI presentation bindings are
-  inherited from the reusable PBUI CLIM profile under sources/dmeta-ir.
+  inherited from the reusable PBUI CLIM profile under sources/dmeta-ir. Concrete
+  command labels, input mappings, confirmation behavior, and handler ids live in
+  action-bindings.yaml so they do not get confused with abstract Interaction IR
+  action semantics.

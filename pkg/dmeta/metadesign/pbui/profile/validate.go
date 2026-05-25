@@ -4,17 +4,19 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-go-golems/dmeta/pkg/dmeta/interaction"
 	pbuimds "github.com/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui"
 	"github.com/go-go-golems/dmeta/pkg/dmeta/validator"
 )
 
-func ValidatePackage(pkg *Package, pbuiPkg *pbuimds.Package) []validator.Finding {
+func ValidatePackage(pkg *Package, pbuiPkg *pbuimds.Package, interactionPkg *interaction.Package) []validator.Finding {
 	var findings []validator.Finding
 	findings = append(findings, validatePresentationSystem(pkg)...)
 	findings = append(findings, validateStyleProfile(pkg)...)
 	findings = append(findings, validateSurfaces(pkg)...)
 	findings = append(findings, validateViewModels(pkg, pbuiPkg)...)
 	findings = append(findings, validatePresentationBindings(pkg, pbuiPkg)...)
+	findings = append(findings, validateActionBindings(pkg, pbuiPkg, interactionPkg)...)
 	findings = append(findings, validateReactAppTarget(pkg)...)
 	return findings
 }
@@ -38,6 +40,7 @@ func validatePresentationSystem(pkg *Package) []validator.Finding {
 		"surfaces":              "./surfaces.yaml",
 		"view_models":           "./view-models.yaml",
 		"presentation_bindings": "./presentation-bindings.yaml",
+		"action_bindings":       "./action-bindings.yaml",
 		"react_app_target":      "./targets/react-app.yaml",
 	} {
 		if strings.TrimSpace(pkg.Meta.Files[key]) == "" {
@@ -145,6 +148,68 @@ func validatePresentationBindings(pkg *Package, pbuiPkg *pbuimds.Package) []vali
 			findings = append(findings, validator.Warning("pbui_presentation_bindings", path+".classes", "no_classes", fmt.Sprintf("binding %q has no classes", id), "Add style class mappings or document why this renderer is unstyled."))
 		}
 	}
+	return findings
+}
+
+func validateActionBindings(pkg *Package, pbuiPkg *pbuimds.Package, interactionPkg *interaction.Package) []validator.Finding {
+	var findings []validator.Finding
+	if len(pkg.ActionBindings.Bindings) == 0 {
+		return append(findings, validator.Error("pbui_action_bindings", "bindings", "no_bindings", "PBUI profile has no command/action bindings", "Add action-bindings.yaml entries that map command labels to Interaction IR action ids."))
+	}
+
+	seenViewCommands := map[string]bool{}
+	for id, binding := range pkg.ActionBindings.Bindings {
+		path := "bindings." + id
+		if strings.TrimSpace(binding.Label) == "" {
+			findings = append(findings, validator.Error("pbui_action_bindings", path+".label", "missing_action_binding_label", fmt.Sprintf("action binding %q has no label", id), "Add the concrete command label shown in the PBUI surface."))
+		}
+		if binding.Label != "" && binding.Label != id {
+			findings = append(findings, validator.Warning("pbui_action_bindings", path+".label", "label_command_mismatch", fmt.Sprintf("action binding key %q has label %q", id, binding.Label), "Use matching command ids and labels unless this aliasing is intentional."))
+		}
+		if strings.TrimSpace(binding.Action) == "" {
+			findings = append(findings, validator.Error("pbui_action_bindings", path+".action", "missing_action", fmt.Sprintf("action binding %q has no Interaction IR action id", id), "Set action to a known Interaction IR action id."))
+		} else if _, ok := interactionPkg.ActionsFile.Actions[binding.Action]; !ok {
+			findings = append(findings, validator.Error("pbui_action_bindings", path+".action", "unknown_interaction_action", fmt.Sprintf("action binding %q references unknown action %q", id, binding.Action), "Define the action in the effective interaction package or fix the binding."))
+		}
+		findings = append(findings, validateKnownPresentationType(pbuiPkg, "pbui_action_bindings", path+".presentation_type", id, binding.PresentationType)...)
+		if strings.TrimSpace(binding.Surface) == "" {
+			findings = append(findings, validator.Error("pbui_action_bindings", path+".surface", "missing_surface", fmt.Sprintf("action binding %q has no surface", id), "Set the concrete PBUI surface that presents this command."))
+		} else if _, ok := pkg.Surfaces.Surfaces[binding.Surface]; !ok {
+			findings = append(findings, validator.Error("pbui_action_bindings", path+".surface", "unknown_surface", fmt.Sprintf("action binding %q references unknown surface %q", id, binding.Surface), "Reference a surface from surfaces.yaml or an inherited surface."))
+		}
+		if strings.TrimSpace(binding.Handler) == "" {
+			findings = append(findings, validator.Warning("pbui_action_bindings", path+".handler", "missing_handler", fmt.Sprintf("action binding %q has no handler id", id), "Add the app handler id that will receive the action request."))
+		}
+		if len(binding.Views) == 0 {
+			findings = append(findings, validator.Warning("pbui_action_bindings", path+".views", "no_views", fmt.Sprintf("action binding %q is not assigned to any view", id), "List the concrete views where this command is available."))
+		}
+		for _, viewID := range binding.Views {
+			if _, ok := pkg.ViewModels.Views[viewID]; !ok {
+				findings = append(findings, validator.Error("pbui_action_bindings", path+".views", "unknown_view", fmt.Sprintf("action binding %q references unknown view %q", id, viewID), "Reference a view from view-models.yaml."))
+			}
+			seenViewCommands[viewID+"::"+id] = true
+		}
+		if binding.RequiresConfirmation {
+			if binding.Confirmation == nil {
+				findings = append(findings, validator.Error("pbui_action_bindings", path+".confirmation", "missing_confirmation", fmt.Sprintf("action binding %q requires confirmation but has no confirmation block", id), "Add confirmation.prompt and labels."))
+			} else if strings.TrimSpace(binding.Confirmation.Prompt) == "" {
+				findings = append(findings, validator.Error("pbui_action_bindings", path+".confirmation.prompt", "missing_confirmation_prompt", fmt.Sprintf("action binding %q has no confirmation prompt", id), "Add the prompt shown before dispatching the action."))
+			}
+		}
+	}
+
+	for viewID, view := range pkg.ViewModels.Views {
+		for _, commandID := range view.DefaultActions {
+			if _, ok := pkg.ActionBindings.Bindings[commandID]; !ok {
+				findings = append(findings, validator.Error("pbui_view_models", "views."+viewID+".default_actions", "unknown_default_action_binding", fmt.Sprintf("view %q default action %q has no action binding", viewID, commandID), "Add an action-bindings.yaml entry for this command label or update the view model."))
+				continue
+			}
+			if !seenViewCommands[viewID+"::"+commandID] {
+				findings = append(findings, validator.Warning("pbui_view_models", "views."+viewID+".default_actions", "default_action_not_bound_to_view", fmt.Sprintf("view %q lists default action %q but the binding does not list that view", viewID, commandID), "Add the view to the action binding views list or remove it from the view defaults."))
+			}
+		}
+	}
+
 	return findings
 }
 

@@ -3,9 +3,10 @@ import { store } from '../../app/store';
 import { ActionHintBar, ClimShell, PresentationRefLine } from '../../generic/clim/components';
 import type { ActionPresentation, ClimSessionState, PresentationRef } from '../../generic/clim/types';
 import { deliActionDescriptors } from '../../domain/deli/actions';
+import { commandBindingsForView } from '../../domain/deli/commandBindings';
 import { useGetMenuQuery } from '../../domain/deli/deliApi';
 import { deliViewModels } from '../../domain/deli/viewModels';
-import type { MenuItem } from '../../domain/deli/types';
+import type { DeliCommandId, MenuItem } from '../../domain/deli/types';
 
 function menuItemPresentation(item: MenuItem): PresentationRef<'MenuItem'> {
   return {
@@ -17,8 +18,16 @@ function menuItemPresentation(item: MenuItem): PresentationRef<'MenuItem'> {
   };
 }
 
-function actionFor(id: keyof typeof deliActionDescriptors, subject?: PresentationRef): ActionPresentation {
-  return { descriptor: deliActionDescriptors[id], subject };
+function actionForCommand(viewId: string, commandId: DeliCommandId, subject?: PresentationRef): ActionPresentation {
+  const binding = commandBindingsForView(viewId).find((candidate) => candidate.id === commandId);
+  if (!binding) {
+    throw new Error(`No command binding for ${commandId}`);
+  }
+  return {
+    descriptor: deliActionDescriptors[binding.actionId],
+    commandLabel: binding.label,
+    subject,
+  };
 }
 
 export function DeliPbuiWorkbench() {
@@ -32,7 +41,9 @@ export function DeliPbuiWorkbench() {
     commandBuffer: 'LIST MENU',
     resultLine: 'Proof of concept: generic CLIM shell + Deli domain registry + RTK Query fixture data.',
   };
-  const actions = [actionFor('select_menu_item', selected), actionFor('return_to_menu')];
+  const actions = view.defaultActions.map((commandId) =>
+    actionForCommand(view.id, commandId, commandId === 'CUSTOMIZE' ? selected : undefined),
+  );
 
   return (
     <ClimShell state={state}>
