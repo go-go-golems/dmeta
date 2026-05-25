@@ -29,7 +29,7 @@ Start with the shared playbook, then run the Web or PBUI playbook depending on t
 - `design-docs/04-concrete-dmeta-system-spec.md` — older concrete v0 system spec; keep for now, but update/supersede with current compiler architecture.
 - `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` — useful core-model material plus older widget IR material; split/update before treating as current target guidance.
 - `design-docs/06-dmeta-design-language-and-tooling-spec.md` — useful design-language material plus older tooling sequence; split/update for Web/PBUI target commands.
-- `design-docs/07-generated-instance-widget-review-guide.md` — older generated widget review guide; archive or replace after extracting any remaining Web promotion guidance.
+- `docs/archive/legacy-widget-ir-v0/07-generated-instance-widget-review-guide.md` — archived generated widget review guide; current review guidance lives in the Web and PBUI playbooks.
 
 ## Current semantic model note
 
@@ -64,7 +64,7 @@ go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-
 go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table
 ```
 
-Generate shared TypeScript core registries when needed:
+Generate shared TypeScript core registries when needed. `generated/dmeta-core/` is not kept as a committed source-of-truth directory after cleanup; generate it intentionally when a consumer needs it:
 
 ```bash
 go run ./cmd/dmeta generate-core \

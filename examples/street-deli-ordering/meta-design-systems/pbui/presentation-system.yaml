@@ -5,7 +5,7 @@ name: Hudson Street Deli CLIM Presentation System
 summary: Concrete monochrome command-oriented PBUI presentation system for the Hudson Street Deli ordering flow.
 intent: >-
   Instantiate abstract PBUI presentation obligations as the actual Street Deli
-  CLIM-like browser interface. This profile follows the existing the static CLIM prototype
+  CLIM-like browser interface. This profile follows the existing static CLIM prototype
   user experience: a black monochrome shell, Berkeley Mono typography, text
   object presentations, selected presentations, red select-mode compatible
   targets, context menus, command bars, and a persistent command-line footer.
