@@ -1,7 +1,7 @@
 import { Provider } from 'react-redux';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { setupStore } from '../../app/store';
-import { DeliPbuiWorkbench } from './widget';
+import { DeliPbuiWorkbench } from './DeliPbuiWorkbench';
 
 const meta = {
   title: 'POC/Deli PBUI Workbench',
