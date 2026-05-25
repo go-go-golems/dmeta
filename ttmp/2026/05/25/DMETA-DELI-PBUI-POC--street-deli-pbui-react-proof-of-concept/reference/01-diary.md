@@ -2137,3 +2137,118 @@ pbuiSessionActions.enterConfirm(...)
 pbuiSessionActions.confirmCompleted(...)
 pbuiSessionActions.routeChanged(...)
 ```
+
+## Step 20: Move Deli workbench domain state into a Redux slice
+
+This step continued the slice-based refactor by moving the remaining Street Deli workbench state out of local React state. After the PBUI session moved into `pbuiSession`, the widget still owned view id, selected item id, removed ingredient ids, and cart items. Those are now in a Deli-specific Redux slice so the POC has a more composable app shape: RTK Query for menu data, PBUI session slice for interaction state, and Deli workbench slice for domain/workbench state.
+
+The widget is now closer to a generated shell: it selects state from Redux, derives presentations/actions, and dispatches slice actions or handler-registry commands. Deli command handlers no longer receive React state setters; they receive domain effect functions backed by the Deli slice.
+
+### Prompt Context
+
+**User prompt (verbatim):** "go ahead"
+
+**Assistant interpretation:** Continue with the next proposed step: move remaining Deli cart/composition/workbench state into a domain Redux slice.
+
+**Inferred user intent:** Finish the transition toward a composable Redux-slice setup rather than leaving important application state hidden in component-local state.
+
+### What I did
+
+- Added `proof-of-concept/deli-pbui-react/src/domain/deli/deliWorkbenchSlice.ts` with:
+  - `DeliWorkbenchState`
+  - `deliWorkbenchSlice`
+  - `deliWorkbenchActions`
+  - `deliWorkbenchReducer`
+- Updated `proof-of-concept/deli-pbui-react/src/app/store.ts` to compose:
+  - `deliApi`
+  - `pbuiSession`
+  - `deliWorkbench`
+- Refactored `DeliPbuiWorkbench` to select Deli workbench state from Redux:
+  - `viewId`
+  - `selectedItemId`
+  - `removedIngredientIds`
+  - `cartItems`
+- Refactored route changes, item selection, ingredient removal, cart insertion, and initial story cart seeding to dispatch Deli slice actions.
+- Updated `DeliCommandHandlerEnvironment` so handlers receive `selectItem`, `removeIngredient`, and `addCartItem` domain effects instead of React setters.
+
+### Why
+
+- A generated PBUI app should compose slices, not mix global session state with local domain state.
+- Cart/review state and composition draft state are application-domain state, not widget implementation details.
+- Storybook and future tests can now preload or inspect both PBUI session state and Deli workbench state from the store factory.
+
+### What worked
+
+Validation passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Playwright verified the domain-slice-backed app flow:
+
+```text
+/ -> /menu
+Hudson Classic -> /detail/sandwich.hudson-classic
+REMOVE-INGREDIENT -> SELECT mode
+tomato click -> tomato removed
+ADD-TO-ORDER -> /cart
+cart contains Hudson Classic with removed tomato
+PLACE-ORDER -> confirm prompt
+CONFIRM PLACE-ORDER -> /tracker/current
+/cart empty -> PLACE-ORDER disabled and command input reports Cart is empty.
+```
+
+Playwright also verified Storybook store isolation and domain slice state:
+
+```text
+DetailMode story can enter SELECT
+CartMode story renders one seeded Hudson Classic cart item
+MenuMode story returns to clean menu state and does not leak SELECT mode
+```
+
+### What didn't work
+
+- No build/runtime blocker in this step.
+
+### What I learned
+
+- The PBUI session slice and Deli workbench slice have clean separation: session owns interaction mode and pending commands; Deli workbench owns view/domain state.
+- Storybook story args still matter because each story resets Deli workbench state on mount before optional `initialCart` seeding.
+- The existing handler registry works better once its environment is backed by slice actions rather than component-local setters.
+
+### What was tricky to build
+
+- `initialCart` seeding needs menu fixture data, which arrives through RTK Query. The widget now seeds the cart through a small effect once `selectedItem` is available and the cart is still empty.
+- Route initialization and Redux initialization both run on mount. The widget resets the Deli workbench slice from the initial route snapshot, then route popstate handlers keep the slice synchronized with browser navigation.
+
+### What warrants a second pair of eyes
+
+- Review whether `viewId` should remain in `deliWorkbench` or move into a generic PBUI route/view slice later.
+- Review whether `DeliCartItem` should store full `MenuItem` objects or only menu item ids plus configuration deltas.
+- Review whether the initial Storybook cart seeding should happen through preloaded store state rather than a component effect.
+
+### What should be done in the future
+
+- Add committed reducer tests for `deliWorkbenchSlice`.
+- Consider normalizing cart items by id if the POC grows beyond target discovery.
+- Move route/view state into a generated route adapter slice if multiple PBUI widgets share navigation.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/domain/deli/deliWorkbenchSlice.ts`.
+- Then review `proof-of-concept/deli-pbui-react/src/app/store.ts` for composed reducers.
+- Review `DeliPbuiWorkbench` to confirm Deli workbench state now comes from Redux selectors rather than local `useState`.
+- Review `proof-of-concept/deli-pbui-react/src/domain/deli/handlers.ts` for the narrower slice-backed handler environment.
+
+### Technical details
+
+Current Redux store shape:
+
+```text
+RootState
+  deliApi: RTK Query cache/reducer
+  pbuiSession: PBUI session and mode state
+  deliWorkbench: Deli view/selection/composition/cart state
+```

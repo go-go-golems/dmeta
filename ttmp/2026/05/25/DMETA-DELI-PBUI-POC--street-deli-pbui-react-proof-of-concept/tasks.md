@@ -25,3 +25,6 @@
 - [x] Replace local PBUI session useReducer with a Redux Toolkit slice
 - [x] Add app store factory and typed Redux hooks for PBUI Storybook isolation
 - [x] Set up per-story mock Redux stores for Deli PBUI Storybook stories
+- [x] Move Deli workbench view, selection, removed ingredients, and cart state into a Redux slice
+- [x] Refactor Deli handlers and workbench to dispatch Deli slice actions instead of local state setters
+- [x] Validate Deli domain-slice backed Storybook and app flows

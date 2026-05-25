@@ -7,7 +7,7 @@ export interface DeliCommandHandlerEnvironment {
   selectedItemId?: string;
   removedIngredientIds: string[];
   cartItemCount: number;
-  setSelectedItemId: (id: string) => void;
+  selectItem: (id: string) => void;
   removeIngredient: (id: string) => void;
   addCartItem: (item: DeliCartItem) => void;
   navigateToView: (view: DeliViewId, params?: { itemId?: string }) => void;
@@ -22,7 +22,7 @@ export const deliCommandHandlers: PbuiCommandHandlerRegistry<DeliCommandId, Deli
   'deli.selectMenuItem': ({ request, environment }) => {
     const itemId = selectedMenuItemId(request, environment.selectedItemId);
     if (itemId) {
-      environment.setSelectedItemId(itemId);
+      environment.selectItem(itemId);
     }
     environment.navigateToView('detail', { itemId });
   },

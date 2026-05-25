@@ -1,10 +1,12 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { deliApi } from '../domain/deli/deliApi';
+import { deliWorkbenchReducer } from '../domain/deli/deliWorkbenchSlice';
 import { pbuiSessionReducer } from '../generic/clim/pbuiSessionSlice';
 
 const rootReducer = combineReducers({
   [deliApi.reducerPath]: deliApi.reducer,
   pbuiSession: pbuiSessionReducer,
+  deliWorkbench: deliWorkbenchReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

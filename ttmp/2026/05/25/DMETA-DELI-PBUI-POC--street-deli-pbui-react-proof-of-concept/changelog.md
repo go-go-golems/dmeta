@@ -186,3 +186,15 @@ Replaced the local PBUI session reducer with a Redux Toolkit slice and set up pe
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.stories.tsx — Per-story mock Redux store decorator
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Consumes PBUI session slice actions/selectors
 
+
+## 2026-05-25
+
+Moved Deli view, selection, composition, and cart state into a Redux slice and refactored handlers/workbench to dispatch Deli slice actions.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/app/store.ts — Composes Deli workbench slice with PBUI session and RTK Query
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/domain/deli/deliWorkbenchSlice.ts — Deli workbench Redux slice
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/domain/deli/handlers.ts — Handler environment dispatches domain slice effects
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Consumes Deli workbench slice state/actions
+
