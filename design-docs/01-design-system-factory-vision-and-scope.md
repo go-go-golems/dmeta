@@ -29,6 +29,16 @@ The key differentiator from a traditional component library is the **presentatio
 
 The graphic design system is not one fixed look. It is a **typographic dense-information UI archetype**: sober, low-chrome, visually calm, and optimized for legibility under high information load. The log-presentation-based-ui and image-collector apps are reference instances of that archetype, not the only possible skin.
 
+
+## Current Architecture Note
+
+The original factory vision is now implemented as a layered compiler with shared Semantic IR and Interaction IR feeding two active target lines:
+
+- **Web React**: Web MetaDesignSystem -> React target -> promoted mobile/web React app.
+- **PBUI/CLIM React**: PBUI MetaDesignSystem -> concrete presentation profile -> CLIM React app.
+
+Use `04-concrete-dmeta-system-spec.md`, `05-dmeta-core-model-and-widget-ir-spec.md`, and `06-dmeta-design-language-and-tooling-spec.md` for the current operational architecture.
+
 ## Problem Statement
 
 Applications that handle dense operational information — logs, realtime events, agent workflows, retail logistics pipelines, order fulfillment states, incident queues, build systems, monitoring streams — need UIs that make large volumes of state and text legible without drowning the user in chrome. Traditional component libraries assume moderate data density and decorative visual identity. What we need instead is:

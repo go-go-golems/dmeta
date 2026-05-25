@@ -26,9 +26,9 @@ Start with the shared playbook, then run the Web or PBUI playbook depending on t
 - `design-docs/01-design-system-factory-vision-and-scope.md` — overall factory vision and scope.
 - `design-docs/02-semantic-archetype-and-capability-model.md` — reusable semantic archetypes, capabilities, projections, presentations, and action model.
 - `design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md` — sober dense operational UI graphic design and UX archetype.
-- `design-docs/04-concrete-dmeta-system-spec.md` — older concrete v0 system spec; keep for now, but update/supersede with current compiler architecture.
-- `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` — useful core-model material plus older widget IR material; split/update before treating as current target guidance.
-- `design-docs/06-dmeta-design-language-and-tooling-spec.md` — useful design-language material plus older tooling sequence; split/update for Web/PBUI target commands.
+- `design-docs/04-concrete-dmeta-system-spec.md` — current layered compiler system spec.
+- `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` — current shared Semantic and Interaction IR spec.
+- `design-docs/06-dmeta-design-language-and-tooling-spec.md` — current Web/PBUI MetaDesignSystem target and tooling spec.
 - `docs/archive/legacy-widget-ir-v0/07-generated-instance-widget-review-guide.md` — archived generated widget review guide; current review guidance lives in the Web and PBUI playbooks.
 
 ## Current semantic model note

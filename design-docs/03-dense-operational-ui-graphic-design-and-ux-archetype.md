@@ -51,6 +51,16 @@ This document is intentionally intermediate. It should later be compiled into:
 4. lint checks;
 5. widget implementation playbooks.
 
+
+## Current Target Consumption Note
+
+This document defines the shared visual/UX archetype. The current compiler consumes that archetype through target-specific layers:
+
+- Web React uses it as guidance for browser widgets, promoted app CSS, and Storybook review.
+- PBUI/CLIM React uses it through concrete presentation profiles such as `style-profile.yaml`, `surfaces.yaml`, and `presentation-bindings.yaml`.
+
+Do not place concrete Web component rules or CLIM shell rules directly in the shared design-language layer unless they are genuinely reusable across targets.
+
 ## Problem Statement
 
 Dense operational applications must show many related facts at once: records, events, state changes, identifiers, actors, timestamps, metrics, relations, commands, and details. If the UI uses conventional marketing/product visual language — large cards, high-radius surfaces, bright accents, oversized typography, heavy shadows — it becomes visually expensive and reduces scanability.
