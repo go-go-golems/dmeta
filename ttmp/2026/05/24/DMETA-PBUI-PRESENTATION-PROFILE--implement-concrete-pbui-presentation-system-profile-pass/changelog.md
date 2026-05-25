@@ -138,3 +138,14 @@ Updated active design docs to match the current DMETA system: layered compiler s
 - /home/manuel/code/wesen/go-go-golems/dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md — Shared Semantic and Interaction IR spec
 - /home/manuel/code/wesen/go-go-golems/dmeta/design-docs/06-dmeta-design-language-and-tooling-spec.md — MetaDesignSystem targets and tooling spec
 
+
+## 2026-05-24
+
+Rewrote active design docs 04-06 in textbook style with prose explanations, fundamentals, concrete examples, and current Web/PBUI compiler architecture.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/design-docs/04-concrete-dmeta-system-spec.md — Textbook-style current DMETA compiler system spec
+- /home/manuel/code/wesen/go-go-golems/dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md — Textbook-style shared Semantic and Interaction IR spec
+- /home/manuel/code/wesen/go-go-golems/dmeta/design-docs/06-dmeta-design-language-and-tooling-spec.md — Textbook-style MetaDesignSystem targets and tooling spec
+
