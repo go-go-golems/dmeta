@@ -7,6 +7,7 @@ import { PbuiPresentationRef } from '../../generic/clim/components/PbuiPresentat
 import { PbuiShell } from '../../generic/clim/components/PbuiShell';
 import {
   actionPresentationsForBindings,
+  bindingUsesInputSource,
   compatibleBindingsForPresentation,
   presentationVisualState,
 } from '../../generic/clim/compatibility';
@@ -173,7 +174,7 @@ export function DeliPbuiWorkbench({
   const mode = session.mode;
   const state: ClimSessionState = {
     mode,
-    modeLabel: mode === 'confirm' ? 'CONFIRM' : view.modeLabel,
+    modeLabel: mode === 'confirm' ? 'CONFIRM' : mode === 'select' ? 'SELECT' : view.modeLabel,
     selected: activeSelected,
     pendingAction: session.pendingCommand ? deliActionDescriptors[session.pendingCommand.actionId] : undefined,
     commandBuffer: mode === 'confirm' ? session.pendingCommand?.id ?? '' : session.commandBuffer,
@@ -231,12 +232,24 @@ export function DeliPbuiWorkbench({
   }
 
   function compatibleBindingsFor(presentation: PresentationRef) {
+    if (session.mode === 'select' && session.pendingCommand) {
+      return bindingUsesInputSource(session.pendingCommand, 'selected_presentation') && canUsePresentation(session.pendingCommand, presentation)
+        ? [session.pendingCommand]
+        : [];
+    }
     return compatibleBindingsForPresentation({
       bindings: commandBindings,
       presentation,
       defaultActionOrder: view.defaultActions,
       canUsePresentation,
     });
+  }
+
+  function bindingHasCompatibleSubject(binding: CommandBinding<DeliCommandId, DeliActionId>, subject: PresentationRef | undefined) {
+    if (!bindingUsesInputSource(binding, 'selected_presentation')) {
+      return true;
+    }
+    return subject ? canUsePresentation(binding, subject) : false;
   }
 
   function buildRequest(
@@ -285,15 +298,30 @@ export function DeliPbuiWorkbench({
       dispatchSession({ type: 'set-result', resultLine: `No command binding found for ${typedAction.commandLabel ?? typedAction.descriptor.id}` });
       return;
     }
-    invokeBinding(binding, typedAction.subject ?? activeSelected);
+    const subject = typedAction.subject ?? activeSelected;
+    if (!bindingHasCompatibleSubject(binding, subject)) {
+      dispatchSession({ type: 'enter-select', command: binding, resultLine: `Select a compatible target for ${binding.id}.` });
+      return;
+    }
+    invokeBinding(binding, subject);
   }
 
   function handlePresentationClick(presentation: PresentationRef) {
-    dispatchSession({ type: 'select-ref', presentation });
     if (presentation.type === 'MenuItem') {
       setSelectedItemId(presentation.id);
     }
 
+    if (session.mode === 'select' && session.pendingCommand) {
+      if (!canUsePresentation(session.pendingCommand, presentation)) {
+        dispatchSession({ type: 'set-result', resultLine: `${presentation.label} is not a compatible target for ${session.pendingCommand.id}.` });
+        return;
+      }
+      dispatchSession({ type: 'select-completed', selectedRef: presentation, commandBuffer: session.pendingCommand.id });
+      invokeBinding(session.pendingCommand, presentation);
+      return;
+    }
+
+    dispatchSession({ type: 'select-ref', presentation });
     const [binding] = compatibleBindingsFor(presentation);
     if (!binding) {
       dispatchSession({ type: 'set-result', resultLine: `Selected ${presentation.label}` });
@@ -358,7 +386,11 @@ export function DeliPbuiWorkbench({
       dispatchSession({ type: 'set-result', resultLine: availability.reason ?? `${binding.id} is not available.` });
       return;
     }
-    const subject = Object.values(binding.inputMapping).includes('selected_presentation') ? activeSelected : undefined;
+    const subject = bindingUsesInputSource(binding, 'selected_presentation') ? activeSelected : undefined;
+    if (!bindingHasCompatibleSubject(binding, subject)) {
+      dispatchSession({ type: 'enter-select', command: binding, resultLine: `Select a compatible target for ${binding.id}.` });
+      return;
+    }
     invokeBinding(binding, subject, { tag: args[0] ?? 'vegetarian', category: args[0] ?? 'sandwiches' });
   }
 
@@ -484,7 +516,7 @@ export function DeliPbuiWorkbench({
   return (
     <PbuiShell
       state={state}
-      commandValue={mode === 'confirm' ? session.pendingCommand?.id ?? session.commandBuffer : session.commandBuffer}
+      commandValue={mode === 'confirm' || mode === 'select' ? session.pendingCommand?.id ?? session.commandBuffer : session.commandBuffer}
       onCommandChange={(value) => dispatchSession({ type: 'set-command-buffer', value })}
       onCommandSubmit={handleCommandSubmit}
     >

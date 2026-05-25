@@ -152,3 +152,13 @@ Added a generic reducer-based PBUI session mode machine and refactored Deli conf
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/modeMachine.ts — Reusable PBUI session reducer and events
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Consumes reducer for confirm mode
 
+
+## 2026-05-25
+
+Added explicit PBUI select mode so action-bar commands requiring a compatible presentation target can ask the user to choose one.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/modeMachine.ts — Select-mode reducer events
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Action invocation enters select mode and completes through compatible presentation refs
+
