@@ -25,14 +25,25 @@ artifacts:
     description: Street Deli Web MetaDesignSystem extensions and local widget templates.
     consumers:
     - validate-dmeta-ir
-    - plan-dmeta-instance
-    - scaffold-dmeta-instance
-    - validate-widget-promotion
+    - lower-web
+    - plan-scaffold
+    - scaffold-react
+  pbui_meta_design_system:
+    path: ./meta-design-systems/pbui/presentation-system.yaml
+    artifact_type: dmeta_pbui_presentation_system
+    description: Street Deli concrete PBUI/CLIM presentation profile.
+    consumers:
+    - validate-pbui-profile
+    - instantiate-pbui
+    - plan-pbui-react-app
+    - scaffold-pbui-react-app
 references:
   base_dmeta_system_spec: ../../design-docs/04-concrete-dmeta-system-spec.md
   base_dmeta_core_model_spec: ../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
   base_dmeta_design_language_spec: ../../design-docs/06-dmeta-design-language-and-tooling-spec.md
-  base_dmeta_playbook: ../../playbooks/02-dmeta-design-system-factory-runthrough-playbook.md
+  shared_compiler_playbook: ../../playbooks/01-dmeta-shared-compiler-playbook.md
+  web_react_playbook: ../../playbooks/02-dmeta-web-react-metadesignsystem-playbook.md
+  pbui_clim_playbook: ../../playbooks/03-dmeta-pbui-clim-metadesignsystem-playbook.md
 validation:
   require_artifact_type_match: true
   require_schema_version_match: true
