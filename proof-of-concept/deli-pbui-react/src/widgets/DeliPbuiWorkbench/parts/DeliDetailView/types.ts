@@ -1,0 +1,15 @@
+import type { ActionSpec, PresentationRef } from '../../../../generic/clim/types';
+import type { DeliActionRuntimeContext } from '../../../../domain/deli/actions';
+import type { DeliCommandId, MenuItem } from '../../../../domain/deli/types';
+
+export interface DeliDetailViewProps {
+  selectedItem?: MenuItem;
+  draft?: PresentationRef<'OrderItem'>;
+  removedIngredientIds: string[];
+  activeSelected?: PresentationRef;
+  pendingAction?: ActionSpec<DeliCommandId>;
+  filledArgs: Record<string, unknown>;
+  actionContext: DeliActionRuntimeContext;
+  onPresentationClick: (presentation: PresentationRef) => void;
+  selectMode: boolean;
+}

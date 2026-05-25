@@ -1,4 +1,4 @@
-import { DeliPbuiWorkbenchWithProvider } from './widgets/DeliPbuiWorkbench/widget';
+import { DeliPbuiWorkbenchWithProvider } from './widgets/DeliPbuiWorkbench';
 
 export function App() {
   return <DeliPbuiWorkbenchWithProvider />;
