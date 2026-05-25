@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from 'storybook/test';
 import { deliActions } from '../../../../domain/deli/actions';
 import { menuItems } from '../../../../domain/deli/fixtures';
 import { draftPresentation, ingredientPresentation } from '../../../../domain/deli/pbuiPresentations';
@@ -35,11 +36,32 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const SelectedIngredient: Story = {};
+function labelSpan(row: HTMLElement, text: string) {
+  const span = Array.from(row.querySelectorAll('span')).find((candidate) => candidate.textContent?.includes(text));
+  if (!span) {
+    throw new Error(`Could not find label span containing ${text}`);
+  }
+  return span;
+}
+
+export const SelectedIngredient: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const tomato = await canvas.findByRole('button', { name: /tomato/ });
+    const tomatoLabel = labelSpan(tomato, 'tomato');
+    expect(getComputedStyle(tomatoLabel).color).toBe('rgb(255, 255, 255)');
+    expect(getComputedStyle(tomatoLabel).animationName).toBe('pulse');
+  },
+};
 
 export const RemoveIngredientSelectMode: Story = {
   args: {
     pendingAction: deliActions['REMOVE-INGREDIENT'],
     selectMode: true,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(getComputedStyle(await canvas.findByRole('button', { name: /sourdough/ })).cursor).toBe('default');
+    expect(getComputedStyle(await canvas.findByRole('button', { name: /tomato/ })).cursor).toBe('pointer');
   },
 };
