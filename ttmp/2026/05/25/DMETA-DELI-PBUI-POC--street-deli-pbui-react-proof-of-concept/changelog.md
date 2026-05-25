@@ -223,3 +223,24 @@ Implemented a CLIM-style REPL with command parsing, normalized action lookup, ty
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/pbuiSessionSlice.ts — Command history state and reducers
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Deli REPL command execution and mode-sensitive confirm/cancel handling
 
+
+## 2026-05-25
+
+Wrote minimal PBUI core simplification analysis/implementation guide for hard-cutover refactor.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/compatibility.ts — Current compatibility layer analyzed for removal
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/types.ts — Current type model analyzed for replacement
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Primary simplification target
+- /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/25/DMETA-DELI-PBUI-POC--street-deli-pbui-react-proof-of-concept/design-doc/03-minimal-pbui-clim-core-simplification-analysis-and-implementation-guide.md — New intern-ready refactor guide
+
+
+## 2026-05-25
+
+Uploaded minimal PBUI core guide to reMarkable as DMETA PBUI Minimal Core Guide.pdf.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/25/DMETA-DELI-PBUI-POC--street-deli-pbui-react-proof-of-concept/design-doc/03-minimal-pbui-clim-core-simplification-analysis-and-implementation-guide.md — Uploaded guide source
+
