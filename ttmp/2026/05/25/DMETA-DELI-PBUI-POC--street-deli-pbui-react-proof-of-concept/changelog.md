@@ -198,3 +198,15 @@ Moved Deli view, selection, composition, and cart state into a Redux slice and r
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/domain/deli/handlers.ts — Handler environment dispatches domain slice effects
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Consumes Deli workbench slice state/actions
 
+
+## 2026-05-25
+
+Added profile-shaped compatibility rules and replaced Deli hard-coded canUsePresentation branches with a generic rule evaluator.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml — Compatibility metadata beside selected-presentation command bindings
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/domain/deli/compatibilityRules.ts — Deli rule registry mirroring profile metadata
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/compatibilityRules.ts — Generic PBUI compatibility-rule evaluator
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Consumes metadata-derived compatibility and rehydrates selected refs
+
