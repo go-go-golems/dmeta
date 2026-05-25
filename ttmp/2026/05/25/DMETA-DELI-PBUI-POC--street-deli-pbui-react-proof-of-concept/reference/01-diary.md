@@ -25,14 +25,20 @@ RelatedFiles:
       Note: Street Deli-local interaction representations moved out of shared sources
     - Path: examples/street-deli-ordering/meta-design-systems/pbui
       Note: Street Deli PBUI profile now inherits reusable CLIM surfaces/bindings and keeps local overrides.
+    - Path: examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml
+      Note: Concrete Street Deli CLIM command/action binding catalog
     - Path: pkg/dmeta/interaction/load.go
       Note: Interaction package inheritance/overlay loader
     - Path: pkg/dmeta/metadesign/pbui/profile/load.go
       Note: Profile inheritance merge support implemented during diary Step 1
+    - Path: pkg/dmeta/metadesign/pbui/profile/validate.go
+      Note: Validation for concrete action bindings against interactions
     - Path: proof-of-concept/deli-pbui-react
       Note: |-
         Standalone proof-of-concept React package.
         Proof-of-concept package created during diary Step 2
+    - Path: proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts
+      Note: Hand-authored TypeScript mirror of the command/action binding target shape
     - Path: sources/dmeta-ir/meta-design-systems/pbui/profiles/clim
       Note: Reusable CLIM PBUI profile extracted before creating the proof of concept.
     - Path: ttmp/2026/05/25/DMETA-DELI-PBUI-POC--street-deli-pbui-react-proof-of-concept/design-doc/01-street-deli-pbui-react-proof-of-concept-architecture-and-implementation-guide.md
@@ -43,6 +49,7 @@ LastUpdated: 2026-05-25T00:00:00-04:00
 WhatFor: Record implementation decisions, validation, failures, and review instructions for the proof-of-concept setup.
 WhenToUse: Read before extending proof-of-concept/deli-pbui-react or converting it back into DMETA generation templates.
 ---
+
 
 
 
@@ -409,3 +416,116 @@ base rules followed by local rules -> effective elaboration rules
 ```
 
 Local definitions with the same id override base definitions. Rule lists append so generic obligations and domain-specific obligations can both be emitted.
+
+## Step 5: Add concrete Street Deli command/action bindings
+
+This step filled in the first missing PBUI concrete action-binding layer. Interaction IR now defines the semantic action ids, while the Street Deli PBUI profile defines the concrete CLIM command labels, view availability, surfaces, input mappings, confirmation prompt, and handler ids that expose those actions in the application.
+
+The proof-of-concept React package now mirrors that profile layer with a typed `commandBindings.ts` registry. The widget no longer treats action descriptors as command labels directly. It builds action presentations through command bindings, which keeps `submit_order` distinct from the concrete `PLACE-ORDER` command shown to users.
+
+### Prompt Context
+
+**User prompt (verbatim):** "continue. Keep a diary and commit at appropriate intervals. read diary if necessary to remember where we are and coming from"
+
+**Assistant interpretation:** Resume from the diary, continue the next architectural increment, keep the diary current, validate, and commit coherent checkpoints.
+
+**Inferred user intent:** Continue moving from conceptual cleanup toward a concrete, hand-authored PBUI/CLIM React target that can later inform better compiler IR and generation templates.
+
+**Commit (code):** `7853fa0` — "DMETA-DELI-PBUI-POC: add concrete action bindings"
+
+### What I did
+
+- Added the Street Deli concrete action binding profile:
+  - `examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml`
+- Updated the Street Deli PBUI profile index to declare `files.action_bindings` and require action bindings.
+- Added local interaction actions needed by the concrete command grammar:
+  - `filter_by_category`
+  - `describe_subject`
+  - `navigate_to_cart`
+  - `show_help`
+- Extended the PBUI profile Go model/loader/validator to load and validate action bindings:
+  - `pkg/dmeta/metadesign/pbui/profile/model.go`
+  - `pkg/dmeta/metadesign/pbui/profile/load.go`
+  - `pkg/dmeta/metadesign/pbui/profile/validate.go`
+- Updated PBUI profile commands to pass the effective interaction package into profile validation.
+- Changed the Street Deli-oriented PBUI profile command defaults/examples to use `examples/street-deli-ordering` as the effective interaction package.
+- Added profile tests for loading `PLACE-ORDER` and validating action bindings.
+- Added proof-of-concept TypeScript command bindings:
+  - `proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts`
+- Extended generic CLIM types with `CommandBinding` and `ActionPresentation.commandLabel`.
+- Updated the proof-of-concept widget so action presentations are derived from command bindings rather than direct action ids.
+- Updated the intern-facing guide with a command/action binding section.
+
+### Why
+
+- Interaction IR action ids are semantic ids; they should not be forced to double as concrete user-facing command labels.
+- PBUI needs a profile-level layer that explains how actions are exposed in a concrete presentation system.
+- View models list default commands; validation should make sure those commands actually exist and are available in those views.
+- Future generation needs a clear target shape for `commandBindings.ts` before generating it.
+
+### What worked
+
+The code commit was validated with:
+
+```bash
+go test ./pkg/dmeta/... ./cmd/dmeta -count=1
+go run ./cmd/dmeta validate-interactions --root ./examples/street-deli-ordering --include-info --output table
+go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./examples/street-deli-ordering --include-info --output table
+go run ./cmd/dmeta plan-pbui-react-app --root ./examples/street-deli-ordering --interactions-root ./examples/street-deli-ordering --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --output-dir ./examples/street-deli-ordering/www/clim-react --output table
+cd proof-of-concept/deli-pbui-react && npm run build && npm run build-storybook
+```
+
+### What didn't work
+
+- No blocking failures occurred in this step.
+- Storybook still emits the non-fatal Vite large chunk warning during production build.
+
+### What I learned
+
+- The command/action distinction makes the PBUI layering much clearer:
+  - `submit_order` is an Interaction IR action id.
+  - `PLACE-ORDER` is a concrete Street Deli CLIM command label.
+  - `deli.submitOrder` is the application handler id.
+- Validating `view-models.yaml` against `action-bindings.yaml` is a useful guardrail because it prevents view default actions from becoming undocumented strings.
+
+### What was tricky to build
+
+- The profile validator previously did not receive the effective interaction package, so it could not check whether concrete action bindings referenced real actions. I changed `ValidatePackage` to accept the interaction package and updated all command call sites.
+- Some view default commands were navigation/help/filter commands that did not yet have Interaction IR actions. I added them to the Street Deli-local interaction package rather than the shared package because they are concrete to this app and profile.
+
+### What warrants a second pair of eyes
+
+- Review whether `navigate_to_cart` and `show_help` should remain Interaction IR actions or become a separate navigation-command category later.
+- Review whether command bindings should be part of the PBUI profile package or live under the example interaction package. The current implementation keeps them in the PBUI profile because they describe presentation-system exposure, surfaces, confirmation prompts, and handlers.
+- Review whether command labels should remain uppercase ids in YAML or split into stable ids plus display labels.
+
+### What should be done in the future
+
+- Generate `src/domain/deli/commandBindings.ts` from `action-bindings.yaml` once the hand-authored registry stabilizes.
+- Add typed action request builders that use `input_mapping` to construct `ActionRequest` values.
+- Add normal/select/confirm mode transitions using the command binding confirmation metadata.
+- Add stories for cart mode and `PLACE-ORDER` confirmation.
+
+### Code review instructions
+
+- Start with `examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml`.
+- Review `pkg/dmeta/metadesign/pbui/profile/validate.go`, especially `validateActionBindings`.
+- Review `proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts` and `src/widgets/DeliPbuiWorkbench/widget.tsx` to see how the hand-authored target mirrors the YAML.
+- Validate with the commands listed above.
+
+### Technical details
+
+The action binding layer is intentionally concrete:
+
+```yaml
+PLACE-ORDER:
+  action: submit_order
+  views: [cart]
+  surface: confirm_prompt
+  handler: deli.submitOrder
+  input_mapping:
+    cart_ref: current_cart
+  requires_confirmation: true
+```
+
+This is the layer that future React generation should use to produce command registries, action request builders, confirmation prompts, and handler stubs.

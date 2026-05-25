@@ -26,3 +26,14 @@ Moved Street Deli interaction vocabulary into an inherited example interaction p
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/interaction/load.go — Interaction package merge support
 - /home/manuel/code/wesen/go-go-golems/go-go-parc/Projects/2026/05/25/ARTICLE - DMETA PBUI Street Deli CLIM React Research Report - From Conceptual Cleanup to Concrete Target.md — Research report in Obsidian vault
 
+
+## 2026-05-25
+
+Added concrete Street Deli command/action bindings and validation; mirrored the target shape in the hand-authored React POC (commit 7853fa0).
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml — Concrete command/action binding catalog
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/validate.go — Action binding validation
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts — POC command binding registry
+
