@@ -8,3 +8,6 @@ coverage/
 *.log
 
 *.tsbuildinfo
+
+# Regenerable PBUI proof package
+examples/street-deli-ordering/generated/pbui-react/
