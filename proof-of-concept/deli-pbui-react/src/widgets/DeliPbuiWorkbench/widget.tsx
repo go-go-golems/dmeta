@@ -11,13 +11,16 @@ import {
   compatibleBindingsForPresentation,
   presentationVisualState,
 } from '../../generic/clim/compatibility';
+import { runCommandHandler } from '../../generic/clim/handlerRegistry';
 import { initialPbuiSessionState, pbuiSessionReducer } from '../../generic/clim/modeMachine';
 import { buildActionRequestFromBinding, summarizeActionRequest } from '../../generic/clim/runtime';
 import { backOrFallback, currentRoute, listenToRouteChanges, pushRoute, replaceRoute } from '../../generic/clim/routing';
 import type { RouteCodec, RouteSnapshot } from '../../generic/clim/routing';
-import type { ActionPresentation, ActionRequest, ClimSessionState, CommandBinding, PresentationRef } from '../../generic/clim/types';
+import type { ActionPresentation, ClimSessionState, CommandBinding, PresentationRef } from '../../generic/clim/types';
 import { deliActionDescriptors } from '../../domain/deli/actions';
 import { deliCommandBindings, commandBindingsForView } from '../../domain/deli/commandBindings';
+import { assertDeliHandlerCoverage, deliCommandHandlers } from '../../domain/deli/handlers';
+import type { DeliCommandHandlerEnvironment } from '../../domain/deli/handlers';
 import { useGetMenuQuery } from '../../domain/deli/deliApi';
 import { deliViewModels } from '../../domain/deli/viewModels';
 import type { DeliActionId, DeliCartItem, DeliCommandId, DeliViewId, Ingredient, MenuItem } from '../../domain/deli/types';
@@ -138,6 +141,8 @@ function initialRouteSnapshot(fallbackView: DeliViewId, fallbackItemId?: string)
   }
   return routeForView(fallbackView, fallbackItemId);
 }
+
+assertDeliHandlerCoverage(Object.values(deliCommandBindings));
 
 export function DeliPbuiWorkbench({
   initialView = 'menu',
@@ -330,43 +335,29 @@ export function DeliPbuiWorkbench({
     invokeBinding(binding, presentation);
   }
 
-  function executeBinding(binding: CommandBinding<DeliCommandId, DeliActionId>, request: ActionRequest<DeliActionId>) {
-    switch (binding.id) {
-      case 'CUSTOMIZE':
-        if (request.subject?.type === 'MenuItem') {
-          setSelectedItemId(request.subject.id);
-        }
-        navigateToView('detail', { itemId: request.subject?.id ?? selectedItemId });
-        break;
-      case 'REMOVE-INGREDIENT': {
-        const part = request.inputs.part_ref as PresentationRef | undefined;
-        if (part) {
-          setRemovedIngredientIds((ids) => Array.from(new Set([...ids, part.id])));
-        }
-        break;
-      }
-      case 'ADD-TO-ORDER':
-        if (selectedItem) {
-          setCartItems((items) => [...items, { id: `cart.${selectedItem.id}.${items.length + 1}`, item: selectedItem, removedIngredientIds, substitutions: {} }]);
-          navigateToView('cart');
-        }
-        break;
-      case 'CART':
-        navigateToView('cart');
-        break;
-      case 'HELP':
-        navigateToView('help');
-        break;
-      case 'BACK':
-        navigateBack();
-        break;
-      case 'MENU':
-        navigateToView('menu');
-        break;
-      default:
-        break;
-    }
-    dispatchSession({ type: 'set-result', resultLine: `Built action request: ${binding.id} -> ${summarizeActionRequest(request)}` });
+  function commandHandlerEnvironment(): DeliCommandHandlerEnvironment {
+    return {
+      selectedItem,
+      selectedItemId,
+      removedIngredientIds,
+      cartItemCount: effectiveCartItems.length,
+      setSelectedItemId,
+      removeIngredient: (id) => setRemovedIngredientIds((ids) => Array.from(new Set([...ids, id]))),
+      addCartItem: (item) => setCartItems((items) => [...items, item]),
+      navigateToView,
+      navigateBack,
+    };
+  }
+
+  function executeBinding(binding: CommandBinding<DeliCommandId, DeliActionId>, request: ReturnType<typeof buildRequest>) {
+    const result = runCommandHandler({
+      registry: deliCommandHandlers,
+      binding,
+      request,
+      environment: commandHandlerEnvironment(),
+    });
+    const defaultResultLine = `Built action request: ${binding.id} -> ${summarizeActionRequest(request)}`;
+    dispatchSession({ type: 'set-result', resultLine: result.resultLine ?? defaultResultLine });
   }
 
   function handleCommandSubmit(value: string) {
@@ -400,11 +391,17 @@ export function DeliPbuiWorkbench({
     }
     const confirmedCommand = session.pendingCommand;
     const confirmedRequest = session.pendingRequest;
+    const result = runCommandHandler({
+      registry: deliCommandHandlers,
+      binding: confirmedCommand,
+      request: confirmedRequest,
+      environment: commandHandlerEnvironment(),
+    });
     navigateToView('tracker');
     dispatchSession({
       type: 'confirm-completed',
       commandBuffer: confirmedCommand.id,
-      resultLine: `Confirmed action request: ${confirmedCommand.id} -> ${summarizeActionRequest(confirmedRequest)}`,
+      resultLine: result.resultLine ?? `Confirmed action request: ${confirmedCommand.id} -> ${summarizeActionRequest(confirmedRequest)}`,
     });
   }
 

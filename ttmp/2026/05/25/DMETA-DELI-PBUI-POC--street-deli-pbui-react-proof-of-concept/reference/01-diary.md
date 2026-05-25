@@ -1901,3 +1901,113 @@ invoke action with selected_presentation input
   -> select-completed(selectedRef)
   -> invoke pendingCommand with selectedRef
 ```
+
+## Step 18: Extract generic command handler registry and move Deli execution out of the widget switch
+
+This step continued the engine extraction by removing the local `switch (binding.id)` command execution block from `DeliPbuiWorkbench`. The widget still composes the PBUI shell and owns POC-local state, but command execution now goes through a generic handler-registry helper and a Deli domain registry keyed by concrete binding handler names such as `deli.selectMenuItem`, `deli.removeIngredient`, and `deli.navigateToCart`.
+
+I also recorded the requested future Redux follow-up as an open task. The current plain PBUI reducer remains useful as the pure state-machine core, but the later task captures the direction: wrap it in a Redux slice so generated PBUI apps can compose mode/session state the same way they compose domain slices.
+
+### Prompt Context
+
+**User prompt (verbatim):** "ok, create a later tasks to turn it into a redux slice, so that we have an easily composable setup based on slices.
+
+But then continue with what you were doing."
+
+**Assistant interpretation:** Add a future task to wrap the PBUI session reducer in Redux, then continue the in-progress handler-registry extraction.
+
+**Inferred user intent:** Keep the immediate POC refactor moving, while making sure the architecture converges toward composable Redux slices instead of isolated local reducers.
+
+### What I did
+
+- Added an open follow-up task:
+  - `Later: wrap the generic PBUI session reducer in a Redux slice for composable app integration`
+- Added `proof-of-concept/deli-pbui-react/src/generic/clim/handlerRegistry.ts` with:
+  - `PbuiCommandHandlerContext`
+  - `PbuiCommandHandlerResult`
+  - `PbuiCommandHandler`
+  - `PbuiCommandHandlerRegistry`
+  - `runCommandHandler`
+- Added `proof-of-concept/deli-pbui-react/src/domain/deli/handlers.ts` with:
+  - `DeliCommandHandlerEnvironment`
+  - `deliCommandHandlers`
+  - `assertDeliHandlerCoverage`
+- Replaced the local `executeBinding` switch in `DeliPbuiWorkbench` with `runCommandHandler(...)`.
+- Added module-time handler coverage checking against `deliCommandBindings`.
+- Updated confirmation completion so confirmed commands also run through the handler registry before navigating to tracker.
+
+### Why
+
+- Command execution should not be hard-coded in the widget.
+- Generated PBUI targets should emit or import domain handler registries, then let the generic engine call handlers by binding metadata.
+- Handler names already existed in `commandBindings.ts`; using them makes those bindings operational instead of descriptive-only.
+
+### What worked
+
+Validation passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Playwright verified the handler-registry-backed flows:
+
+```text
+/ -> /menu
+Hudson Classic -> /detail/sandwich.hudson-classic
+REMOVE-INGREDIENT action bar -> SELECT mode
+tomato click -> tomato removed and remove_part request recorded
+ADD-TO-ORDER -> /cart with Hudson Classic and removed tomato
+PLACE-ORDER -> confirm prompt
+CONFIRM PLACE-ORDER -> /tracker/current with confirmed request
+/cart empty -> PLACE-ORDER disabled and command input reports Cart is empty.
+/detail/salad.market-greens -> CART -> /cart
+```
+
+### What didn't work
+
+- No build/runtime blocker in this step.
+- The submit-order handler currently has no domain side effect; confirmation still performs tracker navigation in the widget after invoking the handler. This is acceptable for the POC, but the eventual domain handler should probably create/order-track an actual order id.
+
+### What I learned
+
+- The existing `handler` strings in command bindings are the right seam for moving from local widget behavior to generated domain code.
+- A generic handler registry can stay tiny if it only resolves handler names and passes a typed environment.
+- Handler coverage checking catches profile/binding drift early without requiring a full test harness.
+
+### What was tricky to build
+
+- Handler functions need controlled access to React state setters without importing React. The compromise is `DeliCommandHandlerEnvironment`: a narrow object of domain state and effects supplied by the widget.
+- `ADD-TO-ORDER` needs the current cart item count to generate a stable POC id. That count now comes through the handler environment instead of reading widget state directly.
+- Confirmed commands are different from normal commands: the request is already built and stored in session state. `confirmPending` therefore invokes the registry with the pending command/request before completing the confirmation mode.
+
+### What warrants a second pair of eyes
+
+- Review whether the generic registry result should distinguish `handled: false` from handler-thrown errors more explicitly.
+- Review whether navigation effects should live in Deli handlers or in a separate route effect registry.
+- Review whether handler coverage should throw at module load time or be a development-only assertion.
+
+### What should be done in the future
+
+- Implement the open Redux-slice follow-up task for `pbuiSessionReducer`.
+- Add committed tests for handler coverage and handler-registry command execution.
+- Move the Deli handler environment into a generated/domain adapter shape.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/handlerRegistry.ts`.
+- Then review `proof-of-concept/deli-pbui-react/src/domain/deli/handlers.ts`.
+- Finally review `executeBinding` and `confirmPending` in `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx`.
+- Validate with `npm run build`, `npm run build-storybook`, and the Playwright flow above.
+
+### Technical details
+
+The new execution path is:
+
+```text
+CommandBinding.handler
+  -> runCommandHandler(registry, binding, request, environment)
+  -> domain handler mutates app/domain state or navigates
+  -> widget records default or handler-provided result line
+```
