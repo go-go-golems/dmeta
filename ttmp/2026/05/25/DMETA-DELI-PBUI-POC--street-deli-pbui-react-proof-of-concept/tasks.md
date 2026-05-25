@@ -12,3 +12,6 @@
 - [x] Add generic PBUI browser route adapter helpers
 - [x] Wire Street Deli POC view changes to URL routes and popstate
 - [x] Make BACK use browser history with menu fallback
+- [x] Add generic reducer-based PBUI session/mode machine
+- [x] Refactor Deli POC confirm, command, result, and selected-ref state onto the mode machine
+- [x] Validate reducer-backed confirm/order and route flows
