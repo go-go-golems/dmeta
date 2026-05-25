@@ -22,7 +22,7 @@ func TestBuildReactAppPlanForStreetDeliProfile(t *testing.T) {
 	if validator.HasErrors(inheritanceFindings) {
 		t.Fatalf("semantic inheritance has errors: %#v", inheritanceFindings)
 	}
-	interactionPkg, err := interaction.LoadPackage(ctx, filepath.Join(repoRoot, "sources", "dmeta-ir"))
+	interactionPkg, err := interaction.LoadPackage(ctx, filepath.Join(repoRoot, "examples", "street-deli-ordering"))
 	if err != nil {
 		t.Fatalf("load interaction package: %v", err)
 	}

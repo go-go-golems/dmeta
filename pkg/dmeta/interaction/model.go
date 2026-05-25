@@ -15,6 +15,7 @@ type IndexFile struct {
 	ArtifactType  string            `yaml:"artifact_type"`
 	Summary       string            `yaml:"summary"`
 	Status        string            `yaml:"status"`
+	Inherits      map[string]string `yaml:"inherits"`
 	Files         map[string]string `yaml:"files"`
 	Validation    map[string]any    `yaml:"validation"`
 }

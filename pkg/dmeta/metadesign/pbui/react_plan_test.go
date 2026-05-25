@@ -22,7 +22,7 @@ func TestBuildReactPlanIncludesRegistriesPresentersRecognizersAndMetadata(t *tes
 		t.Fatalf("semantic inheritance has errors: %#v", findings)
 	}
 
-	interactionPkg, err := interaction.LoadPackage(ctx, filepath.Join(repoRoot, "sources", "dmeta-ir"))
+	interactionPkg, err := interaction.LoadPackage(ctx, filepath.Join(repoRoot, "examples", "street-deli-ordering"))
 	if err != nil {
 		t.Fatalf("load interaction package: %v", err)
 	}

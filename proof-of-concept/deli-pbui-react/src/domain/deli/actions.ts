@@ -1,0 +1,53 @@
+import type { ActionDescriptor } from '../../generic/clim/types';
+import type { DeliActionId } from './types';
+
+export const deliActionDescriptors: Record<DeliActionId, ActionDescriptor<DeliActionId>> = {
+  select_menu_item: {
+    id: 'select_menu_item',
+    label: 'CUSTOMIZE',
+    description: 'Select a menu item and enter the customization view.',
+    inputTypes: { item_ref: 'SemanticRef' },
+    mutatesBackend: false,
+    requiresConfirmation: false,
+  },
+  remove_part: {
+    id: 'remove_part',
+    label: 'REMOVE-INGREDIENT',
+    description: 'Remove one ingredient from a composition draft.',
+    inputTypes: { composition_ref: 'SemanticRef', part_ref: 'SemanticRef' },
+    mutatesBackend: false,
+    requiresConfirmation: false,
+  },
+  apply_substitution: {
+    id: 'apply_substitution',
+    label: 'APPLY-SUBSTITUTION',
+    description: 'Replace a removed ingredient with a compatible candidate.',
+    inputTypes: { composition_ref: 'SemanticRef', original_part_ref: 'SemanticRef', replacement_candidate_ref: 'SemanticRef' },
+    mutatesBackend: false,
+    requiresConfirmation: false,
+  },
+  add_to_order: {
+    id: 'add_to_order',
+    label: 'ADD-TO-ORDER',
+    description: 'Convert the current composition draft into a cart item.',
+    inputTypes: { draft_ref: 'SemanticRef' },
+    mutatesBackend: false,
+    requiresConfirmation: false,
+  },
+  submit_order: {
+    id: 'submit_order',
+    label: 'PLACE-ORDER',
+    description: 'Submit the cart to the backend order lifecycle.',
+    inputTypes: { cart_ref: 'SemanticRef' },
+    mutatesBackend: true,
+    requiresConfirmation: true,
+  },
+  return_to_menu: {
+    id: 'return_to_menu',
+    label: 'MENU',
+    description: 'Return to the menu view.',
+    inputTypes: {},
+    mutatesBackend: false,
+    requiresConfirmation: false,
+  },
+};

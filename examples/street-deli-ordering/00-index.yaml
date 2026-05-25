@@ -28,6 +28,15 @@ artifacts:
     - lower-web
     - plan-scaffold
     - scaffold-react
+  interaction_package:
+    path: ./interactions/00-index.yaml
+    artifact_type: dmeta_interaction_package
+    description: Street Deli interaction package extending shared generic actions and representations with deli ordering actions, representations, and elaboration rules.
+    consumers:
+    - validate-interactions
+    - lower-pbui
+    - instantiate-pbui
+    - plan-pbui-react-app
   pbui_meta_design_system:
     path: ./meta-design-systems/pbui/presentation-system.yaml
     artifact_type: dmeta_pbui_presentation_system

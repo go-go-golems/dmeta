@@ -66,13 +66,47 @@ func LoadPackage(ctx context.Context, root string) (*Package, error) {
 		return nil, errors.Errorf("interaction elaboration rules artifact_type is %q, expected dmeta_interaction_elaboration_rules", rules.ArtifactType)
 	}
 
-	return &Package{
+	pkg := &Package{
 		Root:            absRoot,
 		Index:           index,
 		ActionsFile:     actions,
 		Representations: representations,
 		RulesFile:       rules,
-	}, nil
+	}
+	if inheritedRoot := index.Inherits["interactions_root"]; inheritedRoot != "" {
+		if !filepath.IsAbs(inheritedRoot) {
+			inheritedRoot = filepath.Join(absRoot, inheritedRoot)
+		}
+		basePkg, err := LoadPackage(ctx, inheritedRoot)
+		if err != nil {
+			return nil, errors.Wrap(err, "load inherited interaction package")
+		}
+		pkg = mergePackages(basePkg, pkg)
+	}
+	return pkg, nil
+}
+
+func mergePackages(base *Package, local *Package) *Package {
+	out := *local
+	out.ActionsFile.Actions = map[string]Action{}
+	for id, action := range base.ActionsFile.Actions {
+		out.ActionsFile.Actions[id] = action
+	}
+	for id, action := range local.ActionsFile.Actions {
+		out.ActionsFile.Actions[id] = action
+	}
+
+	out.Representations.Representations = map[string]Representation{}
+	for id, representation := range base.Representations.Representations {
+		out.Representations.Representations[id] = representation
+	}
+	for id, representation := range local.Representations.Representations {
+		out.Representations.Representations[id] = representation
+	}
+
+	out.RulesFile.Rules = append([]ElaborationRule{}, base.RulesFile.Rules...)
+	out.RulesFile.Rules = append(out.RulesFile.Rules, local.RulesFile.Rules...)
+	return &out
 }
 
 func loadYAML[T any](path string) (T, error) {
