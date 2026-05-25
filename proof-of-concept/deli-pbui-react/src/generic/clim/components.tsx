@@ -1,4 +1,4 @@
-import type { ActionPresentation, ClimSessionState, PresentationRef } from './types';
+import type { ActionPresentation, ClimSessionState, CommandBinding, PresentationRef } from './types';
 
 export function ClimShell({ state, children }: { state: ClimSessionState; children: React.ReactNode }) {
   return (
@@ -53,7 +53,33 @@ export function ActionPresentationInline({ action, onInvoke }: { action: ActionP
 export function ActionHintBar({ actions, onInvoke }: { actions: ActionPresentation[]; onInvoke?: (action: ActionPresentation) => void }) {
   return (
     <div className="border-y border-clim-border py-2 my-3 text-sm">
-      {actions.map((action) => <ActionPresentationInline key={action.descriptor.id} action={action} onInvoke={() => onInvoke?.(action)} />)}
+      {actions.map((action) => <ActionPresentationInline key={`${action.commandLabel ?? action.descriptor.id}:${action.subject?.id ?? 'global'}`} action={action} onInvoke={() => onInvoke?.(action)} />)}
+    </div>
+  );
+}
+
+export function ConfirmPrompt({
+  binding,
+  onConfirm,
+  onCancel,
+}: {
+  binding: CommandBinding;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  if (!binding.confirmation) {
+    return null;
+  }
+  return (
+    <div className="border border-clim-danger bg-clim-panel p-3 text-sm" data-testid="confirm-prompt">
+      <div className="text-clim-danger uppercase tracking-wide">Confirm</div>
+      <div className="my-2 text-clim-bright">{binding.confirmation.prompt}</div>
+      <button type="button" className="mr-3 underline text-clim-danger" onClick={onConfirm}>
+        {binding.confirmation.confirmLabel}
+      </button>
+      <button type="button" className="underline text-clim-bright" onClick={onCancel}>
+        {binding.confirmation.cancelLabel}
+      </button>
     </div>
   );
 }
