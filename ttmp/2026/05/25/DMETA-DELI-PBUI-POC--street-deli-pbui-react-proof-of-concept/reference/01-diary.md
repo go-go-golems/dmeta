@@ -1562,3 +1562,107 @@ bindings + presentation ref + command order + compatibility predicate
 presentation ref + selected ref + compatible bindings + removed flag
   -> visual state
 ```
+
+## Step 15: Add browser route adapter and wire POC view state to URLs
+
+This step implemented the first route adapter slice of the PBUI engine design. The proof-of-concept no longer keeps the current view only in local React state. It now maps view transitions to normal browser paths such as `/menu`, `/detail/salad.market-greens`, `/cart`, `/help`, and `/tracker/current`, listens to `popstate`, and uses browser history for BACK with a menu fallback.
+
+This is still a lightweight POC route adapter, not a full React Router integration. The important part is that PBUI view state now has a generic route abstraction and the Street Deli widget proves it with actual browser URLs.
+
+### Prompt Context
+
+**User prompt (verbatim):** "continue."
+
+**Assistant interpretation:** Continue the next documented PBUI engine phase after extracting compatibility helpers; route/view synchronization and BACK behavior were the next architectural gaps.
+
+**Inferred user intent:** Keep replacing ad hoc widget behavior with reusable PBUI engine modules, especially for navigation and URL state.
+
+### What I did
+
+- Added `proof-of-concept/deli-pbui-react/src/generic/clim/routing.ts` with:
+  - `RouteSnapshot`
+  - `RouteCodec`
+  - `currentRoute`
+  - `pushRoute`
+  - `replaceRoute`
+  - `backOrFallback`
+  - `listenToRouteChanges`
+- Added Street Deli route codec functions in `DeliPbuiWorkbench` for:
+  - `/menu`
+  - `/detail/:itemId`
+  - `/substitution/:draftId`
+  - `/cart`
+  - `/help`
+  - `/tracker/current`
+- Changed widget navigation to push routes instead of only calling `setViewId`.
+- Added popstate handling so browser back updates the PBUI view.
+- Changed `BACK` to use `backOrFallback` rather than hard-coding menu navigation.
+
+### Why
+
+- URL routing is part of the core PBUI interaction contract for React applications.
+- BACK is not the same as MENU. BACK should use browser/app history where possible and only fall back to MENU when no app route is available.
+- Future generators need a route adapter target rather than view transitions hidden inside widget switch statements.
+
+### What worked
+
+Build and Storybook passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Playwright verified:
+
+```text
+/ redirects/replaces to /menu
+click Market Greens -> /detail/salad.market-greens
+BACK -> /menu
+open /detail/sandwich.hudson-classic directly -> detail view for Hudson Classic
+CART -> /cart
+```
+
+### What didn't work
+
+- N/A for this slice. The lightweight route adapter passed the browser checks.
+
+### What I learned
+
+- A small route codec is enough to prove the engine boundary before introducing a full router dependency.
+- Browser URL tests are now a better acceptance check than checking only visible text.
+
+### What was tricky to build
+
+- Direct routes can arrive before menu data is loaded. The POC stores the route item id immediately and lets the existing menu lookup resolve it once RTK Query fixture data is available.
+- `BACK` uses browser history, so the visible result depends on prior navigation. The POC fallback still needs more robust app-history tracking later.
+
+### What warrants a second pair of eyes
+
+- Review whether the reusable route adapter should stay history-API based or target React Router/TanStack Router directly.
+- Review whether route parsing should live in generated Deli code rather than the hand-authored widget.
+- Review whether `/tracker/current` should eventually be `/tracker/:orderId` once order ids exist.
+
+### What should be done in the future
+
+- Move the Deli route codec into generated/domain code.
+- Add
+ committed route interaction tests for direct links and BACK.
+- Track app-local history depth if browser history fallback behavior proves too broad.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/routing.ts`.
+- Then review the route codec and `navigateToView` / `navigateBack` wiring in `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx`.
+- Validate by opening `/`, clicking a menu item, using BACK, opening `/detail/sandwich.hudson-classic` directly, and navigating to CART.
+
+### Technical details
+
+The route adapter shape is:
+
+```text
+RouteCodec.parse(pathname) -> RouteSnapshot
+RouteCodec.format(snapshot) -> pathname
+pushRoute(codec, snapshot) -> history.pushState
+listenToRouteChanges(codec, handler) -> popstate bridge
+```

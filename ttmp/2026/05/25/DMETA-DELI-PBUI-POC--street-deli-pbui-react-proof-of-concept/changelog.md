@@ -132,3 +132,13 @@ Extracted first generic PBUI engine types/compatibility helpers and wired availa
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/engineTypes.ts — Generic PBUI engine state and derivation types
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Consumes engine compatibility helpers and empty-cart availability
 
+
+## 2026-05-25
+
+Added generic browser route adapter helpers and wired Street Deli PBUI views to URL paths and browser BACK.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/routing.ts — Reusable PBUI route codec/history helpers
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Street Deli route codec and view navigation wiring
+
