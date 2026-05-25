@@ -31,3 +31,6 @@
 - [x] Add PBUI compatibility rule metadata for Street Deli selected-presentation targets
 - [x] Add generic PBUI compatibility-rule evaluator and Deli compatibility registry
 - [x] Replace Deli workbench hard-coded canUsePresentation branches with metadata-derived rules
+- [x] Add generic CLIM command parser and REPL command history support
+- [x] Wire Deli command line to normalized action commands, prefix arguments, confirm YES/CANCEL, select ESC, and history navigation
+- [x] Validate REPL flows in app and Storybook

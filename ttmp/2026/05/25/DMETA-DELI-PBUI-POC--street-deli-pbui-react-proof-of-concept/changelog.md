@@ -210,3 +210,16 @@ Added profile-shaped compatibility rules and replaced Deli hard-coded canUsePres
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/compatibilityRules.ts — Generic PBUI compatibility-rule evaluator
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Consumes metadata-derived compatibility and rehydrates selected refs
 
+
+## 2026-05-25
+
+Implemented a CLIM-style REPL with command parsing, normalized action lookup, typed confirmation/cancellation, Escape handling, and Redux-backed command history.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/commandParser.ts — Generic CLIM command parser
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiCommandLine/PbuiCommandLine.tsx — REPL keyboard handling
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiShell/PbuiShell.tsx — REPL history/cancel callbacks
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/pbuiSessionSlice.ts — Command history state and reducers
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Deli REPL command execution and mode-sensitive confirm/cancel handling
+

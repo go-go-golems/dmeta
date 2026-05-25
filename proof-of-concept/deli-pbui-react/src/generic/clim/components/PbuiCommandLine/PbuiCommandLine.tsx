@@ -1,7 +1,16 @@
 import { clickableDecorationStyle } from '../PbuiClickableText';
 import type { PbuiCommandLineProps } from './types';
 
-export function PbuiCommandLine({ value, result, className, onChange, onSubmit }: PbuiCommandLineProps) {
+export function PbuiCommandLine({
+  value,
+  result,
+  className,
+  onChange,
+  onSubmit,
+  onHistoryPrevious,
+  onHistoryNext,
+  onCancel,
+}: PbuiCommandLineProps) {
   return (
     <footer className={['border-t border-clim-border px-3 py-2 text-sm', className].filter(Boolean).join(' ')}>
       <form
@@ -19,6 +28,20 @@ export function PbuiCommandLine({ value, result, className, onChange, onSubmit }
           style={clickableDecorationStyle}
           value={value}
           onChange={(event) => onChange?.(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowUp') {
+              event.preventDefault();
+              onHistoryPrevious?.();
+            }
+            if (event.key === 'ArrowDown') {
+              event.preventDefault();
+              onHistoryNext?.();
+            }
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              onCancel?.();
+            }
+          }}
           spellCheck={false}
         />
         <span className="text-clim-bright">█</span>
