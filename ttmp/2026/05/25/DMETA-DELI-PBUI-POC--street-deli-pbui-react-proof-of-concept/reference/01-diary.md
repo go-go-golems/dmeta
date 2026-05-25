@@ -781,3 +781,96 @@ cart / confirm
 
 tracker / normal
 ```
+
+## Step 8: Clean up the app document shell and rerun browser verification
+
+This step cleaned up the standalone Vite app document shell and reran browser verification after restarting the tmux servers. The immediate fix was small: `index.html` now has a normal HTML document structure, title, viewport metadata, and an inline favicon so the Vite app no longer emits a favicon 404 during Playwright checks.
+
+After that cleanup, I reran the full browser flow with Playwright and also checked Storybook through its preview iframe. The POC is now ready for manual verification through the running tmux servers.
+
+### Prompt Context
+
+**User prompt (verbatim):** (see Step 7)
+
+**Assistant interpretation:** After extending the POC, use Playwright to test the live app and Storybook and clean up issues discovered during browser verification.
+
+**Inferred user intent:** Ensure the running prototype is not only buildable but also browser-verifiable and ready for hands-on review.
+
+**Commit (code):** `91bdd6a` — "DMETA-DELI-PBUI-POC: add app document shell"
+
+### What I did
+
+- Rewrote `proof-of-concept/deli-pbui-react/index.html` as a complete HTML document.
+- Added an inline SVG favicon to avoid the browser console favicon 404.
+- Rebuilt the app and Storybook.
+- Restarted tmux session `dmeta-deli-pbui-poc` so both live servers serve the latest code.
+- Ran Playwright against:
+  - Vite app: `http://localhost:5173/`
+  - Storybook help-mode story: `http://localhost:6010/?path=/story/poc-deli-pbui-workbench--help-mode`
+
+### Why
+
+- The live app should be clean enough for review. A favicon 404 is not a functional bug, but it creates noise when checking console health.
+- The final check should exercise both the app runtime flow and the Storybook review surface.
+
+### What worked
+
+The Vite app Playwright flow returned `ok: true` for:
+
+```text
+CUSTOMIZE -> detail
+ADD-TO-ORDER -> cart
+PLACE-ORDER -> confirm prompt
+CONFIRM PLACE-ORDER -> tracker
+```
+
+The final body text included:
+
+```text
+tracker / TRACKER
+Confirmed action request: PLACE-ORDER -> submit_order(cart_ref)
+```
+
+The Storybook iframe check returned `ok: true` for Help mode and found the expected command/action text, including `PLACE-ORDER` and `submit_order`.
+
+### What didn't work
+
+- Storybook still emits the non-fatal Storybook 11 `PopoverProvider ariaLabel` warning from Storybook internals.
+- Vite app console warning/error noise was resolved after adding the favicon/document shell.
+
+### What I learned
+
+- Playwright is useful here not as a committed test suite yet, but as an acceptance check for the target behavior the generator should eventually preserve.
+- The Storybook preview iframe is the correct surface for checking story content programmatically.
+
+### What was tricky to build
+
+- Storybook wraps the actual widget in a manager UI and iframe, so Playwright checks need to address the `storybook-preview-iframe` frame rather than the top-level page body.
+- The Vite app and Storybook are both served through tmux; after code changes, the safest review workflow is to restart the tmux session so both servers reload from a clean process state.
+
+### What warrants a second pair of eyes
+
+- Review whether the current stories are enough or whether we should add a story play function for the `PLACE-ORDER` confirmation path.
+- Review whether the app should get a real favicon asset later instead of an inline data URL.
+
+### What should be done in the future
+
+- Convert the Playwright flows into committed tests once the POC stabilizes.
+- Add Storybook interaction/play tests for the full order path.
+- Continue with select mode for ingredient removal.
+
+### Code review instructions
+
+- Open `http://localhost:5173/` and run the order flow manually.
+- Open `http://localhost:6010/?path=/story/poc-deli-pbui-workbench--help-mode` and inspect the command/action registry story.
+- Attach to tmux with `tmux attach -t dmeta-deli-pbui-poc` if server output is needed.
+
+### Technical details
+
+Current live verification servers:
+
+```text
+tmux session: dmeta-deli-pbui-poc
+storybook: http://localhost:6010/
+vite app:  http://localhost:5173/
+```
