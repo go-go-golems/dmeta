@@ -1003,3 +1003,101 @@ Current command input behavior:
 CART + Enter -> commandBindingsForView(currentView).CART -> navigate_to_cart
 FILTER-DIETARY vegetarian + Enter -> filter_by_dietary(dietary_tag)
 ```
+
+## Step 10: Lighten CLIM visual affordances to use underlines and color, not boxes
+
+This step responded to visual review feedback after the clickable interaction pass. The previous fix made targets clickable, but it still used bordered/background boxes in places where the intended CLIM visual language should be lighter. The reviewer specifically called out `VIEW MODEL` and `COMPOSITION DRAFT` as too visually heavy.
+
+I removed the remaining local card/box treatments from the proof-of-concept widget and kept clickable affordance on underlines, color changes, and cursor changes. This preserves the ability to discover clickable targets without making the screen feel like a set of heavy panels.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Stick with underlins / color changes for things, not border boxes (including for thing like VIEW MODEL and COMPOSITION DRAFT. Border boxes are havy visually"
+
+**Assistant interpretation:** Adjust the visual styling so clickable and structural elements use text treatment rather than bordered boxes.
+
+**Inferred user intent:** Keep the CLIM UI dense and typographic; avoid card-like visual weight that distracts from command/presentation semantics.
+
+**Commit (code):** `83e29dd` — "DMETA-DELI-PBUI-POC: lighten clickable presentation styling"
+
+### What I did
+
+- Removed bordered/background box treatments from the local POC view sections:
+  - View model summary.
+  - Composition draft summary.
+  - Cart item rows.
+  - Help rows.
+  - Tracker/lifecycle summary.
+- Changed clickable presentation refs to use:
+  - pointer cursor;
+  - text color change;
+  - underline on hover/focus/selection.
+- Changed action affordances to use underline/color changes rather than hover backgrounds.
+- Removed the action bar border line and focus-ring box effects.
+- Kept shell-level header/footer separators intact because those are structural terminal/shell boundaries rather than per-object boxes.
+
+### Why
+
+- The presentation system should feel text-first and command-oriented.
+- Heavy boxes make every section compete visually with actual selectable presentations.
+- Underline/color affordances better match the current desired CLIM-like style.
+
+### What worked
+
+Validation passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react
+npm run build
+npm run build-storybook
+```
+
+Playwright verified:
+
+```text
+VIEW MODEL border width: 0px
+COMPOSITION DRAFT border width: 0px
+CUSTOMIZE cursor: pointer
+CUSTOMIZE text decoration: underline
+turkey ingredient cursor: pointer
+turkey click still builds REMOVE-INGREDIENT -> remove_part(composition_ref, part_ref)
+```
+
+### What didn't work
+
+- My first Playwright assertion checked `borderTopStyle`, but Tailwind preflight reports `solid` even when border width is `0px`. I corrected the assertion to check `borderTopWidth`.
+
+### What I learned
+
+- Tailwind preflight can make computed `border-style` misleading; `border-width` is the right check for whether a visible border exists.
+- The typography-only treatment still provides enough affordance when combined with `cursor: pointer`, hover color, and underline.
+
+### What was tricky to build
+
+- Some border styles were not in obvious component boxes anymore; the remaining visual weight came from local section wrappers and action-bar separators. I removed those without touching shell-level header/footer structure.
+
+### What warrants a second pair of eyes
+
+- Review whether shell header/footer separators should also become typographic only, or whether they are useful structural boundaries.
+- Review whether selected presentation underline is sufficient for low-vision accessibility or should get an additional text marker.
+
+### What should be done in the future
+
+- Consider adding a small textual marker for current selection, such as `*` or `SELECTED`, instead of a box.
+- Apply the same no-box rule to generated `www/clim-react` once the POC style stabilizes.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx` for generic clickable styling.
+- Then review `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx` for local section wrapper styling.
+- Validate visually in Vite/Storybook and with Playwright cursor/border checks.
+
+### Technical details
+
+Current visual rule:
+
+```text
+clickable presentation/action -> pointer + underline + color change
+section metadata -> plain text with underlined label
+avoid per-section border/background boxes
+```
