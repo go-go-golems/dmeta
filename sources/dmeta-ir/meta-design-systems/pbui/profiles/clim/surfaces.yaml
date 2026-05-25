@@ -1,0 +1,100 @@
+schema_version: 0
+artifact_type: dmeta_pbui_surfaces
+summary: Reusable shell and surface layout for CLIM-style PBUI React applications.
+intent: >-
+  Capture the structural shell for CLIM-style PBUI browser applications. Surfaces describe where presentations, actions, command text, mode state, and feedback appear before a concrete application supplies domain views and branding.
+source:
+  file: reusable-clim-profile
+  rationale: >-
+    CLIM-style applications generally need stable regions for a header, active view area, command/action bars, presentation containers, context menus, confirmation prompts, and a persistent command line. Concrete applications may override component names or add regions.
+surfaces:
+  shell:
+    component: ClimShell
+    summary: Root application frame containing header, active view region, context overlays, and command-line footer.
+    intent: >-
+      Provide a persistent CLIM browser frame. The shell keeps the mode visible,
+      maintains the command-line affordance, and lets the active view swap
+      without changing global interaction semantics.
+    regions:
+      - id: header
+        role: mode_and_brand
+        component: ClimHeader
+        source_selector: "#header"
+      - id: main
+        role: active_view
+        component: ClimMain
+        source_selector: "#main"
+      - id: command_line
+        role: command_input_and_feedback
+        component: ClimCommandLine
+        source_selector: "#command-line"
+  header:
+    component: ClimHeader
+    summary: Brand and current mode label.
+    intent: >-
+      Keep the current view/mode legible at all times. In select mode, the mode
+      label should include the pending action, matching prototype behavior such
+      as `DETAIL ▸ REMOVE-INGREDIENT`.
+    regions:
+      - id: brand
+        role: application_identity
+        component: BrandLabel
+      - id: mode_label
+        role: current_view_and_interaction_mode
+        component: ModeLabel
+  view:
+    component: ClimViewFrame
+    summary: Reusable active-view frame with command echo, presentation area, and action bar.
+    intent: >-
+      Give each concrete view the same CLIM rhythm: command echo at the top,
+      presentations in the middle, compatible/no-arg actions below.
+    regions:
+      - id: command_echo
+        role: view_local_command_echo
+        component: ClimCommandBar
+      - id: presentations
+        role: primary_presentation_area
+        component: PresentationRegion
+      - id: action_bar
+        role: selected_object_action_surface
+        component: ActionHintBar
+  command_line:
+    component: ClimCommandLine
+    summary: Persistent command buffer, action result, and hint surface.
+    intent: >-
+      Preserve the keyboard-oriented CLIM affordance. The command line displays
+      action results, current typed command buffer, cursor, and context-sensitive
+      hints.
+    regions:
+      - id: action_result
+        role: latest_action_result
+        component: ActionResultLine
+      - id: command_buffer
+        role: typed_command_buffer
+        component: CommandBufferLine
+      - id: command_hint
+        role: contextual_help
+        component: CommandHintLine
+  context_menu:
+    component: ClimContextMenu
+    summary: Pointer-invoked compatible-action menu for one presentation.
+    intent: >-
+      Preserve the prototype right-click path while using Readwise-style
+      compatible-action derivation. The menu should show actions as documented
+      objects, including disabled/danger state where available.
+  confirm_prompt:
+    component: ClimConfirmPrompt
+    summary: Confirmation surface for dangerous actions.
+    intent: >-
+      Make irreversible or backend-mutating actions explicit. For Street Deli,
+      order submission should pass through this surface once the runtime uses
+      Interaction IR safety metadata.
+  help_surface:
+    component: ClimHelpSurface
+    summary: Documentation surface for actions, presentation types, and keyboard grammar.
+    intent: >-
+      Present the interface vocabulary as first-class readable material. This
+      mirrors the static CLIM prototype's help view and supports the thesis idea that
+      commands and interface state can themselves be presented.
+notes: >-
+  These surfaces are intentionally domain-neutral. Application profiles should override only the regions, component names, or branding that differ from the reusable CLIM shell contract.

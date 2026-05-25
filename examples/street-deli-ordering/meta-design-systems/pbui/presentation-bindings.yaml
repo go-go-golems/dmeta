@@ -1,143 +1,23 @@
 schema_version: 0
 artifact_type: dmeta_pbui_presentation_bindings
-summary: Concrete renderer bindings from abstract PBUI presentation types to Street Deli CLIM visual components.
+summary: Street Deli CLIM presentation binding overrides.
 intent: >-
-  Bind each abstract PBUI presentation type to concrete renderer components,
-  classes, display decisions, and subpresentation roles. This is the main bridge
-  from abstract PBUI obligations to the static CLIM prototype visual parity.
+  Inherit reusable CLIM bindings for presentation refs, action presentations,
+  action choosers, inspectors, lifecycle status, and generic composition
+  presentations, then override only the Street Deli composition details that are
+  tied to menu items, ingredients, substitutions, cart summaries, and order
+  actions.
 source:
   visual_reference: ../../www/clim/js/app-main.js
   runtime_reference: /home/manuel/code/wesen/2026-05-21--readwise-viewer/pkg/web/clim/render.ts
   rationale: >-
-    the static CLIM prototype shows how Street Deli objects should appear; Readwise shows
-    how presentation refs and action presentations should be treated as runtime
-    objects. These bindings combine the two sources.
+    The reusable CLIM profile explains the general renderer vocabulary. The
+    Street Deli prototype adds domain-specific subpresentation roles for menu
+    composition editing and cart review.
 bindings:
-  pbui.presentation_ref:
-    component: PresentationRefLine
-    summary: Render a semantic object reference as a CLIM text-object line.
-    intent: >-
-      Preserve the prototype pattern `<Type> label #id role/meta` while using
-      PBUI/Readwise PresentationRef data as the runtime model.
-    display:
-      block: true
-      inline: false
-      show_type_tag: true
-      show_id: true
-      show_label: true
-      show_role_meta: true
-      show_copy_value: false
-    classes:
-      base: pres pres-block
-      selected: selected
-      selectable: selectable
-      disabled: select-disabled
-      type: pres-type
-      id: pres-id
-      role: role
-    event_bindings:
-      click: select_or_execute_pending_action
-      context_menu: show_compatible_action_menu
-    data_attributes:
-      - data-type
-      - data-id
-      - data-label
-      - data-capabilities
-  pbui.action_presentation:
-    component: ActionPresentationInline
-    summary: Render an available action as a first-class inline CLIM presentation.
-    intent: >-
-      Make actions visible and selectable as interface objects, following the
-      Readwise ActionPresentation pattern and the static CLIM prototype action link style.
-    display:
-      inline: true
-      block: false
-      show_danger_marker: true
-      show_disabled_reason: true
-      show_argument_types: false
-    classes:
-      base: pres action pres-action
-      dangerous: pres-danger
-      disabled: pres-disabled
-      action: action
-    event_bindings:
-      click: request_or_execute_action
-      context_menu: inspect_action_metadata
-    data_attributes:
-      - data-type
-      - data-id
-      - data-action-id
-      - data-label
-      - data-capabilities
-  pbui.action_chooser:
-    component: ActionHintBar
-    summary: Render compatible actions for the selected presentation in the command/action surface.
-    intent: >-
-      Preserve the CLIM rhythm where selecting a presentation exposes compatible
-      actions nearby. In the static CLIM prototype this is the lower per-view command bar;
-      in Readwise this is a hint bar containing Action presentations.
-    placement:
-      preferred_surface: action_bar
-      fallback_surface: command_line
-    display:
-      inline_actions: true
-      group_by_safety: true
-      show_disabled_actions: false
-    classes:
-      base: cmd-bar
-      action: action
-      dangerous: pres-danger
-  pbui.inspector_panel:
-    component: InspectorPanelBlock
-    summary: Render object/type/action details as a structured CLIM help/inspection block.
-    intent: >-
-      Present metadata about selected objects, object types, projections,
-      compatible actions, and provenance. This binding supports both DESCRIBE
-      style results and future richer inspector surfaces.
-    placement:
-      preferred_surface: active_view
-      secondary_surface: command_line_action_result
-    display:
-      block: true
-      sections:
-        - header
-        - type_summary
-        - projection_sections
-        - compatible_actions
-        - provenance
-    classes:
-      base: pres-block
-      section: section-label
-      dim: role
-  pbui.lifecycle_status:
-    component: LifecycleStatusBlock
-    summary: Render order lifecycle progress as tracker steps.
-    intent: >-
-      Preserve the prototype tracker view's ordered Received/Preparing/Ready/Picked
-      Up progression while allowing PBUI lifecycle metadata to drive the view.
-    placement:
-      preferred_surface: tracker_view
-    display:
-      block: true
-      show_current_state: true
-      show_phase_list: true
-      show_next_step_hint: true
-    classes:
-      base: tracker-step
-      done: done
-      active: active
-      pending: pending
-    subpresentations:
-      steps:
-        component: TrackerStepLine
-        classes:
-          base: tracker-step
-          done: done
-          active: active
-          pending: pending
   pbui.composition_presentation:
     component: CompositionPresentationBlock
-    summary: Render composed menu/order items with part rows, roles, substitutions, and cart actions.
+    summary: Render composed menu/order items with ingredient rows, roles, substitutions, and cart actions.
     intent: >-
       This is the richest Street Deli binding. It turns one abstract composition
       presentation into a concrete family of CLIM text-object subpresentations:
@@ -189,7 +69,6 @@ bindings:
           base: cart-item-block
           item: pres pres-block
 notes: >-
-  These bindings intentionally name renderer components that do not exist yet.
-  Phase 4/5 should plan and scaffold them into `www/clim-react`. The point of
-  the binding file is to make the intended component vocabulary explicit before
-  React generation begins.
+  Most CLIM presentation bindings are inherited from the reusable PBUI CLIM
+  profile. This file keeps only the Street Deli domain vocabulary that should
+  later drive app-specific templates, selectors, and presentation renderers.

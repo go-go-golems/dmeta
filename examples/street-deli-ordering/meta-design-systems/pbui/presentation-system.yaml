@@ -21,6 +21,8 @@ status: experimental
 inherits:
   meta_design_system: pbui
   pbui_root: ../../../sources/dmeta-ir/meta-design-systems/pbui
+  surfaces: ../../../../sources/dmeta-ir/meta-design-systems/pbui/profiles/clim/surfaces.yaml
+  presentation_bindings: ../../../../sources/dmeta-ir/meta-design-systems/pbui/profiles/clim/presentation-bindings.yaml
 references:
   visual_reference: ../../www/clim
   visual_reference_index: ../../www/clim/index.html
@@ -47,7 +49,7 @@ validation:
   require_binding_components: true
   require_prose_intent_fields: true
 notes: >-
-  This profile is deliberately local to Street Deli. If another app adopts the
-  same monochrome command-oriented CLIM idiom, extract a global reusable profile
-  later. For v1, locality keeps the profile honest to the static CLIM prototype and avoids
-  pretending that all PBUI systems share this graphical design.
+  This profile is deliberately local to Street Deli where it defines views,
+  style choices, app-specific composition binding details, and the React app
+  target. Generic CLIM shell surfaces and common PBUI presentation bindings are
+  inherited from the reusable PBUI CLIM profile under sources/dmeta-ir.
