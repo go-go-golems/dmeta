@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Provider } from 'react-redux';
 import { store } from '../../app/store';
 import { ActionHintBar, ClimShell, ConfirmPrompt, PresentationRefLine } from '../../generic/clim/components';
-import { buildActionRequestFromBinding, summarizeActionRequest } from '../../generic/clim/runtime';
+import { buildActionRequestFromBinding, compatibleBindingsForPresentation, summarizeActionRequest } from '../../generic/clim/runtime';
 import type { ActionPresentation, ActionRequest, ClimSessionState, CommandBinding, PresentationRef } from '../../generic/clim/types';
 import { deliActionDescriptors } from '../../domain/deli/actions';
 import { deliCommandBindings, commandBindingsForView } from '../../domain/deli/commandBindings';
@@ -26,13 +26,13 @@ function menuItemPresentation(item: MenuItem): PresentationRef<'MenuItem'> {
   };
 }
 
-function ingredientPresentation(ingredient: Ingredient): PresentationRef<'Ingredient'> {
+function ingredientPresentation(ingredient: Ingredient, removed: boolean): PresentationRef<'Ingredient'> {
   return {
     type: 'Ingredient',
     id: ingredient.id,
-    label: `${ingredient.name} [${ingredient.role}]`,
+    label: `${ingredient.name} [${ingredient.role}]${removed ? ' (removed)' : ''}`,
     capabilities: ingredient.removable ? ['labelable', 'removable'] : ['labelable'],
-    metadata: { role: ingredient.role, removable: ingredient.removable ? 'yes' : 'no' },
+    metadata: { role: ingredient.role, removable: ingredient.removable ? 'yes' : 'no', removed: removed ? 'yes' : 'no' },
   };
 }
 
@@ -59,16 +59,25 @@ function draftPresentation(item: MenuItem | undefined): PresentationRef<'OrderIt
   };
 }
 
-function actionForCommand(viewId: string, commandId: DeliCommandId, subject?: PresentationRef): ActionPresentation<DeliActionId> {
-  const binding = commandBindingsForView(viewId).find((candidate) => candidate.id === commandId);
-  if (!binding) {
-    throw new Error(`No command binding for ${commandId}`);
-  }
+function actionForBinding(binding: CommandBinding<DeliCommandId, DeliActionId>, subject?: PresentationRef): ActionPresentation<DeliActionId> {
   return {
     descriptor: deliActionDescriptors[binding.actionId],
     commandLabel: binding.label,
     subject,
   };
+}
+
+function actionForCommand(viewId: string, commandId: DeliCommandId, subject?: PresentationRef): ActionPresentation<DeliActionId> {
+  const binding = commandBindingsForView(viewId).find((candidate) => candidate.id === commandId);
+  if (!binding) {
+    throw new Error(`No command binding for ${commandId}`);
+  }
+  return actionForBinding(binding, subject);
+}
+
+function commandArgumentsFromBuffer(value: string) {
+  const [, firstArg] = value.trim().split(/\s+/);
+  return { tag: firstArg ?? 'vegetarian', category: firstArg ?? 'sandwiches' };
 }
 
 export function DeliPbuiWorkbench({
@@ -80,13 +89,17 @@ export function DeliPbuiWorkbench({
   const initialItemId = initialSelectedItemId ?? menu[0]?.id;
   const [viewId, setViewId] = useState<DeliViewId>(initialView);
   const [selectedItemId, setSelectedItemId] = useState<string | undefined>(initialItemId);
+  const [selectedPresentation, setSelectedPresentation] = useState<PresentationRef | undefined>();
+  const [removedIngredientIds, setRemovedIngredientIds] = useState<string[]>([]);
   const [cartItems, setCartItems] = useState<DeliCartItem[]>([]);
   const [pendingBinding, setPendingBinding] = useState<CommandBinding<DeliCommandId, DeliActionId> | undefined>();
   const [pendingRequest, setPendingRequest] = useState<ActionRequest<DeliActionId> | undefined>();
+  const [commandBuffer, setCommandBuffer] = useState('LIST MENU');
   const [resultLine, setResultLine] = useState('Proof of concept: generic CLIM shell + Deli domain registry + RTK Query fixture data.');
 
   const selectedItem = menu.find((item) => item.id === selectedItemId) ?? menu[0];
-  const selected = selectedItem ? menuItemPresentation(selectedItem) : undefined;
+  const selectedMenuPresentation = selectedItem ? menuItemPresentation(selectedItem) : undefined;
+  const activeSelected = selectedPresentation ?? selectedMenuPresentation;
   const draft = draftPresentation(selectedItem);
   const effectiveCartItems = useMemo(() => {
     if (cartItems.length > 0 || !initialCart || !selectedItem) {
@@ -100,23 +113,50 @@ export function DeliPbuiWorkbench({
   const state: ClimSessionState = {
     mode,
     modeLabel: mode === 'confirm' ? 'CONFIRM' : view.modeLabel,
-    selected,
+    selected: activeSelected,
     pendingAction: pendingBinding ? deliActionDescriptors[pendingBinding.actionId] : undefined,
-    commandBuffer: mode === 'confirm' ? pendingBinding?.id ?? '' : `LIST ${view.modeLabel}`,
+    commandBuffer: mode === 'confirm' ? pendingBinding?.id ?? '' : commandBuffer,
     resultLine,
   };
   const commandBindings = commandBindingsForView(view.id);
-  const actions = view.defaultActions.map((commandId) =>
-    actionForCommand(view.id, commandId, commandId === 'CUSTOMIZE' ? selected : undefined),
-  );
+  const actions = view.defaultActions.map((commandId) => {
+    const binding = commandBindings.find((candidate) => candidate.id === commandId);
+    const subject = binding && Object.values(binding.inputMapping).includes('selected_presentation') ? activeSelected : undefined;
+    return actionForCommand(view.id, commandId, subject);
+  });
 
-  function buildRequest(binding: CommandBinding<DeliCommandId, DeliActionId>, action: ActionPresentation<DeliActionId>) {
+  function compatibleBindingsFor(presentation: PresentationRef) {
+    return compatibleBindingsForPresentation(commandBindings, presentation, view.defaultActions);
+  }
+
+  function buildRequest(
+    binding: CommandBinding<DeliCommandId, DeliActionId>,
+    action: ActionPresentation<DeliActionId>,
+    commandArguments = commandArgumentsFromBuffer(commandBuffer),
+  ) {
     return buildActionRequestFromBinding(binding, action.descriptor, {
-      selected: action.subject ?? selected,
+      selected: action.subject ?? activeSelected,
       currentDraft: draft,
       currentCart: cart,
-      commandArguments: { tag: 'vegetarian', category: 'sandwiches' },
+      commandArguments,
     });
+  }
+
+  function invokeBinding(
+    binding: CommandBinding<DeliCommandId, DeliActionId>,
+    subject?: PresentationRef,
+    commandArguments = commandArgumentsFromBuffer(commandBuffer),
+  ) {
+    setCommandBuffer(binding.id);
+    const action = actionForBinding(binding, subject);
+    const request = buildRequest(binding, action, commandArguments);
+    if (binding.requiresConfirmation) {
+      setPendingBinding(binding);
+      setPendingRequest(request);
+      setResultLine(`Pending confirmation: ${binding.id} -> ${summarizeActionRequest(request)}`);
+      return;
+    }
+    executeBinding(binding, request);
   }
 
   function handleInvoke(action: ActionPresentation) {
@@ -128,24 +168,41 @@ export function DeliPbuiWorkbench({
       setResultLine(`No command binding found for ${typedAction.commandLabel ?? typedAction.descriptor.id}`);
       return;
     }
-    const request = buildRequest(binding, typedAction);
-    if (binding.requiresConfirmation) {
-      setPendingBinding(binding);
-      setPendingRequest(request);
-      setResultLine(`Pending confirmation: ${binding.id} -> ${summarizeActionRequest(request)}`);
+    invokeBinding(binding, typedAction.subject ?? activeSelected);
+  }
+
+  function handlePresentationClick(presentation: PresentationRef) {
+    setSelectedPresentation(presentation);
+    if (presentation.type === 'MenuItem') {
+      setSelectedItemId(presentation.id);
+    }
+
+    const [binding] = compatibleBindingsFor(presentation);
+    if (!binding) {
+      setResultLine(`Selected ${presentation.label}`);
       return;
     }
-    executeBinding(binding, request);
+    invokeBinding(binding, presentation);
   }
 
   function executeBinding(binding: CommandBinding<DeliCommandId, DeliActionId>, request: ActionRequest<DeliActionId>) {
     switch (binding.id) {
       case 'CUSTOMIZE':
+        if (request.subject?.type === 'MenuItem') {
+          setSelectedItemId(request.subject.id);
+        }
         setViewId('detail');
         break;
+      case 'REMOVE-INGREDIENT': {
+        const part = request.inputs.part_ref as PresentationRef | undefined;
+        if (part) {
+          setRemovedIngredientIds((ids) => Array.from(new Set([...ids, part.id])));
+        }
+        break;
+      }
       case 'ADD-TO-ORDER':
         if (selectedItem) {
-          setCartItems((items) => [...items, { id: `cart.${selectedItem.id}.${items.length + 1}`, item: selectedItem, removedIngredientIds: [], substitutions: {} }]);
+          setCartItems((items) => [...items, { id: `cart.${selectedItem.id}.${items.length + 1}`, item: selectedItem, removedIngredientIds, substitutions: {} }]);
           setViewId('cart');
         }
         break;
@@ -165,6 +222,22 @@ export function DeliPbuiWorkbench({
     setResultLine(`Built action request: ${binding.id} -> ${summarizeActionRequest(request)}`);
   }
 
+  function handleCommandSubmit(value: string) {
+    setCommandBuffer(value);
+    const [commandID, ...args] = value.trim().split(/\s+/);
+    if (!commandID) {
+      setResultLine('Type a command such as CUSTOMIZE, CART, or HELP.');
+      return;
+    }
+    const binding = commandBindings.find((candidate) => candidate.id === commandID.toUpperCase());
+    if (!binding) {
+      setResultLine(`Unknown command for ${view.modeLabel}: ${commandID.toUpperCase()}`);
+      return;
+    }
+    const subject = Object.values(binding.inputMapping).includes('selected_presentation') ? activeSelected : undefined;
+    invokeBinding(binding, subject, { tag: args[0] ?? 'vegetarian', category: args[0] ?? 'sandwiches' });
+  }
+
   function confirmPending() {
     if (!pendingBinding || !pendingRequest) {
       return;
@@ -172,6 +245,7 @@ export function DeliPbuiWorkbench({
     setPendingBinding(undefined);
     setPendingRequest(undefined);
     setViewId('tracker');
+    setCommandBuffer(pendingBinding.id);
     setResultLine(`Confirmed action request: ${pendingBinding.id} -> ${summarizeActionRequest(pendingRequest)}`);
   }
 
@@ -190,9 +264,20 @@ export function DeliPbuiWorkbench({
             <div className="text-clim-bright">{selectedItem?.name}</div>
             <div className="text-clim-muted text-sm">{draft?.id}</div>
           </div>
-          {selectedItem?.ingredients.map((ingredient) => (
-            <PresentationRefLine key={ingredient.id} presentation={ingredientPresentation(ingredient)} selectable={ingredient.removable} />
-          ))}
+          {selectedItem?.ingredients.map((ingredient) => {
+            const removed = removedIngredientIds.includes(ingredient.id);
+            const presentation = ingredientPresentation(ingredient, removed);
+            const compatible = ingredient.removable ? compatibleBindingsFor(presentation) : [];
+            return (
+              <PresentationRefLine
+                key={ingredient.id}
+                presentation={presentation}
+                selected={activeSelected?.id === ingredient.id}
+                selectable={compatible.length > 0}
+                onSelect={compatible.length > 0 ? () => handlePresentationClick(presentation) : undefined}
+              />
+            );
+          })}
         </div>
       );
     }
@@ -200,7 +285,7 @@ export function DeliPbuiWorkbench({
     if (viewId === 'cart') {
       return (
         <div className="grid gap-2" data-testid="cart-view">
-          <PresentationRefLine presentation={cart} selected selectable />
+          <PresentationRefLine presentation={cart} selected selectable={false} />
           {effectiveCartItems.length === 0 ? (
             <div className="text-clim-muted">Cart is empty. Use CUSTOMIZE then ADD-TO-ORDER to create an item.</div>
           ) : (
@@ -208,6 +293,9 @@ export function DeliPbuiWorkbench({
               <div key={item.id} className="border border-clim-border bg-clim-panel/30 p-2">
                 <span className="text-clim-bright">&lt;OrderItem&gt;</span> {item.item.name}{' '}
                 <span className="text-clim-muted">${item.item.price.toFixed(2)}</span>
+                {item.removedIngredientIds.length > 0 ? (
+                  <span className="text-clim-danger"> removed: {item.removedIngredientIds.join(', ')}</span>
+                ) : null}
               </div>
             ))
           )}
@@ -244,16 +332,14 @@ export function DeliPbuiWorkbench({
       <div className="grid gap-1" data-testid="menu-view">
         {menu.map((item) => {
           const presentation = menuItemPresentation(item);
+          const compatible = compatibleBindingsFor(presentation);
           return (
             <PresentationRefLine
               key={item.id}
               presentation={presentation}
-              selected={selectedItemId === item.id}
-              selectable
-              onSelect={() => {
-                setSelectedItemId(item.id);
-                setResultLine(`Selected ${presentation.label}`);
-              }}
+              selected={activeSelected?.id === presentation.id || selectedItemId === item.id}
+              selectable={compatible.length > 0}
+              onSelect={compatible.length > 0 ? () => handlePresentationClick(presentation) : undefined}
             />
           );
         })}
@@ -262,7 +348,12 @@ export function DeliPbuiWorkbench({
   }
 
   return (
-    <ClimShell state={state}>
+    <ClimShell
+      state={state}
+      commandValue={mode === 'confirm' ? pendingBinding?.id ?? commandBuffer : commandBuffer}
+      onCommandChange={setCommandBuffer}
+      onCommandSubmit={handleCommandSubmit}
+    >
       <section className="grid gap-3">
         <div className="border border-clim-border bg-clim-panel/40 p-3">
           <div className="text-clim-muted text-xs uppercase tracking-wide">View model</div>

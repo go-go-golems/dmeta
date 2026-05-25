@@ -38,6 +38,18 @@ export const deliCommandBindings: Record<DeliCommandId, CommandBinding<DeliComma
     inputMapping: { category: 'command_argument:category' },
     requiresConfirmation: false,
   },
+  'REMOVE-INGREDIENT': {
+    id: 'REMOVE-INGREDIENT',
+    actionId: 'remove_part',
+    label: 'REMOVE-INGREDIENT',
+    summary: 'Remove one ingredient from the current composition draft.',
+    views: ['detail'],
+    presentationType: 'pbui.action_presentation',
+    surface: 'context_menu',
+    handler: 'deli.removeIngredient',
+    inputMapping: { composition_ref: 'current_draft', part_ref: 'selected_presentation' },
+    requiresConfirmation: false,
+  },
   'ADD-TO-ORDER': {
     id: 'ADD-TO-ORDER',
     actionId: 'add_to_order',

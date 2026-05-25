@@ -42,6 +42,7 @@ export type DeliCommandId =
   | 'CUSTOMIZE'
   | 'FILTER-DIETARY'
   | 'FILTER-BY-CATEGORY'
+  | 'REMOVE-INGREDIENT'
   | 'ADD-TO-ORDER'
   | 'APPLY'
   | 'DESCRIBE'

@@ -46,6 +46,18 @@ bindings:
     input_mapping:
       category: command_argument:category
     requires_confirmation: false
+  REMOVE-INGREDIENT:
+    action: remove_part
+    label: REMOVE-INGREDIENT
+    summary: Remove one ingredient from the current composition draft.
+    views: [detail]
+    presentation_type: pbui.action_presentation
+    surface: context_menu
+    handler: deli.removeIngredient
+    input_mapping:
+      composition_ref: current_draft
+      part_ref: selected_presentation
+    requires_confirmation: false
   ADD-TO-ORDER:
     action: add_to_order
     label: ADD-TO-ORDER

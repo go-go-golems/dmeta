@@ -54,6 +54,7 @@ views:
       - pbui.presentation_ref
     command_echo_template: "CUSTOMIZE {menu_item_name}"
     default_actions:
+      - REMOVE-INGREDIENT
       - ADD-TO-ORDER
       - BACK
       - CART
