@@ -79,3 +79,13 @@ Fixed clickable affordances, added generic command-binding-driven presentation c
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts — Generic compatible-presentation binding helpers
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Presentation click and command input dispatch
 
+
+## 2026-05-25
+
+Lightened the POC CLIM styling so clickable targets and structural labels use underlines/color instead of bordered boxes (commit 83e29dd).
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx — Generic underline/color clickable styling
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Removed local section border/background boxes
+
