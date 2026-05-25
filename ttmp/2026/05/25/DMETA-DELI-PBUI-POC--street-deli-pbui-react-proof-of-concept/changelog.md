@@ -244,3 +244,14 @@ Uploaded minimal PBUI core guide to reMarkable as DMETA PBUI Minimal Core Guide.
 
 - /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/25/DMETA-DELI-PBUI-POC--street-deli-pbui-react-proof-of-concept/design-doc/03-minimal-pbui-clim-core-simplification-analysis-and-implementation-guide.md — Uploaded guide source
 
+
+## 2026-05-25
+
+Step 24: hard-cut the Deli PBUI POC action engine from command bindings/input mappings to typed ActionSpec/ActionArgSpec runtime definitions, delete obsolete compatibility modules, and validate build/Storybook/REPL flows (commit 8897aec)
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/domain/deli/actions.ts — Deli ActionSpec registry
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/actionEngine.ts — Pure typed argument matching helpers
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/types.ts — Typed ActionSpec runtime contract
+
