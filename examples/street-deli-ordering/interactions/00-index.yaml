@@ -1,0 +1,14 @@
+schema_version: 0
+artifact_type: dmeta_interaction_package
+summary: Street Deli interaction package extending the shared generic Interaction IR.
+status: draft
+inherits:
+  interactions_root: ../../sources/dmeta-ir
+files:
+  actions: ./actions.yaml
+  representations: ./representations.yaml
+  elaboration_rules: ./elaboration-rules.yaml
+validation:
+  require_abstract_roots: true
+  reject_abstract_emissions: true
+  require_known_selectors: true

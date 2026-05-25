@@ -1,0 +1,156 @@
+schema_version: 0
+artifact_type: dmeta_interaction_representations
+summary: Street Deli ordering representations layered on top of the shared Interaction IR.
+long_summary: >-
+  These representations expose deli-specific composition, dietary,
+  substitution, cart, and order lifecycle information before PBUI or React
+  chooses concrete components.
+representations:
+  composition_summary:
+    extends: [Representation]
+    intent: Summarize a deli composition as an orderable or inspectable whole.
+    description: Compact representation of a composed product or order item.
+    subjects:
+      - all_capabilities: [composable, labelable]
+    exposes:
+      required_projections:
+        - composable.parts
+        - labelable.label
+      recommended_projections:
+        - composable.part_count
+        - dietary.dietary_tags
+    supports_actions:
+      - select_subject
+      - inspect_subject
+  composition_breakdown:
+    extends: [Representation]
+    intent: Expose the parts of a deli composition, their functional roles, and role constraints affected by removal or substitution.
+    description: Role-aware breakdown of composition parts.
+    subjects:
+      - all_capabilities: [composable]
+    exposes:
+      required_projections:
+        - composable.parts
+      recommended_projections:
+        - role_composable.role_profile
+        - ingredient_composable.ingredient_roles
+    supports_actions:
+      - remove_part
+      - add_part
+      - apply_substitution
+  ingredient_composition_row:
+    extends: [Representation]
+    intent: Represent one ingredient or part inside a composition with role and constraint context.
+    description: One-part representation within a composition breakdown.
+    subjects:
+      - any_archetypes: [Ingredient]
+        any_capabilities: [dietary]
+    exposes:
+      required_projections:
+        - labelable.label
+      recommended_projections:
+        - dietary.dietary_tags
+        - ingredient_composable.ingredient_roles
+    supports_actions:
+      - remove_part
+      - undo_remove_part
+      - see_alternatives
+  role_label:
+    extends: [Representation]
+    intent: Name a functional role played by an ingredient or composition part.
+    description: Role label such as structural, protein, richness, moisture, or crunch.
+    subjects:
+      - any_capabilities: [role_composable, ingredient_composable]
+    exposes:
+      recommended_projections:
+        - role_composable.role_profile
+        - ingredient_composable.ingredient_roles
+    supports_actions: []
+  dietary_summary:
+    extends: [Representation]
+    intent: Expose dietary tags and allergen constraints for filtering and safety.
+    description: Dietary/allergen interaction representation for deli choices.
+    subjects:
+      - all_capabilities: [dietary]
+    exposes:
+      required_projections:
+        - dietary.dietary_tags
+      optional_projections:
+        - dietary.allergen_contains
+        - dietary.allergen_may_contain
+    supports_actions:
+      - filter_by_dietary
+  configuration_summary:
+    extends: [Representation]
+    intent: Expose configurable options and current selections for a deli item.
+    description: Configuration option representation.
+    subjects:
+      - all_capabilities: [configurable]
+    exposes:
+      required_projections:
+        - configurable.config_options
+      optional_projections:
+        - configurable.current_config
+    supports_actions:
+      - change_config
+  substitution_candidate:
+    extends: [Representation]
+    intent: Explain why a replacement can stand in for a removed ingredient under active constraints.
+    description: Candidate replacement representation.
+    subjects:
+      - any_capabilities: [substitutable]
+    exposes:
+      required_projections:
+        - substitutable.replaces
+        - substitutable.replacement_candidates
+      recommended_projections:
+        - substitutable.role_preservation
+        - substitutable.dietary_compatibility
+        - substitutable.flavor_fit
+        - substitutable.auto_suggest
+    supports_actions:
+      - apply_substitution
+      - reject_substitution
+      - see_alternatives
+  substitution_price_delta:
+    extends: [Representation]
+    intent: Expose cost impact for a replacement candidate.
+    description: Price delta representation for substitutions.
+    subjects:
+      - any_capabilities: [price_aware_substitutable, substitutable]
+    exposes:
+      recommended_projections:
+        - substitutable.price_delta_cents
+        - price_aware_substitutable.price_delta_label
+    supports_actions: []
+  order_lifecycle_progress:
+    extends: [Representation]
+    intent: Represent the current lifecycle phase of an order and the remaining phases before completion or pickup.
+    description: Order progress/lifecycle representation.
+    subjects:
+      - any_archetypes: [Order]
+        all_capabilities: [stateful, temporal]
+    exposes:
+      required_projections:
+        - stateful.state
+      recommended_projections:
+        - temporal.start_time
+        - temporal.end_time
+        - temporal.duration_ms
+    supports_actions:
+      - inspect_subject
+      - return_to_menu
+  cart_summary:
+    extends: [Representation]
+    intent: Summarize a local cart or order draft before submission.
+    description: Cart review representation.
+    subjects:
+      - any_archetypes: [OrderItem, Order]
+    exposes:
+      recommended_projections:
+        - labelable.label
+        - measurable.value
+    supports_actions:
+      - remove_cart_item
+      - submit_order
+      - return_to_menu

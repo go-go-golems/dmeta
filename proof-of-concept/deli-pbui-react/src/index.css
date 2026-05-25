@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: "Berkeley Mono", "SFMono-Regular", ui-monospace, monospace;
+  --color-clim-bg: #050505;
+  --color-clim-panel: #101010;
+  --color-clim-border: #303030;
+  --color-clim-fg: #d8d8d8;
+  --color-clim-muted: #777777;
+  --color-clim-bright: #ffffff;
+  --color-clim-danger: #ff4d4d;
+}
+
+html, body, #root {
+  min-height: 100%;
+  margin: 0;
+  background: var(--color-clim-bg);
+  color: var(--color-clim-fg);
+}
+
+body {
+  font-family: var(--font-mono);
+}

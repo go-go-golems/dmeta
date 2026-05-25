@@ -1,0 +1,30 @@
+{
+  "name": "deli-pbui-react-poc",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "storybook": "storybook dev -p 6010",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.11.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "vite": "^8.0.14",
+    "typescript": "~6.0.2",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-redux": "^9.2.0"
+  },
+  "devDependencies": {
+    "@storybook/addon-docs": "10.4.0",
+    "@storybook/react-vite": "10.4.0",
+    "@tailwindcss/postcss": "^4.1.17",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "storybook": "10.4.0",
+    "tailwindcss": "^4.1.17"
+  }
+}

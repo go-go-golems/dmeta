@@ -1,6 +1,6 @@
 schema_version: 0
 artifact_type: dmeta_interaction_elaboration_rules
-summary: Initial rule set for deriving modality-neutral interaction obligations from resolved semantic facts.
+summary: Shared generic rule set for deriving modality-neutral interaction obligations from resolved semantic facts.
 rules:
   - id: identifiable_labelable_to_compact_reference
     when:
@@ -20,56 +20,3 @@ rules:
     emits:
       representations: [state_indicator]
       actions: [filter_by_state]
-  - id: dietary_to_dietary_summary
-    when:
-      all_capabilities: [dietary]
-    emits:
-      representations: [dietary_summary]
-      actions: [filter_by_dietary]
-  - id: composable_to_composition_views
-    when:
-      all_capabilities: [composable]
-    emits:
-      representations: [composition_summary, composition_breakdown]
-      actions: [remove_part, add_part]
-  - id: configurable_to_configuration_summary
-    when:
-      all_capabilities: [configurable]
-    emits:
-      representations: [configuration_summary]
-      actions: [change_config]
-  - id: ingredient_composable_to_part_rows
-    when:
-      all_capabilities: [ingredient_composable]
-    emits:
-      representations: [ingredient_composition_row, role_label]
-      actions: [remove_part, undo_remove_part, see_alternatives]
-  - id: substitutable_to_substitution_candidate
-    when:
-      any_capabilities: [substitutable, role_preserving_substitutable]
-    emits:
-      representations: [substitution_candidate]
-      actions: [apply_substitution, reject_substitution, see_alternatives]
-  - id: price_aware_substitution_to_price_delta
-    when:
-      any_capabilities: [price_aware_substitutable]
-    emits:
-      representations: [substitution_price_delta]
-      actions: []
-  - id: order_to_lifecycle_progress
-    description: Derive lifecycle tracking affordances for stateful temporal orders.
-    when:
-      any_archetypes: [Order]
-      all_capabilities: [stateful, temporal]
-    emits:
-      representations: [order_lifecycle_progress]
-      actions: [return_to_menu]
-  - id: order_to_cart_summary
-    description: >-
-      Derive cart review and submission affordances for order-like subjects so
-      PBUI dogfooding can exercise confirmation-requiring backend actions.
-    when:
-      any_archetypes: [Order]
-    emits:
-      representations: [cart_summary]
-      actions: [remove_cart_item, submit_order]

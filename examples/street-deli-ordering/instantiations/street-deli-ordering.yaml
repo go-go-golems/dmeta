@@ -4,7 +4,7 @@ id: street_deli_ordering
 name: Street Deli Ordering
 summary: Concrete DMETA instantiation for the Hudson Street Deli sandwich/composition mobile ordering flow.
 semantic_root: ..
-interactions_root: ../../../sources/dmeta-ir
+interactions_root: ..
 meta_design_systems:
   web:
     root: ../meta-design-systems/web
