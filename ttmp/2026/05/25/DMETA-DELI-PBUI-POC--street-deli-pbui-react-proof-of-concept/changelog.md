@@ -37,3 +37,13 @@ Added concrete Street Deli command/action bindings and validation; mirrored the 
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/validate.go — Action binding validation
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts — POC command binding registry
 
+
+## 2026-05-25
+
+Added a generic command-binding action-request helper and started Storybook/Vite verification servers in tmux (commit 86e3622).
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts — Action request helper
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Uses command bindings to build requests
+
