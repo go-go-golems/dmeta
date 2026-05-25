@@ -25,19 +25,6 @@ export interface DeliCartItem {
   substitutions: Record<string, Ingredient>;
 }
 
-export type DeliActionId =
-  | 'select_menu_item'
-  | 'filter_by_dietary'
-  | 'filter_by_category'
-  | 'describe_subject'
-  | 'navigate_to_cart'
-  | 'show_help'
-  | 'remove_part'
-  | 'apply_substitution'
-  | 'add_to_order'
-  | 'submit_order'
-  | 'return_to_menu';
-
 export type DeliCommandId =
   | 'CUSTOMIZE'
   | 'FILTER-DIETARY'

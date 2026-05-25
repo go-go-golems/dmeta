@@ -1,7 +1,7 @@
-import type { CommandBinding } from '../../types';
+import type { ActionSpec } from '../../types';
 
 export interface PbuiConfirmPromptProps {
-  binding: CommandBinding;
+  action: ActionSpec;
   className?: string;
   onConfirm: () => void;
   onCancel: () => void;

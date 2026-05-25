@@ -34,3 +34,7 @@
 - [x] Add generic CLIM command parser and REPL command history support
 - [x] Wire Deli command line to normalized action commands, prefix arguments, confirm YES/CANCEL, select ESC, and history navigation
 - [x] Validate REPL flows in app and Storybook
+- [x] Replace legacy CommandBinding/ActionDescriptor model with typed ActionSpec and ActionArgSpec runtime types
+- [x] Replace Deli command bindings, handler registry, runtime input mapping, and compatibility metadata with Deli ActionSpec definitions and accepts lambdas
+- [x] Rewire Deli workbench and PBUI session slice around pending action ids, filled args, REPL execution, and typed action matching
+- [x] Delete obsolete compatibility/input-mapping modules and validate build, Storybook, and REPL flows

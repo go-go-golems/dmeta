@@ -1,12 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { ActionRequest, CommandBinding, InteractionMode, PresentationRef } from './types';
+import type { ActionRequest, InteractionMode, PresentationRef } from './types';
 
 export interface PbuiSessionState {
   mode: InteractionMode;
   selectedRef?: PresentationRef;
-  pendingCommand?: CommandBinding;
+  pendingActionId?: string;
   pendingRequest?: ActionRequest;
+  filledArgs: Record<string, unknown>;
   commandBuffer: string;
   commandHistory: string[];
   historyCursor?: number;
@@ -15,6 +16,7 @@ export interface PbuiSessionState {
 
 export const initialPbuiSessionState: PbuiSessionState = {
   mode: 'normal',
+  filledArgs: {},
   commandBuffer: 'LIST',
   commandHistory: [],
 };
@@ -26,6 +28,8 @@ export const pbuiSessionSlice = createSlice({
     resetSession: (_state, action: PayloadAction<Partial<PbuiSessionState> | undefined>) => ({
       ...initialPbuiSessionState,
       ...action.payload,
+      filledArgs: action.payload?.filledArgs ?? {},
+      commandHistory: action.payload?.commandHistory ?? [],
     }),
     selectRef: (state, action: PayloadAction<{ presentation?: PresentationRef; resultLine?: string }>) => {
       state.selectedRef = action.payload.presentation;
@@ -79,14 +83,15 @@ export const pbuiSessionSlice = createSlice({
     clearCommandBuffer: (state) => {
       state.commandBuffer = '';
       state.historyCursor = undefined;
-    }, 
+    },
     setResult: (state, action: PayloadAction<string | undefined>) => {
       state.resultLine = action.payload;
     },
     routeChanged: (state, action: PayloadAction<{ commandBuffer?: string; selectedRef?: PresentationRef }>) => {
       state.mode = 'normal';
-      state.pendingCommand = undefined;
+      state.pendingActionId = undefined;
       state.pendingRequest = undefined;
+      state.filledArgs = {};
       if (action.payload.selectedRef !== undefined) {
         state.selectedRef = action.payload.selectedRef;
       }
@@ -94,20 +99,22 @@ export const pbuiSessionSlice = createSlice({
         state.commandBuffer = action.payload.commandBuffer;
       }
     },
-    enterSelect: (state, action: PayloadAction<{ command: CommandBinding; resultLine?: string }>) => {
+    enterSelect: (state, action: PayloadAction<{ actionId: string; filledArgs?: Record<string, unknown>; resultLine?: string }>) => {
       state.mode = 'select';
-      state.pendingCommand = action.payload.command;
+      state.pendingActionId = action.payload.actionId;
       state.pendingRequest = undefined;
-      state.commandBuffer = action.payload.command.id;
+      state.filledArgs = action.payload.filledArgs ?? {};
+      state.commandBuffer = action.payload.actionId;
       if (action.payload.resultLine !== undefined) {
         state.resultLine = action.payload.resultLine;
       }
     },
-    selectCompleted: (state, action: PayloadAction<{ selectedRef: PresentationRef; commandBuffer?: string; resultLine?: string }>) => {
+    selectCompleted: (state, action: PayloadAction<{ selectedRef: PresentationRef; filledArgs?: Record<string, unknown>; commandBuffer?: string; resultLine?: string }>) => {
       state.mode = 'normal';
       state.selectedRef = action.payload.selectedRef;
-      state.pendingCommand = undefined;
+      state.pendingActionId = undefined;
       state.pendingRequest = undefined;
+      state.filledArgs = action.payload.filledArgs ?? {};
       if (action.payload.commandBuffer !== undefined) {
         state.commandBuffer = action.payload.commandBuffer;
       }
@@ -117,25 +124,28 @@ export const pbuiSessionSlice = createSlice({
     },
     selectCancelled: (state, action: PayloadAction<{ resultLine?: string } | undefined>) => {
       state.mode = 'normal';
-      state.pendingCommand = undefined;
+      state.pendingActionId = undefined;
       state.pendingRequest = undefined;
+      state.filledArgs = {};
       if (action.payload?.resultLine !== undefined) {
         state.resultLine = action.payload.resultLine;
       }
     },
-    enterConfirm: (state, action: PayloadAction<{ command: CommandBinding; request: ActionRequest; resultLine?: string }>) => {
+    enterConfirm: (state, action: PayloadAction<{ actionId: string; request: ActionRequest; filledArgs?: Record<string, unknown>; resultLine?: string }>) => {
       state.mode = 'confirm';
-      state.pendingCommand = action.payload.command;
+      state.pendingActionId = action.payload.actionId;
       state.pendingRequest = action.payload.request;
-      state.commandBuffer = action.payload.command.id;
+      state.filledArgs = action.payload.filledArgs ?? action.payload.request.args;
+      state.commandBuffer = action.payload.actionId;
       if (action.payload.resultLine !== undefined) {
         state.resultLine = action.payload.resultLine;
       }
     },
     confirmCompleted: (state, action: PayloadAction<{ commandBuffer?: string; resultLine?: string }>) => {
       state.mode = 'normal';
-      state.pendingCommand = undefined;
+      state.pendingActionId = undefined;
       state.pendingRequest = undefined;
+      state.filledArgs = {};
       if (action.payload.commandBuffer !== undefined) {
         state.commandBuffer = action.payload.commandBuffer;
       }
@@ -145,8 +155,9 @@ export const pbuiSessionSlice = createSlice({
     },
     confirmCancelled: (state, action: PayloadAction<{ resultLine?: string } | undefined>) => {
       state.mode = 'normal';
-      state.pendingCommand = undefined;
+      state.pendingActionId = undefined;
       state.pendingRequest = undefined;
+      state.filledArgs = {};
       if (action.payload?.resultLine !== undefined) {
         state.resultLine = action.payload.resultLine;
       }
