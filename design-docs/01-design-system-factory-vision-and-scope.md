@@ -201,12 +201,16 @@ Following the Collaborative Schema Design Sessions playbook:
 
 ## Related Artifacts
 
-### Playbooks (in ticket playbooks/)
-- `01-collaborative-schema-design-sessions-for-presentation-based-ui.md` — the session protocol we'll follow
-- `02-widget-ir-to-finished-widget-playbook.md` — the proven promotion workflow
-- `03-admin-dsl-widget-design-system-review-playbook.md` — how to detect drift
-- `04-widget-playbook-compliance-audit-guide.md` — compliance verification
-- `05-intern-widget-compliance-review-kickoff.md` — intern-style review kickoff
+### Current playbooks
+- `../playbooks/01-dmeta-shared-compiler-playbook.md` — shared Semantic IR, Interaction IR, validation, and cross-target workflow
+- `../playbooks/02-dmeta-web-react-metadesignsystem-playbook.md` — Web MetaDesignSystem and pure/mobile React target workflow
+- `../playbooks/03-dmeta-pbui-clim-metadesignsystem-playbook.md` — PBUI/CLIM MetaDesignSystem and concrete CLIM React target workflow
+
+### Historical HAIR-041 playbooks
+- `02-widget-ir-to-finished-widget-playbook.md` — proven promotion workflow, now conceptually absorbed into the Web React playbook
+- `03-admin-dsl-widget-design-system-review-playbook.md` — drift detection reference
+- `04-widget-playbook-compliance-audit-guide.md` — compliance verification reference
+- `05-intern-widget-compliance-review-kickoff.md` — intern-style review kickoff reference
 
 ### Specifications (in ticket specifications/)
 - `01-design-system-dsl-data-structures-and-toolchain.md` — the full technical spec from HAIR-041

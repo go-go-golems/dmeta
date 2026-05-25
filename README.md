@@ -1,65 +1,161 @@
 # DMETA Long-Term Documentation
 
-This directory contains durable design-system factory documents promoted out of temporary ticket workspaces.
+This repository contains durable design-system factory documents, IR sources, compiler commands, and Street Deli example targets.
 
-## Playbooks
+The current setup keeps two active React target lines over shared Semantic IR and Interaction IR:
 
-- `playbooks/01-collaborative-schema-design-sessions-for-presentation-based-ui.md` — collaborative protocol for moving from intent and examples to semantic archetypes, capabilities, presentations, actions, widget IR, and implementation work.
-- `playbooks/02-dmeta-design-system-factory-runthrough-playbook.md` — DMETA-specific runthrough from source import through intermediate docs, concrete schemas, hard design rules, tooling, and concrete domain instantiation.
+1. **Web React** — Web MetaDesignSystem -> React target -> `examples/street-deli-ordering/www/mobile-react/`.
+2. **PBUI/CLIM React** — PBUI MetaDesignSystem -> concrete PBUI profile -> CLIM React target -> `examples/street-deli-ordering/www/clim-react/`.
+
+The two static A/B prototypes remain under:
+
+- `examples/street-deli-ordering/www/mobile/`
+- `examples/street-deli-ordering/www/clim/`
+
+## Current playbooks
+
+- `playbooks/01-dmeta-shared-compiler-playbook.md` — shared Semantic IR, Interaction IR, validation, and cross-target workflow.
+- `playbooks/02-dmeta-web-react-metadesignsystem-playbook.md` — Web MetaDesignSystem, Web lowering, React scaffold planning, and `www/mobile-react` workflow.
+- `playbooks/03-dmeta-pbui-clim-metadesignsystem-playbook.md` — PBUI MetaDesignSystem, concrete PBUI profile, generic PBUI proof package, and `www/clim-react` workflow.
+
+Start with the shared playbook, then run the Web or PBUI playbook depending on the target being changed.
 
 ## Design docs
 
+- `design-docs/00-document-map-and-cleanup-plan.md` — current decision matrix for which docs to keep, update, archive, or remove.
 - `design-docs/01-design-system-factory-vision-and-scope.md` — overall factory vision and scope.
 - `design-docs/02-semantic-archetype-and-capability-model.md` — reusable semantic archetypes, capabilities, projections, presentations, and action model.
 - `design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md` — sober dense operational UI graphic design and UX archetype.
-- `design-docs/04-concrete-dmeta-system-spec.md` — concrete v0 system architecture, Markdown/YAML split, artifact layout, lifecycle, and implementation order.
-- `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` — concrete v0 specification for `01-core-model.yaml`, widget-template packages, and instance manifests.
-- `design-docs/06-dmeta-design-language-and-tooling-spec.md` — concrete v0 specification for `02-design-language.yaml`, generated helpers, validators, generators, lint, and promotion tooling.
+- `design-docs/04-concrete-dmeta-system-spec.md` — older concrete v0 system spec; keep for now, but update/supersede with current compiler architecture.
+- `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` — useful core-model material plus older widget IR material; split/update before treating as current target guidance.
+- `design-docs/06-dmeta-design-language-and-tooling-spec.md` — useful design-language material plus older tooling sequence; split/update for Web/PBUI target commands.
+- `design-docs/07-generated-instance-widget-review-guide.md` — older generated widget review guide; archive or replace after extracting any remaining Web promotion guidance.
 
 ## Current semantic model note
 
-The core semantic model now uses explicit multi-level inheritance. `Archetype` and `Capability` are abstract roots, every non-root archetype/capability declares `extends`, validators resolve inherited capabilities/projections/actions before checking domain examples, and generated TypeScript exposes `isArchetypeA(...)`, `isCapabilityA(...)`, and effective inherited fields. Treat older flat archetype/capability examples as historical sketches unless they have been updated with `extends`.
+The core semantic model uses explicit multi-level inheritance. `Archetype` and `Capability` are abstract roots, every non-root archetype/capability declares `extends`, validators resolve inherited capabilities/projections/actions before checking domain examples, and generated TypeScript exposes `isArchetypeA(...)`, `isCapabilityA(...)`, and effective inherited fields. Treat older flat archetype/capability examples as historical sketches unless they have been updated with `extends`.
 
 ## Source IR
 
-- `sources/dmeta-ir/00-index.yaml` — v0 IR package manifest.
-- `sources/dmeta-ir/01-core-model.yaml` — split core-model package index with references to `core-model/archetypes.yaml`, `core-model/capabilities.yaml`, `core-model/presentations.yaml`, and `core-model/examples/*.yaml`.
+Shared sources:
+
+- `sources/dmeta-ir/00-index.yaml` — shared IR package manifest.
+- `sources/dmeta-ir/01-core-model.yaml` — split core-model package index.
 - `sources/dmeta-ir/02-design-language.yaml` — sober dense operational UI design-language ranges, recipes, states, and lint rules.
-- `sources/dmeta-ir/03-widgets.yaml` — widget-template package index. The selectable/adaptable global templates live in `sources/dmeta-ir/widget-templates/*.yaml`.
+- `sources/dmeta-ir/core-model/` — archetypes, capabilities, presentations, and examples.
+- `sources/dmeta-ir/interactions/` — shared actions, representations, and elaboration rules.
+
+Target sources:
+
+- `sources/dmeta-ir/meta-design-systems/web/` — global Web MetaDesignSystem.
+- `examples/street-deli-ordering/meta-design-systems/web/` — Street Deli Web MetaDesignSystem.
+- `sources/dmeta-ir/meta-design-systems/pbui/` — global PBUI MetaDesignSystem.
+- `examples/street-deli-ordering/meta-design-systems/pbui/` — Street Deli concrete PBUI/CLIM profile.
+
+## Core commands
+
+Run shared validation first:
+
+```bash
+go test ./pkg/dmeta/... ./cmd/dmeta -count=1
+
+go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
+go run ./cmd/dmeta validate-ir --root ./examples/street-deli-ordering --include-info --output table
+go run ./cmd/dmeta validate-interactions --root ./sources/dmeta-ir --include-info --output table
+```
+
+Generate shared TypeScript core registries when needed:
+
+```bash
+go run ./cmd/dmeta generate-core \
+  --root ./sources/dmeta-ir \
+  --out ./generated/dmeta-core \
+  --dry-run \
+  --output table
+```
+
+## Web React commands
+
+```bash
+go run ./cmd/dmeta lower-web \
+  --root ./examples/street-deli-ordering \
+  --interactions-root ./sources/dmeta-ir \
+  --web-root ./examples/street-deli-ordering/meta-design-systems/web \
+  --output table
+
+go run ./cmd/dmeta plan-scaffold \
+  --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml \
+  --target react \
+  --output table
+
+go run ./cmd/dmeta scaffold-react \
+  --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml \
+  --dry-run \
+  --output table
+```
+
+Build the promoted Web app:
+
+```bash
+cd examples/street-deli-ordering/www/mobile-react
+npm ci --no-audit --no-fund
+npm run build
+npm run build-storybook
+```
+
+## PBUI/CLIM React commands
+
+```bash
+go run ./cmd/dmeta validate-pbui \
+  --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui \
+  --interactions-root ./sources/dmeta-ir \
+  --include-info \
+  --output table
+
+go run ./cmd/dmeta lower-pbui \
+  --root ./examples/street-deli-ordering \
+  --interactions-root ./sources/dmeta-ir \
+  --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui \
+  --output table
+
+go run ./cmd/dmeta validate-pbui-profile \
+  --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui \
+  --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui \
+  --interactions-root ./sources/dmeta-ir \
+  --include-info \
+  --output table
+
+go run ./cmd/dmeta instantiate-pbui \
+  --root ./examples/street-deli-ordering \
+  --interactions-root ./sources/dmeta-ir \
+  --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui \
+  --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui \
+  --output table
+
+go run ./cmd/dmeta plan-pbui-react-app \
+  --root ./examples/street-deli-ordering \
+  --interactions-root ./sources/dmeta-ir \
+  --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui \
+  --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui \
+  --output-dir ./examples/street-deli-ordering/www/clim-react \
+  --output table
+```
+
+Build the concrete CLIM app:
+
+```bash
+cd examples/street-deli-ordering/www/clim-react
+npm ci --no-audit --no-fund
+npm run build
+npm run build-storybook
+```
 
 ## Ticket history
 
-The originating docmgr ticket remains under:
+Important ticket workspaces remain under `ttmp/`, especially:
 
-`ttmp/2026/05/19/DMETA-001--design-system-factory-first-runthrough-of-presentation-based-ui-dsl-for-high-volume-data-applications/`
+- `ttmp/2026/05/24/DMETA-COMPILER-MDS--*`
+- `ttmp/2026/05/24/DMETA-CLIM-MDS--*`
+- `ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--*`
 
-
-## Commands
-
-Validate the global DMETA IR package:
-
-```bash
-GOWORK=off go run ./cmd/dmeta validate-ir --root ./sources/dmeta-ir --include-info --output table
-```
-
-Generate TypeScript core registries:
-
-```bash
-GOWORK=off go run ./cmd/dmeta generate-core --root ./sources/dmeta-ir --out ./generated/dmeta-core --force --output table
-```
-
-Plan a concrete widget-template instantiation before writing files:
-
-```bash
-GOWORK=off go run ./cmd/dmeta plan-instance   --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml   --output table
-```
-
-Scaffold only the templates selected by an instance manifest:
-
-```bash
-GOWORK=off go run ./cmd/dmeta scaffold-instance   --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml   --force   --output table
-```
-
-## Instance widget review rule
-
-Generated instance widgets are scaffolds. Review the `.metadata.ts` sidecar first to confirm the template id, instance id, selected variant, selection reason, adaptations, and any reflection-first semantic context/projection hints. Archetype/capability inheritance should guide metadata, doc comments, Storybook notes, and adapter TODOs; it should not force one rigid prop surface or layout unless a template explicitly opts into strict projection adapter generation. Do not overwrite promoted widgets casually; regenerate only scaffold-stage files or create an explicit migration patch for promoted implementations.
+Use the current playbooks for operational work; use ticket docs for implementation history and deeper design rationale.
