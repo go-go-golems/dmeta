@@ -874,3 +874,132 @@ tmux session: dmeta-deli-pbui-poc
 storybook: http://localhost:6010/
 vite app:  http://localhost:5173/
 ```
+
+## Step 9: Fix clickable affordances, compatible presentation clicks, and editable command input
+
+This step responded to hands-on review feedback. The previous POC had functional action buttons, but their cursor/hover affordance did not make clickability obvious. It also rendered ingredient rows as presentation references without letting the current action set make those rows clickable. Finally, the footer looked like a command REPL but was only a passive command echo/result area.
+
+I converted those issues into explicit ticket tasks, completed them, and validated the result with builds plus Playwright. Clickable actions and presentation refs now show pointer/hover/focus affordances. Presentation refs become clickable through a generic command-binding mechanism: if a command available in the current view maps an input from `selected_presentation`, the presentation can invoke that command. The footer is now an editable command input that resolves commands through the current view's command bindings.
+
+### Prompt Context
+
+**User prompt (verbatim):** "action cursor is not fixed. clickable presentation refs based on the current actions should be a generic mechanism. Add the updated tasks, then work on them one by one, keeping a detailed diary."
+
+**Assistant interpretation:** Add concrete tasks for the UX/interaction gaps, then implement them systematically with diary and validation.
+
+**Inferred user intent:** Make the POC behave more like a CLIM-style interaction system rather than a static UI: visible click affordances, current-action-driven presentation clickability, and a real command input.
+
+**Commit (code):** `2898103` — "DMETA-DELI-PBUI-POC: wire clickable presentations and command input"
+
+### What I did
+
+- Added and completed ticket tasks for:
+  - action/presentation hover and cursor affordances;
+  - generic compatible-presentation click mechanism;
+  - Street Deli `REMOVE-INGREDIENT` binding and ingredient clicks;
+  - editable footer command input.
+- Updated `ActionPresentationInline`, `PresentationRefLine`, and `ConfirmPrompt` with pointer cursors, hover states, and focus rings.
+- Changed `ClimShell` footer from passive command text to an editable input with `aria-label="Action command"`.
+- Added generic runtime helpers:
+  - `bindingUsesInputSource`
+  - `compatibleBindingsForPresentation`
+- Added Street Deli `REMOVE-INGREDIENT` command binding in YAML and TypeScript.
+- Updated detail view defaults to include `REMOVE-INGREDIENT`.
+- Updated `DeliPbuiWorkbench` so:
+  - menu presentations can invoke `CUSTOMIZE` through the generic compatible-binding path;
+  - removable ingredient presentations can invoke `REMOVE-INGREDIENT` through the same mechanism;
+  - removed ingredients display `(removed)`;
+  - typed footer commands such as `CART` resolve through current view command bindings.
+- Updated the intern-facing guide to describe the new state of the POC.
+
+### Why
+
+- Cursor/hover affordance is a basic usability requirement for review.
+- Presentation clickability should not be hard-coded per component; it should derive from the concrete command/action bindings available in the current view.
+- The footer must either be a real command input or be visually demoted to a status line. Since this is a CLIM-like POC, making it editable is the right direction.
+
+### What worked
+
+Validation/build commands passed:
+
+```bash
+go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./examples/street-deli-ordering --include-info --output table
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Playwright checks passed:
+
+```text
+CUSTOMIZE cursor: pointer
+Hudson Classic presentation cursor: pointer
+turkey ingredient cursor: pointer
+click turkey -> REMOVE-INGREDIENT -> remove_part(composition_ref, part_ref)
+type CART in Action command input -> cart / CART
+```
+
+The full order path still passes:
+
+```text
+Market Greens click -> detail
+avocado click -> REMOVE-INGREDIENT
+ADD-TO-ORDER -> cart
+PLACE-ORDER -> confirm
+CONFIRM PLACE-ORDER -> tracker
+```
+
+Storybook detail-mode iframe check passed for clickable ingredient behavior.
+
+### What didn't work
+
+- The first Playwright result showed that input values do not appear in `innerText`, so command-input state should be checked through element values or resulting view transitions, not body text.
+- The current generic compatibility rule is intentionally simple: it looks for command bindings that use `selected_presentation`. It does not yet evaluate full semantic action subject/input constraints.
+
+### What I learned
+
+- The command-binding layer is enough to drive a first generic clickable-presentation mechanism.
+- A small convention such as `selected_presentation` already provides useful behavior across menu items and ingredients.
+- The next level of correctness requires evaluating Semantic IR/Interaction IR constraints, not only command-binding input source names.
+
+### What was tricky to build
+
+- The mechanism needed to be generic while still respecting obvious Deli facts such as non-removable bread not being clickable for `REMOVE-INGREDIENT`. The POC uses the generic binding mechanism and applies the existing `ingredient.removable` domain fact at the presentation render point.
+- The footer command line needed to stay controlled by React state while still allowing clicked actions to update the command buffer and typed commands to dispatch through command bindings.
+
+### What warrants a second pair of eyes
+
+- Review whether `compatibleBindingsForPresentation` should remain purely input-source-based or begin accepting semantic compatibility predicates.
+- Review whether the footer command input should parse arguments with a schema from `action-bindings.yaml` rather than the current simple first-argument mapping.
+- Review the action bar now that some commands require a selected presentation; the current behavior uses the active selection where possible.
+
+### What should be done in the future
+
+- Add explicit select mode for actions that need a compatible target instead of only direct-click invocation.
+- Add typed command argument schemas to `action-bindings.yaml`.
+- Promote the Playwright checks into committed tests once the POC stabilizes.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx` for cursor/input affordances.
+- Review `proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts` for generic compatible-binding helpers.
+- Review `examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml` and `proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts` for `REMOVE-INGREDIENT`.
+- Review `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx` for the click and REPL dispatch paths.
+- Validate manually in the running Vite app and Storybook.
+
+### Technical details
+
+Current generic click rule:
+
+```text
+current view command bindings
+  -> filter bindings whose input_mapping uses selected_presentation
+  -> order by current view default_actions
+  -> first compatible binding handles the presentation click
+```
+
+Current command input behavior:
+
+```text
+CART + Enter -> commandBindingsForView(currentView).CART -> navigate_to_cart
+FILTER-DIETARY vegetarian + Enter -> filter_by_dietary(dietary_tag)
+```

@@ -524,7 +524,7 @@ The proof of concept now has multiple stories:
 - `CartMode`
 - `HelpMode`
 
-The widget also supports an interactive flow in the Vite app: choose `CUSTOMIZE`, add the draft with `ADD-TO-ORDER`, invoke `PLACE-ORDER`, confirm the prompt, and land on the tracker view. This is still a small state machine, but it proves the path from command binding to action request to concrete view transition.
+The widget also supports an interactive flow in the Vite app: click a menu presentation to run the compatible `CUSTOMIZE` command, click a removable ingredient presentation to run `REMOVE-INGREDIENT`, add the draft with `ADD-TO-ORDER`, invoke `PLACE-ORDER`, confirm the prompt, and land on the tracker view. This is still a small state machine, but it proves the path from command binding to clickable presentation, action request, confirmation, and concrete view transition. The footer is now an editable command input rather than a passive command echo.
 
 ## 10. What should become reusable
 
@@ -553,8 +553,8 @@ Missing but important:
 - generated TypeScript from `action-bindings.yaml` instead of the current hand-authored `commandBindings.ts` mirror;
 - richer typed per-action request builders on top of the generic command-binding request helper;
 - action handler stubs and real handlers;
-- compatible action selectors based on current selection and view mode;
-- a full normal/select/confirm state machine; the POC currently proves normal-to-confirm for `PLACE-ORDER` but not select-mode compatible-target picking;
+- richer compatible action selectors based on semantic action subject/input constraints; the POC currently uses a generic command-binding rule for `selected_presentation` inputs;
+- a full normal/select/confirm state machine; the POC currently proves normal-to-confirm for `PLACE-ORDER` and direct compatible-presentation clicks, but not explicit select-mode compatible-target picking;
 - durable domain reducers for cart and composition drafts; the POC currently keeps local component state;
 - substitution candidate projection and application flow;
 - generated object type descriptors in the concrete app;
@@ -591,7 +591,9 @@ Add more stories before adding abstractions:
 - Detail mode with ingredient rows. Done as `DetailMode`.
 - Cart mode with `PLACE-ORDER` requiring confirmation. Done as `CartMode` plus the interactive Vite flow.
 - Help mode showing command/action bindings. Done as `HelpMode`.
-- Select mode for `REMOVE-INGREDIENT`. Still pending.
+- Direct compatible presentation click for `REMOVE-INGREDIENT`. Done in the detail view.
+- Explicit select mode for `REMOVE-INGREDIENT`. Still pending; the current POC directly invokes the compatible command on ingredient click.
+- Editable footer command input. Done for commands available in the current view.
 - Standalone confirm prompt story. Still pending; the prompt is currently reached by clicking `PLACE-ORDER` in Cart mode.
 
 ### Phase 2: Extend action request construction

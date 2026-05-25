@@ -68,3 +68,14 @@ Cleaned up the Vite app document shell, restarted tmux verification servers, and
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/index.html — Complete app document shell and favicon
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Browser-tested interactive order flow
 
+
+## 2026-05-25
+
+Fixed clickable affordances, added generic command-binding-driven presentation clicks, wired REMOVE-INGREDIENT for ingredients, and made the footer command input editable (commit 2898103).
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx — Cursor/hover/focus affordances and editable command input
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts — Generic compatible-presentation binding helpers
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Presentation click and command input dispatch
+
