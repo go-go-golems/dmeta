@@ -259,8 +259,8 @@ export function DeliPbuiWorkbench({
     if (viewId === 'detail') {
       return (
         <div className="grid gap-2" data-testid="detail-view">
-          <div className="border border-clim-border bg-clim-panel/40 p-3">
-            <div className="text-clim-muted text-xs uppercase tracking-wide">Composition draft</div>
+          <div className="py-2">
+            <div className="text-clim-muted text-xs uppercase tracking-wide underline decoration-clim-border underline-offset-4">Composition draft</div>
             <div className="text-clim-bright">{selectedItem?.name}</div>
             <div className="text-clim-muted text-sm">{draft?.id}</div>
           </div>
@@ -290,7 +290,7 @@ export function DeliPbuiWorkbench({
             <div className="text-clim-muted">Cart is empty. Use CUSTOMIZE then ADD-TO-ORDER to create an item.</div>
           ) : (
             effectiveCartItems.map((item) => (
-              <div key={item.id} className="border border-clim-border bg-clim-panel/30 p-2">
+              <div key={item.id} className="py-1">
                 <span className="text-clim-bright">&lt;OrderItem&gt;</span> {item.item.name}{' '}
                 <span className="text-clim-muted">${item.item.price.toFixed(2)}</span>
                 {item.removedIngredientIds.length > 0 ? (
@@ -307,7 +307,7 @@ export function DeliPbuiWorkbench({
       return (
         <div className="grid gap-2 text-sm" data-testid="help-view">
           {Object.values(deliCommandBindings).map((binding) => (
-            <div key={binding.id} className="border border-clim-border bg-clim-panel/30 p-2">
+            <div key={binding.id} className="py-1">
               <span className="text-clim-bright">{binding.id}</span>{' '}
               <span className="text-clim-muted">-&gt; {binding.actionId} / {binding.handler}</span>
               <div>{binding.summary}</div>
@@ -319,8 +319,8 @@ export function DeliPbuiWorkbench({
 
     if (viewId === 'tracker') {
       return (
-        <div className="border border-clim-border bg-clim-panel/40 p-3" data-testid="tracker-view">
-          <div className="text-clim-muted text-xs uppercase tracking-wide">Lifecycle</div>
+        <div className="py-2" data-testid="tracker-view">
+          <div className="text-clim-muted text-xs uppercase tracking-wide underline decoration-clim-border underline-offset-4">Lifecycle</div>
           <div><span className="text-clim-bright">DONE</span> cart submitted</div>
           <div><span className="text-clim-bright">ACTIVE</span> kitchen accepted order</div>
           <div><span className="text-clim-muted">PENDING</span> pickup notification</div>
@@ -355,8 +355,8 @@ export function DeliPbuiWorkbench({
       onCommandSubmit={handleCommandSubmit}
     >
       <section className="grid gap-3">
-        <div className="border border-clim-border bg-clim-panel/40 p-3">
-          <div className="text-clim-muted text-xs uppercase tracking-wide">View model</div>
+        <div className="py-2">
+          <div className="text-clim-muted text-xs uppercase tracking-wide underline decoration-clim-border underline-offset-4">View model</div>
           <div className="text-clim-bright">{view.id} / {view.modeLabel}</div>
           <div className="text-clim-muted text-sm">{view.primaryPresentations.join('  ')}</div>
         </div>
