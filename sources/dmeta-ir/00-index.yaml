@@ -34,9 +34,18 @@ artifacts:
     description: Web/visual UI MetaDesignSystem package. Owns widget templates, surfaces, layouts, and React-target lowering inputs.
     consumers:
       - validate-dmeta-ir
-      - plan-dmeta-instance
-      - scaffold-dmeta-instance
-      - validate-widget-promotion
+      - lower-web
+      - plan-scaffold
+      - scaffold-react
+  pbui_meta_design_system:
+    path: ./meta-design-systems/pbui/meta-design-system.yaml
+    artifact_type: dmeta_pbui_meta_design_system
+    description: Presentation-based UI MetaDesignSystem package for CLIM-style presentation obligations and React proof target planning.
+    consumers:
+      - validate-pbui
+      - lower-pbui
+      - plan-pbui-react
+      - scaffold-pbui-react
 
 references:
   system_spec: ../../design-docs/04-concrete-dmeta-system-spec.md
