@@ -127,3 +127,14 @@ Executed staged repository cleanup: canonicalized Street Deli static prototypes,
 - /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/00-index.yaml — Active compiler index
 - /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/reference/01-diary.md — Detailed cleanup diary
 
+
+## 2026-05-24
+
+Updated active design docs to match the current DMETA system: layered compiler spec, shared Semantic/Interaction IR spec, and Web/PBUI MetaDesignSystem targets/tooling spec.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/design-docs/04-concrete-dmeta-system-spec.md — Current layered compiler system spec
+- /home/manuel/code/wesen/go-go-golems/dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md — Shared Semantic and Interaction IR spec
+- /home/manuel/code/wesen/go-go-golems/dmeta/design-docs/06-dmeta-design-language-and-tooling-spec.md — MetaDesignSystem targets and tooling spec
+
