@@ -45,6 +45,12 @@ RelatedFiles:
       Note: Hand-authored TypeScript mirror of the command/action binding target shape
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/actionEngine.ts
       Note: Step 24 adds pure typed argument matching and presentation visual-state helpers (commit 8897aec)
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiAction/PbuiAction.tsx
+      Note: Step 25 renders actions applicable to the selected ref in red (commit baf18f4)
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiCommandLine/PbuiCommandLine.tsx
+      Note: Step 25 displays the current action slice in the footer status bar (commit baf18f4)
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiPresentationRef/PbuiPresentationRef.tsx
+      Note: Step 25 makes refs white by default and blinks selected labels (commit baf18f4)
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/pbuiSessionSlice.ts
       Note: Step 24 stores pending action ids and filled args instead of command bindings (commit 8897aec)
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts
@@ -52,7 +58,9 @@ RelatedFiles:
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/types.ts
       Note: Step 24 replaces legacy command/action descriptor runtime types with typed ActionSpec and ActionArgSpec (commit 8897aec)
     - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx
-      Note: Step 24 rewires the workbench to the typed action engine while deferring component splitting (commit 8897aec)
+      Note: |-
+        Step 24 rewires the workbench to the typed action engine while deferring component splitting (commit 8897aec)
+        Step 25 derives applicable actions and formats filled slots for the action slice (commit baf18f4)
     - Path: sources/dmeta-ir/meta-design-systems/pbui/profiles/clim
       Note: Reusable CLIM PBUI profile extracted before creating the proof of concept.
     - Path: ttmp/2026/05/25/DMETA-DELI-PBUI-POC--street-deli-pbui-react-proof-of-concept/design-doc/01-street-deli-pbui-react-proof-of-concept-architecture-and-implementation-guide.md
@@ -63,6 +71,7 @@ LastUpdated: 2026-05-25T00:00:00-04:00
 WhatFor: Record implementation decisions, validation, failures, and review instructions for the proof-of-concept setup.
 WhenToUse: Read before extending proof-of-concept/deli-pbui-react or converting it back into DMETA generation templates.
 ---
+
 
 
 
@@ -2769,4 +2778,106 @@ handler registry
 command-binding-to-action-request runtime helper
 ActionPresentation.subject
 ActionRequest.subject / ActionRequest.inputs
+```
+
+## Step 25: Make object selection visible and expose the action slice in the status bar
+
+This step tightened the visual feedback around the new typed action engine. Presentations such as ingredients now stay white by default, clicking one marks it as the selected object with a blinking label, and actions that can consume the selected object turn red in the action bar.
+
+The footer now also exposes the current action invocation slice. It prints the pending selected action id and the currently filled slots, which makes select/confirm/debug flows visible without opening Redux DevTools.
+
+### Prompt Context
+
+**User prompt (verbatim):** "So by default, the ingredients should be white. When clicking on one, it should be marked selected (blinking), and valid actions should be now red. 
+
+Also, in the status bar, display the current action slice: selected action, filled slots"
+
+**Assistant interpretation:** Adjust the PBUI/CLIM POC visual grammar so object refs are white until selected, selected refs blink, compatible actions are highlighted red, and the footer shows pending action state and filled argument slots.
+
+**Inferred user intent:** Make the typed action engine inspectable and visually understandable during object-first interaction, especially after selecting an ingredient before invoking an action.
+
+**Commit (code):** `baf18f4d332759dd4e2007d76532a2ff2ea900ce` — "DMETA-DELI-PBUI-POC: show selected refs and action slice"
+
+### What I did
+
+- Updated `PbuiPresentationRef` so presentation labels use the normal bright/white clickable tone by default instead of red selectable tone.
+- Added `animate-pulse` to the selected presentation label so a clicked ingredient is visibly selected/blinking.
+- Added `applicableToSelected` to `ActionPresentation` and made `PbuiAction` render those actions in the red danger tone.
+- Updated `DeliPbuiWorkbench` to mark an action applicable when the active selected presentation can fill the action's next open ref argument via `actionAcceptsRef(...)`.
+- Added an `actionStatusLine` to `ClimSessionState` and passed it through `PbuiShell` to `PbuiCommandLine`.
+- Added footer output of the action slice in this form:
+  - `ACTION SLICE selected_action=REMOVE-INGREDIENT filled_slots=none`
+  - `ACTION SLICE selected_action=none filled_slots=ingredient=<Ingredient>#ingredient.tomato`
+
+### Why
+
+- The previous UI made all clickable presentation refs red, which overused the red signal and made ordinary selectable objects look like pending action targets.
+- The new object-first flow needs three distinct visual states:
+  - white refs are ordinary clickable/selectable objects;
+  - blinking white ref is the currently selected object;
+  - red action is an action that can consume the selected object.
+- Showing the action slice in the footer makes the new typed action engine easier to debug and review.
+
+### What worked
+
+- `npm run build` passed for the POC package.
+- `npm run build-storybook` passed for the POC package.
+- Playwright verified:
+  - tomato is white and not blinking before selection;
+  - clicking tomato makes its label animate with `pulse`;
+  - `REMOVE-INGREDIENT` switches to the red action tone for the selected ingredient;
+  - the footer displays `ACTION SLICE selected_action=none filled_slots=none` after simple object selection;
+  - typed `remove ingredient` shows `ACTION SLICE selected_action=REMOVE-INGREDIENT filled_slots=none`;
+  - clicking tomato in select mode fills `ingredient=<Ingredient>#ingredient.tomato`.
+
+### What didn't work
+
+- The first visual assertion sampled the red action while browser hover/focus was still transitioning, which briefly returned an intermediate color. Inspecting the element class and computed style after the transition confirmed the action had `text-clim-danger` and red decoration.
+
+### What I learned
+
+- Red should belong to actions or active target-selection states, not every clickable ref. The UI reads better when object refs are white and the action bar carries compatibility emphasis.
+- The action slice is small enough to render directly in the footer and is useful as a live debugging contract for the typed action engine.
+
+### What was tricky to build
+
+- The main subtlety was avoiding a regression in select mode. A ref can still be clickable in normal mode just to become selected, while in select mode it should only be clickable if it can fill the pending action's next ref slot. The existing `onSelect={visual.selectable || session.mode !== 'select' ? ...}` rule preserves that distinction.
+- Another subtlety is that the action slice only reports pending action id and filled slots. Selecting an object by itself is not an action invocation, so the status line correctly shows `selected_action=none` until an action is chosen.
+
+### What warrants a second pair of eyes
+
+- Review whether all no-argument actions should remain white, or whether some view-level actions should also be considered “valid” and red for the current selected object.
+- Review whether `animate-pulse` is too strong for selected refs or whether a custom blink cadence should be added to the style profile.
+
+### What should be done in the future
+
+- Add a focused Storybook story or play test for object selection -> valid action highlighting.
+- Consider moving the action-slice formatter into a reusable debug/status component when the workbench is split.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiPresentationRef/PbuiPresentationRef.tsx` for white/blinking ref rendering.
+- Review `proof-of-concept/deli-pbui-react/src/generic/clim/components/PbuiAction/PbuiAction.tsx` for red applicable-action rendering.
+- Review `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx` for `applicableToSelected` derivation and action-slice formatting.
+- Review `PbuiCommandLine`/`PbuiShell` for footer status propagation.
+- Validate with:
+  - `cd proof-of-concept/deli-pbui-react && npm run build`
+  - `cd proof-of-concept/deli-pbui-react && npm run build-storybook`
+
+### Technical details
+
+The applicable action derivation is:
+
+```text
+active selected presentation
+  + visible action
+  + actionAcceptsRef(action, selectedRef, runtimeContext)
+  -> action.applicableToSelected = true
+  -> PbuiAction renders red
+```
+
+The status line is intentionally simple text for now:
+
+```text
+ACTION SLICE selected_action=<pendingActionId|none> filled_slots=<slot=value,...|none>
 ```
