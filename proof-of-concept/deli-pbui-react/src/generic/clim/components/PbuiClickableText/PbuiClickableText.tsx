@@ -10,10 +10,10 @@ const clickableDecorationStyle: CSSProperties = {
 };
 
 const toneClasses: Record<PbuiClickableTone, string> = {
-  normal: 'text-clim-bright hover:text-clim-danger hover:decoration-clim-bright',
+  normal: 'text-clim-bright decoration-clim-bright hover:text-clim-danger hover:decoration-clim-danger',
   selectable: 'text-clim-danger decoration-clim-danger hover:text-clim-bright hover:decoration-clim-bright',
   danger: 'text-clim-danger decoration-clim-danger hover:text-clim-bright hover:decoration-clim-bright',
-  disabled: 'text-clim-muted opacity-40 cursor-not-allowed',
+  disabled: 'text-clim-muted decoration-clim-muted opacity-40 cursor-not-allowed',
 };
 
 export function PbuiClickableText({
