@@ -47,3 +47,14 @@ Added a generic command-binding action-request helper and started Storybook/Vite
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts — Action request helper
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Uses command bindings to build requests
 
+
+## 2026-05-25
+
+Added interactive menu/detail/cart/confirm/tracker flow, Storybook states, and Playwright verification (commit a50f38c).
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx — Generic confirm prompt
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.stories.tsx — Storybook states for the flow
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Interactive CLIM flow
+
