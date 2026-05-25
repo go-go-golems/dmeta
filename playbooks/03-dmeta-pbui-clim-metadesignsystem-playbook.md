@@ -105,13 +105,13 @@ Do not remove the generic PBUI React scaffold during cleanup. It is useful proof
 
 ## Remove or retarget around this path
 
-The duplicate prototype should be removed only after references are retargeted:
+The duplicate prototype directory has been removed; the canonical static CLIM reference is:
 
 ```text
-examples/street-deli-ordering/prototype-clim/
+examples/street-deli-ordering/the static CLIM prototype/
 ```
 
-Retarget references from `../../prototype-clim` to `../../www/clim` in:
+The current profile references should continue to point at `../../www/clim` in:
 
 ```text
 examples/street-deli-ordering/meta-design-systems/pbui/presentation-system.yaml

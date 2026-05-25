@@ -7,7 +7,7 @@ intent: >-
   Generate or promote a real React CLIM app, not just a generic PBUI scaffold.
   The target should produce a shell, runtime state machine, command parser,
   presentation components, view components, CSS, fonts, and generated registry
-  integration that together resemble prototype-clim and follow the Readwise
+  integration that together resemble the static CLIM prototype and follow the Readwise
   CLIM runtime architecture.
 status: planned
 defaults:

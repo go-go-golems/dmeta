@@ -2,15 +2,15 @@ schema_version: 0
 artifact_type: dmeta_pbui_style_profile
 id: street_deli_clim_mono
 name: Street Deli Monochrome CLIM Style
-summary: Monochrome text-object graphical style extracted from the Street Deli prototype-clim CSS.
+summary: Monochrome text-object graphical style extracted from the Street Deli the static CLIM prototype CSS.
 intent: >-
-  Preserve the concrete visual grammar of prototype-clim as data. Targets should
+  Preserve the concrete visual grammar of the static CLIM prototype as data. Targets should
   render black background, gray and white text, Berkeley Mono typography, compact
   command bars, text-object presentations, selected-object highlighting, red
   select-mode compatible targets, dimmed incompatible targets, and dotted action
   affordances from this profile rather than inventing target-local styling.
 source:
-  file: ../../prototype-clim/styles.css
+  file: ../../www/clim/styles.css
   rationale: >-
     The static prototype already encodes the desired visual feel. The profile
     copies the stable design decisions and class semantics so React app
@@ -100,7 +100,7 @@ state_styles:
   confirm:
     summary: Dangerous action confirmation mode. Target should show an explicit confirm prompt or command-line confirmation text.
 notes: >-
-  The profile intentionally keeps class names close to prototype-clim because
+  The profile intentionally keeps class names close to the static CLIM prototype because
   visual parity is more important than inventing a new naming convention. A
   later cleanup can map these class names into CSS modules if the promoted React
   app needs stricter local scoping.
