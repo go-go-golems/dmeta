@@ -33,6 +33,8 @@ RelatedFiles:
       Note: Reusable CLIM/PBUI runtime types and components that should inform future package extraction.
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx
       Note: Reusable CLIM/PBUI component baseline
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts
+      Note: Generic command-binding to action-request helper
     - Path: proof-of-concept/deli-pbui-react/src/generic/clim/types.ts
       Note: Reusable CLIM/PBUI runtime type baseline
     - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.stories.tsx
@@ -56,6 +58,7 @@ LastUpdated: 2026-05-25T00:00:00-04:00
 WhatFor: Use to understand why the proof of concept exists, how it separates reusable CLIM/PBUI code from Street Deli domain code, and how it should feed future DMETA generation templates.
 WhenToUse: Before extending proof-of-concept/deli-pbui-react or converting its proven patterns back into PBUI React generation.
 ---
+
 
 
 
@@ -523,6 +526,7 @@ A large part of the proof of concept should eventually become reusable.
 | Area | Current proof-of-concept path | Future home |
 |---|---|---|
 | CLIM runtime types | `src/generic/clim/types.ts` | reusable PBUI React CLIM package |
+| CLIM command runtime | `src/generic/clim/runtime.ts` | reusable PBUI React CLIM package |
 | CLIM shell/components | `src/generic/clim/components.tsx` | reusable PBUI React CLIM package |
 | Storybook shell | add under `src/generic/clim/storybook` later | reusable PBUI React CLIM package |
 | Surface defaults | `sources/dmeta-ir/meta-design-systems/pbui/profiles/clim/surfaces.yaml` | reusable PBUI CLIM profile |
@@ -540,7 +544,7 @@ The proof of concept is intentionally small. It does not yet solve the full app.
 Missing but important:
 
 - generated TypeScript from `action-bindings.yaml` instead of the current hand-authored `commandBindings.ts` mirror;
-- typed action request builders for each action;
+- richer typed per-action request builders on top of the generic command-binding request helper;
 - action handler stubs and real handlers;
 - compatible action selectors based on current selection and view mode;
 - normal/select/confirm state transitions;
@@ -582,35 +586,25 @@ Add more stories before adding abstractions:
 - Cart mode with `PLACE-ORDER` requiring confirmation.
 - Confirm prompt story.
 
-### Phase 2: Add action request construction
+### Phase 2: Extend action request construction
 
-Add a generic function:
-
-```ts
-function buildActionRequest<TAction extends string>(
-  descriptor: ActionDescriptor<TAction>,
-  subject: PresentationRef | undefined,
-  inputs: Record<string, unknown>,
-): ActionRequest<TAction> {
-  return { actionId: descriptor.id, subject, inputs };
-}
-```
-
-Then add domain-specific input mapping:
+The proof of concept now has a generic command-binding request helper:
 
 ```ts
-const deliActionInputMappings = {
-  remove_part: {
-    composition_ref: 'currentDraft',
-    part_ref: 'selectedPresentation',
-  },
-  submit_order: {
-    cart_ref: 'currentCart',
-  },
-};
+buildActionRequestFromBinding(binding, descriptor, context)
 ```
 
-This should eventually become `action-bindings.yaml`.
+It reads `binding.inputMapping` and resolves sources such as:
+
+```text
+selected_presentation
+current_draft
+current_cart
+selected_removed_part
+command_argument:tag
+```
+
+The next increment should add typed per-action wrappers on top of this helper. Those wrappers should preserve the generic implementation while giving domain code stronger compile-time checks for inputs such as `cart_ref`, `draft_ref`, and `replacement_candidate_ref`.
 
 ### Phase 3: Add a small CLIM state machine
 

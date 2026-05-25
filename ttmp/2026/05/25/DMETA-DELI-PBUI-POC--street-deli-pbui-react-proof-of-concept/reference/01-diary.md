@@ -39,6 +39,8 @@ RelatedFiles:
         Proof-of-concept package created during diary Step 2
     - Path: proof-of-concept/deli-pbui-react/src/domain/deli/commandBindings.ts
       Note: Hand-authored TypeScript mirror of the command/action binding target shape
+    - Path: proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts
+      Note: Generic command-binding to action-request helper
     - Path: sources/dmeta-ir/meta-design-systems/pbui/profiles/clim
       Note: Reusable CLIM PBUI profile extracted before creating the proof of concept.
     - Path: ttmp/2026/05/25/DMETA-DELI-PBUI-POC--street-deli-pbui-react-proof-of-concept/design-doc/01-street-deli-pbui-react-proof-of-concept-architecture-and-implementation-guide.md
@@ -49,6 +51,7 @@ LastUpdated: 2026-05-25T00:00:00-04:00
 WhatFor: Record implementation decisions, validation, failures, and review instructions for the proof-of-concept setup.
 WhenToUse: Read before extending proof-of-concept/deli-pbui-react or converting it back into DMETA generation templates.
 ---
+
 
 
 
@@ -529,3 +532,109 @@ PLACE-ORDER:
 ```
 
 This is the layer that future React generation should use to produce command registries, action request builders, confirmation prompts, and handler stubs.
+
+## Step 6: Add a generic action-request helper and run live verification servers
+
+This step made the command-binding layer executable in the proof-of-concept widget. The generic CLIM runtime now has a helper that turns a command binding, an action descriptor, and a small input context into an `ActionRequest`. The Street Deli widget uses that helper when a command/action presentation is clicked, then echoes the constructed request in the CLIM footer.
+
+I also started live verification servers in tmux so the app and Storybook can be inspected interactively. The running servers are intentionally not committed artifacts; they are review infrastructure for the current proof-of-concept state.
+
+### Prompt Context
+
+**User prompt (verbatim):** "run the storybook and all that, so i can verify. use tmux."
+
+**Assistant interpretation:** Build/check the proof of concept, then start Storybook and the Vite app in a persistent tmux session for manual verification.
+
+**Inferred user intent:** Review the current PBUI React proof of concept visually in a browser while keeping the dev servers running outside the agent turn.
+
+**Commit (code):** `86e3622` — "DMETA-DELI-PBUI-POC: build action requests from command bindings"
+
+### What I did
+
+- Added `proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts`.
+- Added `buildActionRequestFromBinding`, `resolveInputSource`, and `summarizeActionRequest`.
+- Updated `DeliPbuiWorkbench` so command/action clicks build an action request from command binding metadata.
+- Updated the design guide to document the generic command runtime helper.
+- Ran production build and Storybook build.
+- Started tmux session `dmeta-deli-pbui-poc` with:
+  - `storybook` window running Storybook on port `6010`.
+  - `vite` window running Vite on port `5173`.
+
+### Why
+
+- The command/action binding layer should not only validate as YAML. It should inform concrete runtime behavior.
+- A small generic request builder is the next reusable CLIM/PBUI runtime candidate.
+- Live Storybook/Vite servers make the current POC reviewable without requiring the reviewer to run commands manually.
+
+### What worked
+
+Validation/build commands passed:
+
+```bash
+cd proof-of-concept/deli-pbui-react
+npm run build
+npm run build-storybook
+```
+
+Live servers are running in tmux:
+
+```bash
+tmux attach -t dmeta-deli-pbui-poc
+```
+
+Review URLs:
+
+```text
+Storybook: http://localhost:6010/
+Vite app:  http://localhost:5173/
+```
+
+### What didn't work
+
+- I noticed an accidental local typo in `examples/street-deli-ordering/interactions/actions.yaml` (`uchema_version`) before starting the servers and corrected it back to `schema_version`.
+- Storybook still emits the non-fatal Vite large chunk warning during production build.
+
+### What I learned
+
+- The command-binding target shape is now testable in the UI: clicking `CUSTOMIZE`, `CART`, `FILTER-DIETARY`, `FILTER-BY-CATEGORY`, or `HELP` builds an action request and displays the command/action mapping in the footer.
+- The generic input-source vocabulary is small but useful: `selected_presentation`, `current_draft`, `current_cart`, `selected_removed_part`, and `command_argument:*`.
+
+### What was tricky to build
+
+- The action request helper needs to stay generic without hard-coding Street Deli concepts. I kept Deli-specific values in the widget/context and left the generic helper responsible only for resolving named input sources.
+- The current helper is permissive: unknown input sources return `undefined`. This is useful for iteration but should become a validation/runtime diagnostic before generation relies on it.
+
+### What warrants a second pair of eyes
+
+- Review whether `resolveInputSource` should fail loudly for unknown sources.
+- Review whether `command_argument:*` should remain stringly typed or become a typed argument schema in `action-bindings.yaml`.
+- Review the UI behavior by clicking action labels in Storybook/Vite and checking the footer request summaries.
+
+### What should be done in the future
+
+- Add typed per-action request builders on top of the generic helper.
+- Add a real normal/select/confirm state machine using `requiresConfirmation` and confirmation metadata.
+- Add Storybook stories for command invocation, cart mode, and confirmation mode.
+
+### Code review instructions
+
+- Start with `proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts`.
+- Then review `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx`.
+- Compare the TypeScript command-binding flow with `examples/street-deli-ordering/meta-design-systems/pbui/action-bindings.yaml`.
+- Validate by opening Storybook at `http://localhost:6010/` and the Vite app at `http://localhost:5173/`.
+
+### Technical details
+
+The generic helper has this shape:
+
+```ts
+buildActionRequestFromBinding(binding, descriptor, context)
+```
+
+It turns YAML-shaped command binding metadata into a runtime request shape:
+
+```text
+CUSTOMIZE -> select_menu_item(item_ref)
+FILTER-DIETARY -> filter_by_dietary(dietary_tag)
+CART -> navigate_to_cart(no inputs)
+```
