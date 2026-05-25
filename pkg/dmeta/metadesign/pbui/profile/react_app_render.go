@@ -1,10 +1,11 @@
 package profile
 
 import (
-	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	genmeta "github.com/go-go-golems/dmeta/pkg/dmeta/generator/metadata"
 )
 
 func RenderReactAppFile(pkg *Package, concretePlan ConcretePresentationPlan, reactPlan ReactAppPlan, file ReactAppPlannedFile) ([]byte, bool, error) {
@@ -16,51 +17,51 @@ func RenderReactAppFile(pkg *Package, concretePlan ConcretePresentationPlan, rea
 	case "tsconfig":
 		return []byte(renderTSConfig()), true, nil
 	case "vite_config":
-		return []byte(renderViteConfig()), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderViteConfig()), true, nil
 	case "index_html":
 		return []byte(renderIndexHTML()), true, nil
 	case "main_tsx":
-		return []byte(renderMainTSX()), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderMainTSX()), true, nil
 	case "app_shell":
-		return []byte(renderAppTSX(concretePlan)), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderAppTSX(concretePlan)), true, nil
 	case "storybook_main":
-		return []byte(renderStorybookMain()), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderStorybookMain()), true, nil
 	case "storybook_preview":
-		return []byte(renderStorybookPreview()), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderStorybookPreview()), true, nil
 	case "storybook_preview_css":
 		return []byte(renderStorybookPreviewCSS()), true, nil
 	case "storybook_story_shell":
-		return []byte(renderClimStoryShell()), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderClimStoryShell()), true, nil
 	case "storybook_fixtures":
-		return []byte(renderPresentationFixtures()), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderPresentationFixtures()), true, nil
 	case "clim_types":
-		return []byte(renderClimTypes()), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderClimTypes()), true, nil
 	case "clim_store":
-		return []byte(renderClimStore()), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderClimStore()), true, nil
 	case "clim_actions":
-		return []byte(renderClimActions()), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderClimActions()), true, nil
 	case "clim_commands":
-		return []byte(renderClimCommands()), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderClimCommands()), true, nil
 	case "clim_selectors":
-		return []byte(renderClimSelectors()), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderClimSelectors()), true, nil
 	case "clim_runtime":
-		return []byte(renderClimRuntime()), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderClimRuntime()), true, nil
 	case "style_profile_css":
 		return []byte(renderClimCSS()), true, nil
 	case "generated_registry_copy":
-		return []byte(renderPBUIRegistries(concretePlan)), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderPBUIRegistries(concretePlan)), true, nil
 	case "metadata":
-		b, err := json.MarshalIndent(concretePlan, "", "  ")
+		b, err := genmeta.RenderJSON(reactAppGeneratedMetadata(reactPlan, file))
 		if err != nil {
 			return nil, false, err
 		}
-		return append(b, '\n'), true, nil
+		return b, true, nil
 	case "shell_component", "command_line_component", "command_bar_component", "context_menu_component", "confirm_prompt_component", "presentation_component", "action_presentation_component":
-		return []byte(renderComponent(file.Component)), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderComponent(file.Component)), true, nil
 	case "view_component":
-		return []byte(renderView(file.Component, file.ViewID)), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderView(file.Component, file.ViewID)), true, nil
 	case "shell_story", "command_line_story", "command_bar_story", "context_menu_story", "confirm_prompt_story", "presentation_story", "action_presentation_story", "view_story":
-		return []byte(renderStory(file)), true, nil
+		return renderReactAppTypeScript(reactPlan, file, renderStory(file)), true, nil
 	default:
 		return nil, false, fmt.Errorf("unsupported React app file kind %q", file.Kind)
 	}
@@ -559,4 +560,88 @@ func renderTSStringArray(values []string) string {
 		quoted = append(quoted, fmt.Sprintf("%q", value))
 	}
 	return "[" + strings.Join(quoted, ", ") + "]"
+}
+
+func renderReactAppTypeScript(plan ReactAppPlan, file ReactAppPlannedFile, body string) []byte {
+	prelude, err := genmeta.RenderTypeScriptPrelude(reactAppGeneratedMetadata(plan, file))
+	if err != nil {
+		return []byte(body)
+	}
+	return []byte(prelude + body)
+}
+
+func reactAppGeneratedMetadata(plan ReactAppPlan, file ReactAppPlannedFile) genmeta.GeneratedFileMetadata {
+	generated := plan.Generated
+	if generated.By == "" {
+		generated.By = "dmeta plan-pbui-react-app/scaffold-pbui-react-app"
+	}
+	meta := genmeta.GeneratedFileMetadata{
+		Generated: generated,
+		Artifact: genmeta.ArtifactInfo{
+			Path:       file.Path,
+			Kind:       file.Kind,
+			Language:   reactAppLanguageForPath(file.Path),
+			Symbol:     file.Symbol,
+			Promotable: reactAppFileIsPromotable(file.Kind),
+		},
+		Pipeline: genmeta.PipelineInfo{
+			SemanticRoot:     plan.SemanticRoot,
+			InteractionsRoot: plan.InteractionsRoot,
+			MetaDesignSystem: "pbui",
+			ProfileRoot:      plan.ProfileRoot,
+			Target:           plan.TargetID,
+			Passes:           append([]string{}, file.Provenance.SourcePasses...),
+		},
+		Sources: []genmeta.SourceReference{
+			{Path: plan.SemanticRoot, Role: "semantic package", Why: "Provides Street Deli domain types, archetypes, capabilities, and examples."},
+			{Path: plan.InteractionsRoot, Role: "interaction package", Why: "Provides actions and representations used by PBUI lowering."},
+			{Path: plan.PBUIRoot, Role: "PBUI MetaDesignSystem", Why: "Provides abstract PBUI presentation types and lowering rules."},
+			{Path: plan.ProfileRoot, Role: "concrete PBUI profile", Why: "Provides presentation-system, style, surface, view-model, and presentation-binding guidance for the CLIM React app."},
+		},
+		PBUI: &genmeta.PBUIGuidance{
+			PresentationType: file.PresentationTypeID,
+			ViewID:           file.ViewID,
+			SurfaceID:        file.SurfaceID,
+			BindingComponent: file.Component,
+			StyleClasses:     []string{plan.StyleProfileID},
+		},
+		React: &genmeta.ReactGuidance{
+			PackageName: plan.PackageName,
+		},
+		Guidance: &genmeta.HumanGuidance{
+			Summary: "Generated concrete PBUI/CLIM React app artifact. This file is part of the promotable Street Deli CLIM app scaffold and should retain profile metadata when edited.",
+			ImplementationNotes: []string{
+				"Use dmetaGeneratedMetadata to trace this app code back to Semantic IR, Interaction IR, PBUI MetaDesignSystem, and the concrete presentation profile.",
+				"Presentation bindings, surfaces, view models, and style-profile choices live under the concrete profile root.",
+				"When promoting this file, append behavioral and visual edits to the promotion changelog before changing runtime behavior.",
+			},
+		},
+	}
+	return genmeta.WithDefaults(meta)
+}
+
+func reactAppFileIsPromotable(kind string) bool {
+	switch kind {
+	case "main_tsx", "app_shell", "storybook_preview", "storybook_story_shell", "storybook_fixtures", "clim_types", "clim_store", "clim_actions", "clim_commands", "clim_selectors", "clim_runtime", "generated_registry_copy", "shell_component", "command_line_component", "command_bar_component", "context_menu_component", "confirm_prompt_component", "presentation_component", "action_presentation_component", "view_component", "shell_story", "command_line_story", "command_bar_story", "context_menu_story", "confirm_prompt_story", "presentation_story", "action_presentation_story", "view_story":
+		return true
+	default:
+		return false
+	}
+}
+
+func reactAppLanguageForPath(path string) string {
+	switch filepath.Ext(path) {
+	case ".tsx":
+		return "tsx"
+	case ".ts":
+		return "ts"
+	case ".json":
+		return "json"
+	case ".css":
+		return "css"
+	case ".html":
+		return "html"
+	default:
+		return "text"
+	}
 }

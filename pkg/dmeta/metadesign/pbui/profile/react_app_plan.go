@@ -4,6 +4,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	genmeta "github.com/go-go-golems/dmeta/pkg/dmeta/generator/metadata"
 )
 
 // ReactAppPlan is the concrete PBUI profile's React application planning
@@ -11,12 +13,17 @@ import (
 // is allowed to know about concrete Street Deli CLIM views, surfaces, renderer
 // components, fonts, CSS, runtime modules, and generated registry integration.
 type ReactAppPlan struct {
-	TargetID       string
-	OutputDir      string
-	PackageName    string
-	ProfileID      string
-	StyleProfileID string
-	Files          []ReactAppPlannedFile
+	TargetID         string
+	OutputDir        string
+	PackageName      string
+	ProfileID        string
+	StyleProfileID   string
+	Generated        genmeta.GeneratedInfo
+	SemanticRoot     string
+	InteractionsRoot string
+	PBUIRoot         string
+	ProfileRoot      string
+	Files            []ReactAppPlannedFile
 }
 
 type ReactAppPlannedFile struct {
@@ -49,6 +56,8 @@ func BuildReactAppPlan(pkg *Package, concretePlan ConcretePresentationPlan, outp
 		PackageName:    pkg.ReactAppTarget.Defaults.PackageName,
 		ProfileID:      pkg.Meta.ID,
 		StyleProfileID: pkg.Style.ID,
+		Generated:      genmeta.GeneratedInfo{By: "dmeta plan-pbui-react-app/scaffold-pbui-react-app"},
+		ProfileRoot:    pkg.Root,
 	}
 	for _, kind := range pkg.ReactAppTarget.FileKinds {
 		plan.Files = append(plan.Files, planFilesForKind(pkg, concretePlan, outputDir, kind)...)

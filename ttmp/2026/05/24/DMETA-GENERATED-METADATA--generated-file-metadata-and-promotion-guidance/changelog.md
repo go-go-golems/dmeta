@@ -49,3 +49,15 @@ Phase 3: Added shared metadata exports, sidecars, and promotion guidance to Web 
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/model.go — Scaffold plan carries generation and source-root context
 - /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/generator/react/render.go — Web React renderer now emits shared generated metadata
 
+
+## 2026-05-24
+
+Phase 4: Added shared metadata exports to concrete PBUI/CLIM React app scaffolds and regenerated www/clim-react.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/www/clim-react/src/generated/concretePresentationPlan.metadata.json — Regenerated concrete app metadata sidecar
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/cmds/scaffold_pbui_react_app.go — CLI fills generation context
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/react_app_plan.go — React app plan carries generation and source-root context
+- /home/manuel/code/wesen/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile/react_app_render.go — Concrete PBUI app renderer emits shared metadata exports and JSON sidecars
+

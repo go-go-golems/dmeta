@@ -4,6 +4,7 @@ import (
 	"context"
 	"path/filepath"
 
+	genmeta "github.com/go-go-golems/dmeta/pkg/dmeta/generator/metadata"
 	"github.com/go-go-golems/dmeta/pkg/dmeta/metadesign/pbui/profile"
 	"github.com/go-go-golems/glazed/pkg/cli"
 	"github.com/go-go-golems/glazed/pkg/cmds"
@@ -89,6 +90,11 @@ func (c *ScaffoldPBUIReactAppCommand) RunIntoGlazeProcessor(ctx context.Context,
 		outputDir = filepath.Clean(outputDir)
 	}
 	reactPlan := profile.BuildReactAppPlan(profilePkg, concretePlan, outputDir)
+	reactPlan.Generated = genmeta.CurrentGeneratedInfo("dmeta scaffold-pbui-react-app")
+	reactPlan.SemanticRoot = s.Root
+	reactPlan.InteractionsRoot = s.InteractionsRoot
+	reactPlan.PBUIRoot = s.PBUIRoot
+	reactPlan.ProfileRoot = s.ProfileRoot
 	results, err := profile.WriteReactAppPlan(profilePkg, concretePlan, reactPlan, profile.ReactAppWriteOptions{DryRun: s.DryRun, Force: s.Force})
 	if err != nil {
 		return err
