@@ -33,7 +33,7 @@ export function ClimShell({
           <input
             id="clim-command-line"
             aria-label="Action command"
-            className="min-w-0 flex-1 bg-transparent text-clim-bright outline-none caret-clim-danger focus:underline focus:decoration-clim-danger focus:underline-offset-4"
+            className="min-w-0 flex-1 bg-transparent text-clim-bright outline-none caret-clim-danger focus:underline focus:decoration-dotted focus:decoration-clim-danger focus:underline-offset-4"
             value={value}
             onChange={(event) => onCommandChange?.(event.target.value)}
             spellCheck={false}
@@ -46,20 +46,42 @@ export function ClimShell({
   );
 }
 
-export function PresentationRefLine({ presentation, selected, selectable, onSelect }: { presentation: PresentationRef; selected?: boolean; selectable?: boolean; onSelect?: () => void }) {
+export function PresentationRefLine({
+  presentation,
+  selected,
+  selectable,
+  muted,
+  onSelect,
+}: {
+  presentation: PresentationRef;
+  selected?: boolean;
+  selectable?: boolean;
+  muted?: boolean;
+  onSelect?: () => void;
+}) {
   return (
     <button
       type="button"
       onClick={onSelect}
       className={[
-        'block w-full text-left px-0 py-1 transition-colors focus:outline-none focus:underline focus:decoration-clim-danger focus:underline-offset-4',
-        selected ? 'text-clim-bright underline decoration-clim-danger underline-offset-4' : '',
-        selectable || onSelect ? 'cursor-pointer text-clim-danger hover:text-clim-bright hover:underline hover:decoration-clim-danger hover:underline-offset-4' : 'cursor-default',
+        'block w-full text-left px-0 py-1 transition-colors focus:outline-none',
+        selected ? 'text-clim-bright' : 'text-clim-fg',
+        muted ? 'opacity-35 line-through' : '',
+        selectable || onSelect ? 'cursor-pointer' : 'cursor-default',
       ].filter(Boolean).join(' ')}
       data-presentation-type={presentation.type}
       data-presentation-id={presentation.id}
     >
-      <span className="text-clim-bright">&lt;{presentation.type}&gt;</span> {presentation.label}{' '}
+      <span className="text-clim-muted">&lt;{presentation.type}&gt;</span>{' '}
+      <span
+        className={[
+          selectable || onSelect
+            ? 'text-clim-danger underline decoration-dotted decoration-clim-danger underline-offset-4 hover:text-clim-bright'
+            : 'text-clim-fg',
+        ].join(' ')}
+      >
+        {presentation.label}
+      </span>{' '}
       <span className="text-clim-muted">#{presentation.id}</span>{' '}
       <span className="text-clim-muted">{presentation.capabilities.join(' ')}</span>
     </button>
@@ -106,12 +128,12 @@ export function ConfirmPrompt({
   }
   return (
     <div className="py-3 text-sm" data-testid="confirm-prompt">
-      <div className="text-clim-danger uppercase tracking-wide underline decoration-clim-danger underline-offset-4">Confirm</div>
+      <div className="text-clim-danger uppercase tracking-wide">Confirm</div>
       <div className="my-2 text-clim-bright">{binding.confirmation.prompt}</div>
-      <button type="button" className="mr-3 cursor-pointer underline text-clim-danger hover:text-clim-bright focus:outline-none focus:decoration-clim-danger focus:underline-offset-4" onClick={onConfirm}>
+      <button type="button" className="mr-3 cursor-pointer underline decoration-dotted text-clim-danger hover:text-clim-bright focus:outline-none focus:decoration-clim-danger focus:underline-offset-4" onClick={onConfirm}>
         {binding.confirmation.confirmLabel}
       </button>
-      <button type="button" className="cursor-pointer underline text-clim-bright hover:text-clim-danger focus:outline-none focus:decoration-clim-danger focus:underline-offset-4" onClick={onCancel}>
+      <button type="button" className="cursor-pointer underline decoration-dotted text-clim-bright hover:text-clim-danger focus:outline-none focus:decoration-clim-danger focus:underline-offset-4" onClick={onCancel}>
         {binding.confirmation.cancelLabel}
       </button>
     </div>

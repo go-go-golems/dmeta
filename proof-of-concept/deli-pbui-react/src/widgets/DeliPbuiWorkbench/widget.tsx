@@ -260,7 +260,7 @@ export function DeliPbuiWorkbench({
       return (
         <div className="grid gap-2" data-testid="detail-view">
           <div className="py-2">
-            <div className="text-clim-muted text-xs uppercase tracking-wide underline decoration-clim-border underline-offset-4">Composition draft</div>
+            <div className="text-clim-muted text-xs uppercase tracking-wide">Composition draft</div>
             <div className="text-clim-bright">{selectedItem?.name}</div>
             <div className="text-clim-muted text-sm">{draft?.id}</div>
           </div>
@@ -274,6 +274,7 @@ export function DeliPbuiWorkbench({
                 presentation={presentation}
                 selected={activeSelected?.id === ingredient.id}
                 selectable={compatible.length > 0}
+                muted={removed}
                 onSelect={compatible.length > 0 ? () => handlePresentationClick(presentation) : undefined}
               />
             );
@@ -320,7 +321,7 @@ export function DeliPbuiWorkbench({
     if (viewId === 'tracker') {
       return (
         <div className="py-2" data-testid="tracker-view">
-          <div className="text-clim-muted text-xs uppercase tracking-wide underline decoration-clim-border underline-offset-4">Lifecycle</div>
+          <div className="text-clim-muted text-xs uppercase tracking-wide">Lifecycle</div>
           <div><span className="text-clim-bright">DONE</span> cart submitted</div>
           <div><span className="text-clim-bright">ACTIVE</span> kitchen accepted order</div>
           <div><span className="text-clim-muted">PENDING</span> pickup notification</div>
@@ -356,7 +357,7 @@ export function DeliPbuiWorkbench({
     >
       <section className="grid gap-3">
         <div className="py-2">
-          <div className="text-clim-muted text-xs uppercase tracking-wide underline decoration-clim-border underline-offset-4">View model</div>
+          <div className="text-clim-muted text-xs uppercase tracking-wide">View model</div>
           <div className="text-clim-bright">{view.id} / {view.modeLabel}</div>
           <div className="text-clim-muted text-sm">{view.primaryPresentations.join('  ')}</div>
         </div>

@@ -1101,3 +1101,138 @@ clickable presentation/action -> pointer + underline + color change
 section metadata -> plain text with underlined label
 avoid per-section border/background boxes
 ```
+
+## Step 11: Encode visual rules in the PBUI style profile and design the reusable engine
+
+This step converted several review observations into durable profile data and a new design document. The Street Deli style profile now explicitly says that ordinary PBUI views should avoid local border boxes, that clickability uses dotted underlines and color changes, that only selectable reference labels turn red, that technical reference text such as `<Ingredient>` and ids remains muted, that removed rows become faint across the whole row, and that BACK/URL routing are presentation-system expectations rather than ad hoc widget details.
+
+The same work also produced the design guide for the reusable PBUI core action/presentation/ref/navigation/select engine. The guide explains why the current POC behavior should move out of `DeliPbuiWorkbench` and into a shared runtime engine that computes compatible actions, fills action slots, handles command input, manages select/confirm modes, derives visual state, disables unavailable actions, and synchronizes routes.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Update the style-profile.yaml to encode the visual rules
+- no boxes
+- underline .... signals clickability and validity
+- refs turn red when selectable (in addition to ....)
+- no underline on titles or so.
+- BACK is available pretty much everywhere + url routing as in most react apps
+
+That way we can keep things consistent as we add more interactions.
+
+---
+
+Then create a design doc for the core action/presentation/ref/navigation/select engine that is going to be the engine of all PBUI applications. Create  a detailed analysis / design / implementation guide that is for a new intern, explaining all the parts of the system needed to understand what it is, with prose paragraphs and bullet point sand pseudocode and diagrams and api references and file references. It should be very clear and technical. Store in the ticket and the nupload to remarkable."
+
+**Assistant interpretation:** Persist the reviewed visual and navigation rules in the PBUI profile, then write an intern-facing design/implementation guide for a reusable PBUI interaction engine and upload it to reMarkable.
+
+**Inferred user intent:** Stop accumulating one-off widget fixes; make the rules explicit in profile data and design the reusable engine before adding more interactions.
+
+**Follow-up prompts:** "use dotted underline, like with the actions." / "also the ingredient name should only be read when selectable." / "<Ingredient> should be dark grey as well, as all \"techno babble\""
+
+**Assistant interpretation of follow-ups:** Clickable references should use dotted underline. Only the domain label should turn red when selectable; technical prefix/id/capability text stays muted.
+
+### What I did
+
+- Rewrote `examples/street-deli-ordering/meta-design-systems/pbui/style-profile.yaml` to encode:
+  - no local/card boxes;
+  - dotted underline as clickability/validity signal;
+  - red only for selectable reference labels and dangerous actions;
+  - no underline on titles/section labels;
+  - muted technical text for `<Type>`, ids, and capabilities;
+  - faint whole-row treatment for removed items;
+  - BACK availability expectations;
+  - URL routing expectations for normal React apps.
+- Updated Street Deli PBUI command/view profile data so BACK is available in cart/help/tracker as well as detail/substitution.
+- Adjusted the POC component styling so:
+  - presentation labels get dotted red underline only when selectable;
+  - `<Ingredient>` and other type prefixes are muted;
+  - non-selectable ingredient names are not red;
+  - confirm/action controls use dotted underline;
+  - section titles remain plain, not underlined.
+- Created the engine design document:
+  - `ttmp/2026/05/25/DMETA-DELI-PBUI-POC--street-deli-pbui-react-proof-of-concept/design-doc/02-pbui-core-action-presentation-ref-navigation-select-engine.md`
+- Related the new document to the profile, POC runtime, POC components, and POC widget files.
+
+### Why
+
+- Style rules need to live in the PBUI profile so generated and hand-authored targets stay visually consistent.
+- The POC exposed a real architecture gap: clickable refs, command bindings, selection, slot filling, disabled reasons, BACK, routing, and confirmation are generic PBUI runtime concerns.
+- A new intern should be able to read one document and understand the engine to build before we continue pushing behavior into templates.
+
+### What worked
+
+Validation/build checks passed:
+
+```bash
+go run ./cmd/dmeta validate-pbui-profile --profile-root ./examples/street-deli-ordering/meta-design-systems/pbui --pbui-root ./sources/dmeta-ir/meta-design-systems/pbui --interactions-root ./examples/street-deli-ordering --include-info --output table
+cd proof-of-concept/deli-pbui-react && npm run build
+cd proof-of-concept/deli-pbui-react && npm run build-storybook
+```
+
+Playwright verified:
+
+```text
+sourdough row cursor: default
+sourdough label: not red
+<Ingredient> type prefix: muted gray
+turkey row cursor: pointer
+turkey label: red dotted underline
+click turkey -> REMOVE-INGREDIENT -> remove_part(composition_ref, part_ref)
+```
+
+### What didn't work
+
+- The profile validator accepts the new `visual_rules` and `navigation_rules` data because the style profile model stores `Tokens` but does not yet structurally validate those new sections. That is acceptable for documentation/profile encoding now, but follow-up validation should make these rules typed.
+
+### What I learned
+
+- Visual consistency needs to be represented as profile data before it can become reliable generation output.
+- The distinction between domain label and technical reference metadata is important: only the user-relevant label should take the red selectable treatment.
+- The engine design should treat styling as derived visual state, not component-local CSS decisions.
+
+### What was tricky to build
+
+- The current Go profile model does not have typed fields for `visual_rules` and `navigation_rules`. YAML can carry those fields, but validation does not inspect them yet. I documented the rules first rather than blocking on schema expansion.
+- The component needed to apply color only to the label span while leaving type/id/capability spans muted. This required making the reference line markup more explicit.
+
+### What warrants a second pair of eyes
+
+- Review whether `style-profile.yaml` should get typed Go fields and validation for `visual_rules` and `navigation_rules` in the next pass.
+- Review the proposed engine API before implementation, especially route adapter shape and action slot compatibility.
+- Review whether selected refs need a textual marker now that red underline is reserved for selectable refs.
+
+### What should be done in the future
+
+- Upload the new engine guide to reMarkable.
+- Implement the engine in phases starting with typed engine state and compatibility derivation.
+- Extend the generator to emit CSS/classes from typed style profile rules rather than local target assumptions.
+
+### Code review instructions
+
+- Start with `examples/street-deli-ordering/meta-design-systems/pbui/style-profile.yaml`.
+- Then read `design-doc/02-pbui-core-action-presentation-ref-navigation-select-engine.md`.
+- Compare the design against current POC code in:
+  - `proof-of-concept/deli-pbui-react/src/generic/clim/runtime.ts`
+  - `proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx`
+  - `proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx`
+
+### Technical details
+
+The core profile rule now reads as data:
+
+```text
+clickable ref label -> red + dotted underline + pointer
+techno-babble (<Type>, #id, capabilities) -> muted gray
+section title -> plain uppercase/muted text, no underline
+removed row -> whole-row dimming
+```
+
+The engine design decomposes runtime behavior into:
+
+```text
+registries + domain context + route adapter
+  -> engine state
+  -> derived compatible actions/ref visual states
+  -> renderer events
+  -> action request / navigation / confirm transitions
+```

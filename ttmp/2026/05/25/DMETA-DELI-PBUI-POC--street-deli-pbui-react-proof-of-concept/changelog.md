@@ -89,3 +89,14 @@ Lightened the POC CLIM styling so clickable targets and structural labels use un
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx — Generic underline/color clickable styling
 - /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/widget.tsx — Removed local section border/background boxes
 
+
+## 2026-05-25
+
+Encoded reviewed PBUI visual/navigation rules in the style profile and added the core action/ref/navigation/select engine design guide.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/examples/street-deli-ordering/meta-design-systems/pbui/style-profile.yaml — Reviewed visual rules and navigation expectations
+- /home/manuel/code/wesen/go-go-golems/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/components.tsx — Dotted underline selectable label styling
+- /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/25/DMETA-DELI-PBUI-POC--street-deli-pbui-react-proof-of-concept/design-doc/02-pbui-core-action-presentation-ref-navigation-select-engine.md — Core PBUI engine design guide
+

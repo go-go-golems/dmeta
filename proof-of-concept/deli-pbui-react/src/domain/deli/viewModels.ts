@@ -30,18 +30,18 @@ export const deliViewModels: Record<DeliViewId, DeliViewModelDefinition> = {
     id: 'cart',
     modeLabel: 'CART',
     primaryPresentations: ['pbui.composition_presentation', 'pbui.action_presentation', 'pbui.presentation_ref'],
-    defaultActions: ['PLACE-ORDER', 'MENU', 'HELP'],
+    defaultActions: ['PLACE-ORDER', 'BACK', 'MENU', 'HELP'],
   },
   help: {
     id: 'help',
     modeLabel: 'HELP',
     primaryPresentations: ['pbui.action_presentation', 'pbui.inspector_panel'],
-    defaultActions: ['MENU'],
+    defaultActions: ['BACK', 'MENU'],
   },
   tracker: {
     id: 'tracker',
     modeLabel: 'TRACKER',
     primaryPresentations: ['pbui.lifecycle_status', 'pbui.action_presentation'],
-    defaultActions: ['MENU', 'HELP'],
+    defaultActions: ['BACK', 'MENU', 'HELP'],
   },
 };
