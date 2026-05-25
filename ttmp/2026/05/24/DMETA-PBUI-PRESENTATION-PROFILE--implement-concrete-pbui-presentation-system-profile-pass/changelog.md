@@ -84,3 +84,12 @@ Wrote an exhaustive PBUI MetaDesignSystem implementation report covering IRs, sc
 
 - /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/analysis/01-pbui-metadesignsystem-implementation-report.md — Implementation report
 
+
+## 2026-05-24
+
+Added repository cleanup assessment for reducing dmeta to the latest PBUI MetaDesignSystem setup plus two prototypes, and uploaded it to reMarkable.
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/ttmp/2026/05/24/DMETA-PBUI-PRESENTATION-PROFILE--implement-concrete-pbui-presentation-system-profile-pass/analysis/02-repository-cleanup-assessment-for-latest-pbui-metadesignsystem-setup.md — Cleanup assessment and recommendations
+
