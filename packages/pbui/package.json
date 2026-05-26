@@ -12,10 +12,7 @@
     "directory": "dmeta/packages/pbui"
   },
   "files": [
-    "**/*.js",
-    "**/*.d.ts",
-    "**/*.css",
-    "**/*.json",
+    "src",
     "README.md"
   ],
   "publishConfig": {
