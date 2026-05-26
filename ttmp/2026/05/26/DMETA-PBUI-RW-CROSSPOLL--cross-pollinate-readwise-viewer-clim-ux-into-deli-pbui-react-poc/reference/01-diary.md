@@ -37,7 +37,7 @@ RelatedFiles:
       Note: Rewritten with discriminated interaction state
 ExternalSources: []
 Summary: Implementation diary for cross-pollinating Readwise Viewer CLIM UX features into Deli PBUI React PoC
-LastUpdated: 2026-05-26T21:35:00-04:00
+LastUpdated: 2026-05-26T19:50:00-04:00
 WhatFor: Track implementation progress, failures, and decisions for the CLIM UX cross-pollination work
 WhenToUse: Read before resuming work on this ticket; add steps as work progresses
 ---
@@ -836,4 +836,99 @@ The important design choice was to keep the publish workflows manual and guarded
 - dmeta secret path expected by workflow: `kv/data/ci/github/dmeta/npm-token`, field `value`.
 - go-go-os-frontend secret path expected by workflow: `kv/data/ci/github/go-go-os-frontend/npm-token`, field `value`.
 - The workflows use `exportEnv: false`, then pass `steps.vault-npm.outputs.NODE_AUTH_TOKEN` only to the publish step.
+
+---
+
+## Step 11: Store npm tokens in Vault and validate dry-run publishing
+
+Completed the operational handoff for Vault-backed npm publishing. I stored the local npmjs publish token in the repo-scoped Vault KV paths, merged the dmeta publishing workflow onto `main`, and ran dry-run publish workflows for both repositories.
+
+Both GitHub Actions runs succeeded end-to-end. That validates the critical chain: GitHub workflow_dispatch on `main` → GitHub OIDC token → Vault `github-actions/` JWT auth → repo-specific Vault policy → `NODE_AUTH_TOKEN` output → npm dry-run publish.
+
+### Prompt Context
+
+**User prompt (verbatim):** "go ahead"
+
+**Assistant interpretation:** Proceed with the remaining operational setup: put the npm token into Vault, make the dmeta workflow reachable on `main`, and verify the publish workflows with dry runs.
+
+**Inferred user intent:** Finish the Vault-backed npm publish setup rather than leaving it as wiring-only infrastructure.
+
+**Commit (code):** fc431eb — "Merge task/dmeta-dsl Vault npm publishing setup"
+
+### What I did
+- Confirmed local npm auth works as user `wesen3000`.
+- Confirmed `npm token list` reports a publish token.
+- Extracted the npmjs auth token from `~/.npmrc` without printing it.
+- Stored that token in both Vault KV paths:
+  - `kv/ci/github/dmeta/npm-token`
+  - `kv/ci/github/go-go-os-frontend/npm-token`
+- Verified both Vault KV metadata entries exist.
+- Merged `task/dmeta-dsl` into the dmeta `main` worktree.
+- Resolved add/add merge conflicts in the ticket changelog and diary by taking the task branch version, because it contained Step 10 and the latest Vault setup record.
+- Pushed dmeta `main` with merge commit `fc431eb`.
+- Dispatched dmeta dry-run workflow:
+  - repo: `go-go-golems/dmeta`
+  - workflow: `publish-pbui.yml`
+  - run: `26481694722`
+  - result: success
+- Dispatched go-go-os-frontend dry-run workflow:
+  - repo: `go-go-golems/go-go-os-frontend`
+  - workflow: `publish-npm.yml`
+  - package: `@go-go-golems/os-core`
+  - run: `26481694779`
+  - result: success
+
+### Why
+- The Vault roles were bound to `refs/heads/main`, so dmeta needed the workflow on `main` before OIDC auth could pass.
+- A successful dry run proves the credential retrieval and publish pipeline work without publishing a real package version.
+- Storing the same npm publish token in two repo-specific KV paths keeps policies simple and narrow while still allowing later token rotation per repo.
+
+### What worked
+- The current local npmjs token is a publish-capable token and could be stored in Vault.
+- dmeta `publish-pbui` completed successfully in 25 seconds.
+- go-go-os-frontend `publish-npm` completed successfully in 29 seconds.
+- In both runs, `Read NPM token from Vault` completed successfully.
+- In both runs, the npm publish dry-run step completed successfully.
+
+### What didn't work
+- The first attempt to check out `main` in `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta` failed because `main` is already checked out in another worktree:
+  - `fatal: 'main' is already used by worktree at '/home/manuel/code/wesen/go-go-golems/dmeta'`
+- A fast-forward merge from `task/dmeta-dsl` to `main` was not possible because `main` already contained a PR merge commit:
+  - `fatal: Not possible to fast-forward, aborting.`
+- A normal merge produced add/add conflicts in the ticket `changelog.md` and `reference/01-diary.md`; these were resolved by taking the task branch version.
+
+### What I learned
+- The dmeta repo has two active worktrees: the task branch under `/home/manuel/workspaces/...` and `main` under `/home/manuel/code/wesen/go-go-golems/dmeta`.
+- The main branch already contained the package extraction work through PR merge `686f6e4`, so the final Vault workflow merge needed to integrate only the additional CI/CD and diary changes.
+- The Vault-bound workflow constraints were correctly strict: once the workflow was on `main`, both dry-run publish jobs could authenticate to Vault.
+
+### What was tricky to build
+- The worktree layout made a simple branch checkout fail. The safe path was to perform the `main` merge from `/home/manuel/code/wesen/go-go-golems/dmeta`, where `main` was already checked out.
+- The merge conflicts were add/add conflicts because both branches had ticket docs. I resolved them by keeping the task branch documents because they contained the newest Step 10 Vault diary and changelog entries.
+- The dry-run validation had to be launched only after pushing dmeta `main`; otherwise the Vault role's exact `workflow_ref` and `ref` constraints would have rejected the OIDC login.
+
+### What warrants a second pair of eyes
+- Decide whether using the same npm publish token for both Vault paths is acceptable long-term. It works, but separate tokens would make revocation/audit cleaner.
+- Review whether the dmeta merge commit should be reflected back into any open PR/task branch bookkeeping.
+- Confirm whether a real publish should target `latest` immediately or use `next` first for `@go-go-golems/pbui`.
+
+### What should be done in the future
+- Rotate to dedicated npm automation tokens per repository if npm org permissions make that practical.
+- Run a real dmeta PBUI publish with `dry_run: false` and `confirm_latest_publish: CONFIRM_LATEST` when ready.
+- Keep the first real go-go-os-frontend publish as a small single-package publish, as with the dry-run validation.
+
+### Code review instructions
+- Inspect dmeta run `26481694722`: https://github.com/go-go-golems/dmeta/actions/runs/26481694722
+- Inspect go-go-os-frontend run `26481694779`: https://github.com/go-go-golems/go-go-os-frontend/actions/runs/26481694779
+- Check that both runs show `Read NPM token from Vault` and publish dry-run steps as successful.
+- Check the Vault metadata exists without reading secret values:
+  - `vault kv metadata get kv/ci/github/dmeta/npm-token`
+  - `vault kv metadata get kv/ci/github/go-go-os-frontend/npm-token`
+
+### Technical details
+- dmeta dry-run workflow inputs: `npm_tag=latest`, `dry_run=true`, `skip_existing=true`.
+- go-go-os-frontend dry-run workflow inputs: `package_set=single`, `package_name=@go-go-golems/os-core`, `npm_tag=latest`, `dry_run=true`, `skip_existing=true`.
+- GitHub Actions run IDs:
+  - dmeta: `26481694722`
+  - go-go-os-frontend: `26481694779`
 

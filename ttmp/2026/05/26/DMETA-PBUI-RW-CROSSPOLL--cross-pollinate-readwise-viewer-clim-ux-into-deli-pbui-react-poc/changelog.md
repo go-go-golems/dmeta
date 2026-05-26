@@ -57,3 +57,13 @@ Step 10: configured Vault-backed npm publishing for dmeta PBUI and go-go-os-fron
 - /home/manuel/code/wesen/go-go-golems/go-go-os-frontend/.github/workflows/publish-npm.yml — Vault-backed npm publish workflow
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/.github/workflows/publish-pbui.yml — Vault-backed npm publish workflow
 
+
+## 2026-05-26
+
+Step 11: stored npm publish token in Vault, merged dmeta workflow to main, and validated dmeta/go-go-os-frontend dry-run publishes via Vault OIDC
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/dmeta/.github/workflows/publish-pbui.yml — Validated dry-run publish via Vault OIDC run 26481694722
+- /home/manuel/code/wesen/go-go-golems/go-go-os-frontend/.github/workflows/publish-npm.yml — Validated dry-run publish via Vault OIDC run 26481694779
+
