@@ -1,5 +1,5 @@
-import { currentRoute } from '../../generic/clim/routing';
-import type { RouteCodec, RouteSnapshot } from '../../generic/clim/routing';
+import { currentRoute } from '@go-go-golems/pbui';
+import type { RouteCodec, RouteSnapshot } from '@go-go-golems/pbui';
 import type { DeliViewId } from './types';
 
 export const deliRouteCodec: RouteCodec<DeliViewId> = {

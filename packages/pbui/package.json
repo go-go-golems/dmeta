@@ -1,0 +1,69 @@
+{
+  "name": "@go-go-golems/pbui",
+  "version": "0.1.0",
+  "description": "Presentation-Based User Interface (PBUI) / Command Line Interface Model (CLIM) framework for React. Domain-agnostic shell, action engine, command parser, and interaction components.",
+  "private": false,
+  "type": "module",
+  "license": "MIT",
+  "author": "Manuel Odendahl",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/go-go-golems/dmeta-dsl.git",
+    "directory": "dmeta/packages/pbui"
+  },
+  "files": [
+    "**/*.js",
+    "**/*.d.ts",
+    "**/*.css",
+    "**/*.json",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./theme": "./src/theme/index.ts",
+    "./theme/clim-tokens.css": "./src/theme/clim-tokens.css",
+    "./action-engine": "./src/actionEngine.ts",
+    "./command-parser": "./src/commandParser.ts",
+    "./session-slice": "./src/pbuiSessionSlice.ts",
+    "./routing": "./src/routing.ts",
+    "./types": "./src/types.ts"
+  },
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "build:dist": "node ../../scripts/packages/build-dist.mjs",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "@reduxjs/toolkit": "^2.0.0",
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19",
+    "react-redux": "^9.0.0"
+  },
+  "devDependencies": {
+    "@reduxjs/toolkit": "^2.12.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "typescript": "^6.0.3"
+  },
+  "keywords": [
+    "react",
+    "pbui",
+    "clim",
+    "command-line",
+    "action-engine",
+    "presentation",
+    "go-go-golems"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ]
+}

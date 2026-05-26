@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+@source "../../../packages/pbui/src/**/*.tsx";
+@source "../../../packages/pbui/src/**/*.ts";
+
 @theme {
   --font-mono: "Berkeley Mono", "SFMono-Regular", ui-monospace, monospace;
   --color-clim-bg: #050505;

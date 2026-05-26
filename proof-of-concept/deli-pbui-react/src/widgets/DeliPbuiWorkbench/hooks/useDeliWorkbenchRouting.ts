@@ -1,11 +1,16 @@
 import { useEffect } from 'react';
 import { useAppDispatch } from '../../../app/hooks';
-import { backOrFallback, listenToRouteChanges, pushRoute, replaceRoute } from '../../../generic/clim/routing';
+import {
+  backOrFallback,
+  listenToRouteChanges,
+  pushRoute,
+  replaceRoute,
+  pbuiSessionActions,
+  registerPrefixCommands,
+} from '@go-go-golems/pbui';
 import { deliWorkbenchActions } from '../../../domain/deli/deliWorkbenchSlice';
 import { deliRouteCodec, initialDeliRouteSnapshot, routeForDeliView } from '../../../domain/deli/pbuiRouting';
 import { deliViewModels } from '../../../domain/deli/viewModels';
-import { pbuiSessionActions } from '../../../generic/clim/pbuiSessionSlice';
-import { registerPrefixCommands } from '../../../generic/clim/commandParser';
 import { DELI_PREFIX_COMMANDS } from '../../../domain/deli/prefixCommands';
 import type { DeliViewId } from '../../../domain/deli/types';
 

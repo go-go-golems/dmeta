@@ -1,0 +1,1 @@
+export { PbuiHintBar } from './PbuiHintBar';

@@ -1,4 +1,4 @@
-import { PbuiPresentationRef } from '../../../../generic/clim/components/PbuiPresentationRef';
+import { PbuiPresentationRef } from '@go-go-golems/pbui';
 import type { DeliCartViewProps } from './types';
 
 export function DeliCartView({ cart, cartItems }: DeliCartViewProps) {

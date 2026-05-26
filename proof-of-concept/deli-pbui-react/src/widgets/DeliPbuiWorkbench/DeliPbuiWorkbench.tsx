@@ -3,12 +3,14 @@ import { Provider } from 'react-redux';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { store } from '../../app/store';
 import type { AppStore } from '../../app/store';
-import { formatInteractionStatus } from '../../generic/clim/actionStatus';
-import { PbuiActionBar } from '../../generic/clim/components/PbuiActionBar';
-import { PbuiHintBar } from '../../generic/clim/components/PbuiHintBar';
-import { PbuiShell } from '../../generic/clim/components/PbuiShell';
-import { pbuiSessionActions } from '../../generic/clim/pbuiSessionSlice';
-import type { ActionSpec, ClimSessionState } from '../../generic/clim/types';
+import {
+  formatInteractionStatus,
+  PbuiActionBar,
+  PbuiHintBar,
+  PbuiShell,
+  pbuiSessionActions,
+} from '@go-go-golems/pbui';
+import type { ActionSpec, ClimSessionState } from '@go-go-golems/pbui';
 import { deliActions, deliActionsForView } from '../../domain/deli/actions';
 import { useGetMenuQuery } from '../../domain/deli/deliApi';
 import { deliWorkbenchActions } from '../../domain/deli/deliWorkbenchSlice';

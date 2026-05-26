@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { deliActions } from '../../../../domain/deli/actions';
-import { getPrefixCommandHelp } from '../../../../generic/clim/commandParser';
+import { getPrefixCommandHelp, registerPrefixCommands } from '@go-go-golems/pbui';
 import { DELI_PREFIX_COMMANDS } from '../../../../domain/deli/prefixCommands';
-import { registerPrefixCommands } from '../../../../generic/clim/commandParser';
 import { DeliHelpView } from './DeliHelpView';
 
 // Register deli prefix commands for the story

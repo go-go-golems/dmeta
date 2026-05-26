@@ -1,6 +1,9 @@
-import { actionIntents, actionPresentationsForSpecs } from '../../../../generic/clim/actionEngine';
-import { PbuiHelpView } from '../../../../generic/clim/components/PbuiHelpView';
-import { getPrefixCommandHelp } from '../../../../generic/clim/commandParser';
+import {
+  actionIntents,
+  actionPresentationsForSpecs,
+  PbuiHelpView,
+  getPrefixCommandHelp,
+} from '@go-go-golems/pbui';
 import type { DeliHelpViewProps } from './types';
 
 export function DeliHelpView({ actions }: DeliHelpViewProps) {
