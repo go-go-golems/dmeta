@@ -1,0 +1,1 @@
+export { PbuiConfirmModal } from './PbuiConfirmModal';

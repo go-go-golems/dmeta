@@ -7,15 +7,25 @@ import {
   canFillValueArg,
   compatibleActionPresentations,
   nextOpenArg,
-} from '../../../generic/clim/actionEngine';
-import { parseCommandLine } from '../../../generic/clim/commandParser';
-import { pbuiSessionActions } from '../../../generic/clim/pbuiSessionSlice';
-import type { ActionPresentation, ActionRequest, ActionSpec, PresentationRef } from '../../../generic/clim/types';
+  parseCommandLine,
+  pbuiSessionActions,
+} from '@go-go-golems/pbui';
+import type {
+  ActionPresentation,
+  ActionRequest,
+  ActionSpec,
+  PresentationRef,
+  PbuiSessionState,
+} from '@go-go-golems/pbui';
 import { deliActions } from '../../../domain/deli/actions';
 import type { DeliActionRuntimeContext } from '../../../domain/deli/actions';
 import { deliWorkbenchActions } from '../../../domain/deli/deliWorkbenchSlice';
-import type { PbuiSessionState } from '../../../generic/clim/pbuiSessionSlice';
-import type { DeliCartItem, DeliCommandId, DeliViewId, MenuItem } from '../../../domain/deli/types';
+import type {
+  DeliCartItem,
+  DeliCommandId,
+  DeliViewId,
+  MenuItem,
+} from '../../../domain/deli/types';
 import type { DeliViewModelDefinition } from '../../../domain/deli/viewModels';
 
 export interface UseDeliActionControllerOptions {

@@ -1,4 +1,4 @@
-import type { PresentationRef } from '../../generic/clim/types';
+import type { PresentationRef } from '@go-go-golems/pbui';
 import type { DeliCartItem, Ingredient, MenuItem } from './types';
 
 export function menuItemPresentation(item: MenuItem): PresentationRef<'MenuItem'> {

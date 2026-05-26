@@ -1,4 +1,4 @@
-import type { ActionSpec, PresentationRef } from '../../generic/clim/types';
+import type { ActionSpec, PresentationRef } from '@go-go-golems/pbui';
 import type { DeliCartItem, DeliCommandId, DeliViewId, MenuItem } from './types';
 
 export interface DeliActionRuntimeContext {

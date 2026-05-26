@@ -1,4 +1,4 @@
-import type { PrefixCommandHelp } from '../../generic/clim/commandParser';
+import type { PrefixCommandHelp } from '@go-go-golems/pbui';
 
 export const DELI_PREFIX_COMMANDS: PrefixCommandHelp[] = [
   { id: 'SEARCH', args: '<query>', description: 'Search menu items by name or tag', example: 'SEARCH blta' },
