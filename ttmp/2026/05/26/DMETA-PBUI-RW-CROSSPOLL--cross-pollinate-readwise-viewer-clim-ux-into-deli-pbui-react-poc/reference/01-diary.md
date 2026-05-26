@@ -339,3 +339,81 @@ Verified flows in browser:
 7. CONFIRM → navigates to tracker
 
 Storybook at http://localhost:6006 loads successfully with all new stories.
+
+---
+
+## Step 5: Polish — Keyboard Handling, RTK Warnings, Storybook Cleanup
+
+Added Escape key handling to confirm modal and context menu, suppressed RTK serializable check warnings, and cleaned up all Storybook story type patterns.
+
+### Prompt Context
+
+**User prompt (verbatim):** "continue, you were struggling a bit, so we took a break. Don't forget to keep continuity in the diary format, and commit at appropriate intervals"
+
+**Assistant interpretation:** Resume work, fix remaining issues, add polish.
+
+**Inferred user intent:** Get the codebase to a clean, production-quality state with no console warnings and proper keyboard support.
+
+**Commit (code):** 41f53d3 — "feat(stories): comprehensive Storybook stories for all CLIM components"
+**Commit (code):** 8f27090 — "fix(clim): keyboard handling and RTK serializable check suppression"
+
+### What I did
+- Added `useEffect` keyboard handler to `PbuiConfirmModal` — Escape key calls `onCancel`
+- Added `useEffect` keyboard handler to `PbuiContextMenu` — Escape key calls `onDismiss`
+- Configured RTK `serializableCheck` in `store.ts` to ignore `pbuiSession.interaction.action.args` and the `enterSelect`/`enterConfirm` actions (which carry `ActionSpec` objects with `accepts` functions)
+- Fixed all remaining `satisfies Meta<typeof ...>` patterns across 9 story files → `as Meta` to avoid SB8 strict-args errors
+- Enriched domain stories: DeliMenuView (3 variants), DeliDetailView (2 new), DeliCartView (multiple items), DeliHelpView (prefix commands)
+- Added comprehensive PbuiShell stories: normal, select, confirm, with-context-menu modes
+- Marked all 20 tasks complete in DMETA-PBUI-RW-CROSSPOLL
+
+### Why
+Keyboard accessibility is essential for a CLIM interface — users expect to dismiss modals and menus with Escape. The RTK serializable warnings were noise obscuring real issues.
+
+### What worked
+- The `useEffect` pattern for Escape key is clean and self-contained
+- The RTK `ignoredPaths`/`ignoredActions` config precisely targets only the problematic paths
+- Converting all stories to `as Meta` eliminated the entire class of SB8 strict-args type errors
+
+### What didn't work
+- The `sed` approach for fixing `satisfies Meta` → `as Meta` was too aggressive initially; manual file rewrites were needed for the new component stories
+
+### What I learned
+- Storybook 8 with `satisfies Meta<typeof Component>` enforces `args` on every story, even render-only ones. Using `as Meta` or `as Meta<typeof Component>` is more practical.
+- The iframe URL (`/iframe.html?path=/story/...`) gives clean component-only views for screenshots, without Storybook chrome.
+
+### What was tricky to build
+- The RTK `serializableCheck.ignoredPaths` needs to match the exact state path where functions live. `pbuiSession.interaction.action.args` covers the `accepts` functions in the interaction state.
+
+### What warrants a second pair of eyes
+- The `ignoredPaths` and `ignoredActions` in the RTK middleware config — are they broad enough? Too broad?
+
+### What should be done in the future
+- Add Enter key support in the confirm modal (Enter = confirm)
+- Add arrow key navigation in the context menu (keyboard-accessible menu items)
+- Consider making the `PbuiCommandLine` auto-focus when entering select/confirm mode
+
+### Code review instructions
+- Check `src/app/store.ts` — RTK middleware config
+- Check `PbuiConfirmModal.tsx` and `PbuiContextMenu.tsx` — keyboard handlers
+- Verify in browser: Escape dismisses both modals
+
+### Technical details
+
+```typescript
+// RTK serializable check suppression
+middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+  serializableCheck: {
+    ignoredPaths: ['pbuiSession.interaction.action.args'],
+    ignoredActions: ['pbuiSession/enterSelect', 'pbuiSession/enterConfirm'],
+  },
+}).concat(deliApi.middleware),
+
+// Confirm modal Escape handler
+useEffect(() => {
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
+  }
+  document.addEventListener('keydown', handleKeyDown);
+  return () => document.removeEventListener('keydown', handleKeyDown);
+}, [onCancel]);
+```
