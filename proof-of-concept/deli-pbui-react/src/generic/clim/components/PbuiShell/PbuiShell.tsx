@@ -31,6 +31,7 @@ export function PbuiShell({
         value={value}
         result={state.resultLine}
         hint={state.commandHint}
+        autoFocus={state.mode !== 'normal'}
         onChange={onCommandChange}
         onSubmit={onCommandSubmit}
         onHistoryPrevious={onCommandHistoryPrevious}

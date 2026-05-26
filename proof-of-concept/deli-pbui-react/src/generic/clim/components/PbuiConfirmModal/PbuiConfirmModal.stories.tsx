@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { PbuiConfirmModal } from './PbuiConfirmModal';
 import type { ActionSpec, PresentationRef } from '../../types';
 
@@ -49,8 +50,8 @@ type Story = StoryObj<typeof PbuiConfirmModal>;
 export const PlaceOrder: Story = {
   args: {
     action: placeOrderAction,
-    onConfirm: () => {},
-    onCancel: () => {},
+    onConfirm: fn(),
+    onCancel: fn(),
   },
 };
 
@@ -58,20 +59,43 @@ export const ArchiveDocument: Story = {
   args: {
     action: archiveAction,
     ref: sampleRef,
-    onConfirm: () => {},
-    onCancel: () => {},
+    onConfirm: fn(),
+    onCancel: fn(),
   },
 };
 
 export const NoRef: Story = {
   args: {
     action: placeOrderAction,
-    onConfirm: () => {},
-    onCancel: () => {},
+    onConfirm: fn(),
+    onCancel: fn(),
   },
-  render: (args) => (
-    <div className="bg-clim-bg font-mono text-sm min-h-[400px]">
-      <PbuiConfirmModal {...args} />
-    </div>
-  ),
+};
+
+export const ConfirmButtonInteraction: Story = {
+  args: {
+    action: placeOrderAction,
+    onConfirm: fn(),
+    onCancel: fn(),
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const confirmBtn = await canvas.findByRole('button', { name: /CONFIRM PLACE-ORDER/ });
+    await userEvent.click(confirmBtn);
+    await expect(args.onConfirm).toHaveBeenCalled();
+  },
+};
+
+export const CancelButtonInteraction: Story = {
+  args: {
+    action: placeOrderAction,
+    onConfirm: fn(),
+    onCancel: fn(),
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const cancelBtn = await canvas.findByRole('button', { name: 'CANCEL' });
+    await userEvent.click(cancelBtn);
+    await expect(args.onCancel).toHaveBeenCalled();
+  },
 };

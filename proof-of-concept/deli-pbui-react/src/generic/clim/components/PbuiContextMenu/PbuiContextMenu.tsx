@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ActionPresentation, PresentationRef } from '../../types';
 
 export interface PbuiContextMenuProps {
@@ -22,18 +22,52 @@ export function PbuiContextMenu({
   onAction,
   onDismiss,
 }: PbuiContextMenuProps) {
-  // Handle Escape key to dismiss context menu
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const enabledActions = actions.filter((ap) => !ap.disabledReason);
+
+  // Reset focus when menu opens/closes
+  useEffect(() => {
+    if (visible) {
+      setFocusedIndex(-1);
+    }
+  }, [visible]);
+
+  // Handle keyboard navigation
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!visible) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      onDismiss();
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = focusedIndex < enabledActions.length - 1 ? focusedIndex + 1 : 0;
+      setFocusedIndex(next);
+      buttonRefs.current[next]?.focus();
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = focusedIndex > 0 ? focusedIndex - 1 : enabledActions.length - 1;
+      setFocusedIndex(prev);
+      buttonRefs.current[prev]?.focus();
+      return;
+    }
+    if (e.key === 'Enter' && focusedIndex >= 0 && focusedIndex < enabledActions.length) {
+      e.preventDefault();
+      onAction(enabledActions[focusedIndex]);
+      return;
+    }
+  }, [visible, focusedIndex, enabledActions, onAction, onDismiss]);
+
   useEffect(() => {
     if (!visible) return;
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onDismiss();
-      }
-    }
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [visible, onDismiss]);
+  }, [visible, handleKeyDown]);
 
   if (!visible || !ref) {
     return null;
@@ -58,24 +92,28 @@ export function PbuiContextMenu({
         {actions.length === 0 ? (
           <div className="px-2 py-1 text-clim-muted">No actions available</div>
         ) : (
-          actions.map((ap) => (
-            <button
-              key={ap.action.id}
-              type="button"
-              className={[
-                'block w-full text-left px-2 py-1 hover:bg-clim-highlight',
-                ap.disabledReason ? 'text-clim-muted cursor-not-allowed' : 'text-clim-bright cursor-pointer',
-                ap.requiresConfirmation ? 'text-clim-danger' : '',
-              ].filter(Boolean).join(' ')}
-              disabled={Boolean(ap.disabledReason)}
-              onClick={() => {
-                if (!ap.disabledReason) onAction(ap);
-              }}
-            >
-              {ap.action.id}{ap.requiresConfirmation ? ' ⚠' : ''}
-              {ap.disabledReason ? ` (${ap.disabledReason})` : ''}
-            </button>
-          ))
+          actions.map((ap, i) => {
+            const enabledIndex = ap.disabledReason ? -1 : enabledActions.indexOf(ap);
+            return (
+              <button
+                key={ap.action.id}
+                ref={(el) => { buttonRefs.current[enabledIndex] = el; }}
+                type="button"
+                className={[
+                  'block w-full text-left px-2 py-1 hover:bg-clim-highlight focus:bg-clim-highlight focus:outline-none',
+                  ap.disabledReason ? 'text-clim-muted cursor-not-allowed' : 'text-clim-bright cursor-pointer',
+                  ap.requiresConfirmation ? 'text-clim-danger' : '',
+                ].filter(Boolean).join(' ')}
+                disabled={Boolean(ap.disabledReason)}
+                onClick={() => {
+                  if (!ap.disabledReason) onAction(ap);
+                }}
+              >
+                {ap.action.id}{ap.requiresConfirmation ? ' ⚠' : ''}
+                {ap.disabledReason ? ` (${ap.disabledReason})` : ''}
+              </button>
+            );
+          })
         )}
       </div>
     </>

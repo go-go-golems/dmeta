@@ -76,3 +76,14 @@ export const ActionStatus: Story = {
     onSubmit: () => {},
   },
 };
+
+export const AutoFocusSelect: Story = {
+  args: {
+    value: 'REMOVE-INGREDIENT',
+    result: 'Select Ingredient for REMOVE-INGREDIENT.',
+    hint: 'REMOVE-INGREDIENT: click a compatible presentation. ESC cancels.',
+    autoFocus: true,
+    onChange: () => {},
+    onSubmit: () => {},
+  },
+};
