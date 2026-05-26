@@ -32,8 +32,29 @@ export function DeliPbuiWorkbench({
 }: DeliPbuiWorkbenchProps) {
   const { data: menu = [] } = useGetMenuQuery();
   const session = useAppSelector((state) => state.pbuiSession);
-  const { viewId, selectedItemId, removedIngredientIds, cartItems } = useAppSelector((state) => state.deliWorkbench);
+  const { viewId, selectedItemId, removedIngredientIds, cartItems, searchFilter, dietFilter, categoryFilter } = useAppSelector((state) => state.deliWorkbench);
   const dispatch = useAppDispatch();
+
+  const filteredMenu = menu.filter((item) => {
+    if (searchFilter) {
+      const q = searchFilter.toLowerCase();
+      const matches = item.name.toLowerCase().includes(q)
+        || item.tags?.some((t) => t.toLowerCase().includes(q))
+        || item.category?.toLowerCase().includes(q);
+      if (!matches) return false;
+    }
+    if (dietFilter) {
+      const d = dietFilter.toLowerCase();
+      const matches = item.tags.some((t) => t.toLowerCase().includes(d));
+      if (!matches) return false;
+    }
+    if (categoryFilter) {
+      const c = categoryFilter.toLowerCase();
+      const matches = item.category?.toLowerCase().includes(c);
+      if (!matches) return false;
+    }
+    return true;
+  });
 
   const interaction = session.interaction;
   const selectedItem = menu.find((item) => item.id === selectedItemId) ?? menu[0];
@@ -136,7 +157,7 @@ export function DeliPbuiWorkbench({
 
     return (
       <DeliMenuView
-        menu={menu}
+        menu={filteredMenu}
         selectedItemId={selectedItemId}
         activeSelected={activeSelected}
         pendingAction={pendingAction}
