@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { clickableDecorationStyle } from '../PbuiClickableText';
 import type { PbuiCommandLineProps } from './types';
 
@@ -6,6 +7,7 @@ export function PbuiCommandLine({
   result,
   hint,
   actionStatus,
+  autoFocus,
   className,
   onChange,
   onSubmit,
@@ -13,6 +15,15 @@ export function PbuiCommandLine({
   onHistoryNext,
   onCancel,
 }: PbuiCommandLineProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus when entering select/confirm mode
+  useEffect(() => {
+    if (autoFocus) {
+      inputRef.current?.focus();
+    }
+  }, [autoFocus]);
+
   return (
     <footer className={['border-t border-clim-border px-3 py-2 text-sm', className].filter(Boolean).join(' ')}>
       <form
@@ -24,6 +35,7 @@ export function PbuiCommandLine({
       >
         <label className="text-clim-bright" htmlFor="clim-command-line">:</label>
         <input
+          ref={inputRef}
           id="clim-command-line"
           aria-label="Action command"
           className="min-w-0 flex-1 bg-transparent text-clim-bright outline-none caret-clim-danger focus:decoration-clim-danger"

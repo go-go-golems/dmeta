@@ -16,17 +16,21 @@ export function PbuiConfirmModal({
   onConfirm,
   onCancel,
 }: PbuiConfirmModalProps) {
-  // Handle Escape key to cancel the confirm modal
+  // Handle keyboard shortcuts: Enter to confirm, Escape to cancel
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         e.preventDefault();
         onCancel();
       }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        onConfirm();
+      }
     }
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onCancel]);
+  }, [onConfirm, onCancel]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
@@ -62,7 +66,7 @@ export function PbuiConfirmModal({
           </button>
         </div>
         <div className="px-3 py-1 text-clim-muted italic">
-          or type YES / ESC
+          Enter to confirm · Escape to cancel · or type YES / ESC
         </div>
       </div>
     </div>

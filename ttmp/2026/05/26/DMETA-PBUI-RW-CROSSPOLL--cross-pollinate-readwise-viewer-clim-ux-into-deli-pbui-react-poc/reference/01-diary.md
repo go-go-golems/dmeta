@@ -13,6 +13,8 @@ DocType: reference
 Intent: long-term
 Owners: []
 RelatedFiles:
+    - Path: dmeta/proof-of-concept/deli-pbui-react/src/domain/deli/deliWorkbenchSlice.ts
+      Note: Added searchFilter/dietFilter/categoryFilter state and actions
     - Path: dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/actionEngine.ts
       Note: Extended with actionIntents()
     - Path: dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/commandParser.ts
@@ -35,6 +37,7 @@ LastUpdated: 2026-05-26T17:18:00-04:00
 WhatFor: Track implementation progress, failures, and decisions for the CLIM UX cross-pollination work
 WhenToUse: Read before resuming work on this ticket; add steps as work progresses
 ---
+
 
 
 

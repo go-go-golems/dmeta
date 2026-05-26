@@ -56,6 +56,11 @@ export function DeliPbuiWorkbench({
     return true;
   });
 
+  const activeFilters: string[] = [];
+  if (searchFilter) activeFilters.push(`SEARCH: ${searchFilter}`);
+  if (categoryFilter) activeFilters.push(`CATEGORY: ${categoryFilter}`);
+  if (dietFilter) activeFilters.push(`DIET: ${dietFilter}`);
+
   const interaction = session.interaction;
   const selectedItem = menu.find((item) => item.id === selectedItemId) ?? menu[0];
   const selectedMenuPresentation = selectedItem ? menuItemPresentation(selectedItem) : undefined;
@@ -187,7 +192,7 @@ export function DeliPbuiWorkbench({
       onCancelConfirm={cancelPending}
     >
       <section className="grid gap-3">
-        <DeliViewHeader view={view} />
+        <DeliViewHeader view={view} activeFilters={activeFilters.length > 0 ? activeFilters : undefined} />
 
         {renderView()}
 

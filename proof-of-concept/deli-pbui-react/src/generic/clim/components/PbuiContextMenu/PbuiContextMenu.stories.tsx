@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { actionIntents } from '../../actionEngine';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { PbuiContextMenu } from './PbuiContextMenu';
 import type { ActionPresentation, ActionSpec, PresentationRef } from '../../types';
 
@@ -52,8 +53,8 @@ export const Open: Story = {
     y: 50,
     ref: sampleRef,
     actions: menuActions,
-    onAction: () => {},
-    onDismiss: () => {},
+    onAction: fn(),
+    onDismiss: fn(),
   },
 };
 
@@ -64,8 +65,8 @@ export const WithDangerous: Story = {
     y: 50,
     ref: sampleRef,
     actions: [makeAp(archiveAction), makeAp(customizeAction), makeAp(copyAction)],
-    onAction: () => {},
-    onDismiss: () => {},
+    onAction: fn(),
+    onDismiss: fn(),
   },
 };
 
@@ -76,8 +77,8 @@ export const NoActions: Story = {
     y: 50,
     ref: sampleRef,
     actions: [],
-    onAction: () => {},
-    onDismiss: () => {},
+    onAction: fn(),
+    onDismiss: fn(),
   },
 };
 
@@ -88,21 +89,46 @@ export const Hidden: Story = {
     y: 0,
     ref: null,
     actions: [],
-    onAction: () => {},
-    onDismiss: () => {},
+    onAction: fn(),
+    onDismiss: fn(),
   },
-  render: () => (
-    <div className="bg-clim-bg p-4 font-mono text-sm">
-      <div className="text-clim-muted">Menu is not visible here.</div>
-      <PbuiContextMenu
-        visible={false}
-        x={0}
-        y={0}
-        ref={null}
-        actions={[]}
-        onAction={() => {}}
-        onDismiss={() => {}}
-      />
-    </div>
-  ),
+};
+
+export const ClickActionInteraction: Story = {
+  args: {
+    visible: true,
+    x: 50,
+    y: 50,
+    ref: sampleRef,
+    actions: menuActions,
+    onAction: fn(),
+    onDismiss: fn(),
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const customizeBtn = await canvas.findByRole('button', { name: 'CUSTOMIZE' });
+    await userEvent.click(customizeBtn);
+    await expect(args.onAction).toHaveBeenCalled();
+  },
+};
+
+export const ClickAwayDismissInteraction: Story = {
+  args: {
+    visible: true,
+    x: 50,
+    y: 50,
+    ref: sampleRef,
+    actions: menuActions,
+    onAction: fn(),
+    onDismiss: fn(),
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The click-away backdrop is a fixed div
+    const backdrop = canvasElement.querySelector('.fixed.inset-0');
+    if (backdrop) {
+      await userEvent.click(backdrop as HTMLElement);
+      await expect(args.onDismiss).toHaveBeenCalled();
+    }
+  },
 };
