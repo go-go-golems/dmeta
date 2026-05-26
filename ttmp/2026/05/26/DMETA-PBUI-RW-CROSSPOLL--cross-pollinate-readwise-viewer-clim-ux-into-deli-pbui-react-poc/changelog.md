@@ -22,3 +22,8 @@ Steps 1-4: Analysis, types/session refactoring, action engine + new components, 
 
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/types.ts — PbuiInteractionState discriminated union
 
+
+## 2026-05-26
+
+Step 5: Keyboard handling (Escape for confirm/context-menu), RTK serializable check suppression, story cleanup (commits 41f53d3, 8f27090, 450b80c)
+
