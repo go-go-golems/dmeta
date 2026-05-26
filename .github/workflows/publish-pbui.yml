@@ -1,0 +1,129 @@
+name: publish-pbui
+
+on:
+  workflow_dispatch:
+    inputs:
+      npm_tag:
+        description: 'npm dist-tag (latest, next, canary)'
+        required: true
+        default: 'latest'
+        type: string
+      dry_run:
+        description: 'Run npm publish with --dry-run'
+        required: true
+        default: true
+        type: boolean
+      skip_existing:
+        description: 'Skip if version already exists on npm'
+        required: true
+        default: true
+        type: boolean
+      confirm_latest_publish:
+        description: 'Type CONFIRM_LATEST to publish with tag=latest and dry_run=false'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm-production
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: npm-publish-pbui
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: packages/pbui
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Validate inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.dry_run }}" = "false" ] && [ "${{ inputs.npm_tag }}" = "latest" ] && [ "${{ inputs.confirm_latest_publish }}" != "CONFIRM_LATEST" ]; then
+            echo "ERROR: Real latest publishes require confirm_latest_publish=CONFIRM_LATEST" >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: .
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Check version exists on npm
+        if: inputs.skip_existing == true
+        id: version-check
+        shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          NAME=$(node -p "require('./package.json').name")
+          echo "Checking ${NAME}@${VERSION}..."
+          if npm view "${NAME}@${VERSION}" version --registry=https://registry.npmjs.org 2>/dev/null; then
+            echo "${NAME}@${VERSION} already exists on npm. Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Version ${VERSION} not found on npm. Will publish."
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Pack smoke test
+        if: steps.version-check.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          PACK_OUT=$(npm pack --dry-run 2>&1)
+          echo "$PACK_OUT"
+          # Verify src/ is included in the tarball
+          if ! echo "$PACK_OUT" | grep -q "src/"; then
+            echo "ERROR: src/ directory not found in npm pack output" >&2
+            exit 1
+          fi
+
+      - name: Publish to npm
+        if: steps.version-check.outputs.skip != 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          ARGS=(--access public --tag "${{ inputs.npm_tag }}")
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            ARGS+=(--dry-run)
+          fi
+          echo "Publishing ${NAME}@${VERSION} with tag=${{ inputs.npm_tag }} dry_run=${{ inputs.dry_run }}"
+          npm publish "${ARGS[@]}"
+
+      - name: Summary
+        if: always()
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          echo "## Publish Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Package:** ${NAME}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Version:** ${VERSION}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Tag:** ${{ inputs.npm_tag }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Dry run:** ${{ inputs.dry_run }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Skipped (exists):** ${{ steps.version-check.outputs.skip }}" >> "$GITHUB_STEP_SUMMARY"

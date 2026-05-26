@@ -1,0 +1,50 @@
+name: ci-pbui
+
+on:
+  push:
+    branches: [main, task/**]
+    paths:
+      - 'packages/pbui/**'
+      - '.github/workflows/ci-pbui.yml'
+  pull_request:
+    paths:
+      - 'packages/pbui/**'
+      - '.github/workflows/ci-pbui.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/pbui
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: .
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Pack smoke test
+        run: |
+          set -euo pipefail
+          PACK_OUT=$(npm pack --dry-run 2>&1)
+          echo "$PACK_OUT"
+          if ! echo "$PACK_OUT" | grep -q "src/"; then
+            echo "ERROR: src/ directory not in npm pack output" >&2
+            exit 1
+          fi
