@@ -611,3 +611,56 @@ const handleKeyDown = useCallback((e: KeyboardEvent) => {
   </span>
 ))}
 ```
+
+---
+
+## Step 8: Generic CLIM Package Polish
+
+Made the shell title configurable, removed unused imports, added CLIM layer README, and added end-to-end Storybook story.
+
+### Prompt Context
+
+**User prompt (verbatim):** "yes, continue."
+
+**Assistant interpretation:** Continue polishing the PoC for general-purpose reuse.
+
+**Inferred user intent:** Strengthen the generic CLIM layer as a reusable package foundation.
+
+**Commit (code):** f38d296 — "refactor(shell): make title configurable, remove unused PbuiConfirmPrompt import"
+**Commit (code):** 5038e2b — "docs: add README for generic CLIM layer"
+**Commit (code):** 37d11c4 — "feat(stories): add PlaceOrderConfirmFlow end-to-end story test"
+
+### What I did
+- Made `PbuiShell` title configurable (defaults to 'CLIM', domain passes 'HUDSON STREET DELI')
+- Removed unused `PbuiConfirmPrompt` import from `DeliPbuiWorkbench`
+- Added comprehensive `README.md` for `src/generic/clim/` covering architecture, types, components, action engine, command parser, session state, and domain integration guide
+- Added `PlaceOrderConfirmFlow` end-to-end Storybook story with play function
+
+### Why
+The generic CLIM layer should have zero domain-specific assumptions. Hardcoded titles are a clear violation. Documentation makes the layer accessible as a standalone package.
+
+### What worked
+- The title prop approach is clean — the shell stays generic, the workbench provides the domain title
+- The README captures the key architectural decisions (discriminated union, action intents, presentation refs) in a scannable format
+
+### What didn't work
+- N/A (straightforward refactor)
+
+### What I learned
+- The `ClimSessionState` type serves as a clean boundary between the shell (generic) and the session implementation (specific). It's a view model constructed by the workbench from the `PbuiInteractionState` discriminated union.
+
+### What was tricky to build
+- Nothing particularly tricky in this step — mostly documentation and minor refactors.
+
+### What warrants a second pair of eyes
+- The README's "Domain Integration" section — is it sufficient for a new developer to create a CLIM application from scratch?
+
+### What should be done in the future
+- Extract `src/generic/clim/` into its own npm package
+- Add unit tests for the action engine functions
+- Add a minimal example app alongside the Deli PoC
+
+### Code review instructions
+- Check `src/generic/clim/README.md` — accuracy and completeness
+- Check `PbuiShell.tsx` — title prop usage
+- Check `DeliPbuiWorkbench.stories.tsx` — PlaceOrderConfirmFlow story

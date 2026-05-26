@@ -37,3 +37,8 @@ Step 6: Wire SEARCH/CATEGORY/DIET prefix commands with live menu filtering (comm
 
 Step 7: Keyboard accessibility (Enter/Escape/Arrow), filter indicators, interaction tests (commit 9e0e12d)
 
+
+## 2026-05-26
+
+Step 8: Generic CLIM polish — configurable title, CLIM README, e2e story test (commits f38d296, 5038e2b, 37d11c4)
+
