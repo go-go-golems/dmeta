@@ -4,7 +4,7 @@ import { PbuiSectionLabel } from './PbuiSectionLabel';
 const meta = {
   title: 'Generic/CLIM/PbuiSectionLabel',
   component: PbuiSectionLabel,
-} satisfies Meta<typeof PbuiSectionLabel>;
+} as Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

@@ -4,7 +4,7 @@ import { PbuiText } from './PbuiText';
 const meta = {
   title: 'Generic/CLIM/PbuiText',
   component: PbuiText,
-} satisfies Meta<typeof PbuiText>;
+} as Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

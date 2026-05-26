@@ -7,7 +7,7 @@ import { DeliDetailView } from './DeliDetailView';
 
 const selectedItem = menuItems[0];
 
-const meta = {
+export default {
   title: 'POC/Deli PBUI Workbench/Parts/DeliDetailView',
   component: DeliDetailView,
   args: {
@@ -29,12 +29,12 @@ const meta = {
       navigateBack: () => undefined,
     },
     onPresentationClick: () => undefined,
+    onPresentationContextMenu: () => undefined,
     selectMode: false,
   },
-} satisfies Meta<typeof DeliDetailView>;
+} as Meta<typeof DeliDetailView>;
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof DeliDetailView>;
 
 function labelSpan(row: HTMLElement, text: string) {
   const span = Array.from(row.querySelectorAll('span')).find((candidate) => candidate.textContent?.includes(text));
@@ -63,5 +63,17 @@ export const RemoveIngredientSelectMode: Story = {
     const canvas = within(canvasElement);
     expect(getComputedStyle(await canvas.findByRole('button', { name: /sourdough/ })).cursor).toBe('default');
     expect(getComputedStyle(await canvas.findByRole('button', { name: /tomato/ })).cursor).toBe('pointer');
+  },
+};
+
+export const WithContextMenu: Story = {
+  args: {
+    onPresentationContextMenu: (_ref, x, y) => console.log('Context menu at', x, y),
+  },
+};
+
+export const WithRemovedIngredient: Story = {
+  args: {
+    removedIngredientIds: [selectedItem.ingredients[2].id],
   },
 };

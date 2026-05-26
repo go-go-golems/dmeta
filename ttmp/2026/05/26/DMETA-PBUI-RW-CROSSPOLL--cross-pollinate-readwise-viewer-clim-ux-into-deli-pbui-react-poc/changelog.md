@@ -13,3 +13,12 @@ Created cross-pollination analysis comparing Deli PBUI React PoC and Readwise Vi
 
 - /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/ttmp/2026/05/26/DMETA-PBUI-RW-CROSSPOLL--cross-pollinate-readwise-viewer-clim-ux-into-deli-pbui-react-poc/design-doc/01-clim-ux-cross-pollination-analysis-readwise-viewer-deli-pbui-react.md — Main analysis document
 
+
+## 2026-05-26
+
+Steps 1-4: Analysis, types/session refactoring, action engine + new components, TS/Storybook fixes (commit 415d57c)
+
+### Related Files
+
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/types.ts — PbuiInteractionState discriminated union
+

@@ -11,7 +11,7 @@ const meta = {
       },
     },
   },
-} satisfies Meta<typeof PbuiClickableText>;
+} as Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
