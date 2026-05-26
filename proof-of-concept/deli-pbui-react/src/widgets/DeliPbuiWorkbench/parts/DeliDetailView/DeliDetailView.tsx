@@ -1,5 +1,4 @@
-import { presentationVisualState } from '../../../../generic/clim/actionEngine';
-import { PbuiPresentationRef } from '../../../../generic/clim/components/PbuiPresentationRef';
+import { presentationVisualState, PbuiPresentationRef } from '@go-go-golems/pbui';
 import { ingredientPresentation } from '../../../../domain/deli/pbuiPresentations';
 import type { DeliDetailViewProps } from './types';
 
@@ -12,6 +11,7 @@ export function DeliDetailView({
   filledArgs,
   actionContext,
   onPresentationClick,
+  onPresentationContextMenu,
   selectMode,
 }: DeliDetailViewProps) {
   return (
@@ -38,6 +38,10 @@ export function DeliDetailView({
             presentation={presentation}
             state={visual}
             onSelect={visual.selectable || !selectMode ? () => onPresentationClick(presentation) : undefined}
+            onContextMenu={onPresentationContextMenu ? (e) => {
+              e.preventDefault();
+              onPresentationContextMenu(presentation, e.clientX, e.clientY);
+            } : undefined}
           />
         );
       })}

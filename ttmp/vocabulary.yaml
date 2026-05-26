@@ -33,6 +33,12 @@ topics:
       description: CLIM-style command and presentation based interface topics
     - slug: documentation
       description: Documentation, guides, reference material, and doc maintenance topics
+    - slug: readwise
+      description: Readwise Reader document management and categorization
+    - slug: ux
+      description: User experience patterns and interaction design
+    - slug: proof-of-concept
+      description: Proof of concept implementations and prototypes
 docTypes:
     - slug: design-doc
       description: Structured rationale and architecture notes

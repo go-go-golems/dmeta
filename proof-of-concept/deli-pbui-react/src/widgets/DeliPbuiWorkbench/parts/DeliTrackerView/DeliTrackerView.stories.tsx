@@ -4,7 +4,7 @@ import { DeliTrackerView } from './DeliTrackerView';
 const meta = {
   title: 'POC/Deli PBUI Workbench/Parts/DeliTrackerView',
   component: DeliTrackerView,
-} satisfies Meta<typeof DeliTrackerView>;
+} as Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

@@ -1,0 +1,39 @@
+/* ─── @go-go-golems/pbui ─ CLIM Theme Tokens ──────────────────────────── */
+/* Usage: wrap your app in <div data-widget="clim"> to scope tokens.      */
+/* Import: @import '@go-go-golems/pbui/theme/clim-tokens.css';           */
+/* Or:     import '@go-go-golems/pbui/theme';                            */
+
+[data-widget="clim"] {
+  /* ── Color palette ── */
+  --color-clim-bg: #050505;
+  --color-clim-panel: #101010;
+  --color-clim-border: #303030;
+  --color-clim-fg: #d8d8d8;
+  --color-clim-muted: #777777;
+  --color-clim-bright: #ffffff;
+  --color-clim-danger: #ff4d4d;
+  --color-clim-highlight: #4d9fff;
+
+  /* ── Layout ── */
+  --clim-font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  --clim-font-size: 14px;
+  --clim-border-radius: 0px;
+  --clim-command-height: 2.5rem;
+  --clim-hint-height: 1.75rem;
+  --clim-header-height: 2rem;
+
+  background: var(--color-clim-bg);
+  color: var(--color-clim-fg);
+  font-family: var(--clim-font-family);
+  font-size: var(--clim-font-size);
+}
+
+/* ── Pulse animation for selected presentations ── */
+[data-widget="clim"] .clim-pulse {
+  animation: clim-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes clim-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}

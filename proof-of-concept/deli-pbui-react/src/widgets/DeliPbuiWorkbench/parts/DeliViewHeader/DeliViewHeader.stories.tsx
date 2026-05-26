@@ -6,7 +6,7 @@ const meta = {
   title: 'POC/Deli PBUI Workbench/Parts/DeliViewHeader',
   component: DeliViewHeader,
   args: { view: deliViewModels.detail },
-} satisfies Meta<typeof DeliViewHeader>;
+} as Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

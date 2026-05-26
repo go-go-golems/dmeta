@@ -4,7 +4,7 @@ import { menuItems } from '../../../../domain/deli/fixtures';
 import { menuItemPresentation } from '../../../../domain/deli/pbuiPresentations';
 import { DeliMenuView } from './DeliMenuView';
 
-const meta = {
+export default {
   title: 'POC/Deli PBUI Workbench/Parts/DeliMenuView',
   component: DeliMenuView,
   args: {
@@ -25,12 +25,12 @@ const meta = {
       navigateBack: () => undefined,
     },
     onPresentationClick: () => undefined,
+    onPresentationContextMenu: () => undefined,
     selectMode: false,
   },
-} satisfies Meta<typeof DeliMenuView>;
+} as Meta<typeof DeliMenuView>;
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof DeliMenuView>;
 
 export const Normal: Story = {};
 
@@ -38,5 +38,18 @@ export const SelectMode: Story = {
   args: {
     pendingAction: deliActions.CUSTOMIZE,
     selectMode: true,
+  },
+};
+
+export const WithContextMenu: Story = {
+  args: {
+    onPresentationContextMenu: (_ref, x, y) => console.log('Context menu at', x, y),
+  },
+};
+
+export const NoSelection: Story = {
+  args: {
+    selectedItemId: undefined,
+    activeSelected: undefined,
   },
 };

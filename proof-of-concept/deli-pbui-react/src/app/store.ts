@@ -1,7 +1,7 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { deliApi } from '../domain/deli/deliApi';
 import { deliWorkbenchReducer } from '../domain/deli/deliWorkbenchSlice';
-import { pbuiSessionReducer } from '../generic/clim/pbuiSessionSlice';
+import { pbuiSessionReducer } from '@go-go-golems/pbui';
 
 const rootReducer = combineReducers({
   [deliApi.reducerPath]: deliApi.reducer,
@@ -15,7 +15,19 @@ export function setupStore(preloadedState?: Partial<RootState>) {
   return configureStore({
     reducer: rootReducer,
     preloadedState: preloadedState as RootState | undefined,
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(deliApi.middleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+      serializableCheck: {
+        ignoredPaths: [
+          'pbuiSession.interaction.action',
+          'pbuiSession.contextMenu.actions',
+        ],
+        ignoredActions: [
+          'pbuiSession/enterSelect',
+          'pbuiSession/enterConfirm',
+          'pbuiSession/showContextMenu',
+        ],
+      },
+    }).concat(deliApi.middleware),
   });
 }
 

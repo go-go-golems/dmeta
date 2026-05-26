@@ -1,0 +1,68 @@
+import { useEffect, useRef } from 'react';
+import { clickableDecorationStyle } from '../PbuiClickableText';
+import type { PbuiCommandLineProps } from './types';
+
+export function PbuiCommandLine({
+  value,
+  result,
+  hint,
+  actionStatus,
+  autoFocus,
+  className,
+  onChange,
+  onSubmit,
+  onHistoryPrevious,
+  onHistoryNext,
+  onCancel,
+}: PbuiCommandLineProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus when entering select/confirm mode
+  useEffect(() => {
+    if (autoFocus) {
+      inputRef.current?.focus();
+    }
+  }, [autoFocus]);
+
+  return (
+    <footer className={['border-t border-clim-border px-3 py-2 text-sm', className].filter(Boolean).join(' ')}>
+      <form
+        className="flex items-center gap-1"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmit?.(value);
+        }}
+      >
+        <label className="text-clim-bright" htmlFor="clim-command-line">:</label>
+        <input
+          ref={inputRef}
+          id="clim-command-line"
+          aria-label="Action command"
+          className="min-w-0 flex-1 bg-transparent text-clim-bright outline-none caret-clim-danger focus:decoration-clim-danger"
+          style={clickableDecorationStyle}
+          value={value}
+          onChange={(event) => onChange?.(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowUp') {
+              event.preventDefault();
+              onHistoryPrevious?.();
+            }
+            if (event.key === 'ArrowDown') {
+              event.preventDefault();
+              onHistoryNext?.();
+            }
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              onCancel?.();
+            }
+          }}
+          spellCheck={false}
+        />
+        <span className="text-clim-bright">█</span>
+      </form>
+      <div className="text-clim-bright">{result ?? 'Select a presentation or type a command.'}</div>
+      {hint ? <div className="text-clim-muted italic">{hint}</div> : null}
+      {actionStatus ? <div className="text-clim-muted">{actionStatus}</div> : null}
+    </footer>
+  );
+}

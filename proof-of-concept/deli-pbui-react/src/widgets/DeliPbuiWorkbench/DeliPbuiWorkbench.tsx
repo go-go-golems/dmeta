@@ -3,12 +3,14 @@ import { Provider } from 'react-redux';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { store } from '../../app/store';
 import type { AppStore } from '../../app/store';
-import { formatActionSliceStatus } from '../../generic/clim/actionStatus';
-import { PbuiActionBar } from '../../generic/clim/components/PbuiActionBar';
-import { PbuiConfirmPrompt } from '../../generic/clim/components/PbuiConfirmPrompt';
-import { PbuiShell } from '../../generic/clim/components/PbuiShell';
-import { pbuiSessionActions } from '../../generic/clim/pbuiSessionSlice';
-import type { ClimSessionState } from '../../generic/clim/types';
+import {
+  formatInteractionStatus,
+  PbuiActionBar,
+  PbuiHintBar,
+  PbuiShell,
+  pbuiSessionActions,
+} from '@go-go-golems/pbui';
+import type { ActionSpec, ClimSessionState } from '@go-go-golems/pbui';
 import { deliActions, deliActionsForView } from '../../domain/deli/actions';
 import { useGetMenuQuery } from '../../domain/deli/deliApi';
 import { deliWorkbenchActions } from '../../domain/deli/deliWorkbenchSlice';
@@ -31,9 +33,36 @@ export function DeliPbuiWorkbench({
 }: DeliPbuiWorkbenchProps) {
   const { data: menu = [] } = useGetMenuQuery();
   const session = useAppSelector((state) => state.pbuiSession);
-  const { viewId, selectedItemId, removedIngredientIds, cartItems } = useAppSelector((state) => state.deliWorkbench);
+  const { viewId, selectedItemId, removedIngredientIds, cartItems, searchFilter, dietFilter, categoryFilter } = useAppSelector((state) => state.deliWorkbench);
   const dispatch = useAppDispatch();
 
+  const filteredMenu = menu.filter((item) => {
+    if (searchFilter) {
+      const q = searchFilter.toLowerCase();
+      const matches = item.name.toLowerCase().includes(q)
+        || item.tags?.some((t) => t.toLowerCase().includes(q))
+        || item.category?.toLowerCase().includes(q);
+      if (!matches) return false;
+    }
+    if (dietFilter) {
+      const d = dietFilter.toLowerCase();
+      const matches = item.tags.some((t) => t.toLowerCase().includes(d));
+      if (!matches) return false;
+    }
+    if (categoryFilter) {
+      const c = categoryFilter.toLowerCase();
+      const matches = item.category?.toLowerCase().includes(c);
+      if (!matches) return false;
+    }
+    return true;
+  });
+
+  const activeFilters: string[] = [];
+  if (searchFilter) activeFilters.push(`SEARCH: ${searchFilter}`);
+  if (categoryFilter) activeFilters.push(`CATEGORY: ${categoryFilter}`);
+  if (dietFilter) activeFilters.push(`DIET: ${dietFilter}`);
+
+  const interaction = session.interaction;
   const selectedItem = menu.find((item) => item.id === selectedItemId) ?? menu[0];
   const selectedMenuPresentation = selectedItem ? menuItemPresentation(selectedItem) : undefined;
   const currentSessionSelected = rehydrateDeliPresentationRef(session.selectedRef, menu, removedIngredientIds);
@@ -42,16 +71,21 @@ export function DeliPbuiWorkbench({
   const cart = cartPresentation(cartItems);
   const view = deliViewModels[viewId];
   const visibleActions = deliActionsForView(view.id);
-  const pendingAction = session.pendingActionId ? deliActions[session.pendingActionId as DeliCommandId] : undefined;
-  const mode = session.mode;
+
+  const pendingAction = interaction.kind === 'select' ? interaction.action as ActionSpec<DeliCommandId>
+    : interaction.kind === 'confirm' ? interaction.action as ActionSpec<DeliCommandId>
+    : undefined;
+
+  const mode: ClimSessionState['mode'] = interaction.kind;
   const state: ClimSessionState = {
     mode,
-    modeLabel: mode === 'confirm' ? 'CONFIRM' : mode === 'select' ? 'SELECT' : view.modeLabel,
+    modeLabel: mode === 'confirm' ? 'CONFIRM' : mode === 'select' ? `SELECT ▸ ${pendingAction?.id ?? ''}` : view.modeLabel,
     selected: activeSelected,
     pendingAction,
     commandBuffer: session.commandBuffer,
     resultLine: session.resultLine,
-    actionStatusLine: formatActionSliceStatus({ selectedActionId: session.pendingActionId, filledArgs: session.filledArgs }),
+    actionStatusLine: formatInteractionStatus(interaction),
+    commandHint: session.commandHint,
   };
 
   const { navigateToView, navigateBack } = useDeliWorkbenchRouting({
@@ -64,9 +98,12 @@ export function DeliPbuiWorkbench({
   const {
     actionContext,
     actions,
+    compatibleActions,
     handleInvoke,
     handlePresentationClick,
+    handlePresentationContextMenu,
     handleCommandSubmit,
+    handleContextMenuAction,
     confirmPending,
     cancelPending,
   } = useDeliActionController({
@@ -77,7 +114,6 @@ export function DeliPbuiWorkbench({
     cartItems,
     activeSelected,
     visibleActions,
-    pendingAction,
     session,
     view,
     navigateToView,
@@ -103,11 +139,12 @@ export function DeliPbuiWorkbench({
           draft={draft}
           removedIngredientIds={removedIngredientIds}
           activeSelected={activeSelected}
-          pendingAction={pendingAction}
-          filledArgs={session.filledArgs}
+          pendingAction={pendingAction as ActionSpec<DeliCommandId> | undefined}
+          filledArgs={interaction.kind === 'select' ? interaction.filledArgs : interaction.kind === 'confirm' ? interaction.filledArgs : {}}
           actionContext={actionContext}
           onPresentationClick={handlePresentationClick}
-          selectMode={session.mode === 'select'}
+          onPresentationContextMenu={handlePresentationContextMenu}
+          selectMode={interaction.kind === 'select'}
         />
       );
     }
@@ -126,38 +163,48 @@ export function DeliPbuiWorkbench({
 
     return (
       <DeliMenuView
-        menu={menu}
+        menu={filteredMenu}
         selectedItemId={selectedItemId}
         activeSelected={activeSelected}
         pendingAction={pendingAction}
-        filledArgs={session.filledArgs}
+        filledArgs={interaction.kind === 'select' ? interaction.filledArgs : interaction.kind === 'confirm' ? interaction.filledArgs : {}}
         actionContext={actionContext}
         onPresentationClick={handlePresentationClick}
-        selectMode={session.mode === 'select'}
+        onPresentationContextMenu={handlePresentationContextMenu}
+        selectMode={interaction.kind === 'select'}
       />
     );
   }
 
   return (
     <PbuiShell
+      title="HUDSON STREET DELI"
       state={state}
       commandValue={session.commandBuffer}
+      contextMenu={session.contextMenu}
+      confirmAction={interaction.kind === 'confirm' ? { action: interaction.action as ActionSpec<DeliCommandId>, ref: session.selectedRef } : undefined}
       onCommandChange={(value) => dispatch(pbuiSessionActions.setCommandBuffer(value))}
       onCommandSubmit={handleCommandSubmit}
       onCommandHistoryPrevious={() => dispatch(pbuiSessionActions.recallPreviousCommand())}
       onCommandHistoryNext={() => dispatch(pbuiSessionActions.recallNextCommand())}
       onCommandCancel={() => handleCommandSubmit('ESC')}
+      onContextMenuAction={handleContextMenuAction}
+      onContextMenuDismiss={() => dispatch(pbuiSessionActions.hideContextMenu())}
+      onConfirm={confirmPending}
+      onCancelConfirm={cancelPending}
     >
       <section className="grid gap-3">
-        <DeliViewHeader view={view} />
+        <DeliViewHeader view={view} activeFilters={activeFilters.length > 0 ? activeFilters : undefined} />
 
         {renderView()}
 
-        {pendingAction && session.mode === 'confirm' ? (
-          <PbuiConfirmPrompt action={pendingAction} onConfirm={confirmPending} onCancel={cancelPending} />
-        ) : null}
+        <PbuiHintBar
+          selectedRef={interaction.kind === 'normal' ? session.selectedRef : undefined}
+          actions={interaction.kind === 'normal' ? compatibleActions : []}
+          onAction={handleInvoke}
+        />
 
-        <PbuiActionBar actions={actions} selectedCommandLabel={session.pendingActionId} onInvoke={handleInvoke} />
+        <PbuiActionBar actions={actions} selectedCommandLabel={pendingAction?.id} onInvoke={handleInvoke} />
       </section>
     </PbuiShell>
   );

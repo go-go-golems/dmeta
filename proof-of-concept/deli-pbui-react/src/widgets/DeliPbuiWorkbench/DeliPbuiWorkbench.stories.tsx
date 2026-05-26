@@ -21,7 +21,7 @@ const meta = {
       },
     },
   },
-} satisfies Meta<typeof DeliPbuiWorkbench>;
+} as Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -99,5 +99,31 @@ export const CartMode: Story = {
 export const HelpMode: Story = {
   args: {
     initialView: 'help',
+  },
+};
+
+export const PlaceOrderConfirmFlow: Story = {
+  args: {
+    initialView: 'detail',
+    initialSelectedItemId: 'sandwich.hudson-classic',
+    initialCart: true,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Wait for cart to be seeded
+    await canvas.findByText(/Hudson Classic/);
+
+    // Navigate to cart via command line
+    const input = await canvas.findByLabelText('Action command');
+    await userEvent.clear(input);
+    await userEvent.type(input, 'CART{Enter}');
+
+    // Place order triggers confirm
+    await userEvent.clear(input);
+    await userEvent.type(input, 'PLACE-ORDER{Enter}');
+
+    // Confirm modal should appear
+    const confirmBtn = await canvas.findByRole('button', { name: /CONFIRM PLACE-ORDER/ });
+    expect(confirmBtn).toBeInTheDocument();
   },
 };
