@@ -28,11 +28,12 @@ This package uses Tailwind CSS class names in its components. If you use Tailwin
 @import "tailwindcss";
 
 /* Scan the package source for Tailwind class names */
-@source "../node_modules/@go-go-golems/pbui/src/**/*.tsx";
-@source "../node_modules/@go-go-golems/pbui/src/**/*.ts";
+@source "../node_modules/@go-go-golems/pbui/src";
 ```
 
-> **Important:** Without these `@source` directives, Tailwind v4 will not generate CSS for the utility classes used by the package components, and spacing/layout will break.
+> **Important:** Without the `@source` directive, Tailwind v4 will not generate CSS for the utility classes used by the package components, and spacing/layout will break.
+>
+> The path is **relative to the CSS file**, not the project root. Adjust the number of `../` to match your directory structure.
 
 If you use Tailwind v3, add the package path to `content` in `tailwind.config.js`:
 

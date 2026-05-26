@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
-@source "../../../packages/pbui/src/**/*.tsx";
-@source "../../../packages/pbui/src/**/*.ts";
+@import "tailwindcss";
+
+@source "../node_modules/@go-go-golems/pbui/src";
 
 @theme {
   --font-mono: "Berkeley Mono", "SFMono-Regular", ui-monospace, monospace;
