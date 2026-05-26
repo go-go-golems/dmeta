@@ -10,5 +10,6 @@ export interface DeliMenuViewProps {
   filledArgs: Record<string, unknown>;
   actionContext: DeliActionRuntimeContext;
   onPresentationClick: (presentation: PresentationRef) => void;
+  onPresentationContextMenu?: (presentation: PresentationRef, x: number, y: number) => void;
   selectMode: boolean;
 }

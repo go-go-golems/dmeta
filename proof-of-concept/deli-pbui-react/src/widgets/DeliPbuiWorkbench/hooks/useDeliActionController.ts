@@ -1,9 +1,11 @@
 import { useAppDispatch } from '../../../app/hooks';
 import {
   actionAcceptsRef,
+  actionIntents,
   actionPresentationsForSpecs,
   canFillRefArg,
   canFillValueArg,
+  compatibleActionPresentations,
   nextOpenArg,
 } from '../../../generic/clim/actionEngine';
 import { parseCommandLine } from '../../../generic/clim/commandParser';
@@ -24,7 +26,6 @@ export interface UseDeliActionControllerOptions {
   cartItems: DeliCartItem[];
   activeSelected?: PresentationRef;
   visibleActions: ActionSpec<DeliCommandId>[];
-  pendingAction?: ActionSpec<DeliCommandId>;
   session: PbuiSessionState;
   view: DeliViewModelDefinition;
   navigateToView: (view: DeliViewId, params?: { itemId?: string }) => void;
@@ -39,13 +40,13 @@ export function useDeliActionController({
   cartItems,
   activeSelected,
   visibleActions,
-  pendingAction,
   session,
   view,
   navigateToView,
   navigateBack,
 }: UseDeliActionControllerOptions) {
   const dispatch = useAppDispatch();
+  const interaction = session.interaction;
 
   function actionContext(): DeliActionRuntimeContext {
     return {
@@ -81,6 +82,11 @@ export function useDeliActionController({
     ),
   }));
 
+  /** Actions compatible with the currently selected presentation (for hint bar and context menu). */
+  const compatibleActions = activeSelected
+    ? compatibleActionPresentations(visibleActions, activeSelected, actionContext())
+    : [];
+
   function runAction(action: ActionSpec<DeliCommandId>, filledArgs: Record<string, unknown>) {
     const result = action.run(filledArgs, actionContext());
     dispatch(pbuiSessionActions.setResult(result?.message ?? `${action.label} complete.`));
@@ -94,27 +100,31 @@ export function useDeliActionController({
     const nextArg = nextOpenArg(action, filledArgs);
     if (nextArg?.kind === 'ref') {
       dispatch(pbuiSessionActions.enterSelect({
-        actionId: action.id,
+        action,
         filledArgs,
         resultLine: `Select ${nextArg.objectType} for ${action.label}.`,
+        commandHint: `${action.label}: click a compatible presentation. ESC cancels.`,
       }));
       return;
     }
     if (nextArg?.kind === 'value') {
       dispatch(pbuiSessionActions.setResult(`Enter ${nextArg.valueType} for ${action.label}.`));
+      dispatch(pbuiSessionActions.setCommandHint(`Enter value for ${nextArg.name}.`));
       return;
     }
     const request = actionRequest(action, filledArgs);
     if (action.requiresConfirmation) {
       dispatch(pbuiSessionActions.enterConfirm({
-        actionId: action.id,
+        action,
         request,
         filledArgs,
         resultLine: `Pending confirmation: ${action.id}`,
+        commandHint: `Confirm ${action.id}? Type YES or ESC.`,
       }));
       return;
     }
     runAction(action, filledArgs);
+    dispatch(pbuiSessionActions.setCommandHint('Select a presentation or type a command.'));
   }
 
   function startAction(action: ActionSpec<DeliCommandId>, initialArgs: Record<string, unknown> = {}) {
@@ -144,19 +154,37 @@ export function useDeliActionController({
       dispatch(deliWorkbenchActions.setSelectedItemId(presentation.id));
     }
 
-    if (session.mode === 'select' && pendingAction) {
-      const nextArg = nextOpenArg(pendingAction, session.filledArgs);
+    if (interaction.kind === 'select') {
+      const nextArg = nextOpenArg(interaction.action, interaction.filledArgs);
       if (!nextArg || nextArg.kind !== 'ref' || !canFillRefArg(nextArg, presentation, actionContext())) {
         dispatch(pbuiSessionActions.setResult(`${presentation.label} cannot fill the current action argument.`));
         return;
       }
-      const filledArgs = { ...session.filledArgs, [nextArg.name]: presentation };
-      dispatch(pbuiSessionActions.selectCompleted({ selectedRef: presentation, filledArgs, commandBuffer: pendingAction.id }));
-      continueAction(pendingAction, filledArgs);
+      const filledArgs = { ...interaction.filledArgs, [nextArg.name]: presentation };
+      dispatch(pbuiSessionActions.selectCompleted({
+        selectedRef: presentation,
+        filledArgs,
+        commandBuffer: interaction.action.id,
+        commandHint: 'Select a presentation or type a command.',
+      }));
+      continueAction(interaction.action as ActionSpec<DeliCommandId>, filledArgs);
       return;
     }
 
-    dispatch(pbuiSessionActions.selectRef({ presentation, resultLine: `Selected ${presentation.label}.` }));
+    if (interaction.kind === 'confirm') {
+      return;
+    }
+
+    dispatch(pbuiSessionActions.selectRef({
+      presentation,
+      resultLine: `Selected ${presentation.label}.`,
+      commandHint: `Selected <${presentation.type}> ${presentation.label}. Right-click for menu.`,
+    }));
+  }
+
+  function handlePresentationContextMenu(presentation: PresentationRef, x: number, y: number) {
+    const compatible = compatibleActionPresentations(visibleActions, presentation, actionContext());
+    dispatch(pbuiSessionActions.showContextMenu({ x, y, ref: presentation, actions: compatible }));
   }
 
   function valueArgsFromRepl(action: ActionSpec<DeliCommandId>, args: string[]) {
@@ -172,19 +200,23 @@ export function useDeliActionController({
   }
 
   function confirmPending() {
-    if (!pendingAction || !session.pendingRequest) {
+    if (interaction.kind !== 'confirm') {
       return;
     }
-    runAction(pendingAction, session.pendingRequest.args);
+    runAction(interaction.action as ActionSpec<DeliCommandId>, interaction.request.args);
     navigateToView('tracker');
     dispatch(pbuiSessionActions.confirmCompleted({
-      commandBuffer: pendingAction.id,
-      resultLine: `Confirmed action request: ${pendingAction.id}`,
+      commandBuffer: interaction.action.id,
+      resultLine: `Confirmed action request: ${interaction.action.id}`,
+      commandHint: 'Select a presentation or type a command.',
     }));
   }
 
   function cancelPending() {
-    dispatch(pbuiSessionActions.confirmCancelled({ resultLine: 'Cancelled pending action request.' }));
+    dispatch(pbuiSessionActions.confirmCancelled({
+      resultLine: 'Cancelled pending action request.',
+      commandHint: 'Select a presentation or type a command.',
+    }));
   }
 
   function handleCommandSubmit(value: string) {
@@ -198,12 +230,15 @@ export function useDeliActionController({
     }
 
     if (parsed.kind === 'cancel') {
-      if (session.mode === 'confirm') {
+      if (interaction.kind === 'confirm') {
         cancelPending();
         return;
       }
-      if (session.mode === 'select') {
-        dispatch(pbuiSessionActions.selectCancelled({ resultLine: 'Cancelled target selection.' }));
+      if (interaction.kind === 'select') {
+        dispatch(pbuiSessionActions.selectCancelled({
+          resultLine: 'Cancelled target selection.',
+          commandHint: 'Select a presentation or type a command.',
+        }));
         return;
       }
       dispatch(pbuiSessionActions.setResult('Nothing to cancel.'));
@@ -211,7 +246,7 @@ export function useDeliActionController({
     }
 
     if (parsed.kind === 'confirm') {
-      if (session.mode === 'confirm') {
+      if (interaction.kind === 'confirm') {
         confirmPending();
         return;
       }
@@ -219,8 +254,21 @@ export function useDeliActionController({
       return;
     }
 
+    if (parsed.kind === 'prefix') {
+      dispatch(pbuiSessionActions.setResult(`${parsed.command}: ${parsed.value} — prefix commands not fully wired in this POC yet.`));
+      dispatch(pbuiSessionActions.setCommandHint('Prefix commands are recognized but filtering is not yet implemented.'));
+      return;
+    }
+
+    if (parsed.kind === 'missing-argument') {
+      dispatch(pbuiSessionActions.setResult(`${parsed.command} requires an argument. Example: ${parsed.example}`));
+      dispatch(pbuiSessionActions.setCommandHint(`Type ${parsed.example}.`));
+      return;
+    }
+
     if (parsed.kind === 'unknown') {
       dispatch(pbuiSessionActions.setResult(`Unknown command: ${parsed.command}. Type HELP.`));
+      dispatch(pbuiSessionActions.setCommandHint('Type HELP for available commands.'));
       return;
     }
 
@@ -235,12 +283,20 @@ export function useDeliActionController({
     startAction(action, valueArgsFromRepl(action, parsed.args));
   }
 
+  function handleContextMenuAction(actionPresentation: ActionPresentation) {
+    dispatch(pbuiSessionActions.hideContextMenu());
+    handleInvoke(actionPresentation);
+  }
+
   return {
     actionContext: actionContext(),
     actions,
+    compatibleActions,
     handleInvoke,
     handlePresentationClick,
+    handlePresentationContextMenu,
     handleCommandSubmit,
+    handleContextMenuAction,
     confirmPending,
     cancelPending,
   };

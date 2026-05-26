@@ -9,6 +9,7 @@ export function menuItemPresentation(item: MenuItem): PresentationRef<'MenuItem'
     presentationType: 'pbui.presentation_ref',
     capabilities: ['labelable', 'composable', 'substitutable'],
     metadata: { category: item.category, tags: item.tags },
+    copyValue: item.id,
   };
 }
 
@@ -20,6 +21,7 @@ export function ingredientPresentation(ingredient: Ingredient, removed: boolean)
     presentationType: 'pbui.presentation_ref',
     capabilities: ingredient.removable ? ['labelable', 'removable'] : ['labelable'],
     metadata: { role: ingredient.role, removable: ingredient.removable ? 'yes' : 'no', removed: removed ? 'yes' : 'no' },
+    copyValue: ingredient.id,
   };
 }
 
@@ -45,6 +47,7 @@ export function draftPresentation(item: MenuItem | undefined): PresentationRef<'
     presentationType: 'pbui.presentation_ref',
     capabilities: ['composable', 'substitutable'],
     metadata: { source: item.id },
+    copyValue: item.id,
   };
 }
 

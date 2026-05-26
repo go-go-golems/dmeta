@@ -117,6 +117,21 @@ export const deliActions: Record<DeliCommandId, ActionSpec<DeliCommandId>> = {
     args: [{ name: 'subject', kind: 'ref', objectType: 'Any' }],
     run: (args) => ({ message: `Describe ${(refArg(args, 'subject')?.label) ?? 'selected subject'}` }),
   },
+  COPY: {
+    id: 'COPY',
+    label: 'COPY',
+    description: 'Copy the selected presentation reference to clipboard.',
+    views: ['menu', 'detail', 'cart', 'substitution'],
+    args: [{ name: 'subject', kind: 'ref', objectType: 'Any' }],
+    run: (args) => {
+      const ref = refArg(args, 'subject');
+      const value = ref?.copyValue ?? ref?.id ?? '';
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        navigator.clipboard.writeText(value);
+      }
+      return { message: `Copied: ${value}` };
+    },
+  },
   CART: {
     id: 'CART',
     label: 'CART',

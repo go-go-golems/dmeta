@@ -33,6 +33,7 @@ export type DeliCommandId =
   | 'ADD-TO-ORDER'
   | 'APPLY'
   | 'DESCRIBE'
+  | 'COPY'
   | 'CART'
   | 'BACK'
   | 'MENU'

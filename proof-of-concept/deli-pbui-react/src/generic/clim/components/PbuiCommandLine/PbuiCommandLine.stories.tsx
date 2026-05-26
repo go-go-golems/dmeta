@@ -1,24 +1,78 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useState } from 'react';
 import { PbuiCommandLine } from './PbuiCommandLine';
 
-const meta = {
+export default {
   title: 'Generic/CLIM/PbuiCommandLine',
   component: PbuiCommandLine,
-} satisfies Meta<typeof PbuiCommandLine>;
+} as Meta<typeof PbuiCommandLine>;
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof PbuiCommandLine>;
 
-export const Editable: Story = {
-  args: { value: 'FILTER-DIETARY vegetarian' },
-  render: () => {
-    const [value, setValue] = useState('FILTER-DIETARY vegetarian');
-    const [result, setResult] = useState('Type a command and press Enter.');
-    return (
-      <div className="bg-clim-bg font-mono">
-        <PbuiCommandLine value={value} result={result} onChange={setValue} onSubmit={(next) => setResult(`submitted ${next}`)} />
-      </div>
-    );
+export const Default: Story = {
+  args: {
+    value: '',
+    result: 'Select a presentation or type a command.',
+    onChange: () => {},
+    onSubmit: () => {},
+  },
+};
+
+export const WithCommand: Story = {
+  args: {
+    value: 'CUSTOMIZE',
+    result: 'Select MenuItem for CUSTOMIZE.',
+    onChange: () => {},
+    onSubmit: () => {},
+  },
+};
+
+export const WithHint: Story = {
+  args: {
+    value: '',
+    result: 'Selected Classic BLTA $11.95.',
+    hint: 'Selected <MenuItem> Classic BLTA. CUSTOMIZE CART HELP. Right-click for menu.',
+    onChange: () => {},
+    onSubmit: () => {},
+  },
+};
+
+export const SelectMode: Story = {
+  args: {
+    value: 'REMOVE-INGREDIENT',
+    result: 'Select Ingredient for REMOVE-INGREDIENT.',
+    hint: 'REMOVE-INGREDIENT: click a compatible presentation. ESC cancels.',
+    onChange: () => {},
+    onSubmit: () => {},
+  },
+};
+
+export const ConfirmMode: Story = {
+  args: {
+    value: 'PLACE-ORDER',
+    result: 'Pending confirmation: PLACE-ORDER',
+    hint: 'Confirm PLACE-ORDER? Type YES or ESC.',
+    onChange: () => {},
+    onSubmit: () => {},
+  },
+};
+
+export const PrefixCommandMissingArg: Story = {
+  args: {
+    value: '',
+    result: 'SEARCH requires an argument. Example: SEARCH sqlite datasette',
+    hint: 'Type SEARCH sqlite datasette.',
+    onChange: () => {},
+    onSubmit: () => {},
+  },
+};
+
+export const ActionStatus: Story = {
+  args: {
+    value: 'REMOVE-INGREDIENT',
+    result: 'Select Ingredient for REMOVE-INGREDIENT.',
+    actionStatus: 'ACTION SLICE mode=select action=REMOVE-INGREDIENT filled_slots=none',
+    hint: 'REMOVE-INGREDIENT: click a compatible presentation. ESC cancels.',
+    onChange: () => {},
+    onSubmit: () => {},
   },
 };

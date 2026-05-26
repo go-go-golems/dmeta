@@ -1,15 +1,23 @@
 import { PbuiCommandLine } from '../PbuiCommandLine';
+import { PbuiConfirmModal } from '../PbuiConfirmModal';
+import { PbuiContextMenu } from '../PbuiContextMenu';
 import type { PbuiShellProps } from './types';
 
 export function PbuiShell({
   state,
   children,
   commandValue,
+  contextMenu,
+  confirmAction,
   onCommandChange,
   onCommandSubmit,
   onCommandHistoryPrevious,
   onCommandHistoryNext,
   onCommandCancel,
+  onContextMenuAction,
+  onContextMenuDismiss,
+  onConfirm,
+  onCancelConfirm,
 }: PbuiShellProps) {
   const value = commandValue ?? state.commandBuffer;
   return (
@@ -22,13 +30,34 @@ export function PbuiShell({
       <PbuiCommandLine
         value={value}
         result={state.resultLine}
-        actionStatus={state.actionStatusLine}
+        hint={state.commandHint}
         onChange={onCommandChange}
         onSubmit={onCommandSubmit}
         onHistoryPrevious={onCommandHistoryPrevious}
         onHistoryNext={onCommandHistoryNext}
         onCancel={onCommandCancel}
       />
+
+      {contextMenu?.visible ? (
+        <PbuiContextMenu
+          visible={contextMenu.visible}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          ref={contextMenu.ref}
+          actions={contextMenu.actions}
+          onAction={onContextMenuAction ?? (() => {})}
+          onDismiss={onContextMenuDismiss ?? (() => {})}
+        />
+      ) : null}
+
+      {confirmAction?.action && state.mode === 'confirm' ? (
+        <PbuiConfirmModal
+          action={confirmAction.action}
+          ref={confirmAction.ref}
+          onConfirm={onConfirm ?? (() => {})}
+          onCancel={onCancelConfirm ?? (() => {})}
+        />
+      ) : null}
     </div>
   );
 }
