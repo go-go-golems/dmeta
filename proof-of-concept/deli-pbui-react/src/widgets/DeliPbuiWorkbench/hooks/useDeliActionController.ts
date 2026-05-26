@@ -255,14 +255,49 @@ export function useDeliActionController({
     }
 
     if (parsed.kind === 'prefix') {
-      dispatch(pbuiSessionActions.setResult(`${parsed.command}: ${parsed.value} — prefix commands not fully wired in this POC yet.`));
-      dispatch(pbuiSessionActions.setCommandHint('Prefix commands are recognized but filtering is not yet implemented.'));
+      const cmd = parsed.command;
+      const val = parsed.value;
+      if (cmd === 'SEARCH') {
+        dispatch(deliWorkbenchActions.setSearchFilter(val));
+        dispatch(pbuiSessionActions.setResult(`SEARCH: ${val} — filtering menu.`));
+        dispatch(pbuiSessionActions.setCommandHint(`Showing items matching "${val}". SEARCH without args to clear.`));
+        navigateToView('menu');
+      } else if (cmd === 'CATEGORY') {
+        dispatch(deliWorkbenchActions.setCategoryFilter(val));
+        dispatch(pbuiSessionActions.setResult(`CATEGORY: ${val} — filtering by category.`));
+        dispatch(pbuiSessionActions.setCommandHint(`Showing ${val} items. CATEGORY without args to clear.`));
+        navigateToView('menu');
+      } else if (cmd === 'DIET') {
+        dispatch(deliWorkbenchActions.setDietFilter(val));
+        dispatch(pbuiSessionActions.setResult(`DIET: ${val} — filtering by dietary tag.`));
+        dispatch(pbuiSessionActions.setCommandHint(`Showing ${val} items. DIET without args to clear.`));
+        navigateToView('menu');
+      } else {
+        dispatch(pbuiSessionActions.setResult(`${cmd}: ${val ?? ''}`));
+        dispatch(pbuiSessionActions.setCommandHint('Prefix command recognized.'));
+      }
       return;
     }
 
     if (parsed.kind === 'missing-argument') {
-      dispatch(pbuiSessionActions.setResult(`${parsed.command} requires an argument. Example: ${parsed.example}`));
-      dispatch(pbuiSessionActions.setCommandHint(`Type ${parsed.example}.`));
+      // Treat prefix commands without args as "clear filter"
+      const cmd = parsed.command;
+      if (cmd === 'SEARCH') {
+        dispatch(deliWorkbenchActions.setSearchFilter(undefined));
+        dispatch(pbuiSessionActions.setResult('Search filter cleared.'));
+        dispatch(pbuiSessionActions.setCommandHint('Select a presentation or type a command.'));
+      } else if (cmd === 'CATEGORY') {
+        dispatch(deliWorkbenchActions.setCategoryFilter(undefined));
+        dispatch(pbuiSessionActions.setResult('Category filter cleared.'));
+        dispatch(pbuiSessionActions.setCommandHint('Select a presentation or type a command.'));
+      } else if (cmd === 'DIET') {
+        dispatch(deliWorkbenchActions.setDietFilter(undefined));
+        dispatch(pbuiSessionActions.setResult('Diet filter cleared.'));
+        dispatch(pbuiSessionActions.setCommandHint('Select a presentation or type a command.'));
+      } else {
+        dispatch(pbuiSessionActions.setResult(`${parsed.command} requires an argument. Example: ${parsed.example}`));
+        dispatch(pbuiSessionActions.setCommandHint(`Type ${parsed.example}.`));
+      }
       return;
     }
 

@@ -7,6 +7,12 @@ export interface DeliWorkbenchState {
   selectedItemId?: string;
   removedIngredientIds: string[];
   cartItems: DeliCartItem[];
+  /** Active search/filter text for the menu view. */
+  searchFilter?: string;
+  /** Active dietary filter for the menu view. */
+  dietFilter?: string;
+  /** Active category filter for the menu view. */
+  categoryFilter?: string;
 }
 
 export const initialDeliWorkbenchState: DeliWorkbenchState = {
@@ -46,6 +52,15 @@ export const deliWorkbenchSlice = createSlice({
     },
     clearCart: (state) => {
       state.cartItems = [];
+    },
+    setSearchFilter: (state, action: PayloadAction<string | undefined>) => {
+      state.searchFilter = action.payload || undefined;
+    },
+    setDietFilter: (state, action: PayloadAction<string | undefined>) => {
+      state.dietFilter = action.payload || undefined;
+    },
+    setCategoryFilter: (state, action: PayloadAction<string | undefined>) => {
+      state.categoryFilter = action.payload || undefined;
     },
   },
 });
