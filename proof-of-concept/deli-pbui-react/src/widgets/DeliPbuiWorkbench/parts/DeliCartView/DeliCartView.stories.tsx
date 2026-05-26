@@ -10,17 +10,16 @@ const cartItems = [{
   substitutions: {},
 }];
 
-const meta = {
+export default {
   title: 'POC/Deli PBUI Workbench/Parts/DeliCartView',
   component: DeliCartView,
   args: {
     cart: cartPresentation(cartItems),
     cartItems,
   },
-} satisfies Meta<typeof DeliCartView>;
+} as Meta<typeof DeliCartView>;
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof DeliCartView>;
 
 export const WithItems: Story = {};
 
@@ -28,5 +27,22 @@ export const Empty: Story = {
   args: {
     cart: cartPresentation([]),
     cartItems: [],
+  },
+};
+
+export const MultipleItems: Story = {
+  args: {
+    cart: cartPresentation([...cartItems, {
+      id: 'cart.salad.market-greens',
+      item: menuItems[1],
+      removedIngredientIds: [],
+      substitutions: {},
+    }]),
+    cartItems: [...cartItems, {
+      id: 'cart.salad.market-greens',
+      item: menuItems[1],
+      removedIngredientIds: [],
+      substitutions: {},
+    }],
   },
 };

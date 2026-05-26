@@ -25,7 +25,7 @@ const meta = {
     onConfirm: () => undefined,
     onCancel: () => undefined,
   },
-} satisfies Meta<typeof PbuiConfirmPrompt>;
+} as Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

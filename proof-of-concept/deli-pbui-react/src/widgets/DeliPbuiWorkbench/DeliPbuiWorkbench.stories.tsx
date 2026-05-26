@@ -21,7 +21,7 @@ const meta = {
       },
     },
   },
-} satisfies Meta<typeof DeliPbuiWorkbench>;
+} as Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
