@@ -12,6 +12,7 @@ export function DeliDetailView({
   filledArgs,
   actionContext,
   onPresentationClick,
+  onPresentationContextMenu,
   selectMode,
 }: DeliDetailViewProps) {
   return (
@@ -38,6 +39,10 @@ export function DeliDetailView({
             presentation={presentation}
             state={visual}
             onSelect={visual.selectable || !selectMode ? () => onPresentationClick(presentation) : undefined}
+            onContextMenu={onPresentationContextMenu ? (e) => {
+              e.preventDefault();
+              onPresentationContextMenu(presentation, e.clientX, e.clientY);
+            } : undefined}
           />
         );
       })}

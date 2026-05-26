@@ -5,6 +5,8 @@ import { deliWorkbenchActions } from '../../../domain/deli/deliWorkbenchSlice';
 import { deliRouteCodec, initialDeliRouteSnapshot, routeForDeliView } from '../../../domain/deli/pbuiRouting';
 import { deliViewModels } from '../../../domain/deli/viewModels';
 import { pbuiSessionActions } from '../../../generic/clim/pbuiSessionSlice';
+import { registerPrefixCommands } from '../../../generic/clim/commandParser';
+import { DELI_PREFIX_COMMANDS } from '../../../domain/deli/prefixCommands';
 import type { DeliViewId } from '../../../domain/deli/types';
 
 export interface UseDeliWorkbenchRoutingOptions {
@@ -25,10 +27,14 @@ export function useDeliWorkbenchRouting({
   const initialItemId = routeInitial.params?.itemId ?? initialSelectedItemId ?? firstMenuItemId;
 
   useEffect(() => {
+    // Register prefix commands for the command parser
+    registerPrefixCommands(DELI_PREFIX_COMMANDS);
+
     dispatch(deliWorkbenchActions.resetWorkbench({ viewId: routeInitial.view, selectedItemId: initialItemId }));
     dispatch(pbuiSessionActions.resetSession({
       commandBuffer: `LIST ${deliViewModels[routeInitial.view].modeLabel}`,
       resultLine: 'Proof of concept: generic CLIM shell + Deli domain registry + RTK Query fixture data.',
+      commandHint: 'Click a presentation or type HELP.',
     }));
     if (window.location.pathname === '/') {
       replaceRoute(deliRouteCodec, routeForDeliView(routeInitial.view, initialItemId));

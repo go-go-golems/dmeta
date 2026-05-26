@@ -5,6 +5,8 @@ export interface PbuiPresentationRefState {
   selectable?: boolean;
   muted?: boolean;
   disabled?: boolean;
+  /** True when this presentation is a compatible target for a dangerous/confirmable action. */
+  dangerousTarget?: boolean;
 }
 
 export interface PbuiPresentationRefProps {
@@ -16,4 +18,6 @@ export interface PbuiPresentationRefProps {
   disabled?: boolean;
   className?: string;
   onSelect?: () => void;
+  /** Right-click handler for context menu. */
+  onContextMenu?: (event: React.MouseEvent) => void;
 }

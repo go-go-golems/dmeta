@@ -1,13 +1,22 @@
 import type { ReactNode } from 'react';
-import type { ClimSessionState } from '../../types';
+import type { ActionPresentation, ActionSpec, ClimSessionState, ContextMenuState, PresentationRef } from '../../types';
 
 export interface PbuiShellProps {
   state: ClimSessionState;
   children: ReactNode;
   commandValue?: string;
+  contextMenu?: ContextMenuState;
+  confirmAction?: {
+    action: ActionSpec;
+    ref?: PresentationRef;
+  };
   onCommandChange?: (value: string) => void;
   onCommandSubmit?: (value: string) => void;
   onCommandHistoryPrevious?: () => void;
   onCommandHistoryNext?: () => void;
   onCommandCancel?: () => void;
+  onContextMenuAction?: (action: ActionPresentation) => void;
+  onContextMenuDismiss?: () => void;
+  onConfirm?: () => void;
+  onCancelConfirm?: () => void;
 }

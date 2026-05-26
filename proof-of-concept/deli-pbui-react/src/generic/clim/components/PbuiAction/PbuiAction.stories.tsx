@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { actionIntents } from '../../actionEngine';
 import { PbuiAction } from './PbuiAction';
 import type { ActionPresentation, ActionSpec } from '../../types';
 
@@ -21,16 +22,35 @@ const placeOrderAction: ActionSpec = {
   run: () => undefined,
 };
 
-const customize: ActionPresentation = { action: customizeAction, commandLabel: 'CUSTOMIZE' };
-const placeOrder: ActionPresentation = { action: placeOrderAction, commandLabel: 'PLACE-ORDER' };
+const backAction: ActionSpec = {
+  id: 'BACK',
+  label: 'BACK',
+  description: 'Return to previous view.',
+  views: ['detail', 'cart'],
+  args: [],
+  run: () => undefined,
+};
 
-const meta = {
+function makeAp(action: ActionSpec, overrides?: Partial<ActionPresentation>): ActionPresentation {
+  return {
+    action,
+    commandLabel: action.label,
+    intents: actionIntents(action),
+    requiresConfirmation: Boolean(action.requiresConfirmation),
+    ...overrides,
+  };
+}
+
+const customize = makeAp(customizeAction);
+const placeOrder = makeAp(placeOrderAction);
+const back = makeAp(backAction);
+
+export default {
   title: 'Generic/CLIM/PbuiAction',
   component: PbuiAction,
-} satisfies Meta<typeof PbuiAction>;
+} as Meta<typeof PbuiAction>;
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof PbuiAction>;
 
 export const States: Story = {
   args: { action: customize },
@@ -38,8 +58,27 @@ export const States: Story = {
     <div className="flex gap-4 bg-clim-bg p-4 font-mono text-sm">
       <PbuiAction action={customize} />
       <PbuiAction action={placeOrder} />
+      <PbuiAction action={back} />
       <PbuiAction action={customize} selected />
-      <PbuiAction action={{ ...customize, disabledReason: 'Select a menu item first.' }} />
+      <PbuiAction action={makeAp(customizeAction, { disabledReason: 'Select a menu item first.' })} />
+    </div>
+  ),
+};
+
+export const Dangerous: Story = {
+  render: () => (
+    <div className="flex gap-4 bg-clim-bg p-4 font-mono text-sm">
+      <PbuiAction action={placeOrder} />
+      <PbuiAction action={placeOrder} selected />
+    </div>
+  ),
+};
+
+export const Navigation: Story = {
+  render: () => (
+    <div className="flex gap-4 bg-clim-bg p-4 font-mono text-sm">
+      <PbuiAction action={back} />
+      <PbuiAction action={back} selected />
     </div>
   ),
 };

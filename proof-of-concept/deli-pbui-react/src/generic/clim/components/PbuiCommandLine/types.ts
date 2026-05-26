@@ -1,6 +1,7 @@
 export interface PbuiCommandLineProps {
   value: string;
   result?: string;
+  hint?: string;
   actionStatus?: string;
   className?: string;
   onChange?: (value: string) => void;
