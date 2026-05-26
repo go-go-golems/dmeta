@@ -27,3 +27,8 @@ Steps 1-4: Analysis, types/session refactoring, action engine + new components, 
 
 Step 5: Keyboard handling (Escape for confirm/context-menu), RTK serializable check suppression, story cleanup (commits 41f53d3, 8f27090, 450b80c)
 
+
+## 2026-05-26
+
+Step 6: Wire SEARCH/CATEGORY/DIET prefix commands with live menu filtering (commit 2dd7b9a)
+
