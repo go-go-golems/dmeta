@@ -664,3 +664,75 @@ The generic CLIM layer should have zero domain-specific assumptions. Hardcoded t
 - Check `src/generic/clim/README.md` — accuracy and completeness
 - Check `PbuiShell.tsx` — title prop usage
 - Check `DeliPbuiWorkbench.stories.tsx` — PlaceOrderConfirmFlow story
+
+---
+
+## Step 9: Extract `@go-go-golems/pbui` Package
+
+Extracted the generic CLIM layer into a proper npm package following the go-go-os-frontend conventions.
+
+### Prompt Context
+
+**User prompt (verbatim):** "name the package @go-go-golems/pbui (see ~/code/wesen/go-go-golems/go-go-os-frontend/ where we already have a whole bunch of packages, to see if there is a common structure to be used here.)"
+
+**Assistant interpretation:** Extract the generic CLIM layer into `@go-go-golems/pbui` package following existing go-go-golems package conventions.
+
+**Inferred user intent:** Make the PoC's generic layer reusable as a proper package in the go-go-golems ecosystem.
+
+**Commit (code):** b7f505d — "feat: extract @go-go-golems/pbui package from deli-pbui-react PoC"
+
+### What I did
+- Created `dmeta/packages/pbui/` following go-go-os-frontend package conventions
+- Set up `package.json` with `@go-go-golems/pbui` name, peerDeps (react, RTK, react-redux), sub-path exports
+- Set up `tsconfig.json` with `composite: true`, `jsx: react-jsx`, same compiler options as os-core
+- Copied all 43 source files from `src/generic/clim/` → `packages/pbui/src/`
+- Created barrel `index.ts` re-exporting all types, functions, and components
+- Created per-component `index.ts` barrels with `export type *` for types
+- Extracted CSS theme tokens to `src/theme/clim-tokens.css` (scoped to `[data-widget="clim"]`)
+- Added `src/theme/index.ts` for `import '@go-go-golems/pbui/theme'`
+- Created `pnpm-workspace.yaml` at `dmeta/` level linking `packages/*` and `proof-of-concept/*`
+- Updated PoC `package.json` to depend on `@go-go-golems/pbui: workspace:*`
+- Replaced all 30+ relative `../../generic/clim/...` imports with `@go-go-golems/pbui`
+- Consolidated multiple import lines from the same package into single import statements
+- Removed `src/generic/clim/` from the PoC (now lives in the package)
+- Fixed Tailwind v4 class discovery: added `@source` directives to `index.css` pointing to package source
+- Added comprehensive README with installation, Tailwind setup, architecture, API docs, and domain integration guide
+
+### Why
+The generic CLIM layer had zero outbound domain dependencies — it was always meant to be reusable. Extracting it into a proper package enforces a clean API boundary and makes it available to future CLIM apps (e.g., Readwise Viewer rewrite).
+
+### What worked
+- The go-go-os-frontend package conventions (peerDeps, `exports` map, `composite: true` tsconfig) mapped directly
+- `pnpm-workspace.yaml` with `workspace:*` dependency resolved cleanly
+- All component source files needed zero changes — relative imports (`../../types`, `../PbuiAction`) resolve identically in the new location
+- The barrel `index.ts` forced us to audit every public export, catching `PrefixCommandHelp` (was in `commandParser`, not `types`) and missing function exports
+
+### What didn't work
+- **Tailwind v4 `@source` with `node_modules` path failed** — Tailwind couldn't find the class names when pointing at `node_modules/@go-go-golems/pbui/src/**/*.tsx`. Had to use the real filesystem path (`../../../packages/pbui/src/**/*.tsx`) which works because pnpm uses relative paths back to workspace packages.
+- **CSS spacing completely broke** when the package was extracted — Tailwind v4 only generates CSS for classes it discovers in scanned files. Since the components moved outside the scan path, classes like `px-3`, `py-2`, `gap-2`, `flex` etc. were no longer generated. Adding `@source` fixed it.
+
+### What I learned
+- Tailwind v4's content discovery does NOT scan `node_modules` by default — you MUST add `@source` directives for any package that uses Tailwind classes in its source. This is a critical integration point.
+- The `workspace:*` dependency in pnpm creates a real directory (not a symlink) at `node_modules/@go-go-golems/pbui` pointing back to the workspace package.
+- The `clickableDecorationStyle` export was only accessible via the component's barrel `index.ts` — needed to add it explicitly.
+
+### What was tricky to build
+- The Tailwind `@source` resolution — the path must be relative to the CSS file, not the project root, and must point to the actual source files (not through the node_modules symlink). This is a fragile integration point that every consumer must get right.
+- The barrel export audit — needed to carefully check every function/type that the PoC app imports and ensure it's exported from the package barrel. Missed several on first pass (`actionAcceptsRef`, `canFillRefArg`, `canFillValueArg`, `nextOpenArg`, `presentationVisualState`, `PrefixCommandHelp`, `parseCommandLine` vs `parseCommand`, `makeRouteCodec` vs `RouteCodec`).
+
+### What warrants a second pair of eyes
+- The `@source` path in `index.css` — using `../../../packages/pbui/src/**/*.tsx` works but is fragile. If the package is published to npm and installed normally, consumers would need `../../node_modules/@go-go-golems/pbui/src/**/*.tsx`. Should the README document both patterns?
+- The `pnpm-workspace.yaml` at the `dmeta/` level — is this the right place, or should it be at the workspace root?
+
+### What should be done in the future
+- Consider publishing the package with pre-built CSS so consumers don't need `@source` directives
+- Add unit tests for the action engine and command parser pure functions
+- Add a minimal example app alongside the Deli PoC
+- Consider a Tailwind plugin that automatically registers the `clim-*` color tokens
+
+### Code review instructions
+- Check `packages/pbui/package.json` — peerDeps, exports map, scripts
+- Check `packages/pbui/src/index.ts` — all public exports
+- Check `proof-of-concept/deli-pbui-react/src/index.css` — @source directives
+- Verify `npx tsc --noEmit` passes in both the package and the PoC
+- Verify the app renders correctly in the browser with no CSS issues

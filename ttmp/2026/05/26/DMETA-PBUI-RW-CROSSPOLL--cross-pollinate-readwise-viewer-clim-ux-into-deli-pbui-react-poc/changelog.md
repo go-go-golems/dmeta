@@ -42,3 +42,8 @@ Step 7: Keyboard accessibility (Enter/Escape/Arrow), filter indicators, interact
 
 Step 8: Generic CLIM polish — configurable title, CLIM README, e2e story test (commits f38d296, 5038e2b, 37d11c4)
 
+
+## 2026-05-26
+
+Step 9: Extract @go-go-golems/pbui package — 97 files, Tailwind @source fix (commit b7f505d)
+
