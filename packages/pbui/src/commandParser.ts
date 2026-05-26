@@ -67,20 +67,17 @@ export function parseCommandLine<TCommand extends string>(
     }
   }
 
-  const exactWhole = commandIds.find((command) => command === normalizedHead);
-  if (exactWhole) {
-    return { kind: 'action', commandId: exactWhole as TCommand, args: [], original };
+  // Match head token as a command — always pass through args (empty or not)
+  const exactHead = commandIds.find((command) => command === normalizedHead);
+  if (exactHead) {
+    return { kind: 'action', commandId: exactHead as TCommand, args, original };
   }
 
+  // Try matching the entire normalized input as a multi-word command ID (e.g. "OPEN-FILE")
   const normalizedWhole = normalizeCommandKey(trimmed);
   const exactWholeMulti = commandIds.find((command) => command === normalizedWhole);
   if (exactWholeMulti) {
     return { kind: 'action', commandId: exactWholeMulti as TCommand, args: [], original };
-  }
-
-  const exactHead = commandIds.find((command) => command === normalizedHead);
-  if (exactHead) {
-    return { kind: 'action', commandId: exactHead as TCommand, args, original };
   }
 
   return { kind: 'unknown', command: trimmed, original };
