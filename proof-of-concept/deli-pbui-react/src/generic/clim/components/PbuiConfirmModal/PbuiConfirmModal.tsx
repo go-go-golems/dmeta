@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import type { ActionSpec, PresentationRef } from '../../types';
 
 export interface PbuiConfirmModalProps {
@@ -15,6 +16,18 @@ export function PbuiConfirmModal({
   onConfirm,
   onCancel,
 }: PbuiConfirmModalProps) {
+  // Handle Escape key to cancel the confirm modal
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel();
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onCancel]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
       <div className={['min-w-[360px] max-w-[500px] bg-black border border-clim-border text-sm', className].filter(Boolean).join(' ')}>

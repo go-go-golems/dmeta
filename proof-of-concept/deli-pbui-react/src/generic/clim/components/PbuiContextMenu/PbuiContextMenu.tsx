@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import type { ActionPresentation, PresentationRef } from '../../types';
 
 export interface PbuiContextMenuProps {
@@ -21,6 +22,19 @@ export function PbuiContextMenu({
   onAction,
   onDismiss,
 }: PbuiContextMenuProps) {
+  // Handle Escape key to dismiss context menu
+  useEffect(() => {
+    if (!visible) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onDismiss();
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [visible, onDismiss]);
+
   if (!visible || !ref) {
     return null;
   }

@@ -4,7 +4,7 @@
 
 - [x] Add tasks here
 
-- [ ] Phase 1: Foundational Type & State Refactoring
+- [x] Phase 1: Foundational Type & State Refactoring
 - [x] 1.1 Add ActionIntent, ActionPresentation types to generic/clim/types.ts
 - [x] 1.2 Add PbuiInteractionState discriminated union to types.ts
 - [x] 1.3 Refactor pbuiSessionSlice.ts to use discriminated InteractionState union
@@ -23,11 +23,11 @@
 - [x] 3.4 Add PbuiConfirmModal overlay component (replace inline PbuiConfirmPrompt)
 - [x] Phase 4: Command Enhancements
 - [x] 4.1 Extend command parser for prefix commands (SEARCH, CATEGORY, DIET)
-- [ ] 4.2 Define deli prefix commands and wire to domain dispatch
-- [ ] 4.3 Add generic PbuiHelpView generated from action and prefix-command registries
-- [ ] Phase 5: Wire Everything Together in Deli Domain
-- [ ] 5.1 Update DeliPbuiWorkbench and hooks to use new interaction state
-- [ ] 5.2 Wire context menu, hint bar, and confirm modal in deli views
-- [ ] 5.3 Add COPY action to deli actions registry
-- [ ] 5.4 Replace DeliHelpView with generic PbuiHelpView
-- [ ] 5.5 Add comprehensive Storybook stories for all new components
+- [x] 4.2 Define deli prefix commands and wire to domain dispatch
+- [x] 4.3 Add generic PbuiHelpView generated from action and prefix-command registries
+- [x] Phase 5: Wire Everything Together in Deli Domain
+- [x] 5.1 Update DeliPbuiWorkbench and hooks to use new interaction state
+- [x] 5.2 Wire context menu, hint bar, and confirm modal in deli views
+- [x] 5.3 Add COPY action to deli actions registry
+- [x] 5.4 Replace DeliHelpView with generic PbuiHelpView
+- [x] 5.5 Add comprehensive Storybook stories for all new components
