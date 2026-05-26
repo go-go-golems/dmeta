@@ -4,6 +4,8 @@ import type { ActionPresentation, ActionSpec, ClimSessionState, ContextMenuState
 export interface PbuiShellProps {
   state: ClimSessionState;
   children: ReactNode;
+  /** Application title shown in the header (e.g. "HUDSON STREET DELI"). */
+  title?: string;
   commandValue?: string;
   contextMenu?: ContextMenuState;
   confirmAction?: {

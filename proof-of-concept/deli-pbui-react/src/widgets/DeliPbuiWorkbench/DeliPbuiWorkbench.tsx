@@ -5,7 +5,6 @@ import { store } from '../../app/store';
 import type { AppStore } from '../../app/store';
 import { formatInteractionStatus } from '../../generic/clim/actionStatus';
 import { PbuiActionBar } from '../../generic/clim/components/PbuiActionBar';
-import { PbuiConfirmPrompt } from '../../generic/clim/components/PbuiConfirmPrompt';
 import { PbuiHintBar } from '../../generic/clim/components/PbuiHintBar';
 import { PbuiShell } from '../../generic/clim/components/PbuiShell';
 import { pbuiSessionActions } from '../../generic/clim/pbuiSessionSlice';
@@ -177,6 +176,7 @@ export function DeliPbuiWorkbench({
 
   return (
     <PbuiShell
+      title="HUDSON STREET DELI"
       state={state}
       commandValue={session.commandBuffer}
       contextMenu={session.contextMenu}
