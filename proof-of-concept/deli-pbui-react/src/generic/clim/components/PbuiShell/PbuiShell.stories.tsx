@@ -85,7 +85,7 @@ export default {
 type Story = StoryObj<typeof PbuiShell>;
 
 export const NormalMode: Story = {
-  args: { state: normalState, children: 'Shell body' },
+  args: { state: normalState, title: 'MY APPLICATION', children: 'Shell body' },
   render: (args) => (
     <PbuiShell {...args}>
       <div className="p-4 font-mono text-sm text-clim-bright">Menu view content would go here.</div>
