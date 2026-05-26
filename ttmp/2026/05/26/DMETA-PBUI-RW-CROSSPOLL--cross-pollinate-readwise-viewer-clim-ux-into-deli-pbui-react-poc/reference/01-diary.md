@@ -13,8 +13,10 @@ DocType: reference
 Intent: long-term
 Owners: []
 RelatedFiles:
-    - Path: dmeta/proof-of-concept/deli-pbui-react/src/domain/deli/deliWorkbenchSlice.ts
-      Note: Added searchFilter/dietFilter/categoryFilter state and actions
+    - Path: ../../../../../../../../../../code/wesen/go-go-golems/go-go-os-frontend/.github/workflows/publish-npm.yml
+      Note: go-go-os-frontend npm publish workflow now reads NODE_AUTH_TOKEN from Vault via GitHub Actions OIDC
+    - Path: .github/workflows/publish-pbui.yml
+      Note: PBUI npm publish workflow now reads NODE_AUTH_TOKEN from Vault via GitHub Actions OIDC
     - Path: dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/actionEngine.ts
       Note: Extended with actionIntents()
     - Path: dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/commandParser.ts
@@ -29,14 +31,17 @@ RelatedFiles:
       Note: Refactored session slice with interaction discriminated union replacing scattered mode fields
     - Path: dmeta/proof-of-concept/deli-pbui-react/src/generic/clim/types.ts
       Note: Core CLIM types with PbuiInteractionState discriminated union
-    - Path: dmeta/proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/hooks/useDeliActionController.ts
+    - Path: proof-of-concept/deli-pbui-react/src/domain/deli/deliWorkbenchSlice.ts
+      Note: Added searchFilter/dietFilter/categoryFilter state and actions
+    - Path: proof-of-concept/deli-pbui-react/src/widgets/DeliPbuiWorkbench/hooks/useDeliActionController.ts
       Note: Rewritten with discriminated interaction state
 ExternalSources: []
 Summary: Implementation diary for cross-pollinating Readwise Viewer CLIM UX features into Deli PBUI React PoC
-LastUpdated: 2026-05-26T17:18:00-04:00
+LastUpdated: 2026-05-26T21:35:00-04:00
 WhatFor: Track implementation progress, failures, and decisions for the CLIM UX cross-pollination work
 WhenToUse: Read before resuming work on this ticket; add steps as work progresses
 ---
+
 
 
 
@@ -736,3 +741,99 @@ The generic CLIM layer had zero outbound domain dependencies — it was always m
 - Check `proof-of-concept/deli-pbui-react/src/index.css` — @source directives
 - Verify `npx tsc --noEmit` passes in both the package and the PoC
 - Verify the app renders correctly in the browser with no CSS issues
+
+---
+
+## Step 10: Vault-backed npm publishing for PBUI and go-go-os-frontend
+
+Moved npm publishing authentication out of GitHub environment secrets and into Vault-backed GitHub Actions OIDC for both the new `@go-go-golems/pbui` publishing workflow in `dmeta` and the existing npm publishing workflow in `go-go-os-frontend`.
+
+The important design choice was to keep the publish workflows manual and guarded, but make the npm token retrieval just-in-time: GitHub Actions receives an OIDC JWT, Vault verifies that it came from the exact repository/workflow on `main`, and the workflow receives `NODE_AUTH_TOKEN` only for the publish step.
+
+### Prompt Context
+
+**User prompt (verbatim):** "Setup vault token for npm publishing, for go-go-os-frontend _and_ for dmeta. Keep a diary as you work."
+
+**Assistant interpretation:** Configure Vault roles/policies and update both GitHub Actions npm publish workflows so npm tokens are retrieved from Vault via GitHub Actions OIDC rather than from GitHub environment secrets.
+
+**Inferred user intent:** Centralize npm publish credentials in Vault, reuse the existing GitHub Actions OIDC pattern, and document the infrastructure change for later review/debugging.
+
+**Commit (code):** b9f8c630c185994fd6210e76c2821cfa1da01daa — "ci: read pbui npm token from Vault"
+
+**Commit (code):** 80baa8fd9a6c7dcec1cf4b59085f5908a19fd205 — "ci: read npm publish token from Vault"
+
+### What I did
+- Confirmed Vault already has a `github-actions/` JWT auth mount using issuer `https://token.actions.githubusercontent.com`.
+- Confirmed existing roles such as `dmeta-gitops-pr` use the same GitHub Actions OIDC pattern.
+- Created/updated Vault policy `gha-dmeta-npm-publish`, limited to `kv/data/ci/github/dmeta/npm-token` plus self-token lookup/renew/revoke.
+- Created/updated Vault policy `gha-go-go-os-frontend-npm-publish`, limited to `kv/data/ci/github/go-go-os-frontend/npm-token` plus self-token lookup/renew/revoke.
+- Created/updated Vault role `dmeta-npm-publish`, bound to `go-go-golems/dmeta`, `workflow_dispatch`, `refs/heads/main`, and `.github/workflows/publish-pbui.yml@refs/heads/main`.
+- Created/updated Vault role `go-go-os-frontend-npm-publish`, bound to `go-go-golems/go-go-os-frontend`, `workflow_dispatch`, `refs/heads/main`, and `.github/workflows/publish-npm.yml@refs/heads/main`.
+- Updated `dmeta/.github/workflows/publish-pbui.yml` to call `hashicorp/vault-action@v3` and pass the Vault output as `NODE_AUTH_TOKEN` to `npm publish`.
+- Updated `go-go-os-frontend/.github/workflows/publish-npm.yml` to call `hashicorp/vault-action@v3` and pass the Vault output as `NODE_AUTH_TOKEN` to the existing `publish-npm-package-set.mjs` script.
+- Removed the `secrets.NPM_TOKEN` dependency from the dmeta workflow.
+- Parsed both YAML files with Ruby's YAML parser to catch obvious syntax errors.
+
+### Why
+- Vault is already the central secret store for this environment, and GitHub Actions OIDC avoids long-lived Vault tokens in GitHub.
+- The npm token should be readable only by the manual publish workflow for the intended repo, not by arbitrary workflows or branches.
+- Keeping `dry_run`, `skip_existing`, and `CONFIRM_LATEST` preserves the go-go-os-frontend operational safety model while changing only where the credential comes from.
+
+### What worked
+- Vault policies uploaded successfully.
+- The second role creation attempt succeeded when the payload was sent as JSON over stdin.
+- The final role reads showed the expected bound claims and token policies.
+- The workflow diffs are small and localized to the publish-auth boundary.
+- Both edited workflow files parse as YAML.
+
+### What didn't work
+- The first attempt to create the Vault JWT roles passed `bound_claims` as a CLI string and Vault rejected it:
+  - Command shape: `vault write auth/github-actions/role/dmeta-npm-publish ... bound_claims='{...}' ...`
+  - Error: `error converting input for field "bound_claims": '' expected a map, got 'string'`
+- The repo-specific npm-token KV paths do not exist yet:
+  - `vault kv metadata get kv/ci/github/dmeta/npm-token` exited with status `2`
+  - `vault kv metadata get kv/ci/github/go-go-os-frontend/npm-token` exited with status `2`
+- `gh repo view ... --json databaseId` produced no useful output in this shell, so I did not bind the Vault roles to `repository_id`. The roles are still tightly bound by repository owner/name, workflow path, event, and `main` ref.
+
+### What I learned
+- For Vault JWT roles with map-valued fields, stdin JSON is safer than trying to pass nested maps through `vault write key=value` shell quoting.
+- The existing dmeta GitOps Vault role is scoped to push-on-main and a GitOps PR token; npm publishing needs a separate role/policy rather than extending that role.
+- go-go-os-frontend's current npm publish workflow relies on the `npm-production` environment and npm auth side effects, but the workflow itself did not explicitly reference `secrets.NPM_TOKEN`.
+
+### What was tricky to build
+- The biggest sharp edge was claim binding. Binding to `workflow_dispatch`, `refs/heads/main`, and an exact `workflow_ref` intentionally means the Vault role will not work from a task branch. That is safer for production publishing, but it means the first full end-to-end dry run must happen after the workflow changes are on `main`.
+- The other tricky part was preserving the existing npm publish behavior. `actions/setup-node` writes npm registry configuration, while `npm publish` needs `NODE_AUTH_TOKEN` at publish time. The workflows now keep that same contract but source `NODE_AUTH_TOKEN` from the Vault action output instead of a GitHub secret.
+
+### What warrants a second pair of eyes
+- Confirm whether the bound claim set should also include GitHub's `environment` claim for `npm-production`. I avoided it because existing roles in this Vault setup do not depend on that claim, and GitHub's environment claim behavior can be easy to mis-assume.
+- Confirm whether separate repo-scoped npm tokens are preferred, or whether both policies should read a shared org-level npm token path.
+- Confirm the `hashicorp/vault-action@v3` `secrets` path syntax against a real workflow run once the KV paths exist.
+
+### What should be done in the future
+- Generate or copy real npm automation tokens into Vault:
+  - `vault kv put kv/ci/github/dmeta/npm-token value="<npm-automation-token>"`
+  - `vault kv put kv/ci/github/go-go-os-frontend/npm-token value="<npm-automation-token>"`
+- Merge the dmeta workflow change to `main` before expecting Vault auth to succeed, because the role is bound to `refs/heads/main`.
+- Run both publish workflows with `dry_run: true` to validate OIDC → Vault → npm auth before attempting a real publish.
+- Optionally add `repository_id` claim binding once the GitHub repository IDs are available in a reliable way.
+
+### Code review instructions
+- Review `/home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/.github/workflows/publish-pbui.yml`, especially the `Read NPM token from Vault` step and the `NODE_AUTH_TOKEN` env on `Publish to npm`.
+- Review `/home/manuel/code/wesen/go-go-golems/go-go-os-frontend/.github/workflows/publish-npm.yml`, especially the `Read NPM token from Vault` step and the `NODE_AUTH_TOKEN` env on `Publish selected packages to npmjs`.
+- Validate Vault roles with:
+  - `vault read auth/github-actions/role/dmeta-npm-publish`
+  - `vault read auth/github-actions/role/go-go-os-frontend-npm-publish`
+- Validate policies with:
+  - `vault policy read gha-dmeta-npm-publish`
+  - `vault policy read gha-go-go-os-frontend-npm-publish`
+- After storing the real KV secrets and merging workflow changes to `main`, run each publish workflow with `dry_run: true`.
+
+### Technical details
+- Vault auth mount: `auth/github-actions/` (`jwt`, issuer/discovery URL `https://token.actions.githubusercontent.com`).
+- Vault audience used by both roles and workflows: `https://vault.yolo.scapegoat.dev`.
+- dmeta Vault role: `dmeta-npm-publish`.
+- go-go-os-frontend Vault role: `go-go-os-frontend-npm-publish`.
+- dmeta secret path expected by workflow: `kv/data/ci/github/dmeta/npm-token`, field `value`.
+- go-go-os-frontend secret path expected by workflow: `kv/data/ci/github/go-go-os-frontend/npm-token`, field `value`.
+- The workflows use `exportEnv: false`, then pass `steps.vault-npm.outputs.NODE_AUTH_TOKEN` only to the publish step.
+

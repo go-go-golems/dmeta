@@ -47,3 +47,13 @@ Step 8: Generic CLIM polish — configurable title, CLIM README, e2e story test 
 
 Step 9: Extract @go-go-golems/pbui package — 97 files, Tailwind @source fix (commit b7f505d)
 
+
+## 2026-05-26
+
+Step 10: configured Vault-backed npm publishing for dmeta PBUI and go-go-os-frontend (dmeta commit b9f8c630, go-go-os-frontend commit 80baa8fd)
+
+### Related Files
+
+- /home/manuel/code/wesen/go-go-golems/go-go-os-frontend/.github/workflows/publish-npm.yml — Vault-backed npm publish workflow
+- /home/manuel/workspaces/2026-05-19/dmeta-dsl/dmeta/.github/workflows/publish-pbui.yml — Vault-backed npm publish workflow
+
