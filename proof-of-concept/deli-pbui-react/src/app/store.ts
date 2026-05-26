@@ -17,8 +17,15 @@ export function setupStore(preloadedState?: Partial<RootState>) {
     preloadedState: preloadedState as RootState | undefined,
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({
       serializableCheck: {
-        ignoredPaths: ['pbuiSession.interaction.action'],
-        ignoredActions: ['pbuiSession/enterSelect', 'pbuiSession/enterConfirm'],
+        ignoredPaths: [
+          'pbuiSession.interaction.action',
+          'pbuiSession.contextMenu.actions',
+        ],
+        ignoredActions: [
+          'pbuiSession/enterSelect',
+          'pbuiSession/enterConfirm',
+          'pbuiSession/showContextMenu',
+        ],
       },
     }).concat(deliApi.middleware),
   });
