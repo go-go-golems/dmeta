@@ -417,3 +417,100 @@ useEffect(() => {
   return () => document.removeEventListener('keydown', handleKeyDown);
 }, [onCancel]);
 ```
+
+---
+
+## Step 6: Wire Prefix Commands with Live Filtering
+
+Connected the SEARCH, CATEGORY, and DIET prefix commands to actual domain filtering. Added filter state to the workbench and wired the controller to dispatch filter actions.
+
+### Prompt Context
+
+**User prompt (verbatim):** (same as Step 5)
+
+**Assistant interpretation:** Continue polishing, wire prefix commands.
+
+**Inferred user intent:** Make the prefix commands actually do something useful — not just parse but dispatch.
+
+**Commit (code):** 2dd7b9a — "feat(deli): wire SEARCH/CATEGORY/DIET prefix commands with live filtering"
+
+### What I did
+- Added `searchFilter`, `dietFilter`, `categoryFilter` to `DeliWorkbenchState`
+- Added `setSearchFilter`, `setDietFilter`, `setCategoryFilter` actions to `deliWorkbenchSlice`
+- Updated `DeliPbuiWorkbench` to compute `filteredMenu` from all active filters
+- `DeliMenuView` now renders `filteredMenu` instead of the full `menu`
+- Updated `useDeliActionController` to dispatch filter actions on prefix commands:
+  - `SEARCH <query>` → filters menu by name, tags, or category (case-insensitive)
+  - `CATEGORY <name>` → filters menu by category
+  - `DIET <tag>` → filters menu by dietary tags
+  - Prefix command without argument (e.g., just `SEARCH`) → clears the corresponding filter
+- Fixed RTK serializableCheck to also ignore `pbuiSession.contextMenu.actions` and `showContextMenu` action
+- Verified all flows in browser: SEARCH, CATEGORY, clear filter, context menu, confirm modal
+
+### Why
+Prefix commands were recognized but not dispatched in the previous step — they were stubs. This makes them functional and demonstrates the full CLIM command → domain dispatch pipeline.
+
+### What worked
+- The `filteredMenu` approach is clean — the full `menu` is still available for `selectedItem` lookups, and the view renders the filtered subset
+- Using prefix command without argument as "clear filter" is a natural UX convention
+
+### What didn't work
+- Initially used `item.dietary` which doesn't exist on `MenuItem` — had to switch to `item.tags`
+- Accidentally deleted `const interaction = session.interaction;` when inserting the `filteredMenu` computation — had to add it back
+- Duplicate import of `deliWorkbenchActions` was introduced — caught by tsc
+
+### What I learned
+- The CLIM command → domain dispatch pipeline is clean: command parser identifies kind → controller dispatches domain action → domain slice updates state → view re-renders
+- Composable filters (SEARCH + CATEGORY + DIET can all be active simultaneously) are powerful but need clear UX for understanding what's active
+
+### What was tricky to build
+- The interaction between multiple filters — if SEARCH and CATEGORY are both active, both apply (AND logic). This means `SEARCH market` + `CATEGORY sandwich` = empty results. The user needs to clear one before applying the other.
+
+### What warrants a second pair of eyes
+- The filter composition logic (AND between all active filters) — should it be OR? Should we show which filters are active in the UI?
+- The `selectedItem` still looks up from the full `menu`, not `filteredMenu` — this is intentional (selected item persists even if filtered out) but could be confusing
+
+### What should be done in the future
+- Show active filter indicators in the view header or command line
+- Add a "CLEAR ALL FILTERS" command or make ESC clear filters when no interaction is pending
+- Consider making the hint bar show the active filters
+
+### Code review instructions
+- Check `src/domain/deli/deliWorkbenchSlice.ts` — new filter state and actions
+- Check `src/widgets/DeliPbuiWorkbench/DeliPbuiWorkbench.tsx` — `filteredMenu` computation
+- Check `src/widgets/DeliPbuiWorkbench/hooks/useDeliActionController.ts` — prefix command dispatch
+- Verify in browser: type `SEARCH hudson` → only Hudson Classic shows; type `SEARCH` → filter cleared
+
+### Technical details
+
+```typescript
+// Filter computation in DeliPbuiWorkbench
+const filteredMenu = menu.filter((item) => {
+  if (searchFilter) {
+    const q = searchFilter.toLowerCase();
+    const matches = item.name.toLowerCase().includes(q)
+      || item.tags.some((t) => t.toLowerCase().includes(q))
+      || item.category.toLowerCase().includes(q);
+    if (!matches) return false;
+  }
+  if (dietFilter) {
+    const d = dietFilter.toLowerCase();
+    const matches = item.tags.some((t) => t.toLowerCase().includes(d));
+    if (!matches) return false;
+  }
+  if (categoryFilter) {
+    const c = categoryFilter.toLowerCase();
+    const matches = item.category.toLowerCase().includes(c);
+    if (!matches) return false;
+  }
+  return true;
+});
+
+// Prefix command dispatch in useDeliActionController
+if (parsed.kind === 'prefix') {
+  if (cmd === 'SEARCH') {
+    dispatch(deliWorkbenchActions.setSearchFilter(val));
+    navigateToView('menu');
+  }
+}
+```
