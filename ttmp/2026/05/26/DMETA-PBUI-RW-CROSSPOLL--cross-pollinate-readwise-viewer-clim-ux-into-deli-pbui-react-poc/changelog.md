@@ -32,3 +32,8 @@ Step 5: Keyboard handling (Escape for confirm/context-menu), RTK serializable ch
 
 Step 6: Wire SEARCH/CATEGORY/DIET prefix commands with live menu filtering (commit 2dd7b9a)
 
+
+## 2026-05-26
+
+Step 7: Keyboard accessibility (Enter/Escape/Arrow), filter indicators, interaction tests (commit 9e0e12d)
+

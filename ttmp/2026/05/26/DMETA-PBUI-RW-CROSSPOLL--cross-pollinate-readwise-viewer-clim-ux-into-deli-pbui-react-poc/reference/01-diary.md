@@ -517,3 +517,97 @@ if (parsed.kind === 'prefix') {
   }
 }
 ```
+
+---
+
+## Step 7: Keyboard Accessibility, Filter Indicators, and Interaction Tests
+
+Added Enter key for confirm modal, arrow key navigation for context menu, auto-focus command line in interaction modes, active filter badges, and Storybook interaction tests.
+
+### Prompt Context
+
+**User prompt (verbatim):** "yes, continue."
+
+**Assistant interpretation:** Continue with next improvement items from the diary.
+
+**Inferred user intent:** Polish the PoC with accessibility improvements, visual feedback for filters, and test coverage.
+
+**Commit (code):** 9e0e12d — "feat(clim): keyboard accessibility and filter indicators"
+
+### What I did
+- Added Enter key support in `PbuiConfirmModal` — Enter confirms, Escape cancels
+- Added arrow key navigation in `PbuiContextMenu` — Up/Down to move focus, Enter to select, Escape to dismiss
+- Added `autoFocus` prop to `PbuiCommandLine` — shell passes `autoFocus={state.mode !== 'normal'}`
+- Added `useRef` + `useEffect` to auto-focus the command input when entering select/confirm mode
+- Added `activeFilters` prop to `DeliViewHeader` — renders red-bordered filter badges (e.g. "SEARCH: classic")
+- Computed `activeFilters` array in `DeliPbuiWorkbench` from `searchFilter`, `categoryFilter`, `dietFilter`
+- Updated confirm modal hint text: "Enter to confirm · Escape to cancel · or type YES / ESC"
+- Added Storybook interaction tests (play functions) for:
+  - `PbuiConfirmModal`: click CONFIRM button, click CANCEL button
+  - `PbuiContextMenu`: click action, click-away dismiss
+- Added `AutoFocusSelect` story for `PbuiCommandLine`
+
+### Why
+A CLIM interface is keyboard-first — every interaction must be achievable without a mouse. The confirm modal, context menu, and command line are the three main keyboard interaction surfaces.
+
+### What worked
+- The `useRef` + `useEffect` pattern for auto-focus is clean and React-idiomatic
+- The `focusedIndex` state in context menu enables arrow key navigation with visual focus via `focus:bg-clim-highlight`
+- Filter badges use the `border-clim-danger text-clim-danger` style — consistent with the danger intent
+
+### What didn't work
+- Accidentally deleted `const interaction = session.interaction;` *again* when inserting the `activeFilters` computation — this is now the third time! Need to be more careful when inserting code before a declaration.
+
+### What I learned
+- When inserting code before a `const` declaration, always include the declaration in the new text to avoid accidentally removing it
+- Storybook `fn()` from `storybook/test` replaces manual `() => {}` for interaction test assertions
+- The `within(canvasElement)` + `findByRole` pattern works well for interaction tests
+
+### What was tricky to build
+- The context menu arrow key navigation with `enabledActions` — need to track only non-disabled actions for keyboard navigation, separate from the rendered `actions` array which may include disabled items
+- The `buttonRefs` array needs to map from `enabledIndex` (not the render index) to button elements
+
+### What warrants a second pair of eyes
+- The `enabledActions` filtering in the context menu — disabled actions are still rendered but skipped for keyboard navigation. Is this the right UX?
+- The Enter key on the confirm modal could conflict with the command line if both are active simultaneously — but they shouldn't be, since the modal blocks the command line.
+
+### What should be done in the future
+- Add Tab key navigation in context menu (consistent with WAI-ARIA menu pattern)
+- Add ARIA roles to context menu (`role="menu"`, `role="menuitem"`)
+- Add screen reader announcements for mode changes (select/confirm/normal)
+- Consider adding a `useClimKeyboard` hook that centralizes keyboard shortcuts
+
+### Code review instructions
+- Check `PbuiConfirmModal.tsx` — Enter/Escape handlers
+- Check `PbuiContextMenu.tsx` — arrow key navigation with `focusedIndex` state
+- Check `PbuiCommandLine.tsx` — `autoFocus` prop + `useRef`/`useEffect`
+- Check `DeliViewHeader.tsx` — `activeFilters` rendering
+- Run Storybook and verify interaction tests pass
+
+### Technical details
+
+```typescript
+// Auto-focus command line on mode change
+useEffect(() => {
+  if (autoFocus) {
+    inputRef.current?.focus();
+  }
+}, [autoFocus]);
+
+// Context menu keyboard navigation
+const handleKeyDown = useCallback((e: KeyboardEvent) => {
+  if (e.key === 'ArrowDown') {
+    const next = focusedIndex < enabledActions.length - 1 ? focusedIndex + 1 : 0;
+    setFocusedIndex(next);
+    buttonRefs.current[next]?.focus();
+  }
+  // ...
+}, [visible, focusedIndex, enabledActions, onAction, onDismiss]);
+
+// Filter badges in view header
+{activeFilters?.map((filter) => (
+  <span key={filter} className="text-xs px-1.5 py-0.5 border border-clim-danger text-clim-danger">
+    {filter}
+  </span>
+))}
+```
