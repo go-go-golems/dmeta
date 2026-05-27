@@ -92,6 +92,19 @@ templates:
   classification:
     level: atom
     role: action_button
+  component_system:
+    kind: atom
+    specificity: generic
+    family: action
+    role: action_control
+    role_description: Generic button primitive that renders one semantic action and delegates side effects through callbacks.
+    promotion_order: 10
+    owns_layout: false
+    owns_behavior: false
+    lifecycle:
+      default: scaffold_once
+      metadata: regenerate_only
+      stories: sidecar_for_merge
   intent:
     purpose: Render one action with semantic tone, loading/disabled state, and adapter-boundary callback.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -144,16 +157,28 @@ templates:
   contract:
     props:
       ActionButtonProps:
+        description: Top-level React props for a generic semantic action button.
+        source: interaction_ir
+        source_ref: actions
         fields:
           action:
-            type: ActionDefinition
+            type_ref: ActionDefinition
+            source: interaction_ir
+            source_ref: actions.*
             required: true
+            description: Normalized action definition selected by the adapter before rendering.
           tone:
-            type: SemanticTone
+            type_ref: SemanticTone
+            source: design_language
+            source_ref: presentation_recipes
             required: false
+            description: Visual tone derived from semantic action category and design-language rules.
     action_slots:
       onExecute:
         accepts: PresentationActionRequest
+        payload_type: PresentationActionRequest
+        source: interaction_ir
+        description: Callback boundary for executing the selected semantic action.
   stories:
   - primary
   - secondary
@@ -171,6 +196,26 @@ templates:
   classification:
     level: molecule
     role: action_group
+  component_system:
+    kind: molecule
+    specificity: generic
+    family: action
+    role: grouped_action_controls
+    role_description: Generic molecule for laying out related semantic actions while depending on action-level atoms.
+    promotion_order: 30
+    owns_layout: true
+    owns_behavior: false
+    lifecycle:
+      default: scaffold_once
+      metadata: regenerate_only
+      stories: sidecar_for_merge
+  composition:
+    uses:
+    - template: dmeta.action_button
+      role: action item renderer
+      required: true
+    provides:
+    - grouped action layout
   intent:
     purpose: Render a group of primary/secondary actions for a selected subject, panel, page, or bulk selection.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend

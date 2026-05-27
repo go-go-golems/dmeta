@@ -1,6 +1,9 @@
 package react
 
-import genmeta "github.com/go-go-golems/dmeta/pkg/dmeta/generator/metadata"
+import (
+	genmeta "github.com/go-go-golems/dmeta/pkg/dmeta/generator/metadata"
+	"github.com/go-go-golems/dmeta/pkg/dmeta/validator"
+)
 
 type TargetFile struct {
 	SchemaVersion int              `yaml:"schema_version"`
@@ -16,11 +19,17 @@ type TargetFile struct {
 }
 
 type TargetDefaults struct {
-	OutputDir        string `yaml:"output_dir"`
-	PackageName      string `yaml:"package_name"`
-	Style            string `yaml:"style"`
-	Storybook        bool   `yaml:"storybook"`
-	MetadataSidecars bool   `yaml:"metadata_sidecars"`
+	OutputDir        string               `yaml:"output_dir"`
+	PackageName      string               `yaml:"package_name"`
+	Style            string               `yaml:"style"`
+	Storybook        bool                 `yaml:"storybook"`
+	MetadataSidecars bool                 `yaml:"metadata_sidecars"`
+	ComponentLayout  ReactComponentLayout `yaml:"component_layout"`
+}
+
+type ReactComponentLayout struct {
+	Strategy string            `yaml:"strategy"`
+	Dirs     map[string]string `yaml:"dirs"`
 }
 
 type TargetProvenance struct {
@@ -49,7 +58,15 @@ type ComponentPlan struct {
 	ComponentName           string
 	Variant                 string
 	OutputDir               string
+	ComponentDir            string
+	PackageExportPath       string
 	PackageName             string
+	Template                validator.Widget
+	ComponentKind           string
+	ComponentSpecificity    string
+	ComponentFamily         string
+	ComponentRole           string
+	ComponentLifecycle      string
 	Slots                   []string
 	VisualStates            []string
 	EventBindings           []string

@@ -152,21 +152,35 @@ func BuildScaffoldPlan(ctx context.Context, opts PlanOptions) (ScaffoldPlan, err
 	}
 	obligationsByTemplate := groupWebObligations(webObligations)
 	for _, selected := range instance.SelectedTemplates {
+		widget, ok := webPkg.Widgets[selected.Template]
+		if !ok {
+			return ScaffoldPlan{}, errors.Errorf("selected Web widget template %q does not exist", selected.Template)
+		}
 		componentName := selected.As
 		if componentName == "" {
 			componentName = componentNameFromTemplate(selected.Template)
 		}
+		componentKind := componentKindFromWidget(widget)
+		componentDir := componentOutputDir(outputDir, componentName, componentKind, target.Defaults.ComponentLayout)
 		component := ComponentPlan{
-			TemplateID:        selected.Template,
-			ComponentName:     componentName,
-			Variant:           selected.Variant,
-			OutputDir:         outputDir,
-			PackageName:       packageName,
-			Slots:             sortedSet(nil),
-			VisualStates:      sortedSet(nil),
-			EventBindings:     sortedSet(nil),
-			SourceDomainTypes: []string{},
-			SourceRules:       []string{},
+			TemplateID:           selected.Template,
+			ComponentName:        componentName,
+			Variant:              selected.Variant,
+			OutputDir:            outputDir,
+			ComponentDir:         componentDir,
+			PackageExportPath:    packageExportPath(outputDir, componentDir),
+			PackageName:          packageName,
+			Template:             widget,
+			ComponentKind:        componentKind,
+			ComponentSpecificity: componentSpecificityFromWidget(widget),
+			ComponentFamily:      componentFamilyFromWidget(widget),
+			ComponentRole:        componentRoleFromWidget(widget),
+			ComponentLifecycle:   componentLifecycleFromWidget(widget),
+			Slots:                sortedSet(nil),
+			VisualStates:         sortedSet(nil),
+			EventBindings:        sortedSet(nil),
+			SourceDomainTypes:    []string{},
+			SourceRules:          []string{},
 		}
 		if obligations, ok := obligationsByTemplate[selected.Template]; ok {
 			component = applyWebObligations(component, obligations)
@@ -234,7 +248,10 @@ func planPackageFiles(plan ScaffoldPlan, target TargetFile) []PlannedFile {
 }
 
 func planFiles(component ComponentPlan, target TargetFile) []PlannedFile {
-	base := filepath.Join(component.OutputDir, component.ComponentName)
+	base := component.ComponentDir
+	if base == "" {
+		base = filepath.Join(component.OutputDir, component.ComponentName)
+	}
 	provenance := FileProvenance{
 		MetaDesignSystem: target.Provenance.MetaDesignSystem,
 		CodegenTarget:    target.Provenance.CodegenTarget,
@@ -272,6 +289,105 @@ func componentNameFromTemplate(templateID string) string {
 		parts[i] = strings.ToUpper(part[:1]) + part[1:]
 	}
 	return strings.Join(parts, "")
+}
+
+func componentKindFromWidget(widget validator.Widget) string {
+	kind := firstNonEmpty(widget.ComponentSystem.Kind, widget.ComponentSystem.Level, classificationString(widget, "kind"), classificationString(widget, "level"))
+	return normalizeComponentKind(kind)
+}
+
+func componentSpecificityFromWidget(widget validator.Widget) string {
+	return firstNonEmpty(widget.ComponentSystem.Specificity, classificationString(widget, "specificity"), "app")
+}
+
+func componentFamilyFromWidget(widget validator.Widget) string {
+	return firstNonEmpty(widget.ComponentSystem.Family, classificationString(widget, "family"), classificationString(widget, "surface"))
+}
+
+func componentRoleFromWidget(widget validator.Widget) string {
+	return firstNonEmpty(widget.ComponentSystem.Role, classificationString(widget, "role"), widget.Intent.Purpose)
+}
+
+func componentLifecycleFromWidget(widget validator.Widget) string {
+	lifecycle := widget.ComponentSystem.Lifecycle.Component
+	if lifecycle == "" {
+		lifecycle = widget.ComponentSystem.Lifecycle.Default
+	}
+	return firstNonEmpty(lifecycle, classificationString(widget, "generated_role"), "scaffold")
+}
+
+func componentOutputDir(outputDir string, componentName string, componentKind string, layout ReactComponentLayout) string {
+	if layout.Strategy == "" || layout.Strategy == "flat" {
+		return filepath.Join(outputDir, componentName)
+	}
+	dirName := layout.Dirs[componentKind]
+	if dirName == "" {
+		dirName = defaultComponentDir(componentKind)
+	}
+	if dirName == "" || dirName == "." {
+		return filepath.Join(outputDir, componentName)
+	}
+	return filepath.Join(outputDir, dirName, componentName)
+}
+
+func packageExportPath(outputDir string, componentDir string) string {
+	rel, err := filepath.Rel(outputDir, componentDir)
+	if err != nil || rel == "." || rel == "" {
+		rel = filepath.Base(componentDir)
+	}
+	return "./" + filepath.ToSlash(rel)
+}
+
+func defaultComponentDir(kind string) string {
+	switch normalizeComponentKind(kind) {
+	case "atom":
+		return "atoms"
+	case "molecule":
+		return "molecules"
+	case "organism":
+		return "organisms"
+	case "rich_widget":
+		return "rich-widgets"
+	case "page":
+		return "pages"
+	default:
+		return "components"
+	}
+}
+
+func normalizeComponentKind(kind string) string {
+	normalized := strings.ToLower(strings.TrimSpace(strings.ReplaceAll(kind, "-", "_")))
+	switch normalized {
+	case "", "widget":
+		return "component"
+	case "richwidget", "rich_widget":
+		return "rich_widget"
+	default:
+		return normalized
+	}
+}
+
+func classificationString(widget validator.Widget, key string) string {
+	if widget.Classification == nil {
+		return ""
+	}
+	value, ok := widget.Classification[key]
+	if !ok || value == nil {
+		return ""
+	}
+	if s, ok := value.(string); ok {
+		return s
+	}
+	return ""
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return value
+		}
+	}
+	return ""
 }
 
 func setFrom(values []string) map[string]bool {

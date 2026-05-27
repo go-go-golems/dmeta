@@ -325,6 +325,8 @@ type Widget struct {
 	Name            string                `yaml:"name"`
 	Status          string                `yaml:"status"`
 	Classification  map[string]any        `yaml:"classification"`
+	ComponentSystem WidgetComponentSystem `yaml:"component_system"`
+	Composition     WidgetComposition     `yaml:"composition"`
 	Intent          WidgetIntent          `yaml:"intent"`
 	Template        TemplateMetadata      `yaml:"template"`
 	Consumes        Consumes              `yaml:"consumes"`
@@ -332,7 +334,68 @@ type Widget struct {
 	ProjectionHints WidgetProjectionHints `yaml:"projection_hints"`
 	Contract        WidgetContract        `yaml:"contract"`
 	Stories         []string              `yaml:"stories"`
+	Storybook       WidgetStorybook       `yaml:"storybook"`
 	Outputs         map[string]string     `yaml:"outputs"`
+}
+
+type WidgetComponentSystem struct {
+	Kind            string                 `yaml:"kind"`
+	Level           string                 `yaml:"level"`
+	Specificity     string                 `yaml:"specificity"`
+	Family          string                 `yaml:"family"`
+	Role            string                 `yaml:"role"`
+	RoleDescription string                 `yaml:"role_description"`
+	PromotionOrder  int                    `yaml:"promotion_order"`
+	OwnsLayout      bool                   `yaml:"owns_layout"`
+	OwnsBehavior    bool                   `yaml:"owns_behavior"`
+	Lifecycle       WidgetLifecyclePolicy  `yaml:"lifecycle"`
+	Extra           map[string]interface{} `yaml:",inline"`
+}
+
+type WidgetLifecyclePolicy struct {
+	Default     string   `yaml:"default"`
+	Component   string   `yaml:"component"`
+	Types       string   `yaml:"types"`
+	Styles      string   `yaml:"styles"`
+	Stories     string   `yaml:"stories"`
+	Metadata    string   `yaml:"metadata"`
+	Adapter     string   `yaml:"adapter"`
+	Protected   []string `yaml:"protected"`
+	PromoteInto string   `yaml:"promote_into"`
+}
+
+type WidgetComposition struct {
+	Uses     []WidgetDependency `yaml:"uses"`
+	Provides []string           `yaml:"provides"`
+	Slots    []ComponentSlot    `yaml:"slots"`
+}
+
+type WidgetDependency struct {
+	Template    string `yaml:"template"`
+	Component   string `yaml:"component"`
+	Role        string `yaml:"role"`
+	Required    bool   `yaml:"required"`
+	Description string `yaml:"description"`
+}
+
+type ComponentSlot struct {
+	Name        string `yaml:"name"`
+	Role        string `yaml:"role"`
+	Required    bool   `yaml:"required"`
+	Description string `yaml:"description"`
+}
+
+type WidgetStorybook struct {
+	TitlePrefix string      `yaml:"title_prefix"`
+	Coverage    []string    `yaml:"coverage"`
+	Stories     []StoryCase `yaml:"stories"`
+}
+
+type StoryCase struct {
+	Name        string         `yaml:"name"`
+	Description string         `yaml:"description"`
+	State       string         `yaml:"state"`
+	Props       map[string]any `yaml:"props"`
 }
 
 type TemplateMetadata struct {
@@ -382,18 +445,43 @@ type WidgetProjectionHints struct {
 
 type WidgetContract struct {
 	Props       map[string]InterfaceContract `yaml:"props"`
+	State       map[string]PropField         `yaml:"state"`
+	Events      map[string]EventContract     `yaml:"events"`
 	ActionSlots map[string]ActionSlot        `yaml:"action_slots"`
 }
 
 type InterfaceContract struct {
-	Fields map[string]PropField `yaml:"fields"`
+	Description string               `yaml:"description"`
+	Source      string               `yaml:"source"`
+	SourceRef   string               `yaml:"source_ref"`
+	Required    bool                 `yaml:"required"`
+	Fields      map[string]PropField `yaml:"fields"`
 }
 
 type PropField struct {
-	Type     string `yaml:"type"`
-	Required bool   `yaml:"required"`
+	Type        string   `yaml:"type"`
+	TypeRef     string   `yaml:"type_ref"`
+	ItemTypeRef string   `yaml:"item_type_ref"`
+	Source      string   `yaml:"source"`
+	SourceRef   string   `yaml:"source_ref"`
+	Required    bool     `yaml:"required"`
+	Values      []string `yaml:"values"`
+	Default     string   `yaml:"default"`
+	Description string   `yaml:"description"`
+}
+
+type EventContract struct {
+	ActionRef   string `yaml:"action_ref"`
+	PayloadType string `yaml:"payload_type"`
+	Source      string `yaml:"source"`
+	Required    bool   `yaml:"required"`
+	Description string `yaml:"description"`
 }
 
 type ActionSlot struct {
-	Accepts string `yaml:"accepts"`
+	Accepts     string `yaml:"accepts"`
+	ActionRef   string `yaml:"action_ref"`
+	PayloadType string `yaml:"payload_type"`
+	Source      string `yaml:"source"`
+	Description string `yaml:"description"`
 }
