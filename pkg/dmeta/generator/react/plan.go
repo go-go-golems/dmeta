@@ -263,17 +263,17 @@ func planFiles(component ComponentPlan, target TargetFile) []PlannedFile {
 		SourceRules:      component.SourceRules,
 		Passes:           target.Provenance.SourcePasses,
 	}
-	templateBase := templateFileBase(component)
+	generatedBase := generatedFileBase(component)
 	files := []PlannedFile{
-		{Path: filepath.Join(base, templateBase+".tsx"), Kind: "component", Symbol: component.ComponentName, Provenance: provenance},
-		{Path: filepath.Join(base, templateBase+".types.ts"), Kind: "types", Symbol: component.ComponentName + "Props", Provenance: provenance},
+		{Path: filepath.Join(base, generatedBase+".tsx"), Kind: "component", Symbol: component.ComponentName, Provenance: provenance},
+		{Path: filepath.Join(base, generatedBase+".types.ts"), Kind: "types", Symbol: component.ComponentName + "Props", Provenance: provenance},
 		{Path: filepath.Join(base, component.ComponentName+".metadata.json"), Kind: "metadata", Symbol: component.ComponentName + "Metadata", Provenance: provenance},
-		{Path: filepath.Join(base, templateBase+".stories.tsx"), Kind: "stories", Symbol: component.ComponentName + "Stories", Provenance: provenance},
-		{Path: filepath.Join(base, templateBase+".module.css"), Kind: "style", Symbol: component.ComponentName + "Styles", Provenance: provenance},
+		{Path: filepath.Join(base, generatedBase+".stories.tsx"), Kind: "stories", Symbol: component.ComponentName + "Stories", Provenance: provenance},
+		{Path: filepath.Join(base, generatedBase+".module.css"), Kind: "style", Symbol: component.ComponentName + "Styles", Provenance: provenance},
 		{Path: filepath.Join(base, "index.ts"), Kind: "barrel", Symbol: component.ComponentName, Provenance: provenance},
 	}
 	if contains(target.FileKinds, "adapter_todo") {
-		files = append(files, PlannedFile{Path: filepath.Join(base, templateBase+".adapter.todo.ts"), Kind: "adapter_todo", Symbol: component.ComponentName + "AdapterTODO", Provenance: provenance})
+		files = append(files, PlannedFile{Path: filepath.Join(base, generatedBase+".adapter.todo.ts"), Kind: "adapter_todo", Symbol: component.ComponentName + "AdapterTODO", Provenance: provenance})
 	}
 	if contains(target.FileKinds, "readme") {
 		files = append(files, PlannedFile{Path: filepath.Join(base, "README.md"), Kind: "readme", Symbol: component.ComponentName + "Readme", Provenance: provenance})
@@ -281,8 +281,8 @@ func planFiles(component ComponentPlan, target TargetFile) []PlannedFile {
 	return files
 }
 
-func templateFileBase(component ComponentPlan) string {
-	return component.ComponentName + ".template"
+func generatedFileBase(component ComponentPlan) string {
+	return component.ComponentName + ".generated"
 }
 
 func componentNameFromTemplate(templateID string) string {
