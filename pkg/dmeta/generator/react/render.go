@@ -174,6 +174,9 @@ func renderComponentFile(plan ScaffoldPlan, component ComponentPlan, file Planne
 func renderTypes(plan ScaffoldPlan, component ComponentPlan, file PlannedFile) string {
 	var b bytes.Buffer
 	b.WriteString(webTypeScriptPrelude(plan, component, file))
+	if componentUsesReactNode(component) {
+		b.WriteString("import type { ReactNode } from \"react\";\n\n")
+	}
 	b.WriteString(fmt.Sprintf("export type %sSlotName =\n", component.ComponentName))
 	if len(component.Slots) == 0 {
 		b.WriteString("  never;\n")
@@ -206,7 +209,8 @@ func renderTypes(plan ScaffoldPlan, component ComponentPlan, file PlannedFile) s
 		b.WriteString(fmt.Sprintf("  %s?: (payload: unknown) => void;\n", callbackName(eventBinding)))
 	}
 	for _, eventName := range sortedEventNames(component.Template.Contract.Events) {
-		b.WriteString(fmt.Sprintf("  %s%s: (payload: %s) => void;\n", eventName, optionalSuffix(!component.Template.Contract.Events[eventName].Required), tsTypeFromContractType(component.Template.Contract.Events[eventName].PayloadType)))
+		event := component.Template.Contract.Events[eventName]
+		b.WriteString(fmt.Sprintf("  %s%s: %s;\n", eventName, optionalSuffix(!event.Required), tsCallbackType(event.PayloadType)))
 	}
 	b.WriteString("};\n")
 	return b.String()
@@ -834,6 +838,17 @@ func optionalSuffix(optional bool) string {
 	return ""
 }
 
+func componentUsesReactNode(component ComponentPlan) bool {
+	for _, contract := range component.Template.Contract.Props {
+		for _, field := range contract.Fields {
+			if strings.EqualFold(field.TypeRef, "ReactNode") || strings.EqualFold(field.Type, "ReactNode") || strings.EqualFold(field.ItemTypeRef, "ReactNode") {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func tsTypeFromPropField(field validator.PropField) string {
 	if len(field.Values) > 0 {
 		values := make([]string, 0, len(field.Values))
@@ -851,6 +866,13 @@ func tsTypeFromPropField(field validator.PropField) string {
 	return tsTypeFromContractType(field.Type)
 }
 
+func tsCallbackType(payloadType string) string {
+	if tsTypeFromContractType(payloadType) == "void" {
+		return "() => void"
+	}
+	return fmt.Sprintf("(payload: %s) => void", tsTypeFromContractType(payloadType))
+}
+
 func tsTypeFromContractType(contractType string) string {
 	t := strings.TrimSpace(contractType)
 	if t == "" {
@@ -860,6 +882,8 @@ func tsTypeFromContractType(contractType string) string {
 		return tsTypeFromContractType(strings.TrimSuffix(t, "[]")) + "[]"
 	}
 	switch t {
+	case "ReactNode", "react.ReactNode", "React.ReactNode":
+		return "ReactNode"
 	case "string", "number", "boolean", "unknown", "any", "void":
 		return t
 	case "integer", "float", "double":
