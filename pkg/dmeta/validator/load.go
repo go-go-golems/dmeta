@@ -118,7 +118,7 @@ func loadWidgetTemplates(root string) (WidgetIRFile, error) {
 	}
 	widgets.Widgets = nil
 	for key, templatePath := range widgets.Files {
-		if key == "index" || key == "lowering_rules" || templatePath == "" {
+		if isNonWidgetMetaDesignSystemFile(key) || templatePath == "" {
 			continue
 		}
 		templateFile, err := loadYAML[WidgetTemplatesFile](filepath.Join(webRoot, templatePath))
@@ -131,6 +131,15 @@ func loadWidgetTemplates(root string) (WidgetIRFile, error) {
 		widgets.Widgets = append(widgets.Widgets, templateFile.Templates...)
 	}
 	return widgets, nil
+}
+
+func isNonWidgetMetaDesignSystemFile(key string) bool {
+	switch key {
+	case "index", "lowering_rules", "style_tokens", "style_recipes":
+		return true
+	default:
+		return false
+	}
 }
 
 func loadYAML[T any](path string) (T, error) {

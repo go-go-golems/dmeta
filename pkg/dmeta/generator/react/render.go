@@ -290,30 +290,319 @@ export const Default: Story = {
 }
 
 func renderStyles(component ComponentPlan) string {
-	return fmt.Sprintf(`%s.root {
-  display: block;
-  border: 1px solid currentColor;
-  border-radius: 12px;
-  padding: 12px;
+	var b bytes.Buffer
+	b.WriteString(cssGeneratedHeader(component))
+	b.WriteString("/*\n")
+	b.WriteString(" * Style recipe lowered from the Web MetaDesignSystem design-language tokens.\n")
+	b.WriteString(" * Keep raw values in src/styles/tokens.css; generated components should compose var(--ttc-*) tokens.\n")
+	b.WriteString(" */\n\n")
+	b.WriteString(renderStyleRecipe(component))
+	return b.String()
+}
+
+func renderStyleRecipe(component ComponentPlan) string {
+	switch component.TemplateID {
+	case "ttc.button":
+		return buttonStyleRecipe()
+	case "ttc.chip":
+		return chipStyleRecipe()
+	case "ttc.product_card_molecule":
+		return productCardStyleRecipe()
+	default:
+		switch component.ComponentKind {
+		case "atom":
+			return atomStyleRecipe()
+		case "molecule":
+			return moleculeStyleRecipe()
+		default:
+			return widgetStyleRecipe()
+		}
+	}
+}
+
+func buttonStyleRecipe() string {
+	return `.root {
+  align-items: center;
+  background: var(--ttc-color-action-primary);
+  border: var(--ttc-space-0);
+  border-radius: var(--ttc-radius-control);
+  color: var(--ttc-color-text-on-action);
+  display: inline-flex;
+  font: var(--ttc-font-role-button);
+  gap: var(--ttc-space-3);
+  justify-content: center;
+  min-height: var(--ttc-size-touch-min);
+  padding: var(--ttc-space-5) var(--ttc-space-9);
+  transition: background 120ms ease, box-shadow 120ms ease, transform 80ms ease;
+  user-select: none;
+}
+
+.root:hover {
+  background: var(--ttc-color-action-primary-hover);
+  box-shadow: var(--ttc-elevation-hover);
 }
 
 .header {
+  align-items: center;
   display: flex;
-  justify-content: space-between;
-  gap: 8px;
+  gap: var(--ttc-space-3);
+  justify-content: center;
+}
+
+.header span {
+  color: currentColor;
+  font: var(--ttc-font-role-badge);
+  opacity: 0.72;
 }
 
 .slots {
-  display: grid;
-  gap: 8px;
-  margin: 12px 0 0;
+  display: none;
 }
 
 .slot {
   display: grid;
-  gap: 2px;
+  gap: var(--ttc-space-1);
 }
-`, cssGeneratedHeader(component))
+`
+}
+
+func chipStyleRecipe() string {
+	return `.root {
+  align-items: center;
+  background: var(--ttc-color-surface-card);
+  border: var(--ttc-border-width-hairline) solid var(--ttc-color-border-strong);
+  border-radius: var(--ttc-radius-control);
+  color: var(--ttc-color-action-primary);
+  display: inline-flex;
+  font: var(--ttc-font-role-body-compact);
+  gap: var(--ttc-space-3);
+  min-height: calc(var(--ttc-space-12) - var(--ttc-space-1));
+  padding: var(--ttc-space-3) var(--ttc-space-7);
+  white-space: nowrap;
+}
+
+.root[data-dmeta-visual-state*="selected"] {
+  background: var(--ttc-color-action-primary);
+  border-color: var(--ttc-color-action-primary);
+  color: var(--ttc-color-text-on-action);
+}
+
+.header {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--ttc-space-2);
+}
+
+.header span {
+  color: currentColor;
+  font: var(--ttc-font-role-badge);
+  opacity: 0.72;
+}
+
+.slots {
+  display: none;
+}
+
+.slot {
+  display: grid;
+  gap: var(--ttc-space-1);
+}
+`
+}
+
+func productCardStyleRecipe() string {
+	return `.root {
+  background: var(--ttc-color-surface-card);
+  border-radius: var(--ttc-radius-widget);
+  box-shadow: var(--ttc-elevation-keyline);
+  color: var(--ttc-color-text-primary);
+  display: grid;
+  font: var(--ttc-font-role-body);
+  gap: var(--ttc-space-5);
+  overflow: hidden;
+  padding: var(--ttc-space-7);
+}
+
+.header {
+  align-items: start;
+  color: var(--ttc-color-action-primary);
+  display: flex;
+  gap: var(--ttc-space-3);
+  justify-content: space-between;
+}
+
+.header strong {
+  font: var(--ttc-font-role-product-title);
+}
+
+.header span {
+  color: var(--ttc-color-text-secondary);
+  font: var(--ttc-font-role-badge);
+}
+
+.slots {
+  display: grid;
+  gap: var(--ttc-space-3);
+  margin: var(--ttc-space-1) var(--ttc-space-0) var(--ttc-space-0);
+}
+
+.slot {
+  border-top: var(--ttc-border-width-hairline) solid var(--ttc-color-border-subtle);
+  display: grid;
+  gap: var(--ttc-space-1);
+  padding-top: var(--ttc-space-3);
+}
+
+.slot dt {
+  color: var(--ttc-color-text-tertiary);
+  font: var(--ttc-font-role-badge);
+}
+
+.slot dd {
+  color: var(--ttc-color-text-secondary);
+  font: var(--ttc-font-role-body-compact);
+  margin: var(--ttc-space-0);
+}
+`
+}
+
+func atomStyleRecipe() string {
+	return `.root {
+  align-items: center;
+  background: var(--ttc-color-surface-card);
+  border: var(--ttc-border-width-hairline) solid var(--ttc-color-border-strong);
+  border-radius: var(--ttc-radius-control);
+  color: var(--ttc-color-action-primary);
+  display: inline-flex;
+  font: var(--ttc-font-role-body-compact);
+  gap: var(--ttc-space-3);
+  min-height: var(--ttc-size-touch-min);
+  padding: var(--ttc-space-3) var(--ttc-space-7);
+}
+
+.header {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--ttc-space-2);
+}
+
+.slots {
+  display: none;
+}
+
+.slot {
+  display: grid;
+  gap: var(--ttc-space-1);
+}
+`
+}
+
+func moleculeStyleRecipe() string {
+	return `.root {
+  background: var(--ttc-color-surface-card);
+  border-radius: var(--ttc-radius-card-compact);
+  box-shadow: var(--ttc-elevation-keyline);
+  color: var(--ttc-color-text-primary);
+  display: grid;
+  font: var(--ttc-font-role-body);
+  gap: var(--ttc-space-5);
+  padding: var(--ttc-space-5);
+}
+
+.header {
+  align-items: center;
+  color: var(--ttc-color-action-primary);
+  display: flex;
+  gap: var(--ttc-space-3);
+  justify-content: space-between;
+}
+
+.header strong {
+  font: var(--ttc-font-role-section-title);
+}
+
+.header span {
+  color: var(--ttc-color-text-secondary);
+  font: var(--ttc-font-role-badge);
+}
+
+.slots {
+  display: grid;
+  gap: var(--ttc-space-3);
+  margin: var(--ttc-space-1) var(--ttc-space-0) var(--ttc-space-0);
+}
+
+.slot {
+  display: grid;
+  gap: var(--ttc-space-1);
+}
+
+.slot dt {
+  color: var(--ttc-color-text-tertiary);
+  font: var(--ttc-font-role-badge);
+}
+
+.slot dd {
+  color: var(--ttc-color-text-secondary);
+  font: var(--ttc-font-role-body-compact);
+  margin: var(--ttc-space-0);
+}
+`
+}
+
+func widgetStyleRecipe() string {
+	return `.root {
+  background: var(--ttc-color-surface-card);
+  border-radius: var(--ttc-radius-widget);
+  box-shadow: var(--ttc-elevation-keyline);
+  color: var(--ttc-color-text-primary);
+  display: grid;
+  font: var(--ttc-font-role-body);
+  gap: var(--ttc-space-6);
+  padding: var(--ttc-space-8);
+}
+
+.header {
+  align-items: center;
+  color: var(--ttc-color-action-primary);
+  display: flex;
+  gap: var(--ttc-space-3);
+  justify-content: space-between;
+}
+
+.header strong {
+  font: var(--ttc-font-role-section-title);
+}
+
+.header span {
+  color: var(--ttc-color-text-secondary);
+  font: var(--ttc-font-role-badge);
+}
+
+.slots {
+  display: grid;
+  gap: var(--ttc-space-3);
+  margin: var(--ttc-space-1) var(--ttc-space-0) var(--ttc-space-0);
+}
+
+.slot {
+  border-top: var(--ttc-border-width-hairline) solid var(--ttc-color-border-subtle);
+  display: grid;
+  gap: var(--ttc-space-1);
+  padding-top: var(--ttc-space-3);
+}
+
+.slot dt {
+  color: var(--ttc-color-text-tertiary);
+  font: var(--ttc-font-role-badge);
+}
+
+.slot dd {
+  color: var(--ttc-color-text-secondary);
+  font: var(--ttc-font-role-body-compact);
+  margin: var(--ttc-space-0);
+}
+`
 }
 
 func renderBarrel(_ ScaffoldPlan, component ComponentPlan, file PlannedFile) string {

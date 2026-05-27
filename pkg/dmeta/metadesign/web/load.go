@@ -43,7 +43,7 @@ func LoadPackage(ctx context.Context, root string) (*Package, error) {
 
 	widgets := map[string]validator.Widget{}
 	for key, templatePath := range meta.Files {
-		if key == "index" || key == "lowering_rules" || templatePath == "" {
+		if isNonWidgetMetaDesignSystemFile(key) || templatePath == "" {
 			continue
 		}
 		templateFile, err := loadYAML[validator.WidgetTemplatesFile](filepath.Join(absRoot, templatePath))
@@ -59,6 +59,15 @@ func LoadPackage(ctx context.Context, root string) (*Package, error) {
 	}
 
 	return &Package{Root: absRoot, Meta: meta, LoweringRules: loweringRules, Widgets: widgets}, nil
+}
+
+func isNonWidgetMetaDesignSystemFile(key string) bool {
+	switch key {
+	case "index", "lowering_rules", "style_tokens", "style_recipes":
+		return true
+	default:
+		return false
+	}
 }
 
 func loadYAML[T any](path string) (T, error) {
