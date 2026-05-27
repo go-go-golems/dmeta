@@ -81,6 +81,7 @@ type PlannedFile struct {
 	Path       string
 	Kind       string
 	Symbol     string
+	Lifecycle  string
 	Provenance FileProvenance
 }
 

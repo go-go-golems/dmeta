@@ -244,7 +244,7 @@ func planPackageFiles(plan ScaffoldPlan, target TargetFile) []PlannedFile {
 		CodegenTarget:    target.Provenance.CodegenTarget,
 		Passes:           target.Provenance.SourcePasses,
 	}
-	return []PlannedFile{{Path: filepath.Join(plan.OutputDir, "index.ts"), Kind: "package_index", Symbol: plan.PackageName, Provenance: provenance}}
+	return []PlannedFile{{Path: filepath.Join(plan.OutputDir, "index.ts"), Kind: "package_index", Symbol: plan.PackageName, Lifecycle: "regenerate_only", Provenance: provenance}}
 }
 
 func planFiles(component ComponentPlan, target TargetFile) []PlannedFile {
@@ -265,24 +265,75 @@ func planFiles(component ComponentPlan, target TargetFile) []PlannedFile {
 	}
 	generatedBase := generatedFileBase(component)
 	files := []PlannedFile{
-		{Path: filepath.Join(base, generatedBase+".tsx"), Kind: "component", Symbol: component.ComponentName, Provenance: provenance},
-		{Path: filepath.Join(base, generatedBase+".types.ts"), Kind: "types", Symbol: component.ComponentName + "Props", Provenance: provenance},
-		{Path: filepath.Join(base, component.ComponentName+".metadata.json"), Kind: "metadata", Symbol: component.ComponentName + "Metadata", Provenance: provenance},
-		{Path: filepath.Join(base, generatedBase+".stories.tsx"), Kind: "stories", Symbol: component.ComponentName + "Stories", Provenance: provenance},
-		{Path: filepath.Join(base, generatedBase+".module.css"), Kind: "style", Symbol: component.ComponentName + "Styles", Provenance: provenance},
-		{Path: filepath.Join(base, "index.ts"), Kind: "barrel", Symbol: component.ComponentName, Provenance: provenance},
+		{Path: filepath.Join(base, generatedBase+".tsx"), Kind: "component", Symbol: component.ComponentName, Lifecycle: lifecycleForKind(component, "component"), Provenance: provenance},
+		{Path: filepath.Join(base, generatedBase+".types.ts"), Kind: "types", Symbol: component.ComponentName + "Props", Lifecycle: lifecycleForKind(component, "types"), Provenance: provenance},
+		{Path: filepath.Join(base, component.ComponentName+".metadata.json"), Kind: "metadata", Symbol: component.ComponentName + "Metadata", Lifecycle: lifecycleForKind(component, "metadata"), Provenance: provenance},
+		{Path: filepath.Join(base, generatedBase+".stories.tsx"), Kind: "stories", Symbol: component.ComponentName + "Stories", Lifecycle: lifecycleForKind(component, "stories"), Provenance: provenance},
+		{Path: filepath.Join(base, generatedBase+".module.css"), Kind: "style", Symbol: component.ComponentName + "Styles", Lifecycle: lifecycleForKind(component, "style"), Provenance: provenance},
+		{Path: filepath.Join(base, "index.ts"), Kind: "barrel", Symbol: component.ComponentName, Lifecycle: lifecycleForKind(component, "barrel"), Provenance: provenance},
 	}
 	if contains(target.FileKinds, "adapter_todo") {
-		files = append(files, PlannedFile{Path: filepath.Join(base, generatedBase+".adapter.todo.ts"), Kind: "adapter_todo", Symbol: component.ComponentName + "AdapterTODO", Provenance: provenance})
+		files = append(files, PlannedFile{Path: filepath.Join(base, generatedBase+".adapter.todo.ts"), Kind: "adapter_todo", Symbol: component.ComponentName + "AdapterTODO", Lifecycle: lifecycleForKind(component, "adapter_todo"), Provenance: provenance})
 	}
 	if contains(target.FileKinds, "readme") {
-		files = append(files, PlannedFile{Path: filepath.Join(base, "README.md"), Kind: "readme", Symbol: component.ComponentName + "Readme", Provenance: provenance})
+		files = append(files, PlannedFile{Path: filepath.Join(base, "README.md"), Kind: "readme", Symbol: component.ComponentName + "Readme", Lifecycle: lifecycleForKind(component, "readme"), Provenance: provenance})
 	}
 	return files
 }
 
 func generatedFileBase(component ComponentPlan) string {
 	return component.ComponentName + ".generated"
+}
+
+func lifecycleForKind(component ComponentPlan, kind string) string {
+	policy := component.Template.ComponentSystem.Lifecycle
+	var lifecycle string
+	switch kind {
+	case "component":
+		lifecycle = policy.Component
+	case "types":
+		lifecycle = policy.Types
+	case "style":
+		lifecycle = policy.Styles
+	case "stories":
+		lifecycle = policy.Stories
+	case "metadata":
+		lifecycle = policy.Metadata
+	case "adapter_todo":
+		lifecycle = policy.Adapter
+	}
+	if lifecycle == "" {
+		lifecycle = policy.Default
+	}
+	if lifecycle == "" {
+		return defaultLifecycleForKind(kind)
+	}
+	return normalizeLifecycle(lifecycle)
+}
+
+func defaultLifecycleForKind(kind string) string {
+	switch kind {
+	case "metadata", "types", "package_index", "barrel":
+		return "regenerate_only"
+	case "component", "style", "stories", "adapter_todo", "readme":
+		return "generated_sidecar"
+	default:
+		return "generated_sidecar"
+	}
+}
+
+func normalizeLifecycle(lifecycle string) string {
+	normalized := strings.ToLower(strings.TrimSpace(strings.ReplaceAll(lifecycle, "-", "_")))
+	switch normalized {
+	case "regenerate", "regenerate_only", "regenerateonly", "generated", "generated_only":
+		return "regenerate_only"
+	case "scaffold", "scaffold_once", "scaffoldonce":
+		return "scaffold_once"
+	case "sidecar", "sidecar_for_merge", "sidecarformerge", "generated_sidecar":
+		return "generated_sidecar"
+	default:
+		return normalized
+	}
 }
 
 func componentNameFromTemplate(templateID string) string {
