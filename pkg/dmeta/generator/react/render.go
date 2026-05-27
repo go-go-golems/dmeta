@@ -121,7 +121,7 @@ func GenerateMetadataSidecars(plan ScaffoldPlan) ([]GeneratedFile, error) {
 		if err != nil {
 			return nil, err
 		}
-		files = append(files, GeneratedFile{Path: filepath.Join(component.OutputDir, component.ComponentName, component.ComponentName+".metadata.json"), Kind: "metadata", Content: append(content, '\n')})
+		files = append(files, GeneratedFile{Path: filepath.Join(component.OutputDir, component.ComponentName, component.ComponentName+".metadata.json"), Kind: "metadata", Content: content})
 	}
 	return files, nil
 }
@@ -152,7 +152,7 @@ func renderComponentFile(plan ScaffoldPlan, component ComponentPlan, file Planne
 		if err != nil {
 			return nil, err
 		}
-		return append(content, '\n'), nil
+		return content, nil
 	case "stories":
 		return []byte(renderStories(plan, component, file)), nil
 	case "style":
@@ -183,7 +183,8 @@ func renderTypes(plan ScaffoldPlan, component ComponentPlan, file PlannedFile) s
 	b.WriteString("\n")
 	b.WriteString(fmt.Sprintf("export type %sVisualState =\n", component.ComponentName))
 	if len(component.VisualStates) == 0 {
-		b.WriteString("  never;\n")
+		b.WriteString("  | \"default\"\n")
+		b.WriteString(";\n")
 	} else {
 		for _, state := range component.VisualStates {
 			b.WriteString(fmt.Sprintf("  | %q\n", state))
@@ -251,7 +252,7 @@ export default %s;
 }
 
 func renderStories(plan ScaffoldPlan, component ComponentPlan, file PlannedFile) string {
-	return fmt.Sprintf(`%simport type { Meta, StoryObj } from "@storybook/react-vite";
+	return fmt.Sprintf(`%simport type { Meta, StoryObj } from "@storybook/react";
 import { %s } from "./%s";
 
 const meta = {
@@ -305,8 +306,10 @@ func renderStyles(_ ComponentPlan) string {
 `, cssGeneratedHeader())
 }
 
-func renderBarrel(plan ScaffoldPlan, component ComponentPlan, file PlannedFile) string {
-	return fmt.Sprintf("%sexport * from \"./%s\";\nexport * from \"./%s.types\";\n", webTypeScriptPrelude(plan, component, file), component.ComponentName, component.ComponentName)
+func renderBarrel(_ ScaffoldPlan, component ComponentPlan, _ PlannedFile) string {
+	return fmt.Sprintf(`%sexport { %s } from "./%s";
+export type { %sProps, %sSlotName, %sVisualState } from "./%s.types";
+`, generatedHeader, component.ComponentName, component.ComponentName, component.ComponentName, component.ComponentName, component.ComponentName, component.ComponentName)
 }
 
 func renderAdapterTODO(plan ScaffoldPlan, component ComponentPlan, file PlannedFile) string {
@@ -315,8 +318,8 @@ func renderAdapterTODO(plan ScaffoldPlan, component ComponentPlan, file PlannedF
 	b.WriteString(fmt.Sprintf("import type { %sProps } from \"./%s.types\";\n\n", component.ComponentName, component.ComponentName))
 	b.WriteString(fmt.Sprintf("export function adapt%sProps(input: unknown): %sProps {\n", component.ComponentName, component.ComponentName))
 	b.WriteString("  // TODO: Map concrete app data into the React target props.\n")
-	b.WriteString(fmt.Sprintf("  // Web slots: %s\n", strings.Join(component.Slots, ", ")))
-	b.WriteString(fmt.Sprintf("  // Event bindings: %s\n", strings.Join(component.EventBindings, ", ")))
+	b.WriteString(fmt.Sprintf("  // Web slots: %s\n", commaList(component.Slots)))
+	b.WriteString(fmt.Sprintf("  // Event bindings: %s\n", commaList(component.EventBindings)))
 	b.WriteString("  void input;\n")
 	b.WriteString("  return { slots: {} };\n")
 	b.WriteString("}\n")
@@ -337,7 +340,7 @@ Generated React scaffold plan for %s.
 - Source Web lowering rules: %s
 
 Promote and edit intentionally. Do not blindly regenerate over maintained code.
-`, component.ComponentName, component.TemplateID, component.Variant, strings.Join(component.RealizesRepresentations, ", "), strings.Join(component.RealizesActions, ", "), strings.Join(component.SourceDomainTypes, ", "), strings.Join(component.SourceRules, ", "))
+`, component.ComponentName, component.TemplateID, component.Variant, commaList(component.RealizesRepresentations), commaList(component.RealizesActions), commaList(component.SourceDomainTypes), commaList(component.SourceRules))
 }
 
 func reactFileRefs(files []PlannedFile) []ReactFileRef {
@@ -346,6 +349,13 @@ func reactFileRefs(files []PlannedFile) []ReactFileRef {
 		refs = append(refs, ReactFileRef{Kind: file.Kind, Path: file.Path, Symbol: file.Symbol})
 	}
 	return refs
+}
+
+func commaList(values []string) string {
+	if len(values) == 0 {
+		return "none"
+	}
+	return strings.Join(values, ", ")
 }
 
 func passesFromComponent(component ComponentPlan) []string {
