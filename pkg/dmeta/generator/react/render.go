@@ -130,18 +130,128 @@ func GenerateMetadataSidecars(plan ScaffoldPlan) ([]GeneratedFile, error) {
 }
 
 func renderPackageFile(plan ScaffoldPlan, file PlannedFile) ([]byte, error) {
-	if file.Kind != "package_index" {
+	switch file.Kind {
+	case "package_index":
+		var b bytes.Buffer
+		b.WriteString(generatedHeader)
+		b.WriteString(fmt.Sprintf("// Instance: %s\n", plan.InstanceID))
+		b.WriteString(fmt.Sprintf("// MetaDesignSystem: %s\n", plan.MetaDesignSystem))
+		b.WriteString(fmt.Sprintf("// Target: %s\n\n", plan.TargetID))
+		for _, component := range plan.Components {
+			b.WriteString(fmt.Sprintf("export * from \"%s\";\n", component.PackageExportPath))
+		}
+		return b.Bytes(), nil
+	case "manifest":
+		return renderGeneratedManifest(plan)
+	default:
 		return nil, fmt.Errorf("unsupported package file kind %q", file.Kind)
 	}
-	var b bytes.Buffer
-	b.WriteString(generatedHeader)
-	b.WriteString(fmt.Sprintf("// Instance: %s\n", plan.InstanceID))
-	b.WriteString(fmt.Sprintf("// MetaDesignSystem: %s\n", plan.MetaDesignSystem))
-	b.WriteString(fmt.Sprintf("// Target: %s\n\n", plan.TargetID))
-	for _, component := range plan.Components {
-		b.WriteString(fmt.Sprintf("export * from \"%s\";\n", component.PackageExportPath))
+}
+
+func renderGeneratedManifest(plan ScaffoldPlan) ([]byte, error) {
+	type manifestPaths struct {
+		Dir      string `json:"dir,omitempty"`
+		Types    string `json:"types,omitempty"`
+		Metadata string `json:"metadata,omitempty"`
+		Stories  string `json:"stories,omitempty"`
+		Style    string `json:"style,omitempty"`
+		Barrel   string `json:"barrel,omitempty"`
 	}
-	return b.Bytes(), nil
+	type promotedPaths struct {
+		Dir       string `json:"dir"`
+		Component string `json:"component"`
+		Style     string `json:"style"`
+		Stories   string `json:"stories"`
+		Barrel    string `json:"barrel"`
+	}
+	type manifestSemantics struct {
+		DomainTypes     []string `json:"domainTypes,omitempty"`
+		Representations []string `json:"representations,omitempty"`
+		Actions         []string `json:"actions,omitempty"`
+		SourceRules     []string `json:"sourceRules,omitempty"`
+	}
+	type manifestComponent struct {
+		TemplateID    string            `json:"templateId"`
+		ComponentName string            `json:"componentName"`
+		Kind          string            `json:"kind"`
+		Specificity   string            `json:"specificity,omitempty"`
+		Family        string            `json:"family,omitempty"`
+		Role          string            `json:"role,omitempty"`
+		Variant       string            `json:"variant,omitempty"`
+		Generated     manifestPaths     `json:"generated"`
+		Promoted      promotedPaths     `json:"promoted"`
+		Semantics     manifestSemantics `json:"semantics,omitempty"`
+	}
+	type manifest struct {
+		SchemaVersion int                   `json:"schemaVersion"`
+		Generated     genmeta.GeneratedInfo `json:"generated"`
+		PackageName   string                `json:"packageName,omitempty"`
+		TargetID      string                `json:"targetId,omitempty"`
+		Components    []manifestComponent   `json:"components"`
+	}
+
+	packageRoot := packageRootFromOutputDir(plan.OutputDir)
+	components := make([]manifestComponent, 0, len(plan.Components))
+	for _, component := range plan.Components {
+		generated := manifestPaths{Dir: relToPackage(packageRoot, component.ComponentDir)}
+		for _, file := range component.Files {
+			rel := relToPackage(packageRoot, file.Path)
+			switch file.Kind {
+			case "types":
+				generated.Types = rel
+			case "metadata":
+				generated.Metadata = rel
+			case "stories":
+				generated.Stories = rel
+			case "style":
+				generated.Style = rel
+			case "barrel":
+				generated.Barrel = rel
+			}
+		}
+		promotedDir := filepath.Join(packageRoot, "src", "components", defaultComponentDir(component.ComponentKind), component.ComponentName)
+		components = append(components, manifestComponent{
+			TemplateID:    component.TemplateID,
+			ComponentName: component.ComponentName,
+			Kind:          component.ComponentKind,
+			Specificity:   component.ComponentSpecificity,
+			Family:        component.ComponentFamily,
+			Role:          component.ComponentRole,
+			Variant:       component.Variant,
+			Generated:     generated,
+			Promoted: promotedPaths{
+				Dir:       relToPackage(packageRoot, promotedDir),
+				Component: relToPackage(packageRoot, filepath.Join(promotedDir, component.ComponentName+".tsx")),
+				Style:     relToPackage(packageRoot, filepath.Join(promotedDir, component.ComponentName+".module.css")),
+				Stories:   relToPackage(packageRoot, filepath.Join(promotedDir, component.ComponentName+".stories.tsx")),
+				Barrel:    relToPackage(packageRoot, filepath.Join(promotedDir, "index.ts")),
+			},
+			Semantics: manifestSemantics{
+				DomainTypes:     append([]string{}, component.SourceDomainTypes...),
+				Representations: append([]string{}, component.RealizesRepresentations...),
+				Actions:         append([]string{}, component.RealizesActions...),
+				SourceRules:     append([]string{}, component.SourceRules...),
+			},
+		})
+	}
+
+	content, err := json.MarshalIndent(manifest{SchemaVersion: 1, Generated: plan.Generated, PackageName: plan.PackageName, TargetID: plan.TargetID, Components: components}, "", "  ")
+	if err != nil {
+		return nil, err
+	}
+	return append(content, '\n'), nil
+}
+
+func packageRootFromOutputDir(outputDir string) string {
+	return filepath.Dir(filepath.Dir(filepath.Dir(outputDir)))
+}
+
+func relToPackage(packageRoot string, path string) string {
+	rel, err := filepath.Rel(packageRoot, path)
+	if err != nil {
+		return filepath.ToSlash(path)
+	}
+	return filepath.ToSlash(rel)
 }
 
 func renderComponentFile(plan ScaffoldPlan, component ComponentPlan, file PlannedFile) ([]byte, error) {
@@ -162,8 +272,6 @@ func renderComponentFile(plan ScaffoldPlan, component ComponentPlan, file Planne
 		return []byte(renderStyles(component)), nil
 	case "barrel":
 		return []byte(renderBarrel(plan, component, file)), nil
-	case "adapter_todo":
-		return []byte(renderAdapterTODO(plan, component, file)), nil
 	case "readme":
 		return []byte(renderReadme(component)), nil
 	default:
@@ -615,25 +723,6 @@ export type { %sProps, %sSlotName, %sVisualState } from "./%s.types";
 `, webTypeScriptPrelude(ScaffoldPlan{}, component, file), component.ComponentName, generatedFileBase(component), component.ComponentName, component.ComponentName, component.ComponentName, generatedFileBase(component))
 }
 
-func renderAdapterTODO(plan ScaffoldPlan, component ComponentPlan, file PlannedFile) string {
-	var b bytes.Buffer
-	b.WriteString(webTypeScriptPrelude(plan, component, file))
-	b.WriteString(fmt.Sprintf("import type { %sProps } from \"./%s.types\";\n\n", component.ComponentName, generatedFileBase(component)))
-	b.WriteString(fmt.Sprintf("export function adapt%sProps(input: unknown): %sProps {\n", component.ComponentName, component.ComponentName))
-	b.WriteString("  // TODO: Map concrete app data into the React target props.\n")
-	b.WriteString(fmt.Sprintf("  // Component kind: %s\n", component.ComponentKind))
-	b.WriteString(fmt.Sprintf("  // Web slots: %s\n", commaList(component.Slots)))
-	b.WriteString(fmt.Sprintf("  // Event bindings: %s\n", commaList(component.EventBindings)))
-	b.WriteString(fmt.Sprintf("  // Contract props: %s\n", commaList(sortedPropNames(component.Template.Contract.Props))))
-	b.WriteString("  void input;\n")
-	b.WriteString("  return {\n")
-	b.WriteString("    slots: {},\n")
-	b.WriteString(sampleStoryArgs(component))
-	b.WriteString("  };\n")
-	b.WriteString("}\n")
-	return b.String()
-}
-
 func renderReadme(component ComponentPlan) string {
 	return fmt.Sprintf(`# %s
 
@@ -1058,7 +1147,7 @@ func webGeneratedMetadata(plan ScaffoldPlan, component ComponentPlan, file Plann
 			ImplementationNotes: []string{
 				"Use the sibling metadata JSON sidecar to trace props, slots, visual states, and event bindings back to Web lowering obligations.",
 				"Generated files use the *.generated.* suffix so imports make generated ownership explicit; generated types may be imported directly if they remain fully generated.",
-				"When promoted, copy or rename *.generated.* files into hand-owned source, remove the .generated suffix, update Storybook, and update src/dmeta/widgetRegistry.ts.",
+				"When promoted, create or update the hand-owned component under src/components and record its state in src/dmeta/promotionState.ts; generated metadata remains discoverable through dmeta.generated-manifest.json.",
 			},
 		},
 	}
@@ -1121,7 +1210,7 @@ func contractTypeLabel(field validator.PropField) string {
 
 func webFileIsPromotable(kind string) bool {
 	switch kind {
-	case "component", "types", "stories", "style", "adapter_todo", "readme", "barrel":
+	case "component", "types", "stories", "style", "readme", "barrel":
 		return true
 	default:
 		return false

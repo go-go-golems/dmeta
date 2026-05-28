@@ -156,9 +156,12 @@ func BuildScaffoldPlan(ctx context.Context, opts PlanOptions) (ScaffoldPlan, err
 		if !ok {
 			return ScaffoldPlan{}, errors.Errorf("selected Web widget template %q does not exist", selected.Template)
 		}
-		componentName := selected.As
+		componentName := strings.TrimSpace(widget.Name)
 		if componentName == "" {
-			componentName = componentNameFromTemplate(selected.Template)
+			return ScaffoldPlan{}, errors.Errorf("Web widget template %q has no name; React lowering requires a canonical template name", selected.Template)
+		}
+		if selected.As != "" && selected.As != componentName {
+			return ScaffoldPlan{}, errors.Errorf("selected Web widget template %q uses deprecated as=%q that differs from template name %q; rename the template or remove the override", selected.Template, selected.As, componentName)
 		}
 		componentKind := componentKindFromWidget(widget)
 		componentDir := componentOutputDir(outputDir, componentName, componentKind, target.Defaults.ComponentLayout)
@@ -236,15 +239,19 @@ func applyWebObligations(component ComponentPlan, obligations []webmds.Obligatio
 }
 
 func planPackageFiles(plan ScaffoldPlan, target TargetFile) []PlannedFile {
-	if !contains(target.FileKinds, "package_index") {
-		return nil
-	}
 	provenance := FileProvenance{
 		MetaDesignSystem: target.Provenance.MetaDesignSystem,
 		CodegenTarget:    target.Provenance.CodegenTarget,
 		Passes:           target.Provenance.SourcePasses,
 	}
-	return []PlannedFile{{Path: filepath.Join(plan.OutputDir, "index.ts"), Kind: "package_index", Symbol: plan.PackageName, Lifecycle: "regenerate_only", Provenance: provenance}}
+	files := []PlannedFile{}
+	if contains(target.FileKinds, "package_index") {
+		files = append(files, PlannedFile{Path: filepath.Join(plan.OutputDir, "index.ts"), Kind: "package_index", Symbol: plan.PackageName, Lifecycle: "regenerate_only", Provenance: provenance})
+	}
+	if contains(target.FileKinds, "manifest") {
+		files = append(files, PlannedFile{Path: filepath.Join(plan.OutputDir, "dmeta.generated-manifest.json"), Kind: "manifest", Symbol: "DmetaGeneratedManifest", Lifecycle: "regenerate_only", Provenance: provenance})
+	}
+	return files
 }
 
 func planFiles(component ComponentPlan, target TargetFile) []PlannedFile {
@@ -272,9 +279,6 @@ func planFiles(component ComponentPlan, target TargetFile) []PlannedFile {
 		{Path: filepath.Join(base, generatedBase+".module.css"), Kind: "style", Symbol: component.ComponentName + "Styles", Lifecycle: lifecycleForKind(component, "style"), Provenance: provenance},
 		{Path: filepath.Join(base, "index.ts"), Kind: "barrel", Symbol: component.ComponentName, Lifecycle: lifecycleForKind(component, "barrel"), Provenance: provenance},
 	}
-	if contains(target.FileKinds, "adapter_todo") {
-		files = append(files, PlannedFile{Path: filepath.Join(base, generatedBase+".adapter.todo.ts"), Kind: "adapter_todo", Symbol: component.ComponentName + "AdapterTODO", Lifecycle: lifecycleForKind(component, "adapter_todo"), Provenance: provenance})
-	}
 	if contains(target.FileKinds, "readme") {
 		files = append(files, PlannedFile{Path: filepath.Join(base, "README.md"), Kind: "readme", Symbol: component.ComponentName + "Readme", Lifecycle: lifecycleForKind(component, "readme"), Provenance: provenance})
 	}
@@ -299,8 +303,6 @@ func lifecycleForKind(component ComponentPlan, kind string) string {
 		lifecycle = policy.Stories
 	case "metadata":
 		lifecycle = policy.Metadata
-	case "adapter_todo":
-		lifecycle = policy.Adapter
 	}
 	if lifecycle == "" {
 		lifecycle = policy.Default
@@ -315,7 +317,7 @@ func defaultLifecycleForKind(kind string) string {
 	switch kind {
 	case "metadata", "types", "package_index", "barrel":
 		return "regenerate_only"
-	case "component", "style", "stories", "adapter_todo", "readme":
+	case "component", "style", "stories", "readme":
 		return "generated_sidecar"
 	default:
 		return "generated_sidecar"
@@ -334,17 +336,6 @@ func normalizeLifecycle(lifecycle string) string {
 	default:
 		return normalized
 	}
-}
-
-func componentNameFromTemplate(templateID string) string {
-	parts := strings.FieldsFunc(templateID, func(r rune) bool { return r == '.' || r == '_' || r == '-' })
-	for i, part := range parts {
-		if part == "" {
-			continue
-		}
-		parts[i] = strings.ToUpper(part[:1]) + part[1:]
-	}
-	return strings.Join(parts, "")
 }
 
 func componentKindFromWidget(widget validator.Widget) string {
