@@ -333,9 +333,20 @@ type Widget struct {
 	SemanticContext WidgetSemanticContext `yaml:"semantic_context"`
 	ProjectionHints WidgetProjectionHints `yaml:"projection_hints"`
 	Contract        WidgetContract        `yaml:"contract"`
+	Style           SourceBlock           `yaml:"style"`
 	Stories         []string              `yaml:"stories"`
 	Storybook       WidgetStorybook       `yaml:"storybook"`
 	Outputs         map[string]string     `yaml:"outputs"`
+}
+
+// SourceBlock carries a source-language snippet embedded in IR. The first use is
+// pragmatic React generation: TypeScript owns rich prop contracts, and CSS owns
+// baseline generated style recipes, while YAML continues to own semantic
+// metadata, lifecycle, and compiler routing.
+type SourceBlock struct {
+	Language string `yaml:"language"`
+	Source   string `yaml:"source"`
+	Code     string `yaml:"code"`
 }
 
 type WidgetComponentSystem struct {
@@ -444,6 +455,7 @@ type WidgetProjectionHints struct {
 }
 
 type WidgetContract struct {
+	TypeScript  SourceBlock                  `yaml:"typescript"`
 	Props       map[string]InterfaceContract `yaml:"props"`
 	State       map[string]PropField         `yaml:"state"`
 	Events      map[string]EventContract     `yaml:"events"`

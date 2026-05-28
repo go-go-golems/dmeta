@@ -306,6 +306,12 @@ func renderTypes(plan ScaffoldPlan, component ComponentPlan, file PlannedFile) s
 		b.WriteString(";\n")
 	}
 	b.WriteString("\n")
+	if code := sourceBlockCode(component.Template.Contract.TypeScript); code != "" {
+		b.WriteString("// Contract block supplied by the Web MetaDesignSystem.\n")
+		b.WriteString(code)
+		b.WriteString("\n")
+		return b.String()
+	}
 	b.WriteString(fmt.Sprintf("export type %sProps = {\n", component.ComponentName))
 	b.WriteString("  className?: string;\n")
 	b.WriteString(fmt.Sprintf("  visualState?: %sVisualState;\n", component.ComponentName))
@@ -408,6 +414,11 @@ func renderStyles(component ComponentPlan) string {
 	b.WriteString(" * Style recipe lowered from the Web MetaDesignSystem design-language tokens.\n")
 	b.WriteString(" * Keep raw values in src/styles/tokens.css; generated components should compose var(--ttc-*) tokens.\n")
 	b.WriteString(" */\n\n")
+	if code := sourceBlockCode(component.Template.Style); code != "" {
+		b.WriteString(code)
+		b.WriteString("\n")
+		return b.String()
+	}
 	b.WriteString(renderStyleRecipe(component))
 	return b.String()
 }
@@ -928,6 +939,9 @@ func optionalSuffix(optional bool) string {
 }
 
 func componentUsesReactNode(component ComponentPlan) bool {
+	if strings.Contains(sourceBlockCode(component.Template.Contract.TypeScript), "ReactNode") {
+		return true
+	}
 	for _, contract := range component.Template.Contract.Props {
 		for _, field := range contract.Fields {
 			if strings.EqualFold(field.TypeRef, "ReactNode") || strings.EqualFold(field.Type, "ReactNode") || strings.EqualFold(field.ItemTypeRef, "ReactNode") {
@@ -936,6 +950,10 @@ func componentUsesReactNode(component ComponentPlan) bool {
 		}
 	}
 	return false
+}
+
+func sourceBlockCode(block validator.SourceBlock) string {
+	return strings.TrimSpace(block.Code)
 }
 
 func tsTypeFromPropField(field validator.PropField) string {
