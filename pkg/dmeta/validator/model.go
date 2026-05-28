@@ -344,9 +344,12 @@ type Widget struct {
 // baseline generated style recipes, while YAML continues to own semantic
 // metadata, lifecycle, and compiler routing.
 type SourceBlock struct {
-	Language string `yaml:"language"`
-	Source   string `yaml:"source"`
-	Code     string `yaml:"code"`
+	Language    string `yaml:"language"`
+	Description string `yaml:"description"`
+	Intent      string `yaml:"intent"`
+	Notes       string `yaml:"notes"`
+	Source      string `yaml:"source"`
+	Code        string `yaml:"code"`
 }
 
 type WidgetComponentSystem struct {
