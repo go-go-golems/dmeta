@@ -324,6 +324,7 @@ type Widget struct {
 	ID              string                `yaml:"id"`
 	Name            string                `yaml:"name"`
 	Status          string                `yaml:"status"`
+	Description     string                `yaml:"description"`
 	Classification  map[string]any        `yaml:"classification"`
 	ComponentSystem WidgetComponentSystem `yaml:"component_system"`
 	Composition     WidgetComposition     `yaml:"composition"`
@@ -337,6 +338,7 @@ type Widget struct {
 	Stories         []string              `yaml:"stories"`
 	Storybook       WidgetStorybook       `yaml:"storybook"`
 	Outputs         map[string]string     `yaml:"outputs"`
+	ContractActions []string              `yaml:"contract_action_slots"`
 }
 
 // SourceBlock carries a source-language snippet embedded in IR. The first use is
@@ -498,5 +500,6 @@ type ActionSlot struct {
 	ActionRef   string `yaml:"action_ref"`
 	PayloadType string `yaml:"payload_type"`
 	Source      string `yaml:"source"`
+	Prop        string `yaml:"prop"`
 	Description string `yaml:"description"`
 }
