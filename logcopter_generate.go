@@ -1,0 +1,3 @@
+package dmeta
+
+//go:generate go tool logcopter-gen -area-prefix go-go-golems.dmeta -strip-prefix github.com/go-go-golems/dmeta ./cmd/... ./pkg/...
