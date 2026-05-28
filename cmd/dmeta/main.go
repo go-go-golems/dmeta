@@ -129,6 +129,13 @@ func main() {
 	}
 	addGlazedCommand(rootCmd, "scaffold-react", scaffoldReact)
 
+	lowerReact, err := dmetacmds.NewLowerReactCommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating lower-react command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "lower-react", lowerReact)
+
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
