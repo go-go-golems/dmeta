@@ -19,9 +19,9 @@ RelatedFiles:
     - Path: 2026-05-19--log-presentation-based-ui/app/src/features/logs/operations/operationRegistry.ts
       Note: Working proof of action registry keyed by semantic type
 ExternalSources: []
-Summary: "Intermediate semantic model for reusable archetypes, capabilities, projections, presentations, and actions."
-LastUpdated: 2026-05-23T00:00:00-04:00
-WhatFor: "Use to derive concrete archetypes.yaml, capabilities.yaml, domain-mapping.yaml, presentations.yaml, and actions.yaml schemas."
+Summary: "Intermediate semantic model for reusable archetypes, capabilities, projections, and the boundary to interaction representations/actions."
+LastUpdated: 2026-05-28T00:00:00-04:00
+WhatFor: "Use to derive concrete archetypes.yaml, capabilities.yaml, domain-mapping.yaml, and Interaction IR representation/action schemas without pushing target-specific fields into the semantic layer."
 WhenToUse: "Read when refining the domain side of the design-system factory or pressure-testing it against concrete domains."
 ---
 
@@ -41,13 +41,13 @@ Application domain type
   -> one or more semantic archetypes
   -> capability bundle
   -> named projections
-  -> presentation variants
-  -> widgets and actions
+  -> Interaction IR representations/actions
+  -> target-specific MDS widgets and runtime actions
 ```
 
-Archetypes now use explicit semantic inheritance. `Archetype` is the abstract root class; reusable parents such as `Entity`, `WorkItem`, `Resource`, and `Relation` contribute inherited default capabilities, examples, and generated ancestry metadata. A concrete type may map to more than one concrete archetype, but it should not map directly to abstract taxonomy nodes. Presentations often attach to capabilities rather than whole archetypes: a `status-badge` represents the `stateful` capability, not necessarily a `State` archetype. A `State` archetype exists only when state itself is modeled as a first-class semantic object.
+Archetypes now use explicit semantic inheritance. `Archetype` is the abstract root class; reusable parents such as `Entity`, `WorkItem`, `Resource`, and `Relation` contribute inherited default capabilities, examples, and generated ancestry metadata. A concrete type may map to more than one concrete archetype, but it should not map directly to abstract taxonomy nodes. Presentation and action decisions are derived in the Interaction IR and target MDS layers rather than stored as formal forward references on archetypes.
 
-Capabilities use the same explicit inheritance model rooted at the abstract `Capability` class. Parent capabilities contribute projections to descendants. Presentation applicability, available actions, and filter behavior are derived from presentation definitions, action selectors, widget contracts, and interaction IR instead of being duplicated on every capability. Validators and generators consume the effective inherited model, so inherited required projections must be mapped by domain examples and generated TypeScript can answer `isArchetypeA(child, ancestor)` / `isCapabilityA(child, ancestor)`.
+Capabilities use the same explicit inheritance model rooted at the abstract `Capability` class. Parent capabilities contribute projections to descendants. Presentation applicability, available actions, and filter behavior are derived from Interaction IR representations/actions, target lowering rules, and widget contracts instead of being duplicated on every capability. Validators and generators consume the effective inherited model, so inherited required projections must be mapped by domain examples and generated TypeScript can answer `isArchetypeA(child, ancestor)` / `isCapabilityA(child, ancestor)`.
 
 ## Problem Statement
 
@@ -65,7 +65,7 @@ But they do share UI and interaction structures:
 - compare metrics over time;
 - distinguish definitions/signatures from concrete executions and emitted events.
 
-If the DSL is too domain-specific, it cannot generate more than one family of apps. If it is too generic, it becomes vague and cannot drive widgets, validation, or code generation. The solution is to model reusable semantic **archetypes** and **capabilities** with enough precision to support presentation, action routing, filtering, and schema validation.
+If the DSL is too domain-specific, it cannot generate more than one family of apps. If it is too generic, it becomes vague and cannot drive widgets, validation, or code generation. The solution is to model reusable semantic **archetypes** and **capabilities** with enough precision to support projection validation and downstream interaction elaboration, while leaving formal presentation/action routing to later layers.
 
 ## Core Concepts
 
@@ -100,7 +100,7 @@ An archetype is best understood as a named bundle of capabilities that tends to 
 
 ### Capability
 
-A reusable semantic affordance or behavior. Capabilities define what can be presented, filtered, acted on, or validated.
+A reusable semantic affordance or behavior. Capabilities define structured projections and semantic affordances that later layers can present, filter, act on, or validate.
 
 Examples:
 
@@ -118,7 +118,7 @@ Examples:
 - `executable`
 - `append_only`
 
-Capabilities are often the correct level for reusable projection requirements. For example, `status-badge` can apply to `stateful`, while `timestamp-inline` can apply to `temporal`, but those presentation edges live on the presentation definitions. In YAML every non-root capability declares `extends`; inherited projections are part of the effective capability contract seen by validators and generators.
+Capabilities are the correct level for reusable projection requirements. For example, `stateful` contributes state projections and `temporal` contributes timestamp/interval projections. The fact that a target eventually renders a status badge or timestamp cell belongs to Interaction IR / target lowering / widget contracts, not to formal fields on the capability itself. In YAML every non-root capability declares `extends`; inherited projections are part of the effective capability contract seen by validators and generators.
 
 ### Projection
 
@@ -135,28 +135,26 @@ Examples:
 - `resource_ref`
 - `metric_value`
 
-Presentations declare which projections they require.
+Interaction representations declare which projections they expose after semantic meaning has been elaborated. Core-model prose may mention likely display forms, but formal display/action routing belongs downstream.
 
-### Presentation
+### Interaction representation
 
-A named display contract for an archetype, capability, or domain mapping.
+A named, modality-neutral visible form derived from archetypes, capabilities, and domain mappings.
 
 Examples:
 
-- `compact_ref`
-- `inline_token`
-- `status_badge`
-- `dense_row`
-- `summary_card`
-- `detail_panel`
-- `timeline_marker`
-- `metric_cell`
+- `compact_reference`
+- `state_indicator`
+- `appointment_summary`
+- `product_match_grid`
+- `care_steps`
+- `photo_upload_prompt`
 
-Presentations are not just components. They define what information must be available and what interaction affordances are exposed.
+Representations are not React components. They define what information becomes visible to the user and which downstream target obligations can be derived.
 
-### Action
+### Interaction action
 
-A typed operation that can be invoked from selected presentations or filled by selecting matching on-screen representations.
+A typed operation that can be invoked from selected representations or filled by selecting matching on-screen representations.
 
 Important distinction:
 
@@ -579,21 +577,24 @@ The generic UI should not know it is a shipment. It should know it can render a 
 This intermediate model should feed these concrete DSL artifacts:
 
 1. `archetypes.yaml`
-   - archetype ids, descriptions, default capabilities, expected presentations.
+   - archetype ids, descriptions, default capabilities, and prose examples.
 
 2. `capabilities.yaml`
-   - capability ids, required/optional projections, validation rules, capability-level presentations.
+   - capability ids, inherited projections, required/optional projection flags, and validation-relevant semantics.
 
-3. `domain-mapping.yaml`
+3. `domain-mapping.yaml` / domain examples
    - application-specific domain type mappings to archetypes/capabilities/projections.
 
 4. `presentations.yaml`
-   - capability-level, archetype-level, and domain-level presentation contracts.
+   - thin shared presentation vocabulary, applicability, projection requirements, fallbacks, and prose intent; no formal density, interaction affordance, style recipe, or target widget routing.
 
-5. `actions.yaml`
+5. `interactions/actions.yaml`
    - typed action signatures with accepted archetypes/capabilities/domain types.
 
-6. `widgets.yaml`
+6. `interactions/representations.yaml`
+   - modality-neutral visible forms and exposed projections.
+
+7. target `widgets.yaml` / Web widget template files
    - component classes that consume presentations and emit typed callbacks.
 
 ## Implementation Plan
