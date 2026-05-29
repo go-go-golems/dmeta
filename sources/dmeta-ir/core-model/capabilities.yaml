@@ -1,11 +1,11 @@
 schema_version: 0
 artifact_type: dmeta_capabilities
-summary: Reusable semantic capabilities, projections, filters, presentations, and action affordances for DMETA.
-long_summary: 'Capabilities are reusable affordances that cut across archetypes and domains. They are the level where many
-  presentation and action rules belong: status badges attach to stateful, timestamp renderers attach to temporal, compact
-  id renderers attach to identifiable, and relation links attach to relatable. A capability should define the projections
-  that tools and widgets can rely on. If a capability has no projections, presentations, actions, filters, validation rules,
-  or planned generator consumer, it is probably too vague for the formal IR.'
+summary: Reusable semantic capabilities and projections for DMETA.
+long_summary: 'Capabilities are reusable affordances that cut across archetypes and domains. They are the formal layer for
+  structured projections: status fields attach to stateful, timestamp fields attach to temporal, stable ids attach to identifiable,
+  and relation references attach to relatable. Presentation and action relationships are derived from presentation applicability,
+  action selectors, widget contracts, and interaction IR rather than duplicated on each capability. If a capability has no
+  projections, validation rules, prose rationale, or planned generator consumer, it is probably too vague for the formal IR.'
 references:
   design_doc: ../../../design-docs/02-semantic-archetype-and-capability-model.md
   spec: ../../../design-docs/05-dmeta-core-model-and-widget-ir-spec.md
@@ -15,10 +15,8 @@ capabilities:
     description: Root affordance/projection class.
     extends: []
     projections: {}
-    presentations: []
-    actions: []
-    filters: []
-    long_description: Every semantic capability inherits from Capability. The root is abstract and exists so validation, generated TypeScript, and action/presentation matching can reason about the full capability hierarchy explicitly.
+    long_description: Every semantic capability inherits from Capability. The root is abstract and exists so validation, generated
+      TypeScript, and action/presentation matching can reason about the full capability hierarchy explicitly.
   identifiable:
     extends:
     - Capability
@@ -28,14 +26,6 @@ capabilities:
         type: string
         required: true
         description: Canonical stable id.
-    presentations:
-    - compact_id
-    actions:
-    - copy_reference
-    filters:
-    - equals
-    - not_equals
-    - in
     long_description: 'Identifiable means a subject has a stable identity that can be referenced across surfaces, copied,
       used in URLs or actions, and matched against related records. The `id` projection is intentionally required because
       many downstream behaviors depend on it: compact references, copy actions, detail routing, relation matching, and stable
@@ -53,11 +43,6 @@ capabilities:
         type: string
         required: false
         description: Optional secondary label.
-    presentations:
-    - display_label
-    filters:
-    - contains
-    - equals
     long_description: 'Labelable means a subject has human-readable text suitable for display. Labels are not identities:
       they may change, collide, or be localized. The UI should generally show labels for readability while preserving access
       to stable ids for precision. Optional subtitles provide secondary context such as model name, destination, owner, or
@@ -79,15 +64,6 @@ capabilities:
         type: tone
         required: false
         description: Optional semantic tone override.
-    presentations:
-    - status_badge
-    - state_cell
-    actions:
-    - filter_by_state
-    filters:
-    - equals
-    - not_equals
-    - in
     long_description: Stateful means a subject has lifecycle, status, or condition semantics that users need to scan, filter,
       and act on. The state may represent execution state, shipment status, health, availability, alert condition, or workflow
       phase. Stateful presentations such as status badges must pair text with tone; color reinforces meaning but does not
@@ -113,13 +89,6 @@ capabilities:
         type: duration_ms
         required: false
         description: Duration in milliseconds.
-    presentations:
-    - timestamp_inline
-    - duration_cell
-    filters:
-    - before
-    - after
-    - between
     long_description: 'Temporal means a subject has time semantics: an instant, interval, duration, or some combination of
       those. Dense operational systems depend heavily on temporal ordering, recency, latency, and duration comparison. Temporal
       projections enable stream ordering, timeline markers, duration cells, time filters, and detail views.'
@@ -132,10 +101,6 @@ capabilities:
         type: string
         required: false
         description: Optional detail routing reference.
-    presentations:
-    - detail_panel
-    actions:
-    - inspect
     long_description: 'Inspectable means a subject can open a deeper detail surface. This capability separates compact dense
       presentations from richer inspection panels. A subject may be inspectable even if it has no special action behavior.
       Inspection should preserve context: users should be able to open details from a table, stream, relation, or token without
@@ -161,13 +126,6 @@ capabilities:
         type: string
         required: false
         description: Related resource id.
-    presentations:
-    - relation_link
-    actions:
-    - open_related
-    filters:
-    - has_relation
-    - relation_equals
     long_description: 'Relatable means a subject participates in semantic links to other subjects. Dense operational work
       is graph-shaped: events point to work items, work items point to actors, resources belong to orders, and annotations
       attach to incidents. Relatable projections enable relation links, related-object lists, navigation actions, and filtering
@@ -181,8 +139,6 @@ capabilities:
         type: list
         required: false
         description: Optional action ids available for this subject.
-    actions:
-    - inspect
     long_description: Actionable means a subject can be the source or target of user/system operations. This does not mean
       the widget executes the operation directly; widgets emit typed action requests and the adapter/backend handles trusted
       side effects. Actionable subjects participate in context menus, command palettes, and typed argument collection.
@@ -223,14 +179,6 @@ capabilities:
         type: string
         required: false
         description: Unit label.
-    presentations:
-    - metric_cell
-    filters:
-    - lt
-    - lte
-    - gt
-    - gte
-    - between
     long_description: Measurable means a subject exposes numeric value semantics. The value may be duration, count, cost,
       throughput, latency, error rate, or capacity. Measurable values need units, alignment, comparison actions, and range
       filters. They should be rendered with tabular numeric treatment in dense tables.
@@ -255,8 +203,6 @@ capabilities:
         type: datetime
         required: false
         description: Scheduled time.
-    actions:
-    - schedule_action
     long_description: Schedulable means a subject can be planned for future execution or activation. It is common on ActionInvocation-like
       objects, jobs, maintenance windows, and workflow tasks. Scheduling semantics should be explicit because scheduled work
       differs from immediate commands and from already-running work.
@@ -269,9 +215,6 @@ capabilities:
         type: string
         required: false
         description: Execution-specific state.
-    actions:
-    - retry_work_item
-    - cancel_work_item
     long_description: 'Executable means a subject represents work that can run, complete, fail, retry, or be cancelled. This
       capability is narrower than actionable: many things are actionable, but executable things have execution-specific lifecycle
       and control semantics. It enables retry/cancel actions and execution-state detail.'
@@ -325,12 +268,6 @@ capabilities:
         type: list
         required: false
         description: Active filter expressions or criteria currently constraining the target.
-    presentations:
-    - filter_summary
-    actions:
-    - apply_filter
-    - clear_filters
-    filters: []
     long_description: Filterable means the subject is the thing being filtered, not merely a value that can appear in a filter.
       Event stream windows, dense table result sets, search results, workflow queues, shipment queues, and trace windows are
       filterable surfaces. The adapter owns backend query lowering, but widgets and generated registries need this capability
@@ -352,20 +289,11 @@ capabilities:
         type: string
         required: false
         description: Human-readable label for active filter chips derived from this subject.
-    presentations:
-    - filter_value_token
-    actions:
-    - filter_by_value
-    - filter_by_relation
-    filters:
-    - equals
-    - in
-    - relation_equals
     long_description: Filter_source means a visible semantic presentation can be turned into a constraint for a compatible
-      filterable target. It is deliberately separate from filterable. An Agent, Session, Client, StatusBadge, timestamp,
-      relation link, or metric cell may supply a filter value, while an EventStream ResultSet or DenseTable ResultSet receives
-      the resulting expression. The runtime matches sources to targets through filter keys, dimensions, relation paths, or
-      adapter-provided mappings.
+      filterable target. It is deliberately separate from filterable. An Agent, Session, Client, StatusBadge, timestamp, relation
+      link, or metric cell may supply a filter value, while an EventStream ResultSet or DenseTable ResultSet receives the
+      resulting expression. The runtime matches sources to targets through filter keys, dimensions, relation paths, or adapter-provided
+      mappings.
   searchable:
     extends:
     - Capability
@@ -383,17 +311,10 @@ capabilities:
         type: string
         required: false
         description: Current text query applied to a searchable target.
-    presentations:
-    - search_summary
-    actions:
-    - apply_search
-    - clear_search
-    filters:
-    - contains
-    long_description: Searchable means the subject or result surface can be narrowed by text query. Search is related to
-      filtering but should remain distinct because it involves tokenization, indexing, highlighting, query scope, and sometimes
-      backend-specific search syntax. Many ResultSets will be both filterable and searchable, but structured filter chips
-      and free-text search should remain separate pieces of UI and runtime state.
+    long_description: Searchable means the subject or result surface can be narrowed by text query. Search is related to filtering
+      but should remain distinct because it involves tokenization, indexing, highlighting, query scope, and sometimes backend-specific
+      search syntax. Many ResultSets will be both filterable and searchable, but structured filter chips and free-text search
+      should remain separate pieces of UI and runtime state.
   facetable:
     extends:
     - Capability
@@ -403,18 +324,12 @@ capabilities:
         type: list
         required: false
         description: Available facet dimensions, values, and counts for the current result set.
-    presentations:
-    - facet_bucket
-    actions:
-    - apply_facet_filter
-    filters:
-    - equals
-    - in
-    long_description: >
-      Facetable means a filterable result surface can expose grouped buckets such as state counts, client counts, agent counts,
-      severity counts, facility counts, or event-type counts. Facets are both summary data and filter sources: selecting a
-      bucket usually applies a corresponding filter expression to the same target. Facetable should be modeled separately
-      from aggregatable because the buckets are specifically tied to query narrowing.
+    long_description: 'Facetable means a filterable result surface can expose grouped buckets such as state counts, client
+      counts, agent counts, severity counts, facility counts, or event-type counts. Facets are both summary data and filter
+      sources: selecting a bucket usually applies a corresponding filter expression to the same target. Facetable should be
+      modeled separately from aggregatable because the buckets are specifically tied to query narrowing.
+
+      '
   sortable:
     extends:
     - Capability

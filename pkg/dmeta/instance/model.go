@@ -59,13 +59,12 @@ type WidgetReflection struct {
 }
 
 type ResolvedArchetypeReflection struct {
-	ID                                string   `json:"id"`
-	Description                       string   `json:"description,omitempty"`
-	LongDescription                   string   `json:"longDescription,omitempty"`
-	Abstract                          bool     `json:"abstract"`
-	Ancestors                         []string `json:"ancestors,omitempty"`
-	EffectiveDefaultCapabilities      []string `json:"effectiveDefaultCapabilities,omitempty"`
-	EffectiveRecommendedPresentations []string `json:"effectiveRecommendedPresentations,omitempty"`
+	ID                           string   `json:"id"`
+	Description                  string   `json:"description,omitempty"`
+	LongDescription              string   `json:"longDescription,omitempty"`
+	Abstract                     bool     `json:"abstract"`
+	Ancestors                    []string `json:"ancestors,omitempty"`
+	EffectiveDefaultCapabilities []string `json:"effectiveDefaultCapabilities,omitempty"`
 }
 
 type ResolvedCapabilityReflection struct {
@@ -76,16 +75,12 @@ type ResolvedCapabilityReflection struct {
 	Ancestors                []string `json:"ancestors,omitempty"`
 	EffectiveProjectionNames []string `json:"effectiveProjectionNames,omitempty"`
 	RequiredProjectionNames  []string `json:"requiredProjectionNames,omitempty"`
-	EffectivePresentations   []string `json:"effectivePresentations,omitempty"`
-	EffectiveActions         []string `json:"effectiveActions,omitempty"`
-	EffectiveFilters         []string `json:"effectiveFilters,omitempty"`
 }
 
 type ResolvedPresentationReflection struct {
 	ID              string   `json:"id"`
 	Description     string   `json:"description,omitempty"`
 	LongDescription string   `json:"longDescription,omitempty"`
-	Layer           string   `json:"layer,omitempty"`
 	Role            string   `json:"role,omitempty"`
 	Requires        []string `json:"requires,omitempty"`
 	RequiresAny     []string `json:"requiresAny,omitempty"`

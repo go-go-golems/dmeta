@@ -34,7 +34,7 @@ Start with the shared playbook, then run the Web or PBUI playbook depending on t
 
 ## Current semantic model note
 
-The core semantic model uses explicit multi-level inheritance. `Archetype` and `Capability` are abstract roots, every non-root archetype/capability declares `extends`, validators resolve inherited capabilities/projections/actions before checking domain examples, and generated TypeScript exposes `isArchetypeA(...)`, `isCapabilityA(...)`, and effective inherited fields. Treat older flat archetype/capability examples as historical sketches unless they have been updated with `extends`.
+The core semantic model uses explicit multi-level inheritance. `Archetype` and `Capability` are abstract roots, every non-root archetype/capability declares `extends`, validators resolve inherited capabilities/projections before checking domain examples, and generated TypeScript exposes `isArchetypeA(...)`, `isCapabilityA(...)`, and effective inherited fields. Treat older flat archetype/capability examples as historical sketches unless they have been updated with `extends`.
 
 ## Source IR
 

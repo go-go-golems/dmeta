@@ -45,9 +45,9 @@ Application domain type
   -> widgets and actions
 ```
 
-Archetypes now use explicit semantic inheritance. `Archetype` is the abstract root class; reusable parents such as `Entity`, `WorkItem`, `Resource`, and `Relation` contribute inherited capabilities, presentations, examples, and generated ancestry metadata. A concrete type may map to more than one concrete archetype, but it should not map directly to abstract taxonomy nodes. Presentations often attach to capabilities rather than whole archetypes: a `status-badge` represents the `stateful` capability, not necessarily a `State` archetype. A `State` archetype exists only when state itself is modeled as a first-class semantic object.
+Archetypes now use explicit semantic inheritance. `Archetype` is the abstract root class; reusable parents such as `Entity`, `WorkItem`, `Resource`, and `Relation` contribute inherited default capabilities, examples, and generated ancestry metadata. A concrete type may map to more than one concrete archetype, but it should not map directly to abstract taxonomy nodes. Presentations often attach to capabilities rather than whole archetypes: a `status-badge` represents the `stateful` capability, not necessarily a `State` archetype. A `State` archetype exists only when state itself is modeled as a first-class semantic object.
 
-Capabilities use the same explicit inheritance model rooted at the abstract `Capability` class. Parent capabilities contribute projections, presentations, actions, and filters to descendants. Validators and generators consume the effective inherited model, so inherited required projections must be mapped by domain examples and generated TypeScript can answer `isArchetypeA(child, ancestor)` / `isCapabilityA(child, ancestor)`.
+Capabilities use the same explicit inheritance model rooted at the abstract `Capability` class. Parent capabilities contribute projections to descendants. Presentation applicability, available actions, and filter behavior are derived from presentation definitions, action selectors, widget contracts, and interaction IR instead of being duplicated on every capability. Validators and generators consume the effective inherited model, so inherited required projections must be mapped by domain examples and generated TypeScript can answer `isArchetypeA(child, ancestor)` / `isCapabilityA(child, ancestor)`.
 
 ## Problem Statement
 
@@ -118,7 +118,7 @@ Examples:
 - `executable`
 - `append_only`
 
-Capabilities are often the correct level for reusable presentations. For example, `status-badge` attaches to `stateful`, while `timestamp-inline` attaches to `temporal`. In YAML every non-root capability declares `extends`; inherited projections/actions/presentations are part of the effective capability contract seen by validators and generators.
+Capabilities are often the correct level for reusable projection requirements. For example, `status-badge` can apply to `stateful`, while `timestamp-inline` can apply to `temporal`, but those presentation edges live on the presentation definitions. In YAML every non-root capability declares `extends`; inherited projections are part of the effective capability contract seen by validators and generators.
 
 ### Projection
 

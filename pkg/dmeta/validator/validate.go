@@ -127,11 +127,6 @@ func validateCoreModel(pkg *Package, resolved *ResolvedCoreModel) []Finding {
 				findings = append(findings, Error("core_model", fmt.Sprintf("archetypes.%s.default_capabilities.%s", id, capID), "unknown_capability", fmt.Sprintf("archetype %q references unknown capability %q", id, capID), "Define the capability or remove the reference."))
 			}
 		}
-		for _, presID := range resolvedArch.EffectiveRecommendedPresentations {
-			if _, ok := core.Presentations[presID]; !ok {
-				findings = append(findings, Error("core_model", fmt.Sprintf("archetypes.%s.recommended_presentations.%s", id, presID), "unknown_presentation", fmt.Sprintf("archetype %q recommends unknown presentation %q", id, presID), "Define the presentation or remove the reference."))
-			}
-		}
 	}
 
 	logicalTypes := setFromSlice(core.LogicalTypes.Primitives)
@@ -153,24 +148,11 @@ func validateCoreModel(pkg *Package, resolved *ResolvedCoreModel) []Finding {
 				findings = append(findings, Warning("core_model", fmt.Sprintf("capabilities.%s.projections.%s.type", capID, projID), "unknown_logical_type", fmt.Sprintf("projection %s.%s uses unknown logical type %q", capID, projID, proj.Type), "Add it to logical_types or fix the type."))
 			}
 		}
-		for _, presID := range resolvedCap.EffectivePresentations {
-			if _, ok := core.Presentations[presID]; !ok {
-				findings = append(findings, Error("core_model", fmt.Sprintf("capabilities.%s.presentations.%s", capID, presID), "unknown_presentation", fmt.Sprintf("capability %q references unknown presentation %q", capID, presID), "Define the presentation or remove the reference."))
-			}
-		}
-		for _, actionID := range resolvedCap.EffectiveActions {
-			if _, ok := core.Actions[actionID]; !ok {
-				findings = append(findings, Error("core_model", fmt.Sprintf("capabilities.%s.actions.%s", capID, actionID), "unknown_action", fmt.Sprintf("capability %q references unknown action %q", capID, actionID), "Define the action or remove the reference."))
-			}
-		}
 	}
 
 	for presID, pres := range core.Presentations {
 		if pres.LongDescription == "" {
 			findings = append(findings, Warning("core_model", fmt.Sprintf("presentations.%s.long_description", presID), "missing_long_description", fmt.Sprintf("presentation %q has no long_description", presID), "Add a prose explanation with usage guidance, boundaries, and UI implications."))
-		}
-		if !knownPresentationLayer(pres.Layer) {
-			findings = append(findings, Error("core_model", fmt.Sprintf("presentations.%s.layer", presID), "unknown_presentation_layer", fmt.Sprintf("presentation %q has invalid layer %q", presID, pres.Layer), "Use capability, archetype, or domain."))
 		}
 		for _, capID := range pres.AppliesTo.Capabilities {
 			if _, ok := core.Capabilities[capID]; !ok {
@@ -411,15 +393,6 @@ func resolveProjectionHint(hint string, resolved *ResolvedCoreModel) (Projection
 	}
 	projection, ok := capability.EffectiveProjections[projectionID]
 	return projection, ok
-}
-
-func knownPresentationLayer(layer string) bool {
-	switch layer {
-	case "capability", "archetype", "domain":
-		return true
-	default:
-		return false
-	}
 }
 
 func contains(values []string, target string) bool {

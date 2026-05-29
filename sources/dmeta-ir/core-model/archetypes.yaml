@@ -14,9 +14,9 @@ archetypes:
     description: Root semantic role class.
     extends: []
     default_capabilities: []
-    recommended_presentations: []
     examples: []
-    long_description: Every semantic archetype inherits from Archetype. The root is abstract and exists so validation, generated TypeScript, and documentation can reason about the complete archetype hierarchy explicitly.
+    long_description: Every semantic archetype inherits from Archetype. The root is abstract and exists so validation, generated
+      TypeScript, and documentation can reason about the complete archetype hierarchy explicitly.
   Entity:
     extends:
     - Archetype
@@ -27,15 +27,14 @@ archetypes:
     - labelable
     - inspectable
     - relatable
-    recommended_presentations:
-    - compact_ref
-    - detail_panel
     examples:
     - Agent
     - Order
     - Ingredient
     - Shipment
-    long_description: Entity is the shared parent for semantic subjects that appear in operational UIs. It captures the minimum contract for things that can be referenced, labeled, inspected, and related to other things. Domain-specific archetypes should usually inherit from Entity or from one of Entity's descendants rather than from Archetype directly.
+    long_description: Entity is the shared parent for semantic subjects that appear in operational UIs. It captures the minimum
+      contract for things that can be referenced, labeled, inspected, and related to other things. Domain-specific archetypes
+      should usually inherit from Entity or from one of Entity's descendants rather than from Archetype directly.
   Actor:
     extends:
     - Entity
@@ -46,11 +45,6 @@ archetypes:
     - actionable
     - relatable
     - inspectable
-    recommended_presentations:
-    - compact_ref
-    - inline_token
-    - summary_card
-    - detail_panel
     examples:
     - Agent
     - User
@@ -75,11 +69,6 @@ archetypes:
     - actionable
     - inspectable
     - relatable
-    recommended_presentations:
-    - compact_ref
-    - dense_row
-    - summary_card
-    - detail_panel
     examples:
     - ToolRun
     - Shipment
@@ -101,10 +90,6 @@ archetypes:
     - append_only
     - inspectable
     - relatable
-    recommended_presentations:
-    - inline_token
-    - dense_row
-    - detail_panel
     examples:
     - LogEvent
     - ToolEvent
@@ -125,10 +110,6 @@ archetypes:
     - labelable
     - relatable
     - inspectable
-    recommended_presentations:
-    - compact_ref
-    - summary_card
-    - detail_panel
     examples:
     - File
     - Package
@@ -149,10 +130,6 @@ archetypes:
     - labelable
     - relatable
     - inspectable
-    recommended_presentations:
-    - relation_link
-    - inline_token
-    - detail_panel
     examples:
     - AssignedTo
     - DependsOn
@@ -172,10 +149,6 @@ archetypes:
     - aggregatable
     - temporal
     - inspectable
-    recommended_presentations:
-    - metric_cell
-    - inline_token
-    - summary_card
     examples:
     - Duration
     - Latency
@@ -199,11 +172,6 @@ archetypes:
     - aggregatable
     - inspectable
     - relatable
-    recommended_presentations:
-    - timeline_marker
-    - dense_row
-    - summary_card
-    - detail_panel
     examples:
     - Session
     - ShipmentRoute
@@ -224,10 +192,6 @@ archetypes:
     - actionable
     - parameterized
     - inspectable
-    recommended_presentations:
-    - compact_ref
-    - summary_card
-    - detail_panel
     examples:
     - ToolDefinition
     - CommandDefinition
@@ -250,10 +214,6 @@ archetypes:
     - schedulable
     - inspectable
     - relatable
-    recommended_presentations:
-    - dense_row
-    - summary_card
-    - detail_panel
     examples:
     - ToolRun
     - JobRun
@@ -273,10 +233,6 @@ archetypes:
     - temporal
     - inspectable
     - relatable
-    recommended_presentations:
-    - inline_token
-    - summary_card
-    - detail_panel
     examples:
     - Comment
     - Flag
@@ -290,7 +246,8 @@ archetypes:
   ResultSet:
     extends:
     - Entity
-    description: Collection or query result surface containing records that can be filtered, searched, sorted, windowed, or inspected.
+    description: Collection or query result surface containing records that can be filtered, searched, sorted, windowed, or
+      inspected.
     default_capabilities:
     - identifiable
     - labelable
@@ -298,10 +255,6 @@ archetypes:
     - searchable
     - aggregatable
     - inspectable
-    recommended_presentations:
-    - filter_summary
-    - summary_card
-    - detail_panel
     examples:
     - EventStreamWindow
     - SessionSearchResults
@@ -322,10 +275,6 @@ archetypes:
     - labelable
     - actionable
     - inspectable
-    recommended_presentations:
-    - filter_chip
-    - inline_token
-    - detail_panel
     examples:
     - ClientEqualsWeb
     - SessionEqualsSess123
@@ -346,10 +295,6 @@ archetypes:
     - labelable
     - parameterized
     - inspectable
-    recommended_presentations:
-    - filter_dimension_label
-    - compact_ref
-    - detail_panel
     examples:
     - SessionIdFilter
     - ClientFilter
@@ -370,10 +315,6 @@ archetypes:
     - actionable
     - inspectable
     - parameterized
-    recommended_presentations:
-    - compact_ref
-    - summary_card
-    - detail_panel
     examples:
     - FailedToolCallsLastHour
     - CurrentClientSessions

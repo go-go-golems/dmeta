@@ -12,7 +12,6 @@ references:
 presentations:
   compact_id:
     description: Compact copyable identifier.
-    layer: capability
     applies_to:
       capabilities:
       - identifiable
@@ -32,7 +31,6 @@ presentations:
       context; pair it with display_label or compact_ref when label context matters.'
   display_label:
     description: Primary human-readable label.
-    layer: capability
     applies_to:
       capabilities:
       - labelable
@@ -52,7 +50,6 @@ presentations:
       target. It is commonly composed into richer presentations such as compact_ref, dense_row, summary_card, and detail_panel.
   status_badge:
     description: Compact state/status badge.
-    layer: capability
     applies_to:
       capabilities:
       - stateful
@@ -74,7 +71,6 @@ presentations:
       visually restrained so dense tables and streams do not turn into noisy color blocks.
   state_cell:
     description: Table cell state presentation.
-    layer: capability
     applies_to:
       capabilities:
       - stateful
@@ -96,7 +92,6 @@ presentations:
       Orders, Sensors, and other stateful subjects.
   timestamp_inline:
     description: Compact timestamp display.
-    layer: capability
     applies_to:
       capabilities:
       - temporal
@@ -116,7 +111,6 @@ presentations:
       is central for logs, scans, tool events, sensor readings, and lifecycle updates.
   duration_cell:
     description: Duration value for tables/details.
-    layer: capability
     applies_to:
       capabilities:
       - temporal
@@ -135,7 +129,6 @@ presentations:
       the widget explicitly asks for trend or distribution context.'
   metric_cell:
     description: Numeric metric display with unit and alignment.
-    layer: capability
     applies_to:
       capabilities:
       - measurable
@@ -156,7 +149,6 @@ presentations:
       for dense tables but semantic enough to become an action/filter/compare target.
   relation_link:
     description: Compact link/reference to a related semantic object.
-    layer: capability
     applies_to:
       capabilities:
       - relatable
@@ -178,7 +170,6 @@ presentations:
       they should support opening related objects, filtering by relation, and copying the reference.'
   compact_ref:
     description: Compact reference combining id and label.
-    layer: archetype
     applies_to:
       capabilities:
       - identifiable
@@ -202,7 +193,6 @@ presentations:
       chips, detail panels, filters, and context menus. It should be dense, copyable, inspectable, and consistent across domains.
   inline_token:
     description: Inline semantic token for dense streams.
-    layer: archetype
     applies_to:
       archetypes:
       - Actor
@@ -230,7 +220,6 @@ presentations:
       structure available without destroying the rhythm of dense textual information.
   dense_row:
     description: Dense row for streams or tables.
-    layer: archetype
     applies_to:
       archetypes:
       - WorkItem
@@ -255,7 +244,6 @@ presentations:
       quiet. It is the main presentation for WorkItems, Events, Resources, TimelineSpans, and ActionInvocations.
   summary_card:
     description: Compact card/summary surface.
-    layer: archetype
     applies_to:
       archetypes:
       - Actor
@@ -279,7 +267,6 @@ presentations:
       where several facts must be shown together without opening a full detail panel.
   detail_panel:
     description: Full inspection surface for selected semantic subject.
-    layer: archetype
     applies_to:
       capabilities:
       - inspectable
@@ -300,7 +287,6 @@ presentations:
       for large payloads.
   timeline_marker:
     description: Compact marker or span for temporal processes.
-    layer: archetype
     applies_to:
       archetypes:
       - TimelineSpan
@@ -322,7 +308,6 @@ presentations:
       markers should remain selectable and related to the same PresentationRef/action system as rows and tokens.
   filter_chip:
     description: Compact active filter criterion shown in a FilterBar or result header.
-    layer: archetype
     applies_to:
       archetypes:
       - FilterCriterion
@@ -342,7 +327,6 @@ presentations:
       underlying table or stream to dominate the screen.
   filter_dimension_label:
     description: Label for an available filter dimension or filter specification.
-    layer: archetype
     applies_to:
       archetypes:
       - FilterSpec
@@ -361,7 +345,6 @@ presentations:
       or context actions.
   filter_value_token:
     description: Selectable value that can derive a filter expression for compatible targets.
-    layer: capability
     applies_to:
       capabilities:
       - filter_source
@@ -381,7 +364,6 @@ presentations:
       FilterTargetRef rather than treating the displayed label as an untyped string.
   filter_summary:
     description: Compact summary of the filter/search/window state for a result set.
-    layer: capability
     applies_to:
       capabilities:
       - filterable
@@ -402,7 +384,6 @@ presentations:
       such as clear filters, save preset, inspect query, or copy query state.
   search_summary:
     description: Compact summary of text search applied to a searchable target.
-    layer: capability
     applies_to:
       capabilities:
       - searchable
@@ -421,7 +402,6 @@ presentations:
       typed filter criteria.
   facet_bucket:
     description: Counted facet value that can be selected to apply a filter.
-    layer: capability
     applies_to:
       capabilities:
       - facetable
@@ -441,7 +421,6 @@ presentations:
       '
   ingredient_list:
     description: Ordered list of ingredients with role badges and dietary indicators.
-    layer: capability
     applies_to:
       capabilities:
       - ingredient_composable
@@ -465,7 +444,6 @@ presentations:
       '
   composition_card:
     description: Compact menu item card showing name, price, key ingredients, and dietary tags.
-    layer: archetype
     applies_to:
       archetypes:
       - MenuItem
@@ -491,7 +469,6 @@ presentations:
       '
   composition_detail:
     description: Full menu item detail with ingredient list, substitution suggestions, config options, and add-to-order action.
-    layer: archetype
     applies_to:
       archetypes:
       - MenuItem
@@ -517,7 +494,6 @@ presentations:
       '
   substitution_badge:
     description: Inline badge indicating an active or suggested substitution on an ingredient.
-    layer: capability
     applies_to:
       capabilities:
       - role_preserving_substitutable
@@ -542,7 +518,6 @@ presentations:
       '
   substitution_pair:
     description: Side-by-side or before/after presentation of an original ingredient and its replacement.
-    layer: capability
     applies_to:
       capabilities:
       - role_preserving_substitutable
@@ -568,7 +543,6 @@ presentations:
       '
   substitution_detail:
     description: Full detail surface for a substitution, showing all replacement candidates ranked by compatibility.
-    layer: archetype
     applies_to:
       archetypes:
       - IngredientSubstitutionRule
@@ -598,7 +572,6 @@ presentations:
       '
   dietary_badge:
     description: Compact badge showing dietary constraint tag (vegan, GF, etc.).
-    layer: capability
     applies_to:
       capabilities:
       - dietary
@@ -619,7 +592,6 @@ presentations:
       '
   allergen_warning:
     description: Warning indicator for allergen presence or cross-contamination risk.
-    layer: capability
     applies_to:
       capabilities:
       - dietary
@@ -640,7 +612,6 @@ presentations:
       '
   config_selector:
     description: Selector control for configurable menu item options (size, spice, temperature).
-    layer: capability
     applies_to:
       capabilities:
       - configurable
@@ -663,7 +634,6 @@ presentations:
       '
   config_summary:
     description: Compact inline summary of current configuration choices.
-    layer: capability
     applies_to:
       capabilities:
       - configurable
@@ -681,7 +651,6 @@ presentations:
       '
   order_item_row:
     description: Dense row for an item in the current order, showing name, config, substitutions, quantity, and price.
-    layer: archetype
     applies_to:
       archetypes:
       - WorkItem
@@ -707,7 +676,6 @@ presentations:
       '
   menu_category_header:
     description: Section header for menu categories (Sandwiches, Sides, Drinks, etc.).
-    layer: archetype
     applies_to:
       archetypes:
       - MenuItem
@@ -726,7 +694,6 @@ presentations:
       '
   prep_status_indicator:
     description: Visual indicator of order preparation status and station assignment.
-    layer: capability
     applies_to:
       capabilities:
       - stateful

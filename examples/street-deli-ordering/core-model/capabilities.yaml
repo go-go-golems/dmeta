@@ -16,9 +16,6 @@ capabilities:
     description: Root affordance/projection class.
     extends: []
     projections: {}
-    presentations: []
-    actions: []
-    filters: []
     long_description: Every semantic capability inherits from Capability. The root is abstract and exists so validation, generated
       TypeScript, and action/presentation matching can reason about the full capability hierarchy explicitly.
   identifiable:
@@ -30,14 +27,6 @@ capabilities:
         type: string
         required: true
         description: Canonical stable id.
-    presentations:
-    - compact_id
-    actions:
-    - copy_reference
-    filters:
-    - equals
-    - not_equals
-    - in
     long_description: 'Identifiable means a subject has a stable identity that can be referenced across surfaces, copied,
       used in URLs or actions, and matched against related records. The `id` projection is intentionally required because
       many downstream behaviors depend on it: compact references, copy actions, detail routing, relation matching, and stable
@@ -55,11 +44,6 @@ capabilities:
         type: string
         required: false
         description: Optional secondary label.
-    presentations:
-    - display_label
-    filters:
-    - contains
-    - equals
     long_description: 'Labelable means a subject has human-readable text suitable for display. Labels are not identities:
       they may change, collide, or be localized. The UI should generally show labels for readability while preserving access
       to stable ids for precision. Optional subtitles provide secondary context such as model name, destination, owner, or
@@ -81,15 +65,6 @@ capabilities:
         type: tone
         required: false
         description: Optional semantic tone override.
-    presentations:
-    - status_badge
-    - state_cell
-    actions:
-    - filter_by_state
-    filters:
-    - equals
-    - not_equals
-    - in
     long_description: Stateful means a subject has lifecycle, status, or condition semantics that users need to scan, filter,
       and act on. The state may represent execution state, shipment status, health, availability, alert condition, or workflow
       phase. Stateful presentations such as status badges must pair text with tone; color reinforces meaning but does not
@@ -115,13 +90,6 @@ capabilities:
         type: duration_ms
         required: false
         description: Duration in milliseconds.
-    presentations:
-    - timestamp_inline
-    - duration_cell
-    filters:
-    - before
-    - after
-    - between
     long_description: 'Temporal means a subject has time semantics: an instant, interval, duration, or some combination of
       those. Dense operational systems depend heavily on temporal ordering, recency, latency, and duration comparison. Temporal
       projections enable stream ordering, timeline markers, duration cells, time filters, and detail views.'
@@ -134,10 +102,6 @@ capabilities:
         type: string
         required: false
         description: Optional detail routing reference.
-    presentations:
-    - detail_panel
-    actions:
-    - inspect
     long_description: 'Inspectable means a subject can open a deeper detail surface. This capability separates compact dense
       presentations from richer inspection panels. A subject may be inspectable even if it has no special action behavior.
       Inspection should preserve context: users should be able to open details from a table, stream, relation, or token without
@@ -163,13 +127,6 @@ capabilities:
         type: string
         required: false
         description: Related resource id.
-    presentations:
-    - relation_link
-    actions:
-    - open_related
-    filters:
-    - has_relation
-    - relation_equals
     long_description: 'Relatable means a subject participates in semantic links to other subjects. Dense operational work
       is graph-shaped: events point to work items, work items point to actors, resources belong to orders, and annotations
       attach to incidents. Relatable projections enable relation links, related-object lists, navigation actions, and filtering
@@ -183,8 +140,6 @@ capabilities:
         type: list
         required: false
         description: Optional action ids available for this subject.
-    actions:
-    - inspect
     long_description: Actionable means a subject can be the source or target of user/system operations. This does not mean
       the widget executes the operation directly; widgets emit typed action requests and the adapter/backend handles trusted
       side effects. Actionable subjects participate in context menus, command palettes, and typed argument collection.
@@ -225,14 +180,6 @@ capabilities:
         type: string
         required: false
         description: Unit label.
-    presentations:
-    - metric_cell
-    filters:
-    - lt
-    - lte
-    - gt
-    - gte
-    - between
     long_description: Measurable means a subject exposes numeric value semantics. The value may be duration, count, cost,
       throughput, latency, error rate, or capacity. Measurable values need units, alignment, comparison actions, and range
       filters. They should be rendered with tabular numeric treatment in dense tables.
@@ -257,8 +204,6 @@ capabilities:
         type: datetime
         required: false
         description: Scheduled time.
-    actions:
-    - schedule_action
     long_description: Schedulable means a subject can be planned for future execution or activation. It is common on ActionInvocation-like
       objects, jobs, maintenance windows, and workflow tasks. Scheduling semantics should be explicit because scheduled work
       differs from immediate commands and from already-running work.
@@ -271,9 +216,6 @@ capabilities:
         type: string
         required: false
         description: Execution-specific state.
-    actions:
-    - retry_work_item
-    - cancel_work_item
     long_description: 'Executable means a subject represents work that can run, complete, fail, retry, or be cancelled. This
       capability is narrower than actionable: many things are actionable, but executable things have execution-specific lifecycle
       and control semantics. It enables retry/cancel actions and execution-state detail.'
@@ -327,12 +269,6 @@ capabilities:
         type: list
         required: false
         description: Active filter expressions or criteria currently constraining the target.
-    presentations:
-    - filter_summary
-    actions:
-    - apply_filter
-    - clear_filters
-    filters: []
     long_description: Filterable means the subject is the thing being filtered, not merely a value that can appear in a filter.
       Event stream windows, dense table result sets, search results, workflow queues, shipment queues, and trace windows are
       filterable surfaces. The adapter owns backend query lowering, but widgets and generated registries need this capability
@@ -354,15 +290,6 @@ capabilities:
         type: string
         required: false
         description: Human-readable label for active filter chips derived from this subject.
-    presentations:
-    - filter_value_token
-    actions:
-    - filter_by_value
-    - filter_by_relation
-    filters:
-    - equals
-    - in
-    - relation_equals
     long_description: Filter_source means a visible semantic presentation can be turned into a constraint for a compatible
       filterable target. It is deliberately separate from filterable. An Agent, Session, Client, StatusBadge, timestamp, relation
       link, or metric cell may supply a filter value, while an EventStream ResultSet or DenseTable ResultSet receives the
@@ -385,13 +312,6 @@ capabilities:
         type: string
         required: false
         description: Current text query applied to a searchable target.
-    presentations:
-    - search_summary
-    actions:
-    - apply_search
-    - clear_search
-    filters:
-    - contains
     long_description: Searchable means the subject or result surface can be narrowed by text query. Search is related to filtering
       but should remain distinct because it involves tokenization, indexing, highlighting, query scope, and sometimes backend-specific
       search syntax. Many ResultSets will be both filterable and searchable, but structured filter chips and free-text search
@@ -405,13 +325,6 @@ capabilities:
         type: list
         required: false
         description: Available facet dimensions, values, and counts for the current result set.
-    presentations:
-    - facet_bucket
-    actions:
-    - apply_facet_filter
-    filters:
-    - equals
-    - in
     long_description: 'Facetable means a filterable result surface can expose grouped buckets such as state counts, client
       counts, agent counts, severity counts, facility counts, or event-type counts. Facets are both summary data and filter
       sources: selecting a bucket usually applies a corresponding filter expression to the same target. Facetable should be
@@ -474,11 +387,6 @@ capabilities:
         type: datetime
         required: false
         description: Optional time when the item stops being available.
-    presentations:
-    - prep_status_indicator
-    actions: []
-    filters:
-    - availability_state
     long_description: Available specializes stateful/temporal behavior for menu and ingredient availability. It lets widgets
       consume a specific availability projection while still matching generic stateful and temporal behavior through inheritance.
   composable:
@@ -500,17 +408,6 @@ capabilities:
         type: list
         required: false
         description: Roles that enhance but are not required for composition validity (e.g., garnish, crunch).
-    presentations:
-    - ingredient_list
-    - composition_card
-    - composition_detail
-    actions:
-    - remove_part
-    - add_part
-    - substitute_part
-    filters:
-    - has_ingredient
-    - has_role_filled
     long_description: 'Composable means a subject is an assembly of parts, where each part plays a functional role. In the
       deli domain, a sandwich is composable: it has a structural role (bread), richness roles (cheese, avocado), moisture
       roles (sauce, mayo), protein roles (meat, tofu), acidity roles (pickle, mustard), crunch roles (lettuce, onion), and
@@ -533,11 +430,6 @@ capabilities:
         type: list
         required: false
         description: Computed list of filled and unfilled roles for the whole composition.
-    presentations:
-    - ingredient_list
-    actions: []
-    filters:
-    - has_role_filled
     long_description: Role_composable adds role-aware reasoning to a generic composition. It is abstract because concrete
       domains should say what kind of parts fill the roles.
   ingredient_composable:
@@ -550,15 +442,6 @@ capabilities:
         type: map
         required: true
         description: Mapping from ingredient id to one or more functional roles.
-    presentations:
-    - ingredient_list
-    actions:
-    - remove_part
-    - add_part
-    - substitute_part
-    filters:
-    - has_ingredient
-    - has_role_filled
     long_description: Ingredient_composable is the concrete composition capability used by menu items and order items. It
       inherits parts and role requirements from composable/role_composable and adds ingredient-specific role mapping.
   substitutable:
@@ -596,14 +479,6 @@ capabilities:
         type: boolean
         required: false
         description: Whether the system should auto-suggest this substitution vs requiring explicit customer request.
-    presentations:
-    - substitution_badge
-    - substitution_pair
-    - substitution_detail
-    actions:
-    - apply_substitution
-    - reject_substitution
-    - see_alternatives
     long_description: 'Substitutable is the core capability of the intelligent replacement system. It encodes the knowledge
       that when a customer removes or replaces an ingredient, the system can find compatible alternatives based on role overlap,
       dietary constraints, allergen safety, flavor profile fit, and price impact. The key insight is that "no cheese" is not
@@ -628,15 +503,6 @@ capabilities:
         type: number
         required: false
         description: Score from 0 to 1 representing how well the replacement preserves removed roles.
-    presentations:
-    - substitution_pair
-    - substitution_badge
-    actions:
-    - apply_substitution
-    - reject_substitution
-    - see_alternatives
-    filters:
-    - role_preservation
     long_description: Role_preserving_substitutable is the primary concrete substitution capability. It keeps the replacement
       engine honest by explaining which roles are preserved and how well.
   dietary_substitutable:
@@ -649,15 +515,6 @@ capabilities:
         type: string
         required: false
         description: Human-readable explanation of dietary compatibility or conflict.
-    presentations:
-    - substitution_badge
-    - allergen_warning
-    - dietary_badge
-    actions:
-    - filter_by_dietary
-    filters:
-    - has_dietary_tag
-    - allergen_free
     long_description: Dietary_substitutable combines substitution reasoning with dietary/allergen metadata. It is useful for
       suggestions such as no cheese to avocado for dairy-free customers.
   price_aware_substitutable:
@@ -670,11 +527,6 @@ capabilities:
         type: string
         required: false
         description: Display label for price delta, for example +$1.50 or no charge.
-    presentations:
-    - substitution_pair
-    actions: []
-    filters:
-    - price_delta
     long_description: Price_aware_substitutable makes substitution cost transparent. It inherits measurable behavior so price
       deltas can be rendered and compared consistently.
   configurable:
@@ -689,11 +541,6 @@ capabilities:
         type: map
         required: false
         description: Current selected configuration values.
-    presentations:
-    - config_selector
-    - config_summary
-    actions:
-    - change_config
     long_description: 'Configurable captures the ordering UX concept of menu item customization that goes beyond ingredient
       substitution. A sandwich can be configured for size (half, whole), spice level (mild, medium, hot), temperature (hot,
       cold), toast level (untoasted, light, well-done), and other axes. These are not ingredient substitutions—they are scalar
@@ -718,14 +565,6 @@ capabilities:
         type: list
         required: false
         description: Allergens that may be present due to shared preparation.
-    presentations:
-    - dietary_badge
-    - allergen_warning
-    actions:
-    - filter_by_dietary
-    filters:
-    - has_dietary_tag
-    - allergen_free
     long_description: 'Dietary means a subject carries dietary constraint metadata. In the deli domain, dietary tags are central
       to the ordering experience: customers with dairy-free, gluten-free, nut-free, vegan, or other constraints need to see
       which menu items and substitutions are safe. The dietary capability is used by the replacement engine to filter substitutions

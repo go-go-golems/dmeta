@@ -58,14 +58,12 @@ func TestResolveCapabilityInheritanceMergesProjections(t *testing.T) {
 					"replaces":               {Type: "string", Required: true},
 					"replacement_candidates": {Type: "list", Required: true},
 				},
-				Actions: []string{"see_alternatives"},
 			},
 			"role_preserving_substitutable": {
 				Extends: []string{"substitutable"},
 				Projections: map[string]Projection{
 					"role_preservation": {Type: "list", Required: true},
 				},
-				Actions: []string{"apply_substitution"},
 			},
 		},
 	}
@@ -75,7 +73,6 @@ func TestResolveCapabilityInheritanceMergesProjections(t *testing.T) {
 
 	cap := resolved.Capabilities["role_preserving_substitutable"]
 	assertStringSlice(t, cap.Ancestors, []string{RootCapabilityID, "substitutable"})
-	assertStringSlice(t, cap.EffectiveActions, []string{"see_alternatives", "apply_substitution"})
 	for _, projection := range []string{"replaces", "replacement_candidates", "role_preservation"} {
 		if _, ok := cap.EffectiveProjections[projection]; !ok {
 			t.Fatalf("expected projection %q", projection)

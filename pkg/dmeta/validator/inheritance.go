@@ -20,22 +20,18 @@ type ResolvedCoreModel struct {
 }
 
 type ResolvedArchetype struct {
-	ID                                string
-	Raw                               Archetype
-	Ancestors                         []string
-	EffectiveDefaultCapabilities      []string
-	EffectiveRecommendedPresentations []string
-	EffectiveExamples                 []string
+	ID                           string
+	Raw                          Archetype
+	Ancestors                    []string
+	EffectiveDefaultCapabilities []string
+	EffectiveExamples            []string
 }
 
 type ResolvedCapability struct {
-	ID                     string
-	Raw                    Capability
-	Ancestors              []string
-	EffectiveProjections   map[string]Projection
-	EffectivePresentations []string
-	EffectiveActions       []string
-	EffectiveFilters       []string
+	ID                   string
+	Raw                  Capability
+	Ancestors            []string
+	EffectiveProjections map[string]Projection
 }
 
 type inheritanceResolver struct {
@@ -125,7 +121,6 @@ func (r *inheritanceResolver) resolveArchetype(id string, stack []string) (Resol
 
 	ancestors := []string{}
 	caps := []string{}
-	presentations := []string{}
 	examples := []string{}
 	for _, parentID := range raw.Extends {
 		parent, ok := r.resolveArchetype(parentID, append(stack, id))
@@ -135,14 +130,12 @@ func (r *inheritanceResolver) resolveArchetype(id string, stack []string) (Resol
 		ancestors = stableUnion(ancestors, parent.Ancestors)
 		ancestors = stableAppend(ancestors, parentID)
 		caps = stableUnion(caps, parent.EffectiveDefaultCapabilities)
-		presentations = stableUnion(presentations, parent.EffectiveRecommendedPresentations)
 		examples = stableUnion(examples, parent.EffectiveExamples)
 	}
 	caps = stableUnion(caps, raw.DefaultCapabilities)
-	presentations = stableUnion(presentations, raw.RecommendedPresentations)
 	examples = stableUnion(examples, raw.Examples)
 
-	resolved := ResolvedArchetype{ID: id, Raw: raw, Ancestors: ancestors, EffectiveDefaultCapabilities: caps, EffectiveRecommendedPresentations: presentations, EffectiveExamples: examples}
+	resolved := ResolvedArchetype{ID: id, Raw: raw, Ancestors: ancestors, EffectiveDefaultCapabilities: caps, EffectiveExamples: examples}
 	r.archetypes[id] = resolved
 	return resolved, true
 }
@@ -173,9 +166,6 @@ func (r *inheritanceResolver) resolveCapability(id string, stack []string) (Reso
 
 	ancestors := []string{}
 	projections := map[string]Projection{}
-	presentations := []string{}
-	actions := []string{}
-	filters := []string{}
 	for _, parentID := range raw.Extends {
 		parent, ok := r.resolveCapability(parentID, append(stack, id))
 		if !ok {
@@ -184,16 +174,10 @@ func (r *inheritanceResolver) resolveCapability(id string, stack []string) (Reso
 		ancestors = stableUnion(ancestors, parent.Ancestors)
 		ancestors = stableAppend(ancestors, parentID)
 		projections = r.mergeProjections(projections, parent.EffectiveProjections, id, parentID)
-		presentations = stableUnion(presentations, parent.EffectivePresentations)
-		actions = stableUnion(actions, parent.EffectiveActions)
-		filters = stableUnion(filters, parent.EffectiveFilters)
 	}
 	projections = r.mergeProjections(projections, raw.Projections, id, id)
-	presentations = stableUnion(presentations, raw.Presentations)
-	actions = stableUnion(actions, raw.Actions)
-	filters = stableUnion(filters, raw.Filters)
 
-	resolved := ResolvedCapability{ID: id, Raw: raw, Ancestors: ancestors, EffectiveProjections: projections, EffectivePresentations: presentations, EffectiveActions: actions, EffectiveFilters: filters}
+	resolved := ResolvedCapability{ID: id, Raw: raw, Ancestors: ancestors, EffectiveProjections: projections}
 	r.capabilities[id] = resolved
 	return resolved, true
 }

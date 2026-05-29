@@ -24,7 +24,7 @@ func TestValidateWidgetReflectionFields(t *testing.T) {
 			},
 		},
 		Presentations: map[string]Presentation{
-			"status_badge": {Layer: "capability"},
+			"status_badge": {Description: "Status badge"},
 		},
 	}}
 	resolved, inheritanceFindings := ResolveCoreInheritance(pkg.CoreModel)

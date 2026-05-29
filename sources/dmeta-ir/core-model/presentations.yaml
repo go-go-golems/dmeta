@@ -14,7 +14,6 @@ references:
 presentations:
   compact_id:
     description: Compact copyable identifier.
-    layer: capability
     applies_to:
       capabilities:
       - identifiable
@@ -34,7 +33,6 @@ presentations:
       context; pair it with display_label or compact_ref when label context matters.'
   display_label:
     description: Primary human-readable label.
-    layer: capability
     applies_to:
       capabilities:
       - labelable
@@ -54,7 +52,6 @@ presentations:
       target. It is commonly composed into richer presentations such as compact_ref, dense_row, summary_card, and detail_panel.
   status_badge:
     description: Compact state/status badge.
-    layer: capability
     applies_to:
       capabilities:
       - stateful
@@ -76,7 +73,6 @@ presentations:
       visually restrained so dense tables and streams do not turn into noisy color blocks.
   state_cell:
     description: Table cell state presentation.
-    layer: capability
     applies_to:
       capabilities:
       - stateful
@@ -98,7 +94,6 @@ presentations:
       Orders, Sensors, and other stateful subjects.
   timestamp_inline:
     description: Compact timestamp display.
-    layer: capability
     applies_to:
       capabilities:
       - temporal
@@ -118,7 +113,6 @@ presentations:
       is central for logs, scans, tool events, sensor readings, and lifecycle updates.
   duration_cell:
     description: Duration value for tables/details.
-    layer: capability
     applies_to:
       capabilities:
       - temporal
@@ -137,7 +131,6 @@ presentations:
       the widget explicitly asks for trend or distribution context.'
   metric_cell:
     description: Numeric metric display with unit and alignment.
-    layer: capability
     applies_to:
       capabilities:
       - measurable
@@ -158,7 +151,6 @@ presentations:
       for dense tables but semantic enough to become an action/filter/compare target.
   relation_link:
     description: Compact link/reference to a related semantic object.
-    layer: capability
     applies_to:
       capabilities:
       - relatable
@@ -180,7 +172,6 @@ presentations:
       they should support opening related objects, filtering by relation, and copying the reference.'
   compact_ref:
     description: Compact reference combining id and label.
-    layer: archetype
     applies_to:
       capabilities:
       - identifiable
@@ -204,7 +195,6 @@ presentations:
       chips, detail panels, filters, and context menus. It should be dense, copyable, inspectable, and consistent across domains.
   inline_token:
     description: Inline semantic token for dense streams.
-    layer: archetype
     applies_to:
       archetypes:
       - Actor
@@ -232,7 +222,6 @@ presentations:
       structure available without destroying the rhythm of dense textual information.
   dense_row:
     description: Dense row for streams or tables.
-    layer: archetype
     applies_to:
       archetypes:
       - WorkItem
@@ -257,7 +246,6 @@ presentations:
       quiet. It is the main presentation for WorkItems, Events, Resources, TimelineSpans, and ActionInvocations.
   summary_card:
     description: Compact card/summary surface.
-    layer: archetype
     applies_to:
       archetypes:
       - Actor
@@ -281,7 +269,6 @@ presentations:
       where several facts must be shown together without opening a full detail panel.
   detail_panel:
     description: Full inspection surface for selected semantic subject.
-    layer: archetype
     applies_to:
       capabilities:
       - inspectable
@@ -302,7 +289,6 @@ presentations:
       for large payloads.
   timeline_marker:
     description: Compact marker or span for temporal processes.
-    layer: archetype
     applies_to:
       archetypes:
       - TimelineSpan
@@ -324,7 +310,6 @@ presentations:
       markers should remain selectable and related to the same PresentationRef/action system as rows and tokens.
   filter_chip:
     description: Compact active filter criterion shown in a FilterBar or result header.
-    layer: archetype
     applies_to:
       archetypes:
       - FilterCriterion
@@ -338,13 +323,12 @@ presentations:
       context_menu: true
       copy: false
     long_description: Use filter_chip to render an active FilterCriterion as operational state rather than decorative chrome.
-      A chip should show the constrained dimension, operator when necessary, and value label. It should support removal,
-      context-menu actions, keyboard focus, and inspection/explanation when the filter was inferred from a semantic presentation.
-      Filter chips must remain compact because dense operational users often combine several constraints while still needing
-      the underlying table or stream to dominate the screen.
+      A chip should show the constrained dimension, operator when necessary, and value label. It should support removal, context-menu
+      actions, keyboard focus, and inspection/explanation when the filter was inferred from a semantic presentation. Filter
+      chips must remain compact because dense operational users often combine several constraints while still needing the
+      underlying table or stream to dominate the screen.
   filter_dimension_label:
     description: Label for an available filter dimension or filter specification.
-    layer: archetype
     applies_to:
       archetypes:
       - FilterSpec
@@ -359,11 +343,10 @@ presentations:
       copy: false
     long_description: Use filter_dimension_label in filter builders, facet panels, command palettes, and generated reference
       documentation when the user needs to choose or inspect a dimension such as session, client, state, timestamp, event
-      type, carrier, or facility. The presentation names the dimension and may expose its type/operator metadata through
-      details or context actions.
+      type, carrier, or facility. The presentation names the dimension and may expose its type/operator metadata through details
+      or context actions.
   filter_value_token:
     description: Selectable value that can derive a filter expression for compatible targets.
-    layer: capability
     applies_to:
       capabilities:
       - filter_source
@@ -383,7 +366,6 @@ presentations:
       FilterTargetRef rather than treating the displayed label as an untyped string.
   filter_summary:
     description: Compact summary of the filter/search/window state for a result set.
-    layer: capability
     applies_to:
       capabilities:
       - filterable
@@ -404,7 +386,6 @@ presentations:
       such as clear filters, save preset, inspect query, or copy query state.
   search_summary:
     description: Compact summary of text search applied to a searchable target.
-    layer: capability
     applies_to:
       capabilities:
       - searchable
@@ -423,7 +404,6 @@ presentations:
       typed filter criteria.
   facet_bucket:
     description: Counted facet value that can be selected to apply a filter.
-    layer: capability
     applies_to:
       capabilities:
       - facetable
@@ -435,11 +415,12 @@ presentations:
       selectable: true
       context_menu: true
       copy: false
-    long_description: >
-      Use facet_bucket to render grouped counts returned for a facetable result surface, such as state counts, severity counts,
-      client counts, carrier counts, event-type counts, or facility counts. A facet bucket is both summary and action source:
-      selecting it typically applies a corresponding FilterExpression to the current target. Counts should be aligned and
-      text-first so facet panels remain scannable in dense applications.
+    long_description: 'Use facet_bucket to render grouped counts returned for a facetable result surface, such as state counts,
+      severity counts, client counts, carrier counts, event-type counts, or facility counts. A facet bucket is both summary
+      and action source: selecting it typically applies a corresponding FilterExpression to the current target. Counts should
+      be aligned and text-first so facet panels remain scannable in dense applications.
+
+      '
 actions:
   inspect:
     description: Open detail view for any inspectable subject.
@@ -787,5 +768,5 @@ actions:
     result:
       kind: apply_filter
     long_description: Apply_facet_filter turns a counted facet bucket into an active FilterCriterion on the same or compatible
-      ResultSet. It lets facet panels operate through the same typed action and adapter boundary as presentation-derived
-      filters rather than owning backend query mutation inside the facet widget.
+      ResultSet. It lets facet panels operate through the same typed action and adapter boundary as presentation-derived filters
+      rather than owning backend query mutation inside the facet widget.

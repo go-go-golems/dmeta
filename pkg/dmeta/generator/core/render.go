@@ -47,8 +47,7 @@ func RenderArchetypes(core validator.CoreModelFile) string {
 func renderArchetypes(core validator.CoreModelFile, resolved *validator.ResolvedCoreModel) string {
 	var b bytes.Buffer
 	b.WriteString(generatedHeader)
-	b.WriteString("import type { CapabilityId } from \"./capabilities\";\n")
-	b.WriteString("import type { PresentationId } from \"./presentations\";\n\n")
+	b.WriteString("import type { CapabilityId } from \"./capabilities\";\n\n")
 	ids := sortedKeys(core.Archetypes)
 	renderConstStringArray(&b, "archetypeIds", ids)
 	b.WriteString("export type ArchetypeId = typeof archetypeIds[number];\n\n")
@@ -61,8 +60,6 @@ func renderArchetypes(core validator.CoreModelFile, resolved *validator.Resolved
   ancestors: ArchetypeId[];
   defaultCapabilities: CapabilityId[];
   effectiveDefaultCapabilities: CapabilityId[];
-  recommendedPresentations: PresentationId[];
-  effectiveRecommendedPresentations: PresentationId[];
   examples: string[];
   effectiveExamples: string[];
 };
@@ -81,8 +78,6 @@ func renderArchetypes(core validator.CoreModelFile, resolved *validator.Resolved
 		b.WriteString(fmt.Sprintf("    ancestors: %s as ArchetypeId[],\n", tsArray(ra.Ancestors)))
 		b.WriteString(fmt.Sprintf("    defaultCapabilities: %s as CapabilityId[],\n", tsArray(a.DefaultCapabilities)))
 		b.WriteString(fmt.Sprintf("    effectiveDefaultCapabilities: %s as CapabilityId[],\n", tsArray(ra.EffectiveDefaultCapabilities)))
-		b.WriteString(fmt.Sprintf("    recommendedPresentations: %s as PresentationId[],\n", tsArray(a.RecommendedPresentations)))
-		b.WriteString(fmt.Sprintf("    effectiveRecommendedPresentations: %s as PresentationId[],\n", tsArray(ra.EffectiveRecommendedPresentations)))
 		b.WriteString(fmt.Sprintf("    examples: %s,\n", tsArray(a.Examples)))
 		b.WriteString(fmt.Sprintf("    effectiveExamples: %s,\n", tsArray(ra.EffectiveExamples)))
 		b.WriteString("  },\n")
@@ -111,8 +106,6 @@ func RenderCapabilities(core validator.CoreModelFile) string {
 func renderCapabilities(core validator.CoreModelFile, resolved *validator.ResolvedCoreModel) string {
 	var b bytes.Buffer
 	b.WriteString(generatedHeader)
-	b.WriteString("import type { ActionId } from \"./actions\";\n")
-	b.WriteString("import type { PresentationId } from \"./presentations\";\n\n")
 	ids := sortedKeys(core.Capabilities)
 	renderConstStringArray(&b, "capabilityIds", ids)
 	b.WriteString("export type CapabilityId = typeof capabilityIds[number];\n\n")
@@ -132,12 +125,6 @@ export type CapabilityDefinition = {
   ancestors: CapabilityId[];
   projections: Record<string, ProjectionDefinition>;
   effectiveProjections: Record<string, ProjectionDefinition>;
-  presentations: PresentationId[];
-  effectivePresentations: PresentationId[];
-  actions: ActionId[];
-  effectiveActions: ActionId[];
-  filters: string[];
-  effectiveFilters: string[];
 };
 
 `)
@@ -158,12 +145,6 @@ export type CapabilityDefinition = {
 		b.WriteString("    effectiveProjections: ")
 		renderProjectionMap(&b, rc.EffectiveProjections)
 		b.WriteString(",\n")
-		b.WriteString(fmt.Sprintf("    presentations: %s as PresentationId[],\n", tsArray(c.Presentations)))
-		b.WriteString(fmt.Sprintf("    effectivePresentations: %s as PresentationId[],\n", tsArray(rc.EffectivePresentations)))
-		b.WriteString(fmt.Sprintf("    actions: %s as ActionId[],\n", tsArray(c.Actions)))
-		b.WriteString(fmt.Sprintf("    effectiveActions: %s as ActionId[],\n", tsArray(rc.EffectiveActions)))
-		b.WriteString(fmt.Sprintf("    filters: %s,\n", tsArray(c.Filters)))
-		b.WriteString(fmt.Sprintf("    effectiveFilters: %s,\n", tsArray(rc.EffectiveFilters)))
 		b.WriteString("  },\n")
 	}
 	b.WriteString("};\n\n")
@@ -186,17 +167,13 @@ func RenderPresentations(core validator.CoreModelFile) string {
 	ids := sortedKeys(core.Presentations)
 	renderConstStringArray(&b, "presentationIds", ids)
 	b.WriteString("export type PresentationId = typeof presentationIds[number];\n\n")
-	b.WriteString(`export type PresentationLayer = "capability" | "archetype" | "domain";
-
-export type PresentationDefinition = {
+	b.WriteString(`export type PresentationDefinition = {
   id: PresentationId;
   description: string;
   longDescription: string;
-  layer: PresentationLayer;
   appliesTo: {
     capabilities?: CapabilityId[];
     archetypes?: ArchetypeId[];
-    domainTypes?: string[];
   };
   requires: string[];
   requiresAny: string[];
@@ -216,16 +193,12 @@ export type PresentationDefinition = {
 		b.WriteString(fmt.Sprintf("    id: %s,\n", tsString(id)))
 		b.WriteString(fmt.Sprintf("    description: %s,\n", tsString(p.Description)))
 		b.WriteString(fmt.Sprintf("    longDescription: %s,\n", tsString(p.LongDescription)))
-		b.WriteString(fmt.Sprintf("    layer: %s as PresentationLayer,\n", tsString(p.Layer)))
 		b.WriteString("    appliesTo: {\n")
 		if len(p.AppliesTo.Capabilities) > 0 {
 			b.WriteString(fmt.Sprintf("      capabilities: %s,\n", tsArray(p.AppliesTo.Capabilities)))
 		}
 		if len(p.AppliesTo.Archetypes) > 0 {
 			b.WriteString(fmt.Sprintf("      archetypes: %s,\n", tsArray(p.AppliesTo.Archetypes)))
-		}
-		if len(p.AppliesTo.DomainTypes) > 0 {
-			b.WriteString(fmt.Sprintf("      domainTypes: %s,\n", tsArray(p.AppliesTo.DomainTypes)))
 		}
 		b.WriteString("    },\n")
 		b.WriteString(fmt.Sprintf("    requires: %s,\n", tsArray(p.Requires)))

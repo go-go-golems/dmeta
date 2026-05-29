@@ -106,14 +106,13 @@ type LogicalTypes struct {
 }
 
 type Archetype struct {
-	Description              string   `yaml:"description"`
-	LongDescription          string   `yaml:"long_description"`
-	Extends                  []string `yaml:"extends"`
-	Abstract                 bool     `yaml:"abstract"`
-	DefaultCapabilities      []string `yaml:"default_capabilities"`
-	RecommendedPresentations []string `yaml:"recommended_presentations"`
-	Examples                 []string `yaml:"examples"`
-	Notes                    string   `yaml:"notes"`
+	Description         string   `yaml:"description"`
+	LongDescription     string   `yaml:"long_description"`
+	Extends             []string `yaml:"extends"`
+	Abstract            bool     `yaml:"abstract"`
+	DefaultCapabilities []string `yaml:"default_capabilities"`
+	Examples            []string `yaml:"examples"`
+	Notes               string   `yaml:"notes"`
 }
 
 type Capability struct {
@@ -122,9 +121,6 @@ type Capability struct {
 	Extends         []string              `yaml:"extends"`
 	Abstract        bool                  `yaml:"abstract"`
 	Projections     map[string]Projection `yaml:"projections"`
-	Presentations   []string              `yaml:"presentations"`
-	Actions         []string              `yaml:"actions"`
-	Filters         []string              `yaml:"filters"`
 	Notes           string                `yaml:"notes"`
 }
 
@@ -137,7 +133,6 @@ type Projection struct {
 type Presentation struct {
 	Description     string          `yaml:"description"`
 	LongDescription string          `yaml:"long_description"`
-	Layer           string          `yaml:"layer"`
 	AppliesTo       AppliesTo       `yaml:"applies_to"`
 	Requires        []string        `yaml:"requires"`
 	RequiresAny     []string        `yaml:"requires_any"`
@@ -153,7 +148,6 @@ type Presentation struct {
 type AppliesTo struct {
 	Capabilities []string `yaml:"capabilities"`
 	Archetypes   []string `yaml:"archetypes"`
-	DomainTypes  []string `yaml:"domain_types"`
 }
 
 type Action struct {

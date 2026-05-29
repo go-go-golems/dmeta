@@ -185,7 +185,7 @@ func buildWidgetReflection(widget validator.Widget, pkg *validator.Package, reso
 		if !ok || !resolvedOK {
 			continue
 		}
-		reflection.Archetypes = append(reflection.Archetypes, ResolvedArchetypeReflection{ID: id, Description: raw.Description, LongDescription: raw.LongDescription, Abstract: raw.Abstract, Ancestors: resolvedArch.Ancestors, EffectiveDefaultCapabilities: resolvedArch.EffectiveDefaultCapabilities, EffectiveRecommendedPresentations: resolvedArch.EffectiveRecommendedPresentations})
+		reflection.Archetypes = append(reflection.Archetypes, ResolvedArchetypeReflection{ID: id, Description: raw.Description, LongDescription: raw.LongDescription, Abstract: raw.Abstract, Ancestors: resolvedArch.Ancestors, EffectiveDefaultCapabilities: resolvedArch.EffectiveDefaultCapabilities})
 	}
 	for _, id := range ctx.Capabilities {
 		raw, ok := pkg.CoreModel.Capabilities[id]
@@ -194,14 +194,14 @@ func buildWidgetReflection(widget validator.Widget, pkg *validator.Package, reso
 			continue
 		}
 		projectionNames := sortedProjectionNames(resolvedCap.EffectiveProjections)
-		reflection.Capabilities = append(reflection.Capabilities, ResolvedCapabilityReflection{ID: id, Description: raw.Description, LongDescription: raw.LongDescription, Abstract: raw.Abstract, Ancestors: resolvedCap.Ancestors, EffectiveProjectionNames: projectionNames, RequiredProjectionNames: requiredProjectionNames(resolvedCap.EffectiveProjections), EffectivePresentations: resolvedCap.EffectivePresentations, EffectiveActions: resolvedCap.EffectiveActions, EffectiveFilters: resolvedCap.EffectiveFilters})
+		reflection.Capabilities = append(reflection.Capabilities, ResolvedCapabilityReflection{ID: id, Description: raw.Description, LongDescription: raw.LongDescription, Abstract: raw.Abstract, Ancestors: resolvedCap.Ancestors, EffectiveProjectionNames: projectionNames, RequiredProjectionNames: requiredProjectionNames(resolvedCap.EffectiveProjections)})
 	}
 	for _, id := range ctx.Presentations {
 		presentation, ok := pkg.CoreModel.Presentations[id]
 		if !ok {
 			continue
 		}
-		reflection.Presentations = append(reflection.Presentations, ResolvedPresentationReflection{ID: id, Description: presentation.Description, LongDescription: presentation.LongDescription, Layer: presentation.Layer, Role: presentation.Role, Requires: presentation.Requires, RequiresAny: presentation.RequiresAny, Optional: presentation.Optional})
+		reflection.Presentations = append(reflection.Presentations, ResolvedPresentationReflection{ID: id, Description: presentation.Description, LongDescription: presentation.LongDescription, Role: presentation.Role, Requires: presentation.Requires, RequiresAny: presentation.RequiresAny, Optional: presentation.Optional})
 	}
 	return reflection
 }
