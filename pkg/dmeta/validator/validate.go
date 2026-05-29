@@ -164,11 +164,6 @@ func validateCoreModel(pkg *Package, resolved *ResolvedCoreModel) []Finding {
 				findings = append(findings, Error("core_model", fmt.Sprintf("presentations.%s.applies_to.archetypes.%s", presID, archID), "unknown_archetype", fmt.Sprintf("presentation %q applies to unknown archetype %q", presID, archID), "Define the archetype or remove the reference."))
 			}
 		}
-		if pres.StyleRecipe != "" {
-			if _, ok := pkg.DesignLanguage.PresentationRecipes[pres.StyleRecipe]; !ok {
-				findings = append(findings, Error("core_model", fmt.Sprintf("presentations.%s.style_recipe", presID), "unknown_style_recipe", fmt.Sprintf("presentation %q references unknown style recipe %q", presID, pres.StyleRecipe), "Add the recipe to 02-design-language.yaml or update the reference."))
-			}
-		}
 		for _, fallback := range pres.Fallbacks {
 			if _, ok := core.Presentations[fallback]; !ok {
 				findings = append(findings, Error("core_model", fmt.Sprintf("presentations.%s.fallbacks.%s", presID, fallback), "unknown_presentation", fmt.Sprintf("presentation %q has unknown fallback %q", presID, fallback), "Define the fallback presentation or remove the reference."))

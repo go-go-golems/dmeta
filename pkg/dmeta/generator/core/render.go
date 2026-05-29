@@ -179,9 +179,6 @@ func RenderPresentations(core validator.CoreModelFile) string {
   requiresAny: string[];
   optional: string[];
   role: string;
-  density: string;
-  interaction: Record<string, boolean>;
-  styleRecipe?: string;
   fallbacks: PresentationId[];
 };
 
@@ -205,11 +202,6 @@ func RenderPresentations(core validator.CoreModelFile) string {
 		b.WriteString(fmt.Sprintf("    requiresAny: %s,\n", tsArray(p.RequiresAny)))
 		b.WriteString(fmt.Sprintf("    optional: %s,\n", tsArray(p.Optional)))
 		b.WriteString(fmt.Sprintf("    role: %s,\n", tsString(p.Role)))
-		b.WriteString(fmt.Sprintf("    density: %s,\n", tsString(p.Density)))
-		b.WriteString(fmt.Sprintf("    interaction: %s,\n", tsBoolMap(p.Interaction)))
-		if p.StyleRecipe != "" {
-			b.WriteString(fmt.Sprintf("    styleRecipe: %s,\n", tsString(p.StyleRecipe)))
-		}
 		b.WriteString(fmt.Sprintf("    fallbacks: %s,\n", tsArray(p.Fallbacks)))
 		b.WriteString("  },\n")
 	}

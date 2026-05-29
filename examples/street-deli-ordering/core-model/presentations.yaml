@@ -18,12 +18,6 @@ presentations:
     requires:
     - id
     role: inline_code
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: true
-    style_recipe: compact_ref
     long_description: 'Use compact_id when the most important fact is a stable, copyable identifier. This presentation should
       be visually small, precise, and low-chrome: it is for ids, keys, handles, call ids, shipment ids, order ids, package
       ids, event ids, and similar values. It supports selection, context menus, and copy because identifiers often become
@@ -39,11 +33,6 @@ presentations:
     optional:
     - subtitle
     role: inline_text
-    density: any
-    interaction:
-      selectable: false
-      context_menu: false
-      copy: false
     long_description: Use display_label when the subject needs a human-readable name or title in a non-interactive or lightly
       interactive context. Labels improve scanability and comprehension, but they are not stable identifiers. This presentation
       intentionally does not enable selection or copy by default because the label alone is usually insufficient as an action
@@ -59,12 +48,6 @@ presentations:
     - state_label
     - state_tone
     role: badge
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
-    style_recipe: status_badge
     long_description: Use status_badge to represent the stateful capability in compact surfaces. It should convey state through
       text first and semantic tone second; color reinforces meaning but must not be the only carrier of information. This
       is appropriate for pending/running/failed/completed/delayed/blocked style states across domains. The badge should remain
@@ -80,12 +63,6 @@ presentations:
     - state_label
     - state_tone
     role: table_cell
-    density: any
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
-    style_recipe: status_badge
     long_description: Use state_cell when the same stateful information appears in a table or grid cell rather than as an
       inline badge in prose. It follows the same semantic rules as status_badge but is optimized for alignment, sorting, filtering,
       and comparison inside dense tabular layouts. State cells should be consistent across WorkItems, ActionInvocations, Shipments,
@@ -99,12 +76,6 @@ presentations:
     - timestamp
     - start_time
     role: inline_mono
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: true
-    style_recipe: compact_ref
     long_description: Use timestamp_inline for compact temporal references in streams, tables, timelines, and detail summaries.
       It should use monospace or tabular numeric treatment and should preserve exactness. The display may be shortened for
       density, but full value should remain available through copy, tooltip, detail, or accessible label. This presentation
@@ -117,12 +88,6 @@ presentations:
     requires:
     - duration_ms
     role: metric_cell
-    density: any
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: true
-    style_recipe: metric_cell
     long_description: 'Use duration_cell for elapsed time, latency, execution duration, transit time, or other duration values
       that need comparison. It is a temporal presentation but visually behaves like a metric: values should align consistently,
       include appropriate units, and support copy or comparison actions when useful. It should avoid decorative charting unless
@@ -137,12 +102,6 @@ presentations:
     optional:
     - unit
     role: metric_cell
-    density: any
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: true
-    style_recipe: metric_cell
     long_description: Use metric_cell for numeric values that users compare, sort, filter, or aggregate. Metric cells should
       emphasize precision, units, and alignment rather than decoration. They are suitable for throughput, counts, cost, queue
       depth, error rate, latency, duration, inventory quantity, and similar values. The presentation should be compact enough
@@ -158,12 +117,6 @@ presentations:
     - work_item_ref
     - resource_ref
     role: relation_link
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: true
-    style_recipe: compact_ref
     long_description: 'Use relation_link when the displayed value points to another semantic subject. This presentation turns
       graph-shaped operational data into navigable UI: a tool event links to a tool run, a shipment links to a carrier, an
       order links to packages, a metric links to the monitored resource. Relation links should remain compact and action-aware;
@@ -181,12 +134,6 @@ presentations:
     - state
     - state_tone
     role: compact_reference
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: true
-    style_recipe: compact_ref
     long_description: Use compact_ref as the default compact representation of an identifiable and labelable semantic object.
       It combines stable identity with a readable label and may optionally include state tone or state indicator. It is the
       workhorse presentation for Actors, WorkItems, Resources, ActionSpecs, and related subjects when they appear inside rows,
@@ -208,12 +155,6 @@ presentations:
     - timestamp
     - value
     role: inline_token
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: true
-    style_recipe: compact_ref
     long_description: Use inline_token when semantic values appear inside dense prose-like streams such as logs, traces, scan
       feeds, event rows, or operational messages. Inline tokens should feel like text first, not heavy pills. They must carry
       enough metadata to support selection, context menus, action matching, and argument collection. The goal is to make semantic
@@ -232,12 +173,6 @@ presentations:
     - label
     - timestamp
     role: dense_row
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
-    style_recipe: dense_row
     long_description: Use dense_row for records that need to appear in high-volume streams or tables. This presentation composes
       multiple capability-level presentations—timestamp, state, compact reference, metric, relation—into a scannable row.
       It must preserve identity, selection, context menu, keyboard focus, and detail-opening affordances while remaining visually
@@ -256,11 +191,6 @@ presentations:
     - id
     - label
     role: summary_card
-    density: regular
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
     long_description: Use summary_card when the UI needs a compact but more spacious overview than a row or token can provide.
       Summary cards should not become decorative marketing cards; they are operational summaries with a small set of important
       fields, state, metrics, and actions. They are useful in side panels, dashboards, grouped results, and search outputs
@@ -275,11 +205,6 @@ presentations:
     - label
     - detail_ref
     role: detail_panel
-    density: spacious
-    interaction:
-      selectable: false
-      context_menu: false
-      copy: true
     long_description: Use detail_panel as the full inspection surface for a selected semantic subject. It should expose canonical
       identity, labels, state, related objects, timelines, metrics, raw payloads, and actions in structured sections. Detail
       panels are not modal by default; they should preserve the surrounding operational context so users can inspect without
@@ -297,11 +222,6 @@ presentations:
     - start_time
     - end_time
     role: timeline_marker
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
     long_description: Use timeline_marker for temporal subjects that need to be placed along an ordered time axis or phase
       progression. It may represent an instant Event, a WorkItem milestone, or a TimelineSpan boundary/segment. It should
       use a compact operational visual grammar—line, dot, tick, badge, timestamp—rather than illustrative timeline art. Timeline
@@ -315,11 +235,6 @@ presentations:
     - filter_expression
     - filter_label
     role: filter_chip
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
     long_description: Use filter_chip to render an active FilterCriterion as operational state rather than decorative chrome.
       A chip should show the constrained dimension, operator when necessary, and value label. It should support removal, context-menu
       actions, keyboard focus, and inspection/explanation when the filter was inferred from a semantic presentation. Filter
@@ -334,11 +249,6 @@ presentations:
     - id
     - label
     role: filter_dimension_label
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
     long_description: Use filter_dimension_label in filter builders, facet panels, command palettes, and generated reference
       documentation when the user needs to choose or inspect a dimension such as session, client, state, timestamp, event
       type, carrier, or facility. The presentation names the dimension and may expose its type/operator metadata through details
@@ -353,11 +263,6 @@ presentations:
     - id
     - label
     role: filter_value_token
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: true
     long_description: Use filter_value_token when a visible semantic object or scalar can become a filter value. Examples
       include agent references, session ids, client ids, state values, event types, facilities, timestamps, or metric thresholds.
       It should preserve the source PresentationRef so the runtime can derive the correct FilterExpression for the current
@@ -373,11 +278,6 @@ presentations:
     - active_filters
     - active_search
     role: filter_summary
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
     long_description: Use filter_summary to show the current constraint state of a ResultSet or filterable surface. It can
       communicate result count, number of active filters, search text, live-tail state, cursor/window state, or a compact
       textual description such as `42 sessions · client = web`. It should be selectable when the result set itself has actions
@@ -391,11 +291,6 @@ presentations:
     - active_search
     - search_scope
     role: search_summary
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: true
     long_description: Use search_summary when text query state needs to be rendered separately from structured filter chips.
       Search summaries should name the query and scope clearly because free-text search may behave differently from exact
       filter expressions. They support clearing, copying, or inspecting the query but should not be visually conflated with
@@ -408,11 +303,6 @@ presentations:
     requires:
     - facets
     role: facet_bucket
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
     long_description: 'Use facet_bucket to render grouped counts returned for a facetable result surface, such as state counts,
       severity counts, client counts, carrier counts, event-type counts, or facility counts. A facet bucket is both summary
       and action source: selecting it typically applies a corresponding FilterExpression to the current target. Counts should
@@ -430,12 +320,6 @@ presentations:
     - part_count
     - required_roles
     role: composition_list
-    density: regular
-    interaction:
-      selectable: false
-      context_menu: false
-      copy: false
-    style_recipe: ingredient_list
     long_description: 'Use ingredient_list to render the full composition of a menu item. Each ingredient should show its
       name, role badge (structural, protein, richness, etc.), and dietary flags. Ingredients should be swipeable on mobile
       to reveal quick-remove and substitution actions. The list should visually distinguish required vs optional parts so
@@ -455,12 +339,6 @@ presentations:
     - dietary_tags
     - price
     role: summary_card
-    density: regular
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
-    style_recipe: composition_card
     long_description: 'Use composition_card as the primary browsing surface for menu items. It should show the item name,
       a compact ingredient summary (not the full list), price, and dietary badges. Tapping the card opens the composition_detail
       for full customization. The card should be thumb-friendly on mobile and visually distinct from the dense-row style used
@@ -480,12 +358,6 @@ presentations:
     - label
     - parts
     role: detail_panel
-    density: spacious
-    interaction:
-      selectable: false
-      context_menu: false
-      copy: false
-    style_recipe: composition_detail
     long_description: 'Use composition_detail as the full-screen or bottom-sheet view for customizing a menu item before adding
       it to the order. It combines the ingredient_list (with per-ingredient swipe actions), substitution suggestions (inline
       suggestion chips), config selectors (size, spice, temperature), dietary information, price, and the add-to-order action.
@@ -504,12 +376,6 @@ presentations:
     - dietary_compatibility
     - auto_suggest
     role: badge
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
-    style_recipe: substitution_badge
     long_description: 'Use substitution_badge as a compact inline indicator that an ingredient has been or can be substituted.
       It should show what was removed (e.g., "No cheese") and optionally what replaces it (e.g., "→ avocado"). The badge should
       use semantic tone to indicate whether the substitution is active (success), suggested (info), or conflicting (warning).
@@ -529,12 +395,6 @@ presentations:
     - flavor_fit
     - price_delta_cents
     role: substitution_pair
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
-    style_recipe: substitution_pair
     long_description: 'Use substitution_pair to show the original ingredient and its top replacement candidate side by side.
       This is the primary way the intelligent replacement engine communicates its reasoning to the customer: "You removed
       cheese → We suggest avocado (richness, creaminess)". The pair should show role overlap, flavor fit, dietary compatibility,
@@ -558,12 +418,6 @@ presentations:
     - flavor_fit
     - price_delta_cents
     role: detail_panel
-    density: spacious
-    interaction:
-      selectable: false
-      context_menu: false
-      copy: false
-    style_recipe: substitution_detail
     long_description: 'Use substitution_detail as the full bottom-sheet or screen for exploring all replacement candidates
       for a removed ingredient. It should rank candidates by compatibility score, show which roles each candidate fills, display
       dietary and allergen flags, indicate flavor fit, and show price deltas. The customer can swipe through candidates and
@@ -578,12 +432,6 @@ presentations:
     requires:
     - dietary_tags
     role: badge
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
-    style_recipe: dietary_badge
     long_description: 'Use dietary_badge to display dietary constraint tags on menu items, ingredients, and substitutions.
       Badges should be compact, use consistent abbreviations (V for vegan, GF for gluten-free, DF for dairy-free, NF for nut-free),
       and use semantic tones to indicate safety (green for matches customer profile, yellow for compatible with caveats, red
@@ -599,12 +447,6 @@ presentations:
     - allergen_contains
     - allergen_may_contain
     role: warning
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: false
-      copy: false
-    style_recipe: allergen_warning
     long_description: 'Use allergen_warning when a menu item or ingredient contains or may contain an allergen that conflicts
       with the customer''s dietary profile. The warning should be visually prominent (danger tone, icon) but not modal—it
       should inform, not block. Tapping the warning shows the full allergen detail including cross-contamination notes.
@@ -620,12 +462,6 @@ presentations:
     optional:
     - current_config
     role: selector
-    density: regular
-    interaction:
-      selectable: true
-      context_menu: false
-      copy: false
-    style_recipe: config_selector
     long_description: 'Use config_selector to render the configuration options for a menu item. On mobile, these should be
       segmented controls, radio groups, or slider-style selectors depending on the option type. Each option should show the
       current value and any price impact. Config selectors should be visually distinct from ingredient/substitution controls
@@ -640,11 +476,6 @@ presentations:
     requires:
     - current_config
     role: inline_text
-    density: compact
-    interaction:
-      selectable: false
-      context_menu: false
-      copy: false
     long_description: 'Use config_summary as a compact inline representation of current configuration choices in cart items
       and order summaries. For example, "Whole · Hot · Medium Spice" below the item name.
 
@@ -663,12 +494,6 @@ presentations:
     - current_config
     - parts
     role: dense_row
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
-    style_recipe: order_item_row
     long_description: 'Use order_item_row for each line item in the order cart. It should show the item name, config summary,
       active substitution badges, quantity control, and line price. Swipe left to remove; swipe right to edit. The row should
       be compact enough for a mobile cart but detailed enough to confirm the customer''s customization choices.
@@ -682,12 +507,6 @@ presentations:
     requires_any:
     - label
     role: section_heading
-    density: compact
-    interaction:
-      selectable: false
-      context_menu: false
-      copy: false
-    style_recipe: section_heading
     long_description: 'Use menu_category_header to group menu items by category in the browsing surface. Headers should be
       compact and use the section_heading typography role. They may optionally show item counts or dietary filter indicators.
 
@@ -703,12 +522,6 @@ presentations:
     - state_label
     - state_tone
     role: badge
-    density: compact
-    interaction:
-      selectable: true
-      context_menu: true
-      copy: false
-    style_recipe: prep_status_badge
     long_description: 'Use prep_status_indicator to show the preparation status of an order or order item. States include
       received, in_prep, at_station, ready, picked_up, cancelled. The indicator should use semantic tones (pending=neutral,
       in_prep=active, ready=success, cancelled=danger) and should show station assignment when relevant.

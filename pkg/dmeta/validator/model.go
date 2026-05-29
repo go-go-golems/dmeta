@@ -131,18 +131,15 @@ type Projection struct {
 }
 
 type Presentation struct {
-	Description     string          `yaml:"description"`
-	LongDescription string          `yaml:"long_description"`
-	AppliesTo       AppliesTo       `yaml:"applies_to"`
-	Requires        []string        `yaml:"requires"`
-	RequiresAny     []string        `yaml:"requires_any"`
-	Optional        []string        `yaml:"optional"`
-	Role            string          `yaml:"role"`
-	Density         string          `yaml:"density"`
-	Interaction     map[string]bool `yaml:"interaction"`
-	StyleRecipe     string          `yaml:"style_recipe"`
-	Fallbacks       []string        `yaml:"fallbacks"`
-	Extra           map[string]any  `yaml:",inline"`
+	Description     string         `yaml:"description"`
+	LongDescription string         `yaml:"long_description"`
+	AppliesTo       AppliesTo      `yaml:"applies_to"`
+	Requires        []string       `yaml:"requires"`
+	RequiresAny     []string       `yaml:"requires_any"`
+	Optional        []string       `yaml:"optional"`
+	Role            string         `yaml:"role"`
+	Fallbacks       []string       `yaml:"fallbacks"`
+	Extra           map[string]any `yaml:",inline"`
 }
 
 type AppliesTo struct {
