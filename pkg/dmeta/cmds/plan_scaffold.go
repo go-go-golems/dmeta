@@ -175,6 +175,29 @@ func (c *PlanScaffoldCommand) RunIntoGlazeProcessor(ctx context.Context, vals *v
 		)); err != nil {
 			return err
 		}
+		for _, dependency := range component.DependencyClosure {
+			if err := gp.AddRow(ctx, types.NewRow(
+				types.MRP("row_kind", "dependency"),
+				types.MRP("instance", plan.InstanceID),
+				types.MRP("target", plan.TargetID),
+				types.MRP("meta_design_system", plan.MetaDesignSystem),
+				types.MRP("template", component.TemplateID),
+				types.MRP("component", component.ComponentName),
+				types.MRP("dependency_template", dependency.TemplateID),
+				types.MRP("dependency_component", dependency.ComponentName),
+				types.MRP("dependency_kind", dependency.ComponentKind),
+				types.MRP("dependency_role", dependency.ComponentRole),
+				types.MRP("dependency_edge_role", dependency.EdgeRole),
+				types.MRP("dependency_description", dependency.EdgeDescription),
+				types.MRP("dependency_required", dependency.Required),
+				types.MRP("dependency_direct", dependency.Direct),
+				types.MRP("dependency_depth", dependency.Depth),
+				types.MRP("dependency_planned", dependency.Planned),
+				types.MRP("dependency_path", strings.Join(dependency.Path, " -> ")),
+			)); err != nil {
+				return err
+			}
+		}
 		for _, file := range component.Files {
 			if err := gp.AddRow(ctx, types.NewRow(
 				types.MRP("row_kind", "file"),

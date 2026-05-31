@@ -77,8 +77,23 @@ type ComponentSystemGuidance struct {
 }
 
 type ComponentCompositionInfo struct {
-	Uses     []string `json:"uses,omitempty"`
-	Provides []string `json:"provides,omitempty"`
+	Uses              []string                  `json:"uses,omitempty"`
+	DependencyClosure []ComponentDependencyInfo `json:"dependencyClosure,omitempty"`
+	Provides          []string                  `json:"provides,omitempty"`
+}
+
+type ComponentDependencyInfo struct {
+	TemplateID    string   `json:"templateId"`
+	ComponentName string   `json:"componentName,omitempty"`
+	Kind          string   `json:"kind,omitempty"`
+	Role          string   `json:"role,omitempty"`
+	EdgeRole      string   `json:"edgeRole,omitempty"`
+	Description   string   `json:"description,omitempty"`
+	Required      bool     `json:"required,omitempty"`
+	Direct        bool     `json:"direct,omitempty"`
+	Depth         int      `json:"depth,omitempty"`
+	Planned       bool     `json:"planned,omitempty"`
+	Path          []string `json:"path,omitempty"`
 }
 
 type PBUIGuidance struct {

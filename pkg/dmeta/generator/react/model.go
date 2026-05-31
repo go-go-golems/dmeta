@@ -39,18 +39,19 @@ type TargetProvenance struct {
 }
 
 type ScaffoldPlan struct {
-	InstanceID       string
-	TargetID         string
-	MetaDesignSystem string
-	OutputDir        string
-	PackageName      string
-	Generated        genmeta.GeneratedInfo
-	SemanticRoot     string
-	InteractionsRoot string
-	WebRoot          string
-	TargetFile       string
-	Components       []ComponentPlan
-	Files            []PlannedFile
+	InstanceID        string
+	TargetID          string
+	MetaDesignSystem  string
+	OutputDir         string
+	PackageName       string
+	Generated         genmeta.GeneratedInfo
+	SemanticRoot      string
+	InteractionsRoot  string
+	WebRoot           string
+	TargetFile        string
+	Components        []ComponentPlan
+	DependencyClosure []ComponentDependencyPlan
+	Files             []PlannedFile
 }
 
 type ComponentPlan struct {
@@ -74,7 +75,26 @@ type ComponentPlan struct {
 	RealizesRepresentations []string
 	SourceDomainTypes       []string
 	SourceRules             []string
+	DependencyClosure       []ComponentDependencyPlan
 	Files                   []PlannedFile
+}
+
+type ComponentDependencyPlan struct {
+	SourceTemplateID    string
+	SourceComponentName string
+	ParentTemplateID    string
+	ParentComponentName string
+	TemplateID          string
+	ComponentName       string
+	ComponentKind       string
+	ComponentRole       string
+	EdgeRole            string
+	EdgeDescription     string
+	Required            bool
+	Direct              bool
+	Depth               int
+	Planned             bool
+	Path                []string
 }
 
 type PlannedFile struct {

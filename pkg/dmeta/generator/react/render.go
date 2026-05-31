@@ -1149,8 +1149,9 @@ func webGeneratedMetadata(plan ScaffoldPlan, component ComponentPlan, file Plann
 				Lifecycle:   component.ComponentLifecycle,
 			},
 			Composition: &genmeta.ComponentCompositionInfo{
-				Uses:     componentDependencyIDs(component),
-				Provides: append([]string{}, component.Template.Composition.Provides...),
+				Uses:              componentDependencyIDs(component),
+				DependencyClosure: metadataDependencyClosure(component),
+				Provides:          append([]string{}, component.Template.Composition.Provides...),
 			},
 		},
 		React: &genmeta.ReactGuidance{
@@ -1178,6 +1179,26 @@ func generatedReactFileRefs(files []PlannedFile) []genmeta.FileRef {
 		refs = append(refs, genmeta.FileRef{Kind: file.Kind, Path: file.Path, Symbol: file.Symbol})
 	}
 	return refs
+}
+
+func metadataDependencyClosure(component ComponentPlan) []genmeta.ComponentDependencyInfo {
+	out := make([]genmeta.ComponentDependencyInfo, 0, len(component.DependencyClosure))
+	for _, dep := range component.DependencyClosure {
+		out = append(out, genmeta.ComponentDependencyInfo{
+			TemplateID:    dep.TemplateID,
+			ComponentName: dep.ComponentName,
+			Kind:          dep.ComponentKind,
+			Role:          dep.ComponentRole,
+			EdgeRole:      dep.EdgeRole,
+			Description:   dep.EdgeDescription,
+			Required:      dep.Required,
+			Direct:        dep.Direct,
+			Depth:         dep.Depth,
+			Planned:       dep.Planned,
+			Path:          append([]string{}, dep.Path...),
+		})
+	}
+	return out
 }
 
 func componentDependencyIDs(component ComponentPlan) []string {

@@ -151,6 +151,7 @@ func BuildScaffoldPlan(ctx context.Context, opts PlanOptions) (ScaffoldPlan, err
 		TargetFile:       targetFile,
 	}
 	obligationsByTemplate := groupWebObligations(webObligations)
+	selectedTemplates := selectedTemplateSet(instance.SelectedTemplates)
 	for _, selected := range instance.SelectedTemplates {
 		widget, ok := webPkg.Widgets[selected.Template]
 		if !ok {
@@ -188,7 +189,9 @@ func BuildScaffoldPlan(ctx context.Context, opts PlanOptions) (ScaffoldPlan, err
 		if obligations, ok := obligationsByTemplate[selected.Template]; ok {
 			component = applyWebObligations(component, obligations)
 		}
+		component.DependencyClosure = dependencyClosureForTemplate(selected.Template, webPkg.Widgets, selectedTemplates)
 		component.Files = planFiles(component, target)
+		plan.DependencyClosure = append(plan.DependencyClosure, component.DependencyClosure...)
 		plan.Components = append(plan.Components, component)
 	}
 	plan.Files = planPackageFiles(plan, target)
@@ -202,12 +205,86 @@ func resolveRelative(base string, path string) string {
 	return filepath.Clean(filepath.Join(base, path))
 }
 
+func selectedTemplateSet(selected []instancegen.Selected) map[string]bool {
+	out := map[string]bool{}
+	for _, selectedTemplate := range selected {
+		if strings.TrimSpace(selectedTemplate.Template) != "" {
+			out[selectedTemplate.Template] = true
+		}
+	}
+	return out
+}
+
 func groupWebObligations(obligations []webmds.Obligation) map[string][]webmds.Obligation {
 	out := map[string][]webmds.Obligation{}
 	for _, obligation := range obligations {
 		out[obligation.WidgetTemplateID] = append(out[obligation.WidgetTemplateID], obligation)
 	}
 	return out
+}
+
+func dependencyClosureForTemplate(sourceTemplateID string, widgets map[string]validator.Widget, selectedTemplates map[string]bool) []ComponentDependencyPlan {
+	source, ok := widgets[sourceTemplateID]
+	if !ok {
+		return nil
+	}
+	var out []ComponentDependencyPlan
+	seen := map[string]bool{}
+	var walk func(parentID string, depth int, path []string)
+	walk = func(parentID string, depth int, path []string) {
+		parent, ok := widgets[parentID]
+		if !ok {
+			return
+		}
+		deps := append([]validator.WidgetDependency{}, parent.Composition.Uses...)
+		sort.SliceStable(deps, func(i, j int) bool {
+			return dependencyTemplateID(deps[i]) < dependencyTemplateID(deps[j])
+		})
+		for _, dep := range deps {
+			depID := dependencyTemplateID(dep)
+			if depID == "" {
+				continue
+			}
+			child, ok := widgets[depID]
+			if !ok {
+				continue
+			}
+			depPath := append(append([]string{}, path...), depID)
+			if !seen[depID] {
+				out = append(out, ComponentDependencyPlan{
+					SourceTemplateID:    sourceTemplateID,
+					SourceComponentName: source.Name,
+					ParentTemplateID:    parentID,
+					ParentComponentName: parent.Name,
+					TemplateID:          depID,
+					ComponentName:       child.Name,
+					ComponentKind:       componentKindFromWidget(child),
+					ComponentRole:       componentRoleFromWidget(child),
+					EdgeRole:            dep.Role,
+					EdgeDescription:     dep.Description,
+					Required:            dep.Required,
+					Direct:              depth == 0,
+					Depth:               depth + 1,
+					Planned:             selectedTemplates[depID],
+					Path:                depPath,
+				})
+				seen[depID] = true
+			}
+			if contains(path, depID) {
+				continue
+			}
+			walk(depID, depth+1, depPath)
+		}
+	}
+	walk(sourceTemplateID, 0, []string{sourceTemplateID})
+	return out
+}
+
+func dependencyTemplateID(dep validator.WidgetDependency) string {
+	if strings.TrimSpace(dep.Template) != "" {
+		return strings.TrimSpace(dep.Template)
+	}
+	return strings.TrimSpace(dep.Component)
 }
 
 func applyWebObligations(component ComponentPlan, obligations []webmds.Obligation) ComponentPlan {
