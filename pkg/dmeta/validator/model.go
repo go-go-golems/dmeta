@@ -317,6 +317,7 @@ type Widget struct {
 	Status          string                `yaml:"status"`
 	Description     string                `yaml:"description"`
 	Classification  map[string]any        `yaml:"classification"`
+	Component       WidgetComponent       `yaml:"component"`
 	ComponentSystem WidgetComponentSystem `yaml:"component_system"`
 	Composition     WidgetComposition     `yaml:"composition"`
 	Intent          WidgetIntent          `yaml:"intent"`
@@ -343,6 +344,16 @@ type SourceBlock struct {
 	Notes       string `yaml:"notes"`
 	Source      string `yaml:"source"`
 	Code        string `yaml:"code"`
+}
+
+type WidgetComponent struct {
+	Level            string   `yaml:"level"`
+	Specificity      string   `yaml:"specificity"`
+	Role             string   `yaml:"role"`
+	PromotionOrder   int      `yaml:"promotion_order"`
+	GenerationPolicy string   `yaml:"generation_policy"`
+	Responsibilities []string `yaml:"responsibilities"`
+	Notes            []string `yaml:"notes"`
 }
 
 type WidgetComponentSystem struct {

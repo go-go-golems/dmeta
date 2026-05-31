@@ -156,6 +156,7 @@ func (c *ListComponentsCommand) RunIntoGlazeProcessor(ctx context.Context, vals 
 			types.MRP("id", w.ID),
 			types.MRP("name", w.Name),
 			types.MRP("kind", widgetKind(w)),
+			types.MRP("role", firstNonEmpty(w.Component.Role, w.ComponentSystem.Role)),
 			types.MRP("status", w.Status),
 			types.MRP("file", relPath(webRoot, record.File)),
 			types.MRP("source_key", record.SourceKey),
@@ -212,6 +213,7 @@ func (c *ShowComponentCommand) RunIntoGlazeProcessor(ctx context.Context, vals *
 		types.MRP("id", w.ID),
 		types.MRP("name", w.Name),
 		types.MRP("kind", widgetKind(w)),
+		types.MRP("role", firstNonEmpty(w.Component.Role, w.ComponentSystem.Role)),
 		types.MRP("status", w.Status),
 		types.MRP("file", relPath(webRoot, record.File)),
 		types.MRP("source_key", record.SourceKey),
@@ -427,6 +429,9 @@ func findComponentRecord(records []componentRecord, id string, name string, comp
 }
 
 func widgetKind(w validator.Widget) string {
+	if w.Component.Level != "" {
+		return w.Component.Level
+	}
 	if w.ComponentSystem.Kind != "" {
 		return w.ComponentSystem.Kind
 	}
@@ -443,6 +448,9 @@ func widgetKind(w validator.Widget) string {
 }
 
 func widgetLifecycle(w validator.Widget) string {
+	if w.Component.GenerationPolicy != "" {
+		return w.Component.GenerationPolicy
+	}
 	if w.ComponentSystem.Lifecycle.Component != "" {
 		return w.ComponentSystem.Lifecycle.Component
 	}

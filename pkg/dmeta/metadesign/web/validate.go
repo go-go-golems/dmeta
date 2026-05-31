@@ -71,12 +71,14 @@ func ValidatePackage(pkg *Package, interactions *interaction.Package) []validato
 	findings = append(findings, validateComponentSystemPolicy(pkg)...)
 	for widgetID, widget := range pkg.Widgets {
 		path := fmt.Sprintf("widgets[%s]", widgetID)
+		findings = append(findings, validateComponentCompatibility(path, widget)...)
 		kind := resolvedComponentKind(widget)
 		if kind != "" && !validComponentKind(pkg.ComponentSystem, kind) {
-			findings = append(findings, validator.Error("web_meta_design_system", path+".component_system.kind", "unknown_component_kind", fmt.Sprintf("Web widget template %q has unknown component kind %q", widgetID, kind), "Use a component level defined by the Web component-system policy."))
+			findings = append(findings, validator.Error("web_meta_design_system", path+".component.level", "unknown_component_kind", fmt.Sprintf("Web widget template %q has unknown component level %q", widgetID, kind), "Use a component level defined by the Web component-system policy."))
 		}
-		if widget.ComponentSystem.Specificity != "" && !validSpecificity(pkg.ComponentSystem, widget.ComponentSystem.Specificity) {
-			findings = append(findings, validator.Error("web_meta_design_system", path+".component_system.specificity", "unknown_component_specificity", fmt.Sprintf("Web widget template %q has unknown specificity %q", widgetID, widget.ComponentSystem.Specificity), "Use a specificity value defined by the Web component-system policy."))
+		specificity := resolvedSpecificity(widget)
+		if specificity != "" && !validSpecificity(pkg.ComponentSystem, specificity) {
+			findings = append(findings, validator.Error("web_meta_design_system", path+".component.specificity", "unknown_component_specificity", fmt.Sprintf("Web widget template %q has unknown specificity %q", widgetID, specificity), "Use a specificity value defined by the Web component-system policy."))
 		}
 		for _, dep := range widget.Composition.Uses {
 			if dep.Template == "" {
@@ -128,12 +130,81 @@ func validateComponentSystemPolicy(pkg *Package) []validator.Finding {
 	return findings
 }
 
-func resolvedComponentKind(widget validator.Widget) string {
-	kind := widget.ComponentSystem.Kind
-	if kind == "" {
-		kind = widget.ComponentSystem.Level
+func validateComponentCompatibility(path string, widget validator.Widget) []validator.Finding {
+	var findings []validator.Finding
+	levels := nonEmptyNormalized(map[string]string{
+		"component.level":        widget.Component.Level,
+		"component_system.kind":  widget.ComponentSystem.Kind,
+		"component_system.level": widget.ComponentSystem.Level,
+		"classification.kind":    classificationString(widget, "kind"),
+		"classification.level":   classificationString(widget, "level"),
+	})
+	if hasConflictingValues(levels) {
+		findings = append(findings, validator.Warning("web_meta_design_system", path+".component.level", "conflicting_component_level", "Widget template defines conflicting component levels across canonical and legacy fields", "Prefer component.level and remove conflicting legacy component_system/classification values during migration."))
 	}
+	specificities := nonEmptyNormalized(map[string]string{
+		"component.specificity":        widget.Component.Specificity,
+		"component_system.specificity": widget.ComponentSystem.Specificity,
+		"classification.specificity":   classificationString(widget, "specificity"),
+	})
+	if hasConflictingValues(specificities) {
+		findings = append(findings, validator.Warning("web_meta_design_system", path+".component.specificity", "conflicting_component_specificity", "Widget template defines conflicting specificity across canonical and legacy fields", "Prefer component.specificity and remove conflicting legacy values during migration."))
+	}
+	return findings
+}
+
+func resolvedComponentKind(widget validator.Widget) string {
+	kind := firstNonEmpty(widget.Component.Level, widget.ComponentSystem.Kind, widget.ComponentSystem.Level, classificationString(widget, "kind"), classificationString(widget, "level"))
 	return normalizeComponentKind(kind)
+}
+
+func resolvedSpecificity(widget validator.Widget) string {
+	return strings.ToLower(strings.TrimSpace(firstNonEmpty(widget.Component.Specificity, widget.ComponentSystem.Specificity, classificationString(widget, "specificity"))))
+}
+
+func classificationString(widget validator.Widget, key string) string {
+	if widget.Classification == nil {
+		return ""
+	}
+	value, ok := widget.Classification[key].(string)
+	if !ok {
+		return ""
+	}
+	return value
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func nonEmptyNormalized(values map[string]string) map[string]string {
+	out := map[string]string{}
+	for key, value := range values {
+		if strings.TrimSpace(value) == "" {
+			continue
+		}
+		out[key] = normalizeComponentKind(value)
+	}
+	return out
+}
+
+func hasConflictingValues(values map[string]string) bool {
+	seen := ""
+	for _, value := range values {
+		if seen == "" {
+			seen = value
+			continue
+		}
+		if value != seen {
+			return true
+		}
+	}
+	return false
 }
 
 func normalizeComponentKind(kind string) string {

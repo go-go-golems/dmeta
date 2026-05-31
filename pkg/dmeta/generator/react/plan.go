@@ -339,12 +339,12 @@ func normalizeLifecycle(lifecycle string) string {
 }
 
 func componentKindFromWidget(widget validator.Widget) string {
-	kind := firstNonEmpty(widget.ComponentSystem.Kind, widget.ComponentSystem.Level, classificationString(widget, "kind"), classificationString(widget, "level"))
+	kind := firstNonEmpty(widget.Component.Level, widget.ComponentSystem.Kind, widget.ComponentSystem.Level, classificationString(widget, "kind"), classificationString(widget, "level"))
 	return normalizeComponentKind(kind)
 }
 
 func componentSpecificityFromWidget(widget validator.Widget) string {
-	return firstNonEmpty(widget.ComponentSystem.Specificity, classificationString(widget, "specificity"), "app")
+	return firstNonEmpty(widget.Component.Specificity, widget.ComponentSystem.Specificity, classificationString(widget, "specificity"), "app")
 }
 
 func componentFamilyFromWidget(widget validator.Widget) string {
@@ -352,11 +352,14 @@ func componentFamilyFromWidget(widget validator.Widget) string {
 }
 
 func componentRoleFromWidget(widget validator.Widget) string {
-	return firstNonEmpty(widget.ComponentSystem.Role, classificationString(widget, "role"), widget.Intent.Purpose)
+	return firstNonEmpty(widget.Component.Role, widget.ComponentSystem.Role, classificationString(widget, "role"), widget.Intent.Purpose)
 }
 
 func componentLifecycleFromWidget(widget validator.Widget) string {
-	lifecycle := widget.ComponentSystem.Lifecycle.Component
+	lifecycle := widget.Component.GenerationPolicy
+	if lifecycle == "" {
+		lifecycle = widget.ComponentSystem.Lifecycle.Component
+	}
 	if lifecycle == "" {
 		lifecycle = widget.ComponentSystem.Lifecycle.Default
 	}

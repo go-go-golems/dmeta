@@ -74,6 +74,53 @@ func TestValidateComponentSystemPolicyUnknownAllowedChild(t *testing.T) {
 	}
 }
 
+func TestValidateWarnsOnConflictingCanonicalAndLegacyComponentLevel(t *testing.T) {
+	pkg := &Package{
+		Widgets: map[string]validator.Widget{
+			"test.card": {
+				ID:              "test.card",
+				Name:            "TestCard",
+				Component:       validator.WidgetComponent{Level: "molecule"},
+				ComponentSystem: validator.WidgetComponentSystem{Kind: "organism"},
+			},
+		},
+	}
+
+	findings := ValidatePackage(pkg, emptyInteractionPackage())
+	if validator.HasErrors(findings) {
+		t.Fatalf("unexpected errors: %#v", findings)
+	}
+	for _, finding := range findings {
+		if finding.Code == "conflicting_component_level" && finding.Severity == validator.SeverityWarning {
+			return
+		}
+	}
+	t.Fatalf("expected conflicting component level warning, got %#v", findings)
+}
+
+func TestValidateAcceptsCanonicalComponentLevel(t *testing.T) {
+	pkg := &Package{
+		ComponentSystem: &ComponentSystemFile{
+			Levels: map[string]ComponentLevel{
+				"molecule": {Description: "Small composition."},
+			},
+			Specificity: SpecificityPolicy{Allowed: []string{"generic"}},
+		},
+		Widgets: map[string]validator.Widget{
+			"test.card": {
+				ID:        "test.card",
+				Name:      "TestCard",
+				Component: validator.WidgetComponent{Level: "molecule", Specificity: "generic", Role: "test_card"},
+			},
+		},
+	}
+
+	findings := ValidatePackage(pkg, emptyInteractionPackage())
+	if validator.HasErrors(findings) {
+		t.Fatalf("unexpected errors for canonical component block: %#v", findings)
+	}
+}
+
 func TestValidateWarnsWhenLoweringEmitsDependencyOnlyLevel(t *testing.T) {
 	pkg := &Package{
 		LoweringRules: LoweringRulesFile{Rules: []LoweringRule{
