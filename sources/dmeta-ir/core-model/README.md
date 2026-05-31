@@ -1,6 +1,6 @@
 # Generic DMETA Core Model
 
-This directory contains the generic Semantic IR vocabulary for DMETA. It defines reusable archetypes, capabilities, presentation vocabulary, and examples that application packages can build on.
+This directory contains the generic Semantic IR vocabulary for DMETA. It defines reusable archetypes, capabilities, projections, and examples that application packages can build on.
 
 Semantic IR is the first compiler layer. It describes what a domain is made of and which projections matter. It does not describe Web widgets, PBUI presentation types, React props, CSS, Storybook stories, or application-specific page layouts.
 
@@ -11,7 +11,6 @@ Semantic IR is the first compiler layer. It describes what a domain is made of a
 | `core-model.yaml` | Metadata for the generic core model package. |
 | `archetypes.yaml` | Reusable semantic roles such as actors, resources, work items, result sets, relations, events, and action specifications. |
 | `capabilities.yaml` | Reusable semantic capabilities such as identifiable, labelable, stateful, temporal, inspectable, actionable, relatable, schedulable, and related operational affordances. |
-| `presentations.yaml` | Thin semantic presentation vocabulary and projection requirements. These are not target widgets. |
 | `examples/` | Generic examples used to prove and explain the vocabulary. |
 
 ## What belongs here
@@ -39,12 +38,12 @@ Application packages should map their local domain types onto this vocabulary ra
 The intended flow is:
 
 ```text
-core-model archetypes/capabilities/presentations/examples
-  -> Interaction IR actions and representations
+core-model archetypes/capabilities/examples
+  -> Interaction IR representations and actions
   -> target-specific MetaDesignSystems
 ```
 
-A core-model presentation may say that a thing can be summarized, inspected, filtered, or shown as a collection. It should not decide whether Web renders it as a card grid, table, carousel, badge row, or inspector panel.
+If a thing can be summarized, inspected, filtered, or shown as a collection, define that visible obligation in Interaction IR representations. The core model should stop at semantic facts and projection names.
 
 ## Commands
 

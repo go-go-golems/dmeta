@@ -6,7 +6,7 @@ long_summary: This package contains reusable Web widget templates that concrete 
   and promote. The catalog is intentionally broader than any one application. Instance manifests decide which templates become
   generated widgets.
 files:
-  presentations: ./presentations.yaml
+  representations: ./representation-primitives.yaml
   streams: ./streams.yaml
   tables: ./tables.yaml
   surfaces: ./surfaces.yaml
@@ -19,12 +19,12 @@ files:
   data_display: ./data-display.yaml
 validation:
   require_unique_template_ids: true
-  require_known_presentations: true
+  require_known_representations: true
   require_known_archetypes: true
   require_known_capabilities: true
   require_selection_guidance: true
 authoring_guidance:
-  semantic_context_policy: Web widget templates may reference archetypes, capabilities, and presentations as reflection context
+  semantic_context_policy: Web widget templates may reference archetypes, capabilities, and representations as reflection context
     for generated metadata, doc comments, README text, Storybook docs, and adapter TODOs. These references do not automatically
     force one rigid prop shape or layout.
   projection_generation_policy: Use projection_hints to distinguish required, recommended, optional, documentation-only, and

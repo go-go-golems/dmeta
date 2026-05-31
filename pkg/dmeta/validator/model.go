@@ -36,8 +36,6 @@ type CoreModelFile struct {
 	LogicalTypes   LogicalTypes             `yaml:"logical_types"`
 	Archetypes     map[string]Archetype     `yaml:"archetypes"`
 	Capabilities   map[string]Capability    `yaml:"capabilities"`
-	Presentations  map[string]Presentation  `yaml:"presentations"`
-	Actions        map[string]Action        `yaml:"actions"`
 	DomainExamples map[string]DomainExample `yaml:"domain_examples"`
 	Validation     map[string]any           `yaml:"validation"`
 }
@@ -46,7 +44,6 @@ type CoreModelFiles struct {
 	CoreModel     string   `yaml:"core_model"`
 	Archetypes    FileList `yaml:"archetypes"`
 	Capabilities  FileList `yaml:"capabilities"`
-	Presentations FileList `yaml:"presentations"`
 	DomainExample string   `yaml:"domain_example"`
 	ExamplesDir   string   `yaml:"examples_dir"`
 	Examples      []string `yaml:"examples"`
@@ -78,16 +75,6 @@ type CapabilitiesFile struct {
 	LongSummary   string                `yaml:"long_summary"`
 	References    map[string]string     `yaml:"references"`
 	Capabilities  map[string]Capability `yaml:"capabilities"`
-}
-
-type PresentationsFile struct {
-	SchemaVersion int                     `yaml:"schema_version"`
-	ArtifactType  string                  `yaml:"artifact_type"`
-	Summary       string                  `yaml:"summary"`
-	LongSummary   string                  `yaml:"long_summary"`
-	References    map[string]string       `yaml:"references"`
-	Presentations map[string]Presentation `yaml:"presentations"`
-	Actions       map[string]Action       `yaml:"actions"`
 }
 
 type DomainExampleFile struct {
@@ -128,46 +115,6 @@ type Projection struct {
 	Type        string `yaml:"type"`
 	Required    bool   `yaml:"required"`
 	Description string `yaml:"description"`
-}
-
-type Presentation struct {
-	Description     string         `yaml:"description"`
-	LongDescription string         `yaml:"long_description"`
-	AppliesTo       AppliesTo      `yaml:"applies_to"`
-	Requires        []string       `yaml:"requires"`
-	RequiresAny     []string       `yaml:"requires_any"`
-	Optional        []string       `yaml:"optional"`
-	Role            string         `yaml:"role"`
-	Fallbacks       []string       `yaml:"fallbacks"`
-	Extra           map[string]any `yaml:",inline"`
-}
-
-type AppliesTo struct {
-	Capabilities []string `yaml:"capabilities"`
-	Archetypes   []string `yaml:"archetypes"`
-}
-
-type Action struct {
-	Description     string              `yaml:"description"`
-	LongDescription string              `yaml:"long_description"`
-	Category        string              `yaml:"category"`
-	Accepts         []Selector          `yaml:"accepts"`
-	Arguments       map[string]Argument `yaml:"arguments"`
-	Result          ActionResult        `yaml:"result"`
-}
-
-type Selector struct {
-	Capability           string   `yaml:"capability"`
-	Archetype            string   `yaml:"archetype"`
-	Presentation         string   `yaml:"presentation"`
-	DomainType           string   `yaml:"domain_type"`
-	RequiresCapabilities []string `yaml:"requires_capabilities"`
-}
-
-type Argument struct {
-	Mode     string     `yaml:"mode"`
-	Required bool       `yaml:"required"`
-	Accepts  []Selector `yaml:"accepts"`
 }
 
 type ActionResult struct {
@@ -411,13 +358,13 @@ type WidgetIntent struct {
 }
 
 type Consumes struct {
-	Presentations []string `yaml:"presentations"`
-	Capabilities  []string `yaml:"capabilities"`
-	Archetypes    []string `yaml:"archetypes"`
+	Representations []string `yaml:"representations"`
+	Capabilities    []string `yaml:"capabilities"`
+	Archetypes      []string `yaml:"archetypes"`
 }
 
 type WidgetSemanticContext struct {
-	Presentations        []string `yaml:"presentations"`
+	Representations      []string `yaml:"representations"`
 	Capabilities         []string `yaml:"capabilities"`
 	Archetypes           []string `yaml:"archetypes"`
 	Intent               string   `yaml:"intent"`

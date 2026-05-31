@@ -24,7 +24,7 @@ templates:
     default_importance: common
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       filter_dimensions:
         type: any
@@ -58,7 +58,7 @@ templates:
     - FilterCriterion
     capabilities:
     - filterable
-    presentations:
+    representations:
     - filter_chip
     - filter_summary
   contract:
@@ -111,7 +111,7 @@ templates:
     default_importance: common
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       autocomplete_sources:
         type: any
@@ -142,7 +142,7 @@ templates:
   consumes:
     capabilities:
     - searchable
-    presentations:
+    representations:
     - search_summary
     - compact_ref
     - inline_token
@@ -166,7 +166,7 @@ templates:
       onSearch:
         accepts: SearchExpression
       onChooseSuggestion:
-        accepts: PresentationRef
+        accepts: RepresentationRef
       onClearSearch:
         accepts: FilterTargetRef
   stories:
@@ -199,7 +199,7 @@ templates:
     default_importance: common
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       facet_dimensions:
         type: any
@@ -229,7 +229,7 @@ templates:
     capabilities:
     - facetable
     - filterable
-    presentations:
+    representations:
     - facet_bucket
     - filter_summary
   contract:
@@ -274,7 +274,7 @@ templates:
     default_importance: common
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       component_name:
         type: any
@@ -288,10 +288,10 @@ templates:
         type: any
         required: false
         description: Storybook scenarios relevant to the selected variant and instance.
-      presentation_mapping:
+      representation_mapping:
         type: any
         required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
+        description: Mapping from Interaction representations to rendered slots/cells/regions.
       action_slots:
         type: any
         required: false
@@ -316,7 +316,7 @@ templates:
     - filterable
     - searchable
     - windowable
-    presentations:
+    representations:
     - filter_summary
     - search_summary
   contract:
@@ -334,7 +334,7 @@ templates:
             required: false
     action_slots:
       onInspectResultSet:
-        accepts: PresentationRef
+        accepts: RepresentationRef
       onClearFilters:
         accepts: FilterTargetRef
   stories:
@@ -367,7 +367,7 @@ templates:
     default_importance: optional
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       preset_scope:
         type: any
@@ -393,7 +393,7 @@ templates:
     capabilities:
     - filterable
     - actionable
-    presentations:
+    representations:
     - compact_ref
     - summary_card
   contract:
@@ -440,7 +440,7 @@ templates:
     default_importance: common
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       cursor_strategy:
         type: any

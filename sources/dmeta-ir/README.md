@@ -30,9 +30,9 @@ sources/dmeta-ir/
 | Path | Purpose |
 | --- | --- |
 | `00-index.yaml` | Top-level package index. It names the generic core model, design language, Interaction IR package, Web MDS package, and PBUI MDS package. |
-| `01-core-model.yaml` | Core-model package index for generic archetypes, capabilities, presentations, and examples. |
+| `01-core-model.yaml` | Core-model package index for generic archetypes, capabilities, projections, and examples. |
 | `02-design-language.yaml` | Shared design-language guidance for dense operational interfaces. Target systems may consume this differently. |
-| `core-model/` | Generic semantic vocabulary. This is where reusable archetypes, capabilities, presentations, and examples live. |
+| `core-model/` | Generic semantic vocabulary. This is where reusable archetypes, capabilities, projections, and examples live. |
 | `interactions/` | Generic Interaction IR: modality-neutral representations, actions, and elaboration rules. |
 | `meta-design-systems/web/` | Generic Web MetaDesignSystem. It owns reusable browser UI templates, Web lowering rules, and React target inputs. |
 | `meta-design-systems/pbui/` | Generic PBUI MetaDesignSystem. It owns presentation-system types and PBUI lowering rules. |

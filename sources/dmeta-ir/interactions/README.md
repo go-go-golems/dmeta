@@ -27,6 +27,7 @@ Good candidates:
 - `status_indicator`
 - `detail_panel`
 - `result_collection`
+- migrated display obligations such as `compact_ref`, `dense_row`, or `filter_chip`
 
 Poor candidates:
 
@@ -47,8 +48,8 @@ Semantic IR says:
   This domain object is identifiable, labelable, stateful, inspectable, and actionable.
 
 Interaction elaboration can emit:
-  representation: compact_ref
-  representation: status_badge
+  representation: compact_reference
+  representation: state_indicator
   representation: detail_panel
   action: inspect_subject
   action: apply_action

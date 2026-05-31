@@ -53,9 +53,9 @@ type ResolvedTemplate struct {
 }
 
 type WidgetReflection struct {
-	Archetypes    []ResolvedArchetypeReflection    `json:"archetypes,omitempty"`
-	Capabilities  []ResolvedCapabilityReflection   `json:"capabilities,omitempty"`
-	Presentations []ResolvedPresentationReflection `json:"presentations,omitempty"`
+	Archetypes      []ResolvedArchetypeReflection      `json:"archetypes,omitempty"`
+	Capabilities    []ResolvedCapabilityReflection     `json:"capabilities,omitempty"`
+	Representations []ResolvedRepresentationReflection `json:"representations,omitempty"`
 }
 
 type ResolvedArchetypeReflection struct {
@@ -77,14 +77,8 @@ type ResolvedCapabilityReflection struct {
 	RequiredProjectionNames  []string `json:"requiredProjectionNames,omitempty"`
 }
 
-type ResolvedPresentationReflection struct {
-	ID              string   `json:"id"`
-	Description     string   `json:"description,omitempty"`
-	LongDescription string   `json:"longDescription,omitempty"`
-	Role            string   `json:"role,omitempty"`
-	Requires        []string `json:"requires,omitempty"`
-	RequiresAny     []string `json:"requiresAny,omitempty"`
-	Optional        []string `json:"optional,omitempty"`
+type ResolvedRepresentationReflection struct {
+	ID string `json:"id"`
 }
 
 type GeneratedFile struct {

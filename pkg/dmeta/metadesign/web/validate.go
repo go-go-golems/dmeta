@@ -71,6 +71,7 @@ func ValidatePackage(pkg *Package, interactions *interaction.Package) []validato
 	findings = append(findings, validateComponentSystemPolicy(pkg)...)
 	for widgetID, widget := range pkg.Widgets {
 		path := fmt.Sprintf("widgets[%s]", widgetID)
+		findings = append(findings, validateWidgetRepresentationReferences(interactions, path, widgetID, widget)...)
 		findings = append(findings, validateCanonicalComponentFields(pkg, path, widgetID, widget)...)
 		findings = append(findings, validateCompositionEdges(pkg, path, widgetID, widget)...)
 		for eventName, event := range widget.Contract.Events {
@@ -91,6 +92,34 @@ func ValidatePackage(pkg *Package, interactions *interaction.Package) []validato
 		}
 	}
 	findings = append(findings, validateCompositionCycles(pkg)...)
+	return findings
+}
+
+func validateWidgetRepresentationReferences(interactions *interaction.Package, path string, widgetID string, widget validator.Widget) []validator.Finding {
+	if interactions == nil {
+		return nil
+	}
+	var findings []validator.Finding
+	for _, representationID := range widget.Consumes.Representations {
+		representation, ok := interactions.Representations.Representations[representationID]
+		if !ok {
+			findings = append(findings, validator.Error("web_meta_design_system", path+".consumes.representations", "unknown_consumed_representation", fmt.Sprintf("Web widget template %q consumes unknown Interaction IR representation %q", widgetID, representationID), "Define the representation in Interaction IR or fix consumes.representations."))
+			continue
+		}
+		if representation.Abstract {
+			findings = append(findings, validator.Error("web_meta_design_system", path+".consumes.representations", "abstract_consumed_representation", fmt.Sprintf("Web widget template %q consumes abstract Interaction IR representation %q", widgetID, representationID), "Reference a concrete Interaction IR representation."))
+		}
+	}
+	for _, representationID := range widget.SemanticContext.Representations {
+		representation, ok := interactions.Representations.Representations[representationID]
+		if !ok {
+			findings = append(findings, validator.Error("web_meta_design_system", path+".semantic_context.representations", "unknown_semantic_context_representation", fmt.Sprintf("Web widget template %q semantic_context references unknown Interaction IR representation %q", widgetID, representationID), "Define the representation in Interaction IR or fix semantic_context.representations."))
+			continue
+		}
+		if representation.Abstract {
+			findings = append(findings, validator.Error("web_meta_design_system", path+".semantic_context.representations", "abstract_semantic_context_representation", fmt.Sprintf("Web widget template %q semantic_context references abstract Interaction IR representation %q", widgetID, representationID), "Reference a concrete Interaction IR representation."))
+		}
+	}
 	return findings
 }
 

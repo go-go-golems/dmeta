@@ -62,26 +62,9 @@ capabilities:
         type: money
         required: true
 `)
-	writeValidatorTestFile(t, root, "core-model/presentations-commerce.yaml", `schema_version: 0
-artifact_type: dmeta_presentations
-presentations:
-  product_card:
-    description: Product card presentation.
-actions:
-  open_product:
-    description: Open product details.
-`)
-	writeValidatorTestFile(t, root, "core-model/presentations-landing.yaml", `schema_version: 0
-artifact_type: dmeta_presentations
-presentations:
-  category_collection:
-    description: Category collection presentation.
-`)
-
 	core := CoreModelFile{Files: CoreModelFiles{
-		Archetypes:    FileList{"./core-model/archetypes-foundation.yaml", "./core-model/archetypes-commerce.yaml"},
-		Capabilities:  FileList{"./core-model/capabilities-base.yaml", "./core-model/capabilities-commerce.yaml"},
-		Presentations: FileList{"./core-model/presentations-commerce.yaml", "./core-model/presentations-landing.yaml"},
+		Archetypes:   FileList{"./core-model/archetypes-foundation.yaml", "./core-model/archetypes-commerce.yaml"},
+		Capabilities: FileList{"./core-model/capabilities-base.yaml", "./core-model/capabilities-commerce.yaml"},
 	}}
 	if err := loadSplitCoreModel(root, &core); err != nil {
 		t.Fatalf("load split core model: %v", err)
@@ -94,12 +77,6 @@ presentations:
 	}
 	if _, ok := core.Capabilities["purchasable"]; !ok {
 		t.Fatalf("missing merged purchasable capability")
-	}
-	if _, ok := core.Presentations["category_collection"]; !ok {
-		t.Fatalf("missing merged landing presentation")
-	}
-	if _, ok := core.Actions["open_product"]; !ok {
-		t.Fatalf("missing merged presentation action")
 	}
 }
 

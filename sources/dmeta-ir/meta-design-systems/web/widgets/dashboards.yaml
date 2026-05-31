@@ -24,7 +24,7 @@ templates:
     default_importance: common
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       region_layout:
         type: any
@@ -92,7 +92,7 @@ templates:
     default_importance: common
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       component_name:
         type: any
@@ -106,10 +106,10 @@ templates:
         type: any
         required: false
         description: Storybook scenarios relevant to the selected variant and instance.
-      presentation_mapping:
+      representation_mapping:
         type: any
         required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
+        description: Mapping from Interaction representations to rendered slots/cells/regions.
       action_slots:
         type: any
         required: false
@@ -139,7 +139,7 @@ templates:
             type: ReactNode
             required: true
           status:
-            type: PresentationRef
+            type: RepresentationRef
             required: false
     action_slots:
       onRegionAction:
@@ -173,7 +173,7 @@ templates:
     default_importance: common
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       component_name:
         type: any
@@ -187,10 +187,10 @@ templates:
         type: any
         required: false
         description: Storybook scenarios relevant to the selected variant and instance.
-      presentation_mapping:
+      representation_mapping:
         type: any
         required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
+        description: Mapping from Interaction representations to rendered slots/cells/regions.
       action_slots:
         type: any
         required: false
@@ -214,7 +214,7 @@ templates:
     capabilities:
     - measurable
     - aggregatable
-    presentations:
+    representations:
     - metric_cell
     - duration_cell
     - status_badge
@@ -227,7 +227,7 @@ templates:
             required: true
     action_slots:
       onSelectMetric:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - latency_cost_count
   - with_status
@@ -257,7 +257,7 @@ templates:
     default_importance: common
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       component_name:
         type: any
@@ -271,10 +271,10 @@ templates:
         type: any
         required: false
         description: Storybook scenarios relevant to the selected variant and instance.
-      presentation_mapping:
+      representation_mapping:
         type: any
         required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
+        description: Mapping from Interaction representations to rendered slots/cells/regions.
       action_slots:
         type: any
         required: false
@@ -310,7 +310,7 @@ templates:
             required: true
     action_slots:
       onOpenQueue:
-        accepts: PresentationRef
+        accepts: RepresentationRef
       onFilterQueue:
         accepts: FilterActionRequest
   stories:

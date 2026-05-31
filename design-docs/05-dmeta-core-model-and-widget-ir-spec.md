@@ -18,8 +18,6 @@ RelatedFiles:
     Note: Shared archetype catalog.
   - Path: ../sources/dmeta-ir/core-model/capabilities.yaml
     Note: Shared capability catalog.
-  - Path: ../sources/dmeta-ir/core-model/presentations.yaml
-    Note: Shared presentation vocabulary/prose and projection requirements; visual hints and target routing live downstream.
   - Path: ../sources/dmeta-ir/interactions/00-index.yaml
     Note: Shared Interaction IR package index.
   - Path: ../sources/dmeta-ir/interactions/actions.yaml
@@ -31,7 +29,7 @@ RelatedFiles:
 ExternalSources: []
 Summary: Current specification for the shared DMETA Semantic IR and Interaction IR used by both Web React and PBUI/CLIM React target lines.
 LastUpdated: 2026-05-28T00:00:00-04:00
-WhatFor: Use before editing archetypes, capabilities, semantic presentation vocabulary, domain mappings, Interaction IR actions/representations, or elaboration rules.
+WhatFor: Use before editing archetypes, capabilities, domain mappings, Interaction IR actions/representations, or elaboration rules.
 WhenToUse: Read when designing a new domain package or changing shared compiler behavior that should feed both Web and PBUI targets.
 ---
 
@@ -70,7 +68,6 @@ sources/dmeta-ir/01-core-model.yaml
 sources/dmeta-ir/core-model/core-model.yaml
 sources/dmeta-ir/core-model/archetypes.yaml
 sources/dmeta-ir/core-model/capabilities.yaml
-sources/dmeta-ir/core-model/presentations.yaml
 sources/dmeta-ir/core-model/examples/*.yaml
 ```
 
@@ -157,7 +154,7 @@ Each capability implies obligations. A `temporal` appointment needs a start and 
 
 ## 6. Projections
 
-A projection is a named piece of information a capability or presentation can rely on. Projections keep generated and promoted UI from guessing which field means what.
+A projection is a named piece of information a capability or Interaction IR representation can rely on. Projections keep generated and promoted UI from guessing which field means what.
 
 For appointment management:
 
@@ -178,20 +175,20 @@ intake_state
 
 The exact storage field may differ between verticals. A clinic may store `provider_id`; a salon may store `stylist_id`. The semantic projection can still say this object has an assigned practitioner. The target can then build stable UI around the projection rather than one vertical's database naming.
 
-## 7. Semantic presentation vocabulary
+## 7. Visible obligations belong to Interaction IR
 
-The core-model package may still carry a presentation vocabulary file, but it is intentionally thin. It records names, prose intent, applicability to archetypes/capabilities, projection requirements, and fallbacks. It must not formally select target density, context-menu behavior, copy/select affordances, style recipes, React components, or widget layout.
+The core-model package no longer carries formal presentation vocabulary. Core semantics stop at archetypes, capabilities, projections, and domain examples. If a concept describes something a user can see, select, inspect, copy, filter by, or act on, it belongs in Interaction IR as a representation and/or action.
 
-Those later decisions belong to the downstream chain:
+The downstream chain is now:
 
 ```text
-core-model presentation vocabulary / projections
+core-model archetypes/capabilities/projections
   -> Interaction IR representations/actions
   -> Web or PBUI MetaDesignSystem lowering rules
   -> widget contracts and generated/promoted components
 ```
 
-In the current cleaned-up model, actions are first-class in Interaction IR. Core-model prose may explain meaningful operations, but formal action catalogs, action effects, and action-to-representation relationships belong under `interactions/actions.yaml`, `interactions/representations.yaml`, and `interactions/elaboration-rules.yaml`.
+Core-model prose may mention likely user-visible implications, but formal visible obligations, action catalogs, action effects, and action-to-representation relationships belong under `interactions/actions.yaml`, `interactions/representations.yaml`, and `interactions/elaboration-rules.yaml`.
 
 ## 8. Interaction IR
 
@@ -245,7 +242,6 @@ Validation should ensure that:
 - inheritance roots are valid;
 - abstract helper nodes are not used as concrete domain mappings;
 - required inherited projections are mapped;
-- core presentation vocabulary references known archetypes/capabilities and projection requirements;
 - interaction actions reference known accepted object types;
 - representations have stable ids and prose intent;
 - elaboration rules reference known semantic and interaction concepts;

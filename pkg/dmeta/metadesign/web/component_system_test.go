@@ -178,6 +178,38 @@ func TestValidateWarnsWhenLoweringEmitsDependencyOnlyLevel(t *testing.T) {
 	t.Fatalf("expected dependency-only lowering warning, got %#v", findings)
 }
 
+func TestValidateWidgetRepresentationReferences(t *testing.T) {
+	pkg := &Package{
+		Widgets: map[string]validator.Widget{
+			"test.widget": {
+				ID:              "test.widget",
+				Consumes:        validator.Consumes{Representations: []string{"missing_representation", "abstract_representation"}},
+				SemanticContext: validator.WidgetSemanticContext{Representations: []string{"known_representation"}},
+			},
+		},
+	}
+	interactions := &interaction.Package{
+		Representations: interaction.RepresentationsFile{Representations: map[string]interaction.Representation{
+			"known_representation":    {},
+			"abstract_representation": {Abstract: true},
+		}},
+	}
+
+	findings := ValidatePackage(pkg, interactions)
+	assertWebFinding(t, findings, "unknown_consumed_representation", validator.SeverityError)
+	assertWebFinding(t, findings, "abstract_consumed_representation", validator.SeverityError)
+}
+
+func assertWebFinding(t *testing.T, findings []validator.Finding, code, severity string) {
+	t.Helper()
+	for _, finding := range findings {
+		if finding.Code == code && finding.Severity == severity {
+			return
+		}
+	}
+	t.Fatalf("missing %s finding with severity %s in %#v", code, severity, findings)
+}
+
 func emptyInteractionPackage() *interaction.Package {
 	return &interaction.Package{
 		ActionsFile:     interaction.ActionsFile{Actions: map[string]interaction.Action{}},

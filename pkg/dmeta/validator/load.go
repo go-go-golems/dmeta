@@ -53,7 +53,7 @@ func LoadPackage(ctx context.Context, root string) (*Package, error) {
 func loadSplitCoreModel(root string, core *CoreModelFile) error {
 	// Backwards compatibility for the original monolithic 01-core-model.yaml:
 	// if it already contains the model sections, there is nothing to merge.
-	if len(core.Archetypes) > 0 || len(core.Capabilities) > 0 || len(core.Presentations) > 0 || len(core.Actions) > 0 || len(core.DomainExamples) > 0 {
+	if len(core.Archetypes) > 0 || len(core.Capabilities) > 0 || len(core.DomainExamples) > 0 {
 		return nil
 	}
 
@@ -84,22 +84,6 @@ func loadSplitCoreModel(root string, core *CoreModelFile) error {
 				return errors.Wrapf(err, "load capabilities %s", capabilityPath)
 			}
 			if err := mergeCapabilities(core.Capabilities, capabilities.Capabilities, capabilityPath); err != nil {
-				return err
-			}
-		}
-	}
-	if len(core.Files.Presentations) > 0 {
-		core.Presentations = map[string]Presentation{}
-		core.Actions = map[string]Action{}
-		for _, presentationPath := range core.Files.Presentations {
-			presentations, err := loadYAML[PresentationsFile](filepath.Join(root, presentationPath))
-			if err != nil {
-				return errors.Wrapf(err, "load presentations %s", presentationPath)
-			}
-			if err := mergePresentations(core.Presentations, presentations.Presentations, presentationPath); err != nil {
-				return err
-			}
-			if err := mergeActions(core.Actions, presentations.Actions, presentationPath); err != nil {
 				return err
 			}
 		}
@@ -139,26 +123,6 @@ func mergeCapabilities(dst map[string]Capability, src map[string]Capability, sou
 	for id, value := range src {
 		if _, exists := dst[id]; exists {
 			return errors.Errorf("duplicate capability %q in %s", id, sourcePath)
-		}
-		dst[id] = value
-	}
-	return nil
-}
-
-func mergePresentations(dst map[string]Presentation, src map[string]Presentation, sourcePath string) error {
-	for id, value := range src {
-		if _, exists := dst[id]; exists {
-			return errors.Errorf("duplicate presentation %q in %s", id, sourcePath)
-		}
-		dst[id] = value
-	}
-	return nil
-}
-
-func mergeActions(dst map[string]Action, src map[string]Action, sourcePath string) error {
-	for id, value := range src {
-		if _, exists := dst[id]; exists {
-			return errors.Errorf("duplicate action %q in %s", id, sourcePath)
 		}
 		dst[id] = value
 	}

@@ -14,7 +14,7 @@ templates:
     role: property_inspector
     generation_policy: scaffold_once
   intent:
-    purpose: Render compact key-value properties, optionally using presentation-aware value renderers.
+    purpose: Render compact key-value properties, optionally using representation-aware value renderers.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
       JSON or own trusted side effects.
   template:
@@ -24,7 +24,7 @@ templates:
     default_importance: optional
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       value_renderers:
         type: any
@@ -45,7 +45,7 @@ templates:
     avoid_when:
     - The instance has no generic inspector/detail properties.
   consumes:
-    presentations:
+    representations:
     - compact_ref
     - status_badge
     - metric_cell
@@ -62,7 +62,7 @@ templates:
             required: false
     action_slots:
       onSelectValue:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - basic
   - semantic_values
@@ -92,7 +92,7 @@ templates:
     default_importance: optional
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       comparison_axis:
         type: any
@@ -119,7 +119,7 @@ templates:
     - WorkItem
     capabilities:
     - measurable
-    presentations:
+    representations:
     - metric_cell
     - duration_cell
     - compact_ref
@@ -135,7 +135,7 @@ templates:
             required: true
     action_slots:
       onSelectCell:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - metrics
   - candidates
@@ -165,7 +165,7 @@ templates:
     default_importance: optional
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       sanitization:
         type: any
@@ -224,7 +224,7 @@ templates:
     default_importance: common
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       sandboxing:
         type: any
@@ -255,14 +255,14 @@ templates:
       PreviewFrameProps:
         fields:
           resource:
-            type: PresentationRef
+            type: RepresentationRef
             required: true
           preview:
             type: PreviewViewModel
             required: true
     action_slots:
       onOpenPreview:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - image
   - document

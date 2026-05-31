@@ -8,16 +8,6 @@ import (
 	"strings"
 )
 
-var knownArgumentModes = map[string]bool{
-	"selected_presentation":  true,
-	"presentation_candidate": true,
-	"free_text":              true,
-	"number_input":           true,
-	"choice":                 true,
-	"confirmation":           true,
-	"parameter_form":         true,
-}
-
 var knownSeverities = map[string]bool{
 	SeverityInfo:    true,
 	SeverityWarning: true,
@@ -150,40 +140,6 @@ func validateCoreModel(pkg *Package, resolved *ResolvedCoreModel) []Finding {
 		}
 	}
 
-	for presID, pres := range core.Presentations {
-		if pres.LongDescription == "" {
-			findings = append(findings, Warning("core_model", fmt.Sprintf("presentations.%s.long_description", presID), "missing_long_description", fmt.Sprintf("presentation %q has no long_description", presID), "Add a prose explanation with usage guidance, boundaries, and UI implications."))
-		}
-		for _, capID := range pres.AppliesTo.Capabilities {
-			if _, ok := core.Capabilities[capID]; !ok {
-				findings = append(findings, Error("core_model", fmt.Sprintf("presentations.%s.applies_to.capabilities.%s", presID, capID), "unknown_capability", fmt.Sprintf("presentation %q applies to unknown capability %q", presID, capID), "Define the capability or remove the reference."))
-			}
-		}
-		for _, archID := range pres.AppliesTo.Archetypes {
-			if _, ok := core.Archetypes[archID]; !ok {
-				findings = append(findings, Error("core_model", fmt.Sprintf("presentations.%s.applies_to.archetypes.%s", presID, archID), "unknown_archetype", fmt.Sprintf("presentation %q applies to unknown archetype %q", presID, archID), "Define the archetype or remove the reference."))
-			}
-		}
-		for _, fallback := range pres.Fallbacks {
-			if _, ok := core.Presentations[fallback]; !ok {
-				findings = append(findings, Error("core_model", fmt.Sprintf("presentations.%s.fallbacks.%s", presID, fallback), "unknown_presentation", fmt.Sprintf("presentation %q has unknown fallback %q", presID, fallback), "Define the fallback presentation or remove the reference."))
-			}
-		}
-	}
-
-	for actionID, action := range core.Actions {
-		if action.LongDescription == "" {
-			findings = append(findings, Warning("core_model", fmt.Sprintf("actions.%s.long_description", actionID), "missing_long_description", fmt.Sprintf("action %q has no long_description", actionID), "Add a prose explanation with behavior, boundaries, and side-effect implications."))
-		}
-		findings = append(findings, validateSelectors("core_model", fmt.Sprintf("actions.%s.accepts", actionID), action.Accepts, core)...)
-		for argID, arg := range action.Arguments {
-			if !knownArgumentModes[arg.Mode] {
-				findings = append(findings, Error("core_model", fmt.Sprintf("actions.%s.arguments.%s.mode", actionID, argID), "unknown_argument_mode", fmt.Sprintf("action %q argument %q uses unknown mode %q", actionID, argID, arg.Mode), "Use a known argument mode or update the validator."))
-			}
-			findings = append(findings, validateSelectors("core_model", fmt.Sprintf("actions.%s.arguments.%s.accepts", actionID, argID), arg.Accepts, core)...)
-		}
-	}
-
 	for exampleID, example := range core.DomainExamples {
 		for domainTypeID, domainType := range example.DomainTypes {
 			for _, archID := range domainType.Archetypes {
@@ -217,34 +173,6 @@ func validateCoreModel(pkg *Package, resolved *ResolvedCoreModel) []Finding {
 		}
 	}
 
-	return findings
-}
-
-func validateSelectors(artifact, path string, selectors []Selector, core CoreModelFile) []Finding {
-	var findings []Finding
-	for i, selector := range selectors {
-		selectorPath := fmt.Sprintf("%s[%d]", path, i)
-		if selector.Capability != "" {
-			if _, ok := core.Capabilities[selector.Capability]; !ok {
-				findings = append(findings, Error(artifact, selectorPath+".capability", "unknown_capability", fmt.Sprintf("selector references unknown capability %q", selector.Capability), "Define the capability or update the selector."))
-			}
-		}
-		if selector.Archetype != "" {
-			if _, ok := core.Archetypes[selector.Archetype]; !ok {
-				findings = append(findings, Error(artifact, selectorPath+".archetype", "unknown_archetype", fmt.Sprintf("selector references unknown archetype %q", selector.Archetype), "Define the archetype or update the selector."))
-			}
-		}
-		if selector.Presentation != "" {
-			if _, ok := core.Presentations[selector.Presentation]; !ok {
-				findings = append(findings, Error(artifact, selectorPath+".presentation", "unknown_presentation", fmt.Sprintf("selector references unknown presentation %q", selector.Presentation), "Define the presentation or update the selector."))
-			}
-		}
-		for _, capID := range selector.RequiresCapabilities {
-			if _, ok := core.Capabilities[capID]; !ok {
-				findings = append(findings, Error(artifact, selectorPath+".requires_capabilities", "unknown_capability", fmt.Sprintf("selector requires unknown capability %q", capID), "Define the capability or update the selector."))
-			}
-		}
-	}
 	return findings
 }
 
@@ -301,11 +229,6 @@ func validateWidgets(pkg *Package, resolved *ResolvedCoreModel) []Finding {
 		if widget.Name == "" {
 			findings = append(findings, Error("widgets", path+".name", "missing_widget_name", fmt.Sprintf("widget %q has no React component name", widget.ID), "Add a component name."))
 		}
-		for _, presID := range widget.Consumes.Presentations {
-			if _, ok := pkg.CoreModel.Presentations[presID]; !ok {
-				findings = append(findings, Error("widgets", path+".consumes.presentations", "unknown_presentation", fmt.Sprintf("widget %q consumes unknown presentation %q", widget.ID, presID), "Define the presentation or update the widget."))
-			}
-		}
 		for _, capID := range widget.Consumes.Capabilities {
 			if _, ok := pkg.CoreModel.Capabilities[capID]; !ok {
 				findings = append(findings, Error("widgets", path+".consumes.capabilities", "unknown_capability", fmt.Sprintf("widget %q consumes unknown capability %q", widget.ID, capID), "Define the capability or update the widget."))
@@ -339,11 +262,6 @@ func validateWidgets(pkg *Package, resolved *ResolvedCoreModel) []Finding {
 func validateWidgetSemanticContext(pkg *Package, widget Widget, path string) []Finding {
 	var findings []Finding
 	ctx := widget.SemanticContext
-	for _, presID := range ctx.Presentations {
-		if _, ok := pkg.CoreModel.Presentations[presID]; !ok {
-			findings = append(findings, Error("widgets", path+".semantic_context.presentations", "unknown_semantic_context_presentation", fmt.Sprintf("widget %q semantic_context references unknown presentation %q", widget.ID, presID), "Define the presentation or update semantic_context."))
-		}
-	}
 	for _, capID := range ctx.Capabilities {
 		if _, ok := pkg.CoreModel.Capabilities[capID]; !ok {
 			findings = append(findings, Error("widgets", path+".semantic_context.capabilities", "unknown_semantic_context_capability", fmt.Sprintf("widget %q semantic_context references unknown capability %q", widget.ID, capID), "Define the capability or update semantic_context."))

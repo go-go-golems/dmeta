@@ -30,7 +30,7 @@ Semantic IR
 | `widgets/states.yaml` | State/status templates. |
 | `widgets/streams.yaml` | Stream/timeline/event templates. |
 | `widgets/dashboards.yaml` | Dashboard/workbench templates. |
-| `widgets/presentations.yaml` | Templates closely tied to generic presentation/reference concepts. |
+| `widgets/representation-primitives.yaml` | Templates closely tied to generic Interaction representation/reference concepts. |
 
 ## What belongs here
 

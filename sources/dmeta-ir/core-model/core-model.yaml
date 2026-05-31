@@ -2,7 +2,7 @@ schema_version: 0
 artifact_type: dmeta_core_model_metadata
 summary: Shared metadata, logical types, and editing guidance for the split DMETA core model.
 long_summary: 'This file contains metadata that applies to the split core model package as a whole. The semantic content lives
-  in sibling files: archetypes.yaml, capabilities.yaml, presentations.yaml, and examples/*.yaml. Keep this file focused on
+  in sibling files: archetypes.yaml, capabilities.yaml, and examples/*.yaml. Keep this file focused on
   concepts shared by all parts of the package: logical type names, validation policy, editing guidance, and references to
   the design documents that explain why the model exists.'
 references:
@@ -30,3 +30,5 @@ authoring_guidelines:
 - Do not add a YAML field unless a generator, validator, runtime registry, lint rule, or review workflow is expected to consume
   it.
 - Read the referenced design docs before changing archetype/capability semantics.
+- Put target-neutral visible forms in Interaction IR representations, not in the core model.
+- Put target-neutral actions in Interaction IR actions, not in the core model.
