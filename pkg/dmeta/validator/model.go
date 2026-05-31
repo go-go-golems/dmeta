@@ -44,9 +44,9 @@ type CoreModelFile struct {
 
 type CoreModelFiles struct {
 	CoreModel     string   `yaml:"core_model"`
-	Archetypes    string   `yaml:"archetypes"`
-	Capabilities  string   `yaml:"capabilities"`
-	Presentations string   `yaml:"presentations"`
+	Archetypes    FileList `yaml:"archetypes"`
+	Capabilities  FileList `yaml:"capabilities"`
+	Presentations FileList `yaml:"presentations"`
 	DomainExample string   `yaml:"domain_example"`
 	ExamplesDir   string   `yaml:"examples_dir"`
 	Examples      []string `yaml:"examples"`

@@ -64,27 +64,45 @@ func loadSplitCoreModel(root string, core *CoreModelFile) error {
 		}
 		core.LogicalTypes = meta.LogicalTypes
 	}
-	if core.Files.Archetypes != "" {
-		archetypes, err := loadYAML[ArchetypesFile](filepath.Join(root, core.Files.Archetypes))
-		if err != nil {
-			return errors.Wrap(err, "load archetypes")
+	if len(core.Files.Archetypes) > 0 {
+		core.Archetypes = map[string]Archetype{}
+		for _, archetypePath := range core.Files.Archetypes {
+			archetypes, err := loadYAML[ArchetypesFile](filepath.Join(root, archetypePath))
+			if err != nil {
+				return errors.Wrapf(err, "load archetypes %s", archetypePath)
+			}
+			if err := mergeArchetypes(core.Archetypes, archetypes.Archetypes, archetypePath); err != nil {
+				return err
+			}
 		}
-		core.Archetypes = archetypes.Archetypes
 	}
-	if core.Files.Capabilities != "" {
-		capabilities, err := loadYAML[CapabilitiesFile](filepath.Join(root, core.Files.Capabilities))
-		if err != nil {
-			return errors.Wrap(err, "load capabilities")
+	if len(core.Files.Capabilities) > 0 {
+		core.Capabilities = map[string]Capability{}
+		for _, capabilityPath := range core.Files.Capabilities {
+			capabilities, err := loadYAML[CapabilitiesFile](filepath.Join(root, capabilityPath))
+			if err != nil {
+				return errors.Wrapf(err, "load capabilities %s", capabilityPath)
+			}
+			if err := mergeCapabilities(core.Capabilities, capabilities.Capabilities, capabilityPath); err != nil {
+				return err
+			}
 		}
-		core.Capabilities = capabilities.Capabilities
 	}
-	if core.Files.Presentations != "" {
-		presentations, err := loadYAML[PresentationsFile](filepath.Join(root, core.Files.Presentations))
-		if err != nil {
-			return errors.Wrap(err, "load presentations")
+	if len(core.Files.Presentations) > 0 {
+		core.Presentations = map[string]Presentation{}
+		core.Actions = map[string]Action{}
+		for _, presentationPath := range core.Files.Presentations {
+			presentations, err := loadYAML[PresentationsFile](filepath.Join(root, presentationPath))
+			if err != nil {
+				return errors.Wrapf(err, "load presentations %s", presentationPath)
+			}
+			if err := mergePresentations(core.Presentations, presentations.Presentations, presentationPath); err != nil {
+				return err
+			}
+			if err := mergeActions(core.Actions, presentations.Actions, presentationPath); err != nil {
+				return err
+			}
 		}
-		core.Presentations = presentations.Presentations
-		core.Actions = presentations.Actions
 	}
 	if core.Files.DomainExample != "" || len(core.Files.Examples) > 0 {
 		core.DomainExamples = map[string]DomainExample{}
@@ -103,6 +121,46 @@ func loadSplitCoreModel(root string, core *CoreModelFile) error {
 			}
 			core.DomainExamples[id] = example.DomainExample
 		}
+	}
+	return nil
+}
+
+func mergeArchetypes(dst map[string]Archetype, src map[string]Archetype, sourcePath string) error {
+	for id, value := range src {
+		if _, exists := dst[id]; exists {
+			return errors.Errorf("duplicate archetype %q in %s", id, sourcePath)
+		}
+		dst[id] = value
+	}
+	return nil
+}
+
+func mergeCapabilities(dst map[string]Capability, src map[string]Capability, sourcePath string) error {
+	for id, value := range src {
+		if _, exists := dst[id]; exists {
+			return errors.Errorf("duplicate capability %q in %s", id, sourcePath)
+		}
+		dst[id] = value
+	}
+	return nil
+}
+
+func mergePresentations(dst map[string]Presentation, src map[string]Presentation, sourcePath string) error {
+	for id, value := range src {
+		if _, exists := dst[id]; exists {
+			return errors.Errorf("duplicate presentation %q in %s", id, sourcePath)
+		}
+		dst[id] = value
+	}
+	return nil
+}
+
+func mergeActions(dst map[string]Action, src map[string]Action, sourcePath string) error {
+	for id, value := range src {
+		if _, exists := dst[id]; exists {
+			return errors.Errorf("duplicate action %q in %s", id, sourcePath)
+		}
+		dst[id] = value
 	}
 	return nil
 }
