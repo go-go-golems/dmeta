@@ -8,6 +8,7 @@ status: draft
 files:
   index: ./widgets/00-index.yaml
   lowering_rules: ./lowering-rules.yaml
+  component_system: ./component-system.yaml
   presentations: ./widgets/presentations.yaml
   streams: ./widgets/streams.yaml
   tables: ./widgets/tables.yaml

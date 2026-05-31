@@ -41,6 +41,18 @@ func LoadPackage(ctx context.Context, root string) (*Package, error) {
 		return nil, errors.Errorf("Web lowering rules artifact_type is %q, expected dmeta_web_lowering_rules", loweringRules.ArtifactType)
 	}
 
+	var componentSystem *ComponentSystemFile
+	if componentSystemPath := meta.Files["component_system"]; componentSystemPath != "" {
+		loaded, err := loadYAML[ComponentSystemFile](filepath.Join(absRoot, componentSystemPath))
+		if err != nil {
+			return nil, errors.Wrap(err, "load Web component system")
+		}
+		if loaded.ArtifactType != "dmeta_web_component_system" {
+			return nil, errors.Errorf("Web component system artifact_type is %q, expected dmeta_web_component_system", loaded.ArtifactType)
+		}
+		componentSystem = &loaded
+	}
+
 	widgets := map[string]validator.Widget{}
 	for key, templatePath := range meta.Files {
 		if isNonWidgetMetaDesignSystemFile(key) || templatePath == "" {
@@ -58,12 +70,12 @@ func LoadPackage(ctx context.Context, root string) (*Package, error) {
 		}
 	}
 
-	return &Package{Root: absRoot, Meta: meta, LoweringRules: loweringRules, Widgets: widgets}, nil
+	return &Package{Root: absRoot, Meta: meta, LoweringRules: loweringRules, ComponentSystem: componentSystem, Widgets: widgets}, nil
 }
 
 func isNonWidgetMetaDesignSystemFile(key string) bool {
 	switch key {
-	case "index", "lowering_rules", "style_tokens", "style_recipes":
+	case "index", "lowering_rules", "component_system", "style_tokens", "style_recipes":
 		return true
 	default:
 		return false

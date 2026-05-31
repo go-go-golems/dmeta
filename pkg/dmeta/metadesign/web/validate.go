@@ -57,22 +57,26 @@ func ValidatePackage(pkg *Package, interactions *interaction.Package) []validato
 			}
 		}
 		for _, widgetID := range rule.Emits.WidgetTemplates {
-			if _, ok := pkg.Widgets[widgetID]; !ok {
+			widget, ok := pkg.Widgets[widgetID]
+			if !ok {
 				findings = append(findings, validator.Error("web_meta_design_system", path+".emits.widget_templates", "unknown_widget_template", fmt.Sprintf("Web lowering rule %q emits unknown widget template %q", rule.ID, widgetID), "Define the Web widget template in this MetaDesignSystem package or fix the rule."))
+				continue
+			}
+			level := resolvedComponentKind(widget)
+			if isDependencyOnlyLevel(pkg.ComponentSystem, level) && shouldWarnDependencyOnlyEmits(pkg.ComponentSystem) {
+				findings = append(findings, validator.Warning("web_meta_design_system", path+".emits.widget_templates", "lowering_emits_dependency_only_component", fmt.Sprintf("Web lowering rule %q emits %q at dependency-only component level %q", rule.ID, widgetID, level), "Prefer emitting an organism, rich_widget, or page and include atoms/molecules through composition.uses."))
 			}
 		}
 	}
+	findings = append(findings, validateComponentSystemPolicy(pkg)...)
 	for widgetID, widget := range pkg.Widgets {
 		path := fmt.Sprintf("widgets[%s]", widgetID)
-		kind := widget.ComponentSystem.Kind
-		if kind == "" {
-			kind = widget.ComponentSystem.Level
+		kind := resolvedComponentKind(widget)
+		if kind != "" && !validComponentKind(pkg.ComponentSystem, kind) {
+			findings = append(findings, validator.Error("web_meta_design_system", path+".component_system.kind", "unknown_component_kind", fmt.Sprintf("Web widget template %q has unknown component kind %q", widgetID, kind), "Use a component level defined by the Web component-system policy."))
 		}
-		if kind != "" && !validComponentKind(kind) {
-			findings = append(findings, validator.Error("web_meta_design_system", path+".component_system.kind", "unknown_component_kind", fmt.Sprintf("Web widget template %q has unknown component kind %q", widgetID, kind), "Use atom, molecule, organism, rich_widget, page, or component."))
-		}
-		if widget.ComponentSystem.Specificity != "" && !validSpecificity(widget.ComponentSystem.Specificity) {
-			findings = append(findings, validator.Error("web_meta_design_system", path+".component_system.specificity", "unknown_component_specificity", fmt.Sprintf("Web widget template %q has unknown specificity %q", widgetID, widget.ComponentSystem.Specificity), "Use generic, brand, domain, or app."))
+		if widget.ComponentSystem.Specificity != "" && !validSpecificity(pkg.ComponentSystem, widget.ComponentSystem.Specificity) {
+			findings = append(findings, validator.Error("web_meta_design_system", path+".component_system.specificity", "unknown_component_specificity", fmt.Sprintf("Web widget template %q has unknown specificity %q", widgetID, widget.ComponentSystem.Specificity), "Use a specificity value defined by the Web component-system policy."))
 		}
 		for _, dep := range widget.Composition.Uses {
 			if dep.Template == "" {
@@ -102,8 +106,47 @@ func ValidatePackage(pkg *Package, interactions *interaction.Package) []validato
 	return findings
 }
 
-func validComponentKind(kind string) bool {
-	switch strings.ReplaceAll(strings.ToLower(kind), "-", "_") {
+func validateComponentSystemPolicy(pkg *Package) []validator.Finding {
+	if pkg.ComponentSystem == nil {
+		return nil
+	}
+	var findings []validator.Finding
+	if len(pkg.ComponentSystem.Levels) == 0 {
+		findings = append(findings, validator.Error("web_component_system", "component_system.levels", "missing_component_levels", "Web component-system policy defines no levels", "Add levels such as atom, molecule, organism, rich_widget, and page."))
+	}
+	for levelID, level := range pkg.ComponentSystem.Levels {
+		path := "component_system.levels." + levelID
+		if strings.TrimSpace(level.Description) == "" {
+			findings = append(findings, validator.Warning("web_component_system", path+".description", "missing_level_description", fmt.Sprintf("Web component level %q has no description", levelID), "Explain what this component level owns."))
+		}
+		for _, child := range level.AllowedChildren {
+			if _, ok := pkg.ComponentSystem.Levels[normalizeComponentKind(child)]; !ok {
+				findings = append(findings, validator.Error("web_component_system", path+".allowed_children", "unknown_allowed_child_level", fmt.Sprintf("Web component level %q allows unknown child level %q", levelID, child), "Allowed children must reference known component-system levels."))
+			}
+		}
+	}
+	return findings
+}
+
+func resolvedComponentKind(widget validator.Widget) string {
+	kind := widget.ComponentSystem.Kind
+	if kind == "" {
+		kind = widget.ComponentSystem.Level
+	}
+	return normalizeComponentKind(kind)
+}
+
+func normalizeComponentKind(kind string) string {
+	return strings.ReplaceAll(strings.ToLower(strings.TrimSpace(kind)), "-", "_")
+}
+
+func validComponentKind(policy *ComponentSystemFile, kind string) bool {
+	kind = normalizeComponentKind(kind)
+	if policy != nil && len(policy.Levels) > 0 {
+		_, ok := policy.Levels[kind]
+		return ok
+	}
+	switch kind {
 	case "atom", "molecule", "organism", "rich_widget", "page", "component":
 		return true
 	default:
@@ -111,11 +154,42 @@ func validComponentKind(kind string) bool {
 	}
 }
 
-func validSpecificity(specificity string) bool {
-	switch strings.ToLower(specificity) {
+func validSpecificity(policy *ComponentSystemFile, specificity string) bool {
+	specificity = strings.ToLower(strings.TrimSpace(specificity))
+	if policy != nil && len(policy.Specificity.Allowed) > 0 {
+		for _, allowed := range policy.Specificity.Allowed {
+			if strings.ToLower(strings.TrimSpace(allowed)) == specificity {
+				return true
+			}
+		}
+		return false
+	}
+	switch specificity {
 	case "generic", "brand", "domain", "app":
 		return true
 	default:
 		return false
 	}
+}
+
+func isDependencyOnlyLevel(policy *ComponentSystemFile, level string) bool {
+	level = normalizeComponentKind(level)
+	if level == "" {
+		return false
+	}
+	if policy != nil {
+		for _, dependencyOnlyLevel := range policy.LoweringRules.DependencyOnlyLevels {
+			if normalizeComponentKind(dependencyOnlyLevel) == level {
+				return true
+			}
+		}
+		if policyLevel, ok := policy.Levels[level]; ok {
+			return !policyLevel.CanBeEmittedByLowering
+		}
+	}
+	return level == "atom" || level == "molecule"
+}
+
+func shouldWarnDependencyOnlyEmits(policy *ComponentSystemFile) bool {
+	return policy == nil || policy.LoweringRules.WarnWhenEmittingDependencyOnlyLevel
 }

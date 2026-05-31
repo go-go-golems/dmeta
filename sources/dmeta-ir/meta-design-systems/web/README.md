@@ -15,8 +15,9 @@ Semantic IR
 
 | Path | Purpose |
 | --- | --- |
-| `meta-design-system.yaml` | Web MDS package manifest. It lists lowering rules, widget catalogs, and target files. |
+| `meta-design-system.yaml` | Web MDS package manifest. It lists lowering rules, component-system policy, widget catalogs, and target files. |
 | `lowering-rules.yaml` | Generic rules that map Interaction IR representations/actions to reusable Web widget obligations. |
+| `component-system.yaml` | Generic Web component hierarchy, composition rules, lifecycle defaults, and lowering policy for atoms, molecules, organisms, rich widgets, pages, and components. |
 | `targets/react.yaml` | React target configuration: generated file kinds, metadata sidecars, and component directory layout. |
 | `widgets/00-index.yaml` | Widget catalog index and authoring guidance. |
 | `widgets/actions.yaml` | Action-control templates such as action buttons and action groups. |
@@ -84,7 +85,7 @@ component_layout:
     component: components
 ```
 
-The component-system IR is being simplified. The intended direction is to codify hierarchy, composition rules, lifecycle defaults, and explanation requirements in a first-class Web MDS policy file, rather than relying on loosely repeated fields in each widget template.
+The generic component-system policy is codified in `component-system.yaml`. The remaining cleanup is to migrate widget templates toward one canonical component block and make validation/planning use the policy more deeply.
 
 ## Lowering model
 

@@ -135,7 +135,7 @@ func loadWidgetTemplates(root string) (WidgetIRFile, error) {
 
 func isNonWidgetMetaDesignSystemFile(key string) bool {
 	switch key {
-	case "index", "lowering_rules", "style_tokens", "style_recipes":
+	case "index", "lowering_rules", "component_system", "style_tokens", "style_recipes":
 		return true
 	default:
 		return false
