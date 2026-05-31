@@ -156,7 +156,7 @@ func (c *ListComponentsCommand) RunIntoGlazeProcessor(ctx context.Context, vals 
 			types.MRP("id", w.ID),
 			types.MRP("name", w.Name),
 			types.MRP("kind", widgetKind(w)),
-			types.MRP("role", firstNonEmpty(w.Component.Role, w.ComponentSystem.Role)),
+			types.MRP("role", w.Component.Role),
 			types.MRP("status", w.Status),
 			types.MRP("file", relPath(webRoot, record.File)),
 			types.MRP("source_key", record.SourceKey),
@@ -213,7 +213,7 @@ func (c *ShowComponentCommand) RunIntoGlazeProcessor(ctx context.Context, vals *
 		types.MRP("id", w.ID),
 		types.MRP("name", w.Name),
 		types.MRP("kind", widgetKind(w)),
-		types.MRP("role", firstNonEmpty(w.Component.Role, w.ComponentSystem.Role)),
+		types.MRP("role", w.Component.Role),
 		types.MRP("status", w.Status),
 		types.MRP("file", relPath(webRoot, record.File)),
 		types.MRP("source_key", record.SourceKey),
@@ -394,7 +394,7 @@ func loadYAMLFile[T any](path string) (T, error) {
 
 func isComponentInspectNonWidgetFile(key string) bool {
 	switch key {
-	case "index", "lowering_rules", "style_tokens", "style_recipes":
+	case "index", "lowering_rules", "component_system", "style_tokens", "style_recipes":
 		return true
 	default:
 		return false
@@ -432,15 +432,6 @@ func widgetKind(w validator.Widget) string {
 	if w.Component.Level != "" {
 		return w.Component.Level
 	}
-	if w.ComponentSystem.Kind != "" {
-		return w.ComponentSystem.Kind
-	}
-	if w.ComponentSystem.Level != "" {
-		return w.ComponentSystem.Level
-	}
-	if level, ok := w.Classification["level"].(string); ok && level != "" {
-		return level
-	}
 	if w.Template.Category != "" {
 		return w.Template.Category
 	}
@@ -448,16 +439,7 @@ func widgetKind(w validator.Widget) string {
 }
 
 func widgetLifecycle(w validator.Widget) string {
-	if w.Component.GenerationPolicy != "" {
-		return w.Component.GenerationPolicy
-	}
-	if w.ComponentSystem.Lifecycle.Component != "" {
-		return w.ComponentSystem.Lifecycle.Component
-	}
-	if role, ok := w.Classification["generated_role"].(string); ok {
-		return role
-	}
-	return ""
+	return w.Component.GenerationPolicy
 }
 
 func actionSlotNames(w validator.Widget) []string {

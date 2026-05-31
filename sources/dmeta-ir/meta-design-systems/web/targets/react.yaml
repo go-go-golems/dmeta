@@ -17,7 +17,7 @@ defaults:
   storybook: true
   metadata_sidecars: true
   component_layout:
-    strategy: component_system
+    strategy: component_hierarchy
     dirs:
       atom: atoms
       molecule: molecules

@@ -71,23 +71,8 @@ func ValidatePackage(pkg *Package, interactions *interaction.Package) []validato
 	findings = append(findings, validateComponentSystemPolicy(pkg)...)
 	for widgetID, widget := range pkg.Widgets {
 		path := fmt.Sprintf("widgets[%s]", widgetID)
-		findings = append(findings, validateComponentCompatibility(path, widget)...)
-		kind := resolvedComponentKind(widget)
-		if kind != "" && !validComponentKind(pkg.ComponentSystem, kind) {
-			findings = append(findings, validator.Error("web_meta_design_system", path+".component.level", "unknown_component_kind", fmt.Sprintf("Web widget template %q has unknown component level %q", widgetID, kind), "Use a component level defined by the Web component-system policy."))
-		}
-		specificity := resolvedSpecificity(widget)
-		if specificity != "" && !validSpecificity(pkg.ComponentSystem, specificity) {
-			findings = append(findings, validator.Error("web_meta_design_system", path+".component.specificity", "unknown_component_specificity", fmt.Sprintf("Web widget template %q has unknown specificity %q", widgetID, specificity), "Use a specificity value defined by the Web component-system policy."))
-		}
-		for _, dep := range widget.Composition.Uses {
-			if dep.Template == "" {
-				continue
-			}
-			if _, ok := pkg.Widgets[dep.Template]; !ok {
-				findings = append(findings, validator.Error("web_meta_design_system", path+".composition.uses", "unknown_component_dependency", fmt.Sprintf("Web widget template %q depends on unknown template %q", widgetID, dep.Template), "Define the dependency in this Web MetaDesignSystem package or fix the composition reference."))
-			}
-		}
+		findings = append(findings, validateCanonicalComponentFields(pkg, path, widgetID, widget)...)
+		findings = append(findings, validateCompositionEdges(pkg, path, widgetID, widget)...)
 		for eventName, event := range widget.Contract.Events {
 			if event.ActionRef == "" {
 				continue
@@ -105,6 +90,7 @@ func ValidatePackage(pkg *Package, interactions *interaction.Package) []validato
 			}
 		}
 	}
+	findings = append(findings, validateCompositionCycles(pkg)...)
 	return findings
 }
 
@@ -130,85 +116,126 @@ func validateComponentSystemPolicy(pkg *Package) []validator.Finding {
 	return findings
 }
 
-func validateComponentCompatibility(path string, widget validator.Widget) []validator.Finding {
+func validateCanonicalComponentFields(pkg *Package, path string, widgetID string, widget validator.Widget) []validator.Finding {
 	var findings []validator.Finding
-	levels := nonEmptyNormalized(map[string]string{
-		"component.level":        widget.Component.Level,
-		"component_system.kind":  widget.ComponentSystem.Kind,
-		"component_system.level": widget.ComponentSystem.Level,
-		"classification.kind":    classificationString(widget, "kind"),
-		"classification.level":   classificationString(widget, "level"),
-	})
-	if hasConflictingValues(levels) {
-		findings = append(findings, validator.Warning("web_meta_design_system", path+".component.level", "conflicting_component_level", "Widget template defines conflicting component levels across canonical and legacy fields", "Prefer component.level and remove conflicting legacy component_system/classification values during migration."))
+	level := resolvedComponentKind(widget)
+	if level == "" {
+		findings = append(findings, validator.Error("web_meta_design_system", path+".component.level", "missing_component_level", fmt.Sprintf("Web widget template %q has no canonical component.level", widgetID), "Add component.level; do not use legacy classification or component_system fields."))
+	} else if !validComponentKind(pkg.ComponentSystem, level) {
+		findings = append(findings, validator.Error("web_meta_design_system", path+".component.level", "unknown_component_kind", fmt.Sprintf("Web widget template %q has unknown component level %q", widgetID, level), "Use a component level defined by the Web component-system policy."))
 	}
-	specificities := nonEmptyNormalized(map[string]string{
-		"component.specificity":        widget.Component.Specificity,
-		"component_system.specificity": widget.ComponentSystem.Specificity,
-		"classification.specificity":   classificationString(widget, "specificity"),
-	})
-	if hasConflictingValues(specificities) {
-		findings = append(findings, validator.Warning("web_meta_design_system", path+".component.specificity", "conflicting_component_specificity", "Widget template defines conflicting specificity across canonical and legacy fields", "Prefer component.specificity and remove conflicting legacy values during migration."))
+
+	role := strings.TrimSpace(widget.Component.Role)
+	if role == "" {
+		findings = append(findings, validator.Error("web_meta_design_system", path+".component.role", "missing_component_role", fmt.Sprintf("Web widget template %q has no canonical component.role", widgetID), "Add a stable machine-readable component.role."))
+	}
+
+	specificity := strings.ToLower(strings.TrimSpace(widget.Component.Specificity))
+	if specificity == "" {
+		findings = append(findings, validator.Error("web_meta_design_system", path+".component.specificity", "missing_component_specificity", fmt.Sprintf("Web widget template %q has no canonical component.specificity", widgetID), "Add component.specificity such as generic, brand, domain, or app."))
+	} else if !validSpecificity(pkg.ComponentSystem, specificity) {
+		findings = append(findings, validator.Error("web_meta_design_system", path+".component.specificity", "unknown_component_specificity", fmt.Sprintf("Web widget template %q has unknown specificity %q", widgetID, specificity), "Use a specificity value defined by the Web component-system policy."))
+	}
+
+	if strings.TrimSpace(widget.Component.GenerationPolicy) == "" {
+		findings = append(findings, validator.Error("web_meta_design_system", path+".component.generation_policy", "missing_component_generation_policy", fmt.Sprintf("Web widget template %q has no canonical component.generation_policy", widgetID), "Add component.generation_policy or choose the level default from component-system.yaml."))
+	}
+	if strings.TrimSpace(widget.Intent.Purpose) == "" {
+		findings = append(findings, validator.Error("web_meta_design_system", path+".intent.purpose", "missing_component_intent_purpose", fmt.Sprintf("Web widget template %q has no intent.purpose", widgetID), "Explain what this Web component renders."))
+	}
+	if strings.TrimSpace(widget.Intent.AdapterBoundary) == "" {
+		findings = append(findings, validator.Error("web_meta_design_system", path+".intent.adapter_boundary", "missing_component_adapter_boundary", fmt.Sprintf("Web widget template %q has no intent.adapter_boundary", widgetID), "Explain normalized inputs, callbacks/actions, and ownership boundaries."))
+	}
+	return findings
+}
+
+func validateCompositionEdges(pkg *Package, path string, widgetID string, widget validator.Widget) []validator.Finding {
+	var findings []validator.Finding
+	for i, dep := range widget.Composition.Uses {
+		depPath := fmt.Sprintf("%s.composition.uses[%d]", path, i)
+		if strings.TrimSpace(dep.Template) == "" {
+			findings = append(findings, validator.Error("web_meta_design_system", depPath+".template", "missing_component_dependency_template", fmt.Sprintf("Web widget template %q has a composition edge with no template", widgetID), "Set composition.uses[].template to a known Web widget template id."))
+			continue
+		}
+		child, ok := pkg.Widgets[dep.Template]
+		if !ok {
+			findings = append(findings, validator.Error("web_meta_design_system", depPath+".template", "unknown_component_dependency", fmt.Sprintf("Web widget template %q depends on unknown template %q", widgetID, dep.Template), "Define the dependency in this Web MetaDesignSystem package or fix the composition reference."))
+		} else if !componentLevelAllowsChild(pkg.ComponentSystem, resolvedComponentKind(widget), resolvedComponentKind(child)) {
+			findings = append(findings, validator.Error("web_meta_design_system", depPath+".template", "disallowed_component_child_level", fmt.Sprintf("Web widget template %q at level %q may not compose child %q at level %q", widgetID, resolvedComponentKind(widget), dep.Template, resolvedComponentKind(child)), "Update component-system.yaml allowed_children or choose a dependency at an allowed level."))
+		}
+		if strings.TrimSpace(dep.Role) == "" {
+			findings = append(findings, validator.Error("web_meta_design_system", depPath+".role", "missing_component_dependency_role", fmt.Sprintf("Web widget template %q has a composition edge to %q with no role", widgetID, dep.Template), "Add composition.uses[].role to explain the child role."))
+		}
+		if strings.TrimSpace(dep.Description) == "" {
+			findings = append(findings, validator.Error("web_meta_design_system", depPath+".description", "missing_component_dependency_description", fmt.Sprintf("Web widget template %q has a composition edge to %q with no description", widgetID, dep.Template), "Add composition.uses[].description to explain why this dependency exists."))
+		}
+	}
+	return findings
+}
+
+func validateCompositionCycles(pkg *Package) []validator.Finding {
+	if pkg.ComponentSystem != nil && !pkg.ComponentSystem.CompositionRules.ForbidCycles {
+		return nil
+	}
+	var findings []validator.Finding
+	visiting := map[string]bool{}
+	visited := map[string]bool{}
+	var stack []string
+	var visit func(string)
+	visit = func(id string) {
+		if visiting[id] {
+			cycle := append(stack, id)
+			findings = append(findings, validator.Error("web_meta_design_system", "composition.uses", "component_composition_cycle", fmt.Sprintf("Web component composition contains a cycle: %s", strings.Join(cycle, " -> ")), "Remove the cyclic composition edge or split the shared dependency into a lower-level component."))
+			return
+		}
+		if visited[id] {
+			return
+		}
+		widget, ok := pkg.Widgets[id]
+		if !ok {
+			return
+		}
+		visiting[id] = true
+		stack = append(stack, id)
+		for _, dep := range widget.Composition.Uses {
+			if dep.Template != "" {
+				visit(dep.Template)
+			}
+		}
+		stack = stack[:len(stack)-1]
+		visiting[id] = false
+		visited[id] = true
+	}
+	for id := range pkg.Widgets {
+		visit(id)
 	}
 	return findings
 }
 
 func resolvedComponentKind(widget validator.Widget) string {
-	kind := firstNonEmpty(widget.Component.Level, widget.ComponentSystem.Kind, widget.ComponentSystem.Level, classificationString(widget, "kind"), classificationString(widget, "level"))
-	return normalizeComponentKind(kind)
-}
-
-func resolvedSpecificity(widget validator.Widget) string {
-	return strings.ToLower(strings.TrimSpace(firstNonEmpty(widget.Component.Specificity, widget.ComponentSystem.Specificity, classificationString(widget, "specificity"))))
-}
-
-func classificationString(widget validator.Widget, key string) string {
-	if widget.Classification == nil {
-		return ""
-	}
-	value, ok := widget.Classification[key].(string)
-	if !ok {
-		return ""
-	}
-	return value
-}
-
-func firstNonEmpty(values ...string) string {
-	for _, value := range values {
-		if strings.TrimSpace(value) != "" {
-			return value
-		}
-	}
-	return ""
-}
-
-func nonEmptyNormalized(values map[string]string) map[string]string {
-	out := map[string]string{}
-	for key, value := range values {
-		if strings.TrimSpace(value) == "" {
-			continue
-		}
-		out[key] = normalizeComponentKind(value)
-	}
-	return out
-}
-
-func hasConflictingValues(values map[string]string) bool {
-	seen := ""
-	for _, value := range values {
-		if seen == "" {
-			seen = value
-			continue
-		}
-		if value != seen {
-			return true
-		}
-	}
-	return false
+	return normalizeComponentKind(widget.Component.Level)
 }
 
 func normalizeComponentKind(kind string) string {
 	return strings.ReplaceAll(strings.ToLower(strings.TrimSpace(kind)), "-", "_")
+}
+
+func componentLevelAllowsChild(policy *ComponentSystemFile, parent string, child string) bool {
+	parent = normalizeComponentKind(parent)
+	child = normalizeComponentKind(child)
+	if parent == "" || child == "" || policy == nil || len(policy.Levels) == 0 {
+		return true
+	}
+	parentLevel, ok := policy.Levels[parent]
+	if !ok {
+		return true
+	}
+	for _, allowedChild := range parentLevel.AllowedChildren {
+		if normalizeComponentKind(allowedChild) == child {
+			return true
+		}
+	}
+	return false
 }
 
 func validComponentKind(policy *ComponentSystemFile, kind string) bool {

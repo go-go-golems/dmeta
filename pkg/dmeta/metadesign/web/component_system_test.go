@@ -40,11 +40,14 @@ artifact_type: dmeta_web_widget_templates
 templates:
   - id: test.atom
     name: TestAtom
-    component_system:
-      kind: atom
+    component:
+      level: atom
       specificity: generic
+      role: test_atom
+      generation_policy: scaffold_once
     intent:
       purpose: Render a primitive.
+      adapter_boundary: Receives normalized props and emits local callbacks only.
 `)
 
 	pkg, err := LoadPackage(context.Background(), root)
@@ -74,28 +77,30 @@ func TestValidateComponentSystemPolicyUnknownAllowedChild(t *testing.T) {
 	}
 }
 
-func TestValidateWarnsOnConflictingCanonicalAndLegacyComponentLevel(t *testing.T) {
+func TestValidateErrorsOnMissingCanonicalComponentLevel(t *testing.T) {
 	pkg := &Package{
 		Widgets: map[string]validator.Widget{
 			"test.card": {
-				ID:              "test.card",
-				Name:            "TestCard",
-				Component:       validator.WidgetComponent{Level: "molecule"},
-				ComponentSystem: validator.WidgetComponentSystem{Kind: "organism"},
+				ID:   "test.card",
+				Name: "TestCard",
+				Intent: validator.WidgetIntent{
+					Purpose:         "Render a test card.",
+					AdapterBoundary: "Receives normalized props and emits typed callbacks.",
+				},
 			},
 		},
 	}
 
 	findings := ValidatePackage(pkg, emptyInteractionPackage())
-	if validator.HasErrors(findings) {
-		t.Fatalf("unexpected errors: %#v", findings)
+	if !validator.HasErrors(findings) {
+		t.Fatalf("expected missing canonical component errors, got %#v", findings)
 	}
 	for _, finding := range findings {
-		if finding.Code == "conflicting_component_level" && finding.Severity == validator.SeverityWarning {
+		if finding.Code == "missing_component_level" && finding.Severity == validator.SeverityError {
 			return
 		}
 	}
-	t.Fatalf("expected conflicting component level warning, got %#v", findings)
+	t.Fatalf("expected missing component level error, got %#v", findings)
 }
 
 func TestValidateAcceptsCanonicalComponentLevel(t *testing.T) {
@@ -110,7 +115,11 @@ func TestValidateAcceptsCanonicalComponentLevel(t *testing.T) {
 			"test.card": {
 				ID:        "test.card",
 				Name:      "TestCard",
-				Component: validator.WidgetComponent{Level: "molecule", Specificity: "generic", Role: "test_card"},
+				Component: validator.WidgetComponent{Level: "molecule", Specificity: "generic", Role: "test_card", GenerationPolicy: "scaffold_once"},
+				Intent: validator.WidgetIntent{
+					Purpose:         "Render a test card.",
+					AdapterBoundary: "Receives normalized props and emits typed callbacks.",
+				},
 			},
 		},
 	}
@@ -142,7 +151,15 @@ func TestValidateWarnsWhenLoweringEmitsDependencyOnlyLevel(t *testing.T) {
 			},
 		},
 		Widgets: map[string]validator.Widget{
-			"test.atom": {ID: "test.atom", Name: "TestAtom", ComponentSystem: validator.WidgetComponentSystem{Kind: "atom"}},
+			"test.atom": {
+				ID:        "test.atom",
+				Name:      "TestAtom",
+				Component: validator.WidgetComponent{Level: "atom", Specificity: "generic", Role: "test_atom", GenerationPolicy: "scaffold_once"},
+				Intent: validator.WidgetIntent{
+					Purpose:         "Render a primitive.",
+					AdapterBoundary: "Receives normalized props and emits local callbacks only.",
+				},
+			},
 		},
 	}
 

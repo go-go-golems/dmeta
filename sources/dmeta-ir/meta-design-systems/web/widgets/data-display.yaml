@@ -8,9 +8,11 @@ templates:
 - id: dmeta.key_value_list
   name: KeyValueList
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: property_inspector
+    generation_policy: scaffold_once
   intent:
     purpose: Render compact key-value properties, optionally using presentation-aware value renderers.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -74,9 +76,11 @@ templates:
 - id: dmeta.comparison_table
   name: ComparisonTable
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: comparison_table
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Render side-by-side comparison of metrics, candidates, versions, or before/after records.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -145,9 +149,11 @@ templates:
 - id: dmeta.markdown_block
   name: MarkdownBlock
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: markdown_content
+    generation_policy: scaffold_once
   intent:
     purpose: Render sanitized markdown documentation, runbooks, notes, or tool output.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -202,9 +208,11 @@ templates:
 - id: dmeta.preview_frame
   name: PreviewFrame
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: artifact_preview
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Render a preview of an artifact such as a document, image, OCR page, web output, or generated report.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend

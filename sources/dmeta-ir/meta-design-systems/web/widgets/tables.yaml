@@ -7,9 +7,11 @@ templates:
 - id: dmeta.dense_table
   name: DenseTable
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: dense_table
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Render sortable/filterable dense records with presentation-aware cells.
     adapter_boundary: Receives normalized columns/rows and emits typed row/cell callbacks.
@@ -93,9 +95,11 @@ templates:
 - id: dmeta.presentation_cell
   name: PresentationCell
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: presentation_table_cell
+    generation_policy: scaffold_once
   intent:
     purpose: Render one table cell by delegating to presentation-aware value renderers.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -174,9 +178,11 @@ templates:
 - id: dmeta.bulk_action_bar
   name: BulkActionBar
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: bulk_action_bar
+    generation_policy: scaffold_once
   intent:
     purpose: Render actions for selected rows/presentations with count, scope, and confirmation affordances.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend

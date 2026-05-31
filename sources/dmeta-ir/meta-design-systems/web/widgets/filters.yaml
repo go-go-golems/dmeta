@@ -8,9 +8,11 @@ templates:
 - id: dmeta.filter_bar
   name: FilterBar
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: filter_state_control
+    generation_policy: scaffold_once
   intent:
     purpose: Render active filter criteria, quick filters, and clear/remove controls for a filterable target.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -93,9 +95,11 @@ templates:
 - id: dmeta.search_box
   name: SearchBox
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: search_control
+    generation_policy: scaffold_once
   intent:
     purpose: Render scoped text search or autocomplete search for a searchable result target.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -179,9 +183,11 @@ templates:
 - id: dmeta.facet_panel
   name: FacetPanel
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: facet_bucket_browser
+    generation_policy: scaffold_once
   intent:
     purpose: Render counted facet buckets for a facetable result set and emit facet-filter actions.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -252,9 +258,11 @@ templates:
 - id: dmeta.result_summary
   name: ResultSummary
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: result_state_summary
+    generation_policy: scaffold_once
   intent:
     purpose: Render result count, active filter/search/window state, and live-tail status for a ResultSet.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -343,9 +351,11 @@ templates:
 - id: dmeta.saved_filter_menu
   name: SavedFilterMenu
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: filter_preset_selector
+    generation_policy: scaffold_once
   intent:
     purpose: Render saved filter presets and apply them to compatible filterable targets.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -414,9 +424,11 @@ templates:
 - id: dmeta.result_window_controls
   name: ResultWindowControls
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: result_window_navigation
+    generation_policy: scaffold_once
   intent:
     purpose: Render page/cursor/live-tail controls for windowable result sets.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend

@@ -8,9 +8,11 @@ templates:
 - id: dmeta.action_parameter_form
   name: ActionParameterForm
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: action_argument_form
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Render typed action parameters, confirmation text, and submit/cancel controls for selected actions.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -76,9 +78,11 @@ templates:
 - id: dmeta.field_group
   name: FieldGroup
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: field_group
+    generation_policy: scaffold_once
   intent:
     purpose: Render a labeled group of fields with description, validation summary, and density rules.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -149,9 +153,11 @@ templates:
 - id: dmeta.field_shell
   name: FieldShell
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: field_chrome
+    generation_policy: scaffold_once
   intent:
     purpose: Render consistent label/help/error/required chrome around a form control.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -228,9 +234,11 @@ templates:
 - id: dmeta.text_field
   name: TextField
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: text_input
+    generation_policy: scaffold_once
   intent:
     purpose: Render a single-line text input for filters, search scopes, and action parameters.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -304,9 +312,11 @@ templates:
 - id: dmeta.textarea_field
   name: TextareaField
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: multiline_text_input
+    generation_policy: scaffold_once
   intent:
     purpose: Render multiline input for notes, prompts, payload fragments, or longer parameters.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -380,9 +390,11 @@ templates:
 - id: dmeta.select_field
   name: SelectField
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: choice_input
+    generation_policy: scaffold_once
   intent:
     purpose: Render enum or finite-choice parameter selection.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -456,9 +468,11 @@ templates:
 - id: dmeta.switch_field
   name: SwitchField
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: boolean_input
+    generation_policy: scaffold_once
   intent:
     purpose: Render a boolean parameter or filter toggle.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -532,9 +546,11 @@ templates:
 - id: dmeta.datetime_field
   name: DateTimeField
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: datetime_input
+    generation_policy: scaffold_once
   intent:
     purpose: Render date/time input for schedules, time windows, and temporal filters.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -607,9 +623,11 @@ templates:
 - id: dmeta.duration_field
   name: DurationField
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: duration_input
+    generation_policy: scaffold_once
   intent:
     purpose: Render duration, timeout, SLA, or time-window size input.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -682,9 +700,11 @@ templates:
 - id: dmeta.number_field
   name: NumberField
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: number_input
+    generation_policy: scaffold_once
   intent:
     purpose: Render numeric input for limits, thresholds, counts, and metric filters.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend

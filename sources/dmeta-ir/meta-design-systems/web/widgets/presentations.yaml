@@ -7,9 +7,11 @@ templates:
 - id: dmeta.presentation_token
   name: PresentationToken
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: semantic_presentation
+    generation_policy: scaffold_once
   intent:
     purpose: Render a single presentation ref as inline selectable text/token/chip.
     adapter_boundary: Receives typed PresentationRef; does not parse runtime JSON.
@@ -88,9 +90,11 @@ templates:
 - id: dmeta.status_badge
   name: StatusBadge
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: state_presentation
+    generation_policy: scaffold_once
   intent:
     purpose: Render the stateful capability as a compact semantic badge.
     adapter_boundary: Receives normalized state presentation data and emits typed presentation callbacks.
@@ -181,9 +185,11 @@ templates:
 - id: dmeta.compact_reference
   name: CompactReference
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: reference_presentation
+    generation_policy: scaffold_once
   intent:
     purpose: Render compact references for identifiable/labelable semantic objects.
     adapter_boundary: Receives PresentationRef and optional resolved label/state data.
@@ -281,9 +287,11 @@ templates:
 - id: dmeta.metric_cell
   name: MetricCell
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: metric_presentation
+    generation_policy: scaffold_once
   intent:
     purpose: Render comparable numeric values with units and tabular alignment.
     adapter_boundary: Receives normalized metric value and optional PresentationRef.

@@ -7,9 +7,11 @@ templates:
 - id: dmeta.record_stream
   name: RecordStream
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: dense_record_stream
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Render virtualizable ordered records/events/work items with selectable semantic presentations.
     adapter_boundary: Receives normalized row models and typed callbacks; does not own backend dispatch.

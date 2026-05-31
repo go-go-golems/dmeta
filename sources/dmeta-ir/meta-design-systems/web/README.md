@@ -75,7 +75,7 @@ The React target currently maps those levels to directories in `targets/react.ya
 
 ```yaml
 component_layout:
-  strategy: component_system
+  strategy: component_hierarchy
   dirs:
     atom: atoms
     molecule: molecules
@@ -85,7 +85,7 @@ component_layout:
     component: components
 ```
 
-The generic component-system policy is codified in `component-system.yaml`. The remaining cleanup is to migrate widget templates toward one canonical component block and make validation/planning use the policy more deeply.
+The generic component-system policy is codified in `component-system.yaml`. Widget templates now use one canonical `component` block, and validation/planning reads that block without legacy `classification` or widget-level `component_system` fallbacks.
 
 ## Lowering model
 

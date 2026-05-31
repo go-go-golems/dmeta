@@ -290,27 +290,10 @@ func generatedFileBase(component ComponentPlan) string {
 }
 
 func lifecycleForKind(component ComponentPlan, kind string) string {
-	policy := component.Template.ComponentSystem.Lifecycle
-	var lifecycle string
-	switch kind {
-	case "component":
-		lifecycle = policy.Component
-	case "types":
-		lifecycle = policy.Types
-	case "style":
-		lifecycle = policy.Styles
-	case "stories":
-		lifecycle = policy.Stories
-	case "metadata":
-		lifecycle = policy.Metadata
+	if lifecycle := component.Template.Component.GenerationPolicy; lifecycle != "" {
+		return normalizeLifecycle(lifecycle)
 	}
-	if lifecycle == "" {
-		lifecycle = policy.Default
-	}
-	if lifecycle == "" {
-		return defaultLifecycleForKind(kind)
-	}
-	return normalizeLifecycle(lifecycle)
+	return defaultLifecycleForKind(kind)
 }
 
 func defaultLifecycleForKind(kind string) string {
@@ -331,7 +314,7 @@ func normalizeLifecycle(lifecycle string) string {
 		return "regenerate_only"
 	case "scaffold", "scaffold_once", "scaffoldonce":
 		return "scaffold_once"
-	case "sidecar", "sidecar_for_merge", "sidecarformerge", "generated_sidecar":
+	case "scaffold_then_promote", "scaffoldthenpromote", "sidecar", "sidecar_for_merge", "sidecarformerge", "generated_sidecar":
 		return "generated_sidecar"
 	default:
 		return normalized
@@ -339,31 +322,23 @@ func normalizeLifecycle(lifecycle string) string {
 }
 
 func componentKindFromWidget(widget validator.Widget) string {
-	kind := firstNonEmpty(widget.Component.Level, widget.ComponentSystem.Kind, widget.ComponentSystem.Level, classificationString(widget, "kind"), classificationString(widget, "level"))
-	return normalizeComponentKind(kind)
+	return normalizeComponentKind(widget.Component.Level)
 }
 
 func componentSpecificityFromWidget(widget validator.Widget) string {
-	return firstNonEmpty(widget.Component.Specificity, widget.ComponentSystem.Specificity, classificationString(widget, "specificity"), "app")
+	return firstNonEmpty(widget.Component.Specificity, "app")
 }
 
 func componentFamilyFromWidget(widget validator.Widget) string {
-	return firstNonEmpty(widget.ComponentSystem.Family, classificationString(widget, "family"), classificationString(widget, "surface"))
+	return widget.Template.Category
 }
 
 func componentRoleFromWidget(widget validator.Widget) string {
-	return firstNonEmpty(widget.Component.Role, widget.ComponentSystem.Role, classificationString(widget, "role"), widget.Intent.Purpose)
+	return firstNonEmpty(widget.Component.Role, widget.Intent.Purpose)
 }
 
 func componentLifecycleFromWidget(widget validator.Widget) string {
-	lifecycle := widget.Component.GenerationPolicy
-	if lifecycle == "" {
-		lifecycle = widget.ComponentSystem.Lifecycle.Component
-	}
-	if lifecycle == "" {
-		lifecycle = widget.ComponentSystem.Lifecycle.Default
-	}
-	return firstNonEmpty(lifecycle, classificationString(widget, "generated_role"), "scaffold")
+	return firstNonEmpty(widget.Component.GenerationPolicy, "scaffold")
 }
 
 func componentOutputDir(outputDir string, componentName string, componentKind string, layout ReactComponentLayout) string {
@@ -415,20 +390,6 @@ func normalizeComponentKind(kind string) string {
 	default:
 		return normalized
 	}
-}
-
-func classificationString(widget validator.Widget, key string) string {
-	if widget.Classification == nil {
-		return ""
-	}
-	value, ok := widget.Classification[key]
-	if !ok || value == nil {
-		return ""
-	}
-	if s, ok := value.(string); ok {
-		return s
-	}
-	return ""
 }
 
 func firstNonEmpty(values ...string) string {

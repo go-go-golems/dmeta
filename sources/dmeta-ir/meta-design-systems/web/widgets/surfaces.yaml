@@ -7,9 +7,11 @@ templates:
 - id: dmeta.detail_drawer
   name: DetailDrawer
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: semantic_detail_surface
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Inspect selected semantic subject while preserving list/table context.
     adapter_boundary: Receives normalized detail sections, related presentations, and action callbacks.

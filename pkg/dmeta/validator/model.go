@@ -316,9 +316,7 @@ type Widget struct {
 	Name            string                `yaml:"name"`
 	Status          string                `yaml:"status"`
 	Description     string                `yaml:"description"`
-	Classification  map[string]any        `yaml:"classification"`
 	Component       WidgetComponent       `yaml:"component"`
-	ComponentSystem WidgetComponentSystem `yaml:"component_system"`
 	Composition     WidgetComposition     `yaml:"composition"`
 	Intent          WidgetIntent          `yaml:"intent"`
 	Template        TemplateMetadata      `yaml:"template"`
@@ -350,36 +348,9 @@ type WidgetComponent struct {
 	Level            string   `yaml:"level"`
 	Specificity      string   `yaml:"specificity"`
 	Role             string   `yaml:"role"`
-	PromotionOrder   int      `yaml:"promotion_order"`
 	GenerationPolicy string   `yaml:"generation_policy"`
 	Responsibilities []string `yaml:"responsibilities"`
 	Notes            []string `yaml:"notes"`
-}
-
-type WidgetComponentSystem struct {
-	Kind            string                 `yaml:"kind"`
-	Level           string                 `yaml:"level"`
-	Specificity     string                 `yaml:"specificity"`
-	Family          string                 `yaml:"family"`
-	Role            string                 `yaml:"role"`
-	RoleDescription string                 `yaml:"role_description"`
-	PromotionOrder  int                    `yaml:"promotion_order"`
-	OwnsLayout      bool                   `yaml:"owns_layout"`
-	OwnsBehavior    bool                   `yaml:"owns_behavior"`
-	Lifecycle       WidgetLifecyclePolicy  `yaml:"lifecycle"`
-	Extra           map[string]interface{} `yaml:",inline"`
-}
-
-type WidgetLifecyclePolicy struct {
-	Default     string   `yaml:"default"`
-	Component   string   `yaml:"component"`
-	Types       string   `yaml:"types"`
-	Styles      string   `yaml:"styles"`
-	Stories     string   `yaml:"stories"`
-	Metadata    string   `yaml:"metadata"`
-	Adapter     string   `yaml:"adapter"`
-	Protected   []string `yaml:"protected"`
-	PromoteInto string   `yaml:"promote_into"`
 }
 
 type WidgetComposition struct {

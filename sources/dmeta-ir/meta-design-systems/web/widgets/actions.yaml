@@ -7,9 +7,11 @@ templates:
 - id: dmeta.action_palette
   name: ActionPalette
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: typed_action_discovery
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Discover actions globally or for a selected PresentationRef and collect typed arguments.
     adapter_boundary: Receives generated action metadata, current selection, and candidate presentations.
@@ -89,22 +91,11 @@ templates:
 - id: dmeta.action_button
   name: ActionButton
   status: template
-  classification:
+  component:
     level: atom
-    role: action_button
-  component_system:
-    kind: atom
     specificity: generic
-    family: action
     role: action_control
-    role_description: Generic button primitive that renders one semantic action and delegates side effects through callbacks.
-    promotion_order: 10
-    owns_layout: false
-    owns_behavior: false
-    lifecycle:
-      default: scaffold_once
-      metadata: regenerate_only
-      stories: sidecar_for_merge
+    generation_policy: scaffold_once
   intent:
     purpose: Render one action with semantic tone, loading/disabled state, and adapter-boundary callback.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -193,27 +184,17 @@ templates:
 - id: dmeta.action_group
   name: ActionGroup
   status: template
-  classification:
+  component:
     level: molecule
-    role: action_group
-  component_system:
-    kind: molecule
     specificity: generic
-    family: action
     role: grouped_action_controls
-    role_description: Generic molecule for laying out related semantic actions while depending on action-level atoms.
-    promotion_order: 30
-    owns_layout: true
-    owns_behavior: false
-    lifecycle:
-      default: scaffold_once
-      metadata: regenerate_only
-      stories: sidecar_for_merge
+    generation_policy: scaffold_once
   composition:
     uses:
     - template: dmeta.action_button
       role: action item renderer
       required: true
+      description: Use dmeta.action_button as the action item renderer dependency for this component.
     provides:
     - grouped action layout
   intent:
@@ -291,9 +272,11 @@ templates:
 - id: dmeta.context_menu_trigger
   name: ContextMenuTrigger
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: context_menu_trigger
+    generation_policy: scaffold_once
   intent:
     purpose: Expose secondary presentation actions without adding dense visual noise.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend

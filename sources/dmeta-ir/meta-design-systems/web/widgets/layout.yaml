@@ -8,9 +8,11 @@ templates:
 - id: dmeta.workbench_shell
   name: WorkbenchShell
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: workspace_frame
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Render a global workbench frame with navigation, workspace status, command/search affordances, and main content
       slots.
@@ -67,9 +69,11 @@ templates:
 - id: dmeta.page_header
   name: PageHeader
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: page_identity
+    generation_policy: scaffold_once
   intent:
     purpose: Render page title, subtitle, breadcrumbs/context refs, primary actions, and status summary.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -149,9 +153,11 @@ templates:
 - id: dmeta.panel
   name: Panel
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: bounded_content_surface
+    generation_policy: scaffold_once
   intent:
     purpose: Render a low-chrome content surface with optional header, body, footer, density, and action slots.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -225,9 +231,11 @@ templates:
 - id: dmeta.toolbar
   name: Toolbar
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: control_row
+    generation_policy: scaffold_once
   intent:
     purpose: Render a compact row for search, filters, view toggles, and actions.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -301,9 +309,11 @@ templates:
 - id: dmeta.split_pane
   name: SplitPane
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: master_detail_layout
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Render a resizable or fixed split between primary context and secondary detail/inspector content.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -362,9 +372,11 @@ templates:
 - id: dmeta.tabs
   name: Tabs
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: view_switcher
+    generation_policy: scaffold_once
   intent:
     purpose: Render tabbed navigation among sibling views or detail sections.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend

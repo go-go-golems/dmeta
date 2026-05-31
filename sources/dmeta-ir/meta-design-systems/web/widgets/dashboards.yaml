@@ -8,9 +8,11 @@ templates:
 - id: dmeta.operational_dashboard
   name: OperationalDashboard
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: dashboard_frame
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Render a fixed or responsive dashboard composed of named operational regions.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -74,9 +76,11 @@ templates:
 - id: dmeta.dashboard_region
   name: DashboardRegion
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: dashboard_region
+    generation_policy: scaffold_once
   intent:
     purpose: Render one named dashboard region with title, status, content, and optional action hooks.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -153,9 +157,11 @@ templates:
 - id: dmeta.metric_summary_strip
   name: MetricSummaryStrip
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: metric_summary
+    generation_policy: scaffold_once
   intent:
     purpose: Render a compact strip of comparable metrics and status indicators.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -235,9 +241,11 @@ templates:
 - id: dmeta.queue_health_panel
   name: QueueHealthPanel
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: queue_health_summary
+    generation_policy: scaffold_once
   intent:
     purpose: Render queue depth, throughput, failure, and freshness status for operational work queues.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend

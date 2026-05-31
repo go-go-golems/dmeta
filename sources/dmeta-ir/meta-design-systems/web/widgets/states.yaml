@@ -8,9 +8,11 @@ templates:
 - id: dmeta.empty_state
   name: EmptyState
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: empty_state
+    generation_policy: scaffold_once
   intent:
     purpose: Render a quiet empty/no-results state with optional recovery action.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -84,9 +86,11 @@ templates:
 - id: dmeta.loading_state
   name: LoadingState
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: loading_state
+    generation_policy: scaffold_once
   intent:
     purpose: Render loading/progress state for panels, streams, tables, and dashboards.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -157,9 +161,11 @@ templates:
 - id: dmeta.inline_error
   name: InlineError
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: inline_error
+    generation_policy: scaffold_once
   intent:
     purpose: Render a compact recoverable error state with message, detail, and retry action.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -233,9 +239,11 @@ templates:
 - id: dmeta.disconnected_state
   name: DisconnectedState
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: connection_state
+    generation_policy: scaffold_once
   intent:
     purpose: Render disconnected/reconnecting/stale realtime data state.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -306,9 +314,11 @@ templates:
 - id: dmeta.stale_data_indicator
   name: StaleDataIndicator
   status: template
-  classification:
+  component:
     level: atom
+    specificity: generic
     role: freshness_indicator
+    generation_policy: scaffold_once
   intent:
     purpose: Render last-updated/freshness warning for dashboards and live result surfaces.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
