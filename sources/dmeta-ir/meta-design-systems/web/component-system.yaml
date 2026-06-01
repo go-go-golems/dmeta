@@ -127,7 +127,42 @@ lowering_rules:
     - atom
     - molecule
   warn_when_emitting_dependency_only_level: true
+layout_recipe_policy:
+  description: Optional Web-target metadata that records proven React layout primitive recipes for generated scaffolds and promotion guidance.
+  ownership: Web MetaDesignSystem only; do not copy layout recipes into Semantic IR/core model or Interaction IR representations/actions.
+  expected_location: component.layout
+  allowed_primitives:
+    - section
+    - container
+    - grid
+    - stack
+    - split
+    - surface
+  common_fields:
+    - primitive
+    - section_tone
+    - section_spacing
+    - container
+    - grid_recipe
+    - split_ratio
+    - media_position
+    - collapse_at
+    - stack_gap
+    - stack_align
+    - child_layout
+    - source
+  source_values:
+    description: Indicates where the recipe was proven before being copied into Web MDS metadata.
+    examples:
+      - promoted_react_phase_5
+      - promoted_react_phase_7
+      - storybook_layout_recipes_phase_8
+  usage_notes:
+    - Layout recipes are advisory metadata until generator/model support consumes them.
+    - Recipe names should match React layout primitive prop values exactly.
+    - Add recipes only after promoted React and Storybook contracts prove the layout.
 notes:
   - Lowering rules should usually emit organisms, rich widgets, or pages that satisfy Interaction IR obligations.
   - Atoms and molecules should usually enter generated/promoted systems through composition.uses dependency closure.
   - Application packages may specialize this policy, but should not move Web component hierarchy into Semantic IR or Interaction IR.
+  - Web layout recipes are target-family metadata for scaffolding and promotion; they are not semantic facts and should not be authored in Semantic IR/core model or Interaction IR.
