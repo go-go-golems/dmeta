@@ -98,33 +98,17 @@ jobs:
             exit 1
           fi
 
-      - name: Read NPM token from Vault
-        id: vault-npm
-        if: steps.version-check.outputs.skip != 'true'
-        uses: hashicorp/vault-action@v3
-        with:
-          url: https://vault.yolo.scapegoat.dev
-          method: jwt
-          path: github-actions
-          role: dmeta-npm-publish
-          jwtGithubAudience: https://vault.yolo.scapegoat.dev
-          exportEnv: false
-          secrets: |
-            kv/data/ci/github/dmeta/npm-token value | NODE_AUTH_TOKEN
-
       - name: Publish to npm
         if: steps.version-check.outputs.skip != 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ steps.vault-npm.outputs.NODE_AUTH_TOKEN }}
         run: |
           set -euo pipefail
           NAME=$(node -p "require('./package.json').name")
           VERSION=$(node -p "require('./package.json').version")
-          ARGS=(--access public --tag "${{ inputs.npm_tag }}")
+          ARGS=(--access public --provenance --tag "${{ inputs.npm_tag }}")
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             ARGS+=(--dry-run)
           fi
-          echo "Publishing ${NAME}@${VERSION} with tag=${{ inputs.npm_tag }} dry_run=${{ inputs.dry_run }}"
+          echo "Publishing ${NAME}@${VERSION} with tag=${{ inputs.npm_tag }} dry_run=${{ inputs.dry_run }} via npm Trusted Publishing"
           npm publish "${ARGS[@]}"
 
       - name: Summary

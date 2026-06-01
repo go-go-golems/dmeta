@@ -17,6 +17,7 @@ The two static A/B prototypes remain under:
 - `playbooks/01-dmeta-shared-compiler-playbook.md` — shared Semantic IR, Interaction IR, validation, and cross-target workflow.
 - `playbooks/02-dmeta-web-react-metadesignsystem-playbook.md` — Web MetaDesignSystem, Web lowering, React scaffold planning, and `www/mobile-react` workflow.
 - `playbooks/03-dmeta-pbui-clim-metadesignsystem-playbook.md` — PBUI MetaDesignSystem, concrete PBUI profile, generic PBUI proof package, and `www/clim-react` workflow.
+- `docs/npm-publishing-playbook.md` — tokenless npm Trusted Publishing workflow for `@go-go-golems/pbui`.
 
 Start with the shared playbook, then run the Web or PBUI playbook depending on the target being changed.
 

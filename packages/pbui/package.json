@@ -8,8 +8,8 @@
   "author": "Manuel Odendahl",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/go-go-golems/dmeta-dsl.git",
-    "directory": "dmeta/packages/pbui"
+    "url": "git+https://github.com/go-go-golems/dmeta.git",
+    "directory": "packages/pbui"
   },
   "files": [
     "src",
