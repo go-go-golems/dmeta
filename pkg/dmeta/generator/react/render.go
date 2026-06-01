@@ -40,9 +40,10 @@ type RealizesMetadata struct {
 }
 
 type WebMetadata struct {
-	Slots         []string `json:"slots,omitempty"`
-	VisualStates  []string `json:"visualStates,omitempty"`
-	EventBindings []string `json:"eventBindings,omitempty"`
+	Slots         []string            `json:"slots,omitempty"`
+	VisualStates  []string            `json:"visualStates,omitempty"`
+	EventBindings []string            `json:"eventBindings,omitempty"`
+	Layout        *genmeta.LayoutHint `json:"layout,omitempty"`
 }
 
 type ReactMetadata struct {
@@ -104,6 +105,7 @@ func legacyMetadataSidecar(component ComponentPlan) MetadataSidecar {
 			Slots:         append([]string{}, component.Slots...),
 			VisualStates:  append([]string{}, component.VisualStates...),
 			EventBindings: append([]string{}, component.EventBindings...),
+			Layout:        metadataLayoutHint(component),
 		},
 		React: ReactMetadata{
 			PackageName: component.PackageName,
@@ -171,16 +173,17 @@ func renderGeneratedManifest(plan ScaffoldPlan) ([]byte, error) {
 		SourceRules     []string `json:"sourceRules,omitempty"`
 	}
 	type manifestComponent struct {
-		TemplateID    string            `json:"templateId"`
-		ComponentName string            `json:"componentName"`
-		Kind          string            `json:"kind"`
-		Specificity   string            `json:"specificity,omitempty"`
-		Family        string            `json:"family,omitempty"`
-		Role          string            `json:"role,omitempty"`
-		Variant       string            `json:"variant,omitempty"`
-		Generated     manifestPaths     `json:"generated"`
-		Promoted      promotedPaths     `json:"promoted"`
-		Semantics     manifestSemantics `json:"semantics,omitempty"`
+		TemplateID    string              `json:"templateId"`
+		ComponentName string              `json:"componentName"`
+		Kind          string              `json:"kind"`
+		Specificity   string              `json:"specificity,omitempty"`
+		Family        string              `json:"family,omitempty"`
+		Role          string              `json:"role,omitempty"`
+		Variant       string              `json:"variant,omitempty"`
+		Generated     manifestPaths       `json:"generated"`
+		Promoted      promotedPaths       `json:"promoted"`
+		Semantics     manifestSemantics   `json:"semantics,omitempty"`
+		Layout        *genmeta.LayoutHint `json:"layout,omitempty"`
 	}
 	type manifest struct {
 		SchemaVersion int                   `json:"schemaVersion"`
@@ -232,6 +235,7 @@ func renderGeneratedManifest(plan ScaffoldPlan) ([]byte, error) {
 				Actions:         append([]string{}, component.RealizesActions...),
 				SourceRules:     append([]string{}, component.SourceRules...),
 			},
+			Layout: metadataLayoutHint(component),
 		})
 	}
 
@@ -1141,6 +1145,7 @@ func webGeneratedMetadata(plan ScaffoldPlan, component ComponentPlan, file Plann
 			Slots:         append([]string{}, component.Slots...),
 			VisualStates:  append([]string{}, component.VisualStates...),
 			EventBindings: append([]string{}, component.EventBindings...),
+			Layout:        metadataLayoutHint(component),
 			ComponentSystem: &genmeta.ComponentSystemGuidance{
 				Kind:        component.ComponentKind,
 				Specificity: component.ComponentSpecificity,
@@ -1179,6 +1184,18 @@ func generatedReactFileRefs(files []PlannedFile) []genmeta.FileRef {
 		refs = append(refs, genmeta.FileRef{Kind: file.Kind, Path: file.Path, Symbol: file.Symbol})
 	}
 	return refs
+}
+
+func metadataLayoutHint(component ComponentPlan) *genmeta.LayoutHint {
+	layout := component.Template.Component.Layout
+	if strings.TrimSpace(layout.Primitive) == "" && strings.TrimSpace(layout.Container) == "" && strings.TrimSpace(layout.GridRecipe) == "" {
+		return nil
+	}
+	return &genmeta.LayoutHint{
+		Primitive:  layout.Primitive,
+		Container:  layout.Container,
+		GridRecipe: layout.GridRecipe,
+	}
 }
 
 func metadataDependencyClosure(component ComponentPlan) []genmeta.ComponentDependencyInfo {

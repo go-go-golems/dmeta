@@ -292,12 +292,19 @@ type SourceBlock struct {
 }
 
 type WidgetComponent struct {
-	Level            string   `yaml:"level"`
-	Specificity      string   `yaml:"specificity"`
-	Role             string   `yaml:"role"`
-	GenerationPolicy string   `yaml:"generation_policy"`
-	Responsibilities []string `yaml:"responsibilities"`
-	Notes            []string `yaml:"notes"`
+	Level            string           `yaml:"level"`
+	Specificity      string           `yaml:"specificity"`
+	Role             string           `yaml:"role"`
+	GenerationPolicy string           `yaml:"generation_policy"`
+	Layout           WidgetLayoutHint `yaml:"layout"`
+	Responsibilities []string         `yaml:"responsibilities"`
+	Notes            []string         `yaml:"notes"`
+}
+
+type WidgetLayoutHint struct {
+	Primitive  string `yaml:"primitive" json:"primitive,omitempty"`
+	Container  string `yaml:"container" json:"container,omitempty"`
+	GridRecipe string `yaml:"grid_recipe" json:"gridRecipe,omitempty"`
 }
 
 type WidgetComposition struct {

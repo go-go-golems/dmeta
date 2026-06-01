@@ -64,8 +64,18 @@ type WebGuidance struct {
 	Slots           []string                  `json:"slots,omitempty"`
 	VisualStates    []string                  `json:"visualStates,omitempty"`
 	EventBindings   []string                  `json:"eventBindings,omitempty"`
+	Layout          *LayoutHint               `json:"layout,omitempty"`
 	ComponentSystem *ComponentSystemGuidance  `json:"componentSystem,omitempty"`
 	Composition     *ComponentCompositionInfo `json:"composition,omitempty"`
+}
+
+// LayoutHint is a deliberately small Web-target hint. It describes the dominant
+// layout shape for generated metadata and promotion scaffolding without trying
+// to model every React layout primitive prop.
+type LayoutHint struct {
+	Primitive  string `json:"primitive,omitempty"`
+	Container  string `json:"container,omitempty"`
+	GridRecipe string `json:"gridRecipe,omitempty"`
 }
 
 type ComponentSystemGuidance struct {
