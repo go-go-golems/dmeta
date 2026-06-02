@@ -30,10 +30,6 @@ func Generate(pkg *validator.Package, outDir string) ([]GeneratedFile, error) {
 	files := []GeneratedFile{
 		{Path: joinOut(outDir, "archetypes.ts"), Content: []byte(renderArchetypes(pkg.CoreModel, resolved))},
 		{Path: joinOut(outDir, "capabilities.ts"), Content: []byte(renderCapabilities(pkg.CoreModel, resolved))},
-		{Path: joinOut(outDir, "presentations.ts"), Content: []byte(RenderPresentations(pkg.CoreModel))},
-		{Path: joinOut(outDir, "actions.ts"), Content: []byte(RenderActions(pkg.CoreModel))},
-		{Path: joinOut(outDir, "PresentationRef.ts"), Content: []byte(RenderPresentationRef())},
-		{Path: joinOut(outDir, "actionMatching.ts"), Content: []byte(RenderActionMatching())},
 		{Path: joinOut(outDir, "index.ts"), Content: []byte(RenderIndex())},
 	}
 	return files, nil
@@ -47,8 +43,7 @@ func RenderArchetypes(core validator.CoreModelFile) string {
 func renderArchetypes(core validator.CoreModelFile, resolved *validator.ResolvedCoreModel) string {
 	var b bytes.Buffer
 	b.WriteString(generatedHeader)
-	b.WriteString("import type { CapabilityId } from \"./capabilities\";\n")
-	b.WriteString("import type { PresentationId } from \"./presentations\";\n\n")
+	b.WriteString("import type { CapabilityId } from \"./capabilities\";\n\n")
 	ids := sortedKeys(core.Archetypes)
 	renderConstStringArray(&b, "archetypeIds", ids)
 	b.WriteString("export type ArchetypeId = typeof archetypeIds[number];\n\n")
@@ -61,8 +56,6 @@ func renderArchetypes(core validator.CoreModelFile, resolved *validator.Resolved
   ancestors: ArchetypeId[];
   defaultCapabilities: CapabilityId[];
   effectiveDefaultCapabilities: CapabilityId[];
-  recommendedPresentations: PresentationId[];
-  effectiveRecommendedPresentations: PresentationId[];
   examples: string[];
   effectiveExamples: string[];
 };
@@ -81,8 +74,6 @@ func renderArchetypes(core validator.CoreModelFile, resolved *validator.Resolved
 		b.WriteString(fmt.Sprintf("    ancestors: %s as ArchetypeId[],\n", tsArray(ra.Ancestors)))
 		b.WriteString(fmt.Sprintf("    defaultCapabilities: %s as CapabilityId[],\n", tsArray(a.DefaultCapabilities)))
 		b.WriteString(fmt.Sprintf("    effectiveDefaultCapabilities: %s as CapabilityId[],\n", tsArray(ra.EffectiveDefaultCapabilities)))
-		b.WriteString(fmt.Sprintf("    recommendedPresentations: %s as PresentationId[],\n", tsArray(a.RecommendedPresentations)))
-		b.WriteString(fmt.Sprintf("    effectiveRecommendedPresentations: %s as PresentationId[],\n", tsArray(ra.EffectiveRecommendedPresentations)))
 		b.WriteString(fmt.Sprintf("    examples: %s,\n", tsArray(a.Examples)))
 		b.WriteString(fmt.Sprintf("    effectiveExamples: %s,\n", tsArray(ra.EffectiveExamples)))
 		b.WriteString("  },\n")
@@ -111,8 +102,6 @@ func RenderCapabilities(core validator.CoreModelFile) string {
 func renderCapabilities(core validator.CoreModelFile, resolved *validator.ResolvedCoreModel) string {
 	var b bytes.Buffer
 	b.WriteString(generatedHeader)
-	b.WriteString("import type { ActionId } from \"./actions\";\n")
-	b.WriteString("import type { PresentationId } from \"./presentations\";\n\n")
 	ids := sortedKeys(core.Capabilities)
 	renderConstStringArray(&b, "capabilityIds", ids)
 	b.WriteString("export type CapabilityId = typeof capabilityIds[number];\n\n")
@@ -132,12 +121,6 @@ export type CapabilityDefinition = {
   ancestors: CapabilityId[];
   projections: Record<string, ProjectionDefinition>;
   effectiveProjections: Record<string, ProjectionDefinition>;
-  presentations: PresentationId[];
-  effectivePresentations: PresentationId[];
-  actions: ActionId[];
-  effectiveActions: ActionId[];
-  filters: string[];
-  effectiveFilters: string[];
 };
 
 `)
@@ -158,12 +141,6 @@ export type CapabilityDefinition = {
 		b.WriteString("    effectiveProjections: ")
 		renderProjectionMap(&b, rc.EffectiveProjections)
 		b.WriteString(",\n")
-		b.WriteString(fmt.Sprintf("    presentations: %s as PresentationId[],\n", tsArray(c.Presentations)))
-		b.WriteString(fmt.Sprintf("    effectivePresentations: %s as PresentationId[],\n", tsArray(rc.EffectivePresentations)))
-		b.WriteString(fmt.Sprintf("    actions: %s as ActionId[],\n", tsArray(c.Actions)))
-		b.WriteString(fmt.Sprintf("    effectiveActions: %s as ActionId[],\n", tsArray(rc.EffectiveActions)))
-		b.WriteString(fmt.Sprintf("    filters: %s,\n", tsArray(c.Filters)))
-		b.WriteString(fmt.Sprintf("    effectiveFilters: %s,\n", tsArray(rc.EffectiveFilters)))
 		b.WriteString("  },\n")
 	}
 	b.WriteString("};\n\n")
@@ -178,224 +155,9 @@ export function isCapabilityA(child: CapabilityId, ancestor: CapabilityId): bool
 	return b.String()
 }
 
-func RenderPresentations(core validator.CoreModelFile) string {
-	var b bytes.Buffer
-	b.WriteString(generatedHeader)
-	b.WriteString("import type { ArchetypeId } from \"./archetypes\";\n")
-	b.WriteString("import type { CapabilityId } from \"./capabilities\";\n\n")
-	ids := sortedKeys(core.Presentations)
-	renderConstStringArray(&b, "presentationIds", ids)
-	b.WriteString("export type PresentationId = typeof presentationIds[number];\n\n")
-	b.WriteString(`export type PresentationLayer = "capability" | "archetype" | "domain";
-
-export type PresentationDefinition = {
-  id: PresentationId;
-  description: string;
-  longDescription: string;
-  layer: PresentationLayer;
-  appliesTo: {
-    capabilities?: CapabilityId[];
-    archetypes?: ArchetypeId[];
-    domainTypes?: string[];
-  };
-  requires: string[];
-  requiresAny: string[];
-  optional: string[];
-  role: string;
-  density: string;
-  interaction: Record<string, boolean>;
-  styleRecipe?: string;
-  fallbacks: PresentationId[];
-};
-
-`)
-	b.WriteString("export const presentations: Record<PresentationId, PresentationDefinition> = {\n")
-	for _, id := range ids {
-		p := core.Presentations[id]
-		b.WriteString(fmt.Sprintf("  %s: {\n", tsProperty(id)))
-		b.WriteString(fmt.Sprintf("    id: %s,\n", tsString(id)))
-		b.WriteString(fmt.Sprintf("    description: %s,\n", tsString(p.Description)))
-		b.WriteString(fmt.Sprintf("    longDescription: %s,\n", tsString(p.LongDescription)))
-		b.WriteString(fmt.Sprintf("    layer: %s as PresentationLayer,\n", tsString(p.Layer)))
-		b.WriteString("    appliesTo: {\n")
-		if len(p.AppliesTo.Capabilities) > 0 {
-			b.WriteString(fmt.Sprintf("      capabilities: %s,\n", tsArray(p.AppliesTo.Capabilities)))
-		}
-		if len(p.AppliesTo.Archetypes) > 0 {
-			b.WriteString(fmt.Sprintf("      archetypes: %s,\n", tsArray(p.AppliesTo.Archetypes)))
-		}
-		if len(p.AppliesTo.DomainTypes) > 0 {
-			b.WriteString(fmt.Sprintf("      domainTypes: %s,\n", tsArray(p.AppliesTo.DomainTypes)))
-		}
-		b.WriteString("    },\n")
-		b.WriteString(fmt.Sprintf("    requires: %s,\n", tsArray(p.Requires)))
-		b.WriteString(fmt.Sprintf("    requiresAny: %s,\n", tsArray(p.RequiresAny)))
-		b.WriteString(fmt.Sprintf("    optional: %s,\n", tsArray(p.Optional)))
-		b.WriteString(fmt.Sprintf("    role: %s,\n", tsString(p.Role)))
-		b.WriteString(fmt.Sprintf("    density: %s,\n", tsString(p.Density)))
-		b.WriteString(fmt.Sprintf("    interaction: %s,\n", tsBoolMap(p.Interaction)))
-		if p.StyleRecipe != "" {
-			b.WriteString(fmt.Sprintf("    styleRecipe: %s,\n", tsString(p.StyleRecipe)))
-		}
-		b.WriteString(fmt.Sprintf("    fallbacks: %s,\n", tsArray(p.Fallbacks)))
-		b.WriteString("  },\n")
-	}
-	b.WriteString("};\n\n")
-	b.WriteString(`export function isPresentationId(value: string): value is PresentationId {
-  return (presentationIds as readonly string[]).includes(value);
-}
-`)
-	return b.String()
-}
-
-func RenderActions(core validator.CoreModelFile) string {
-	var b bytes.Buffer
-	b.WriteString(generatedHeader)
-	b.WriteString("import type { ArchetypeId } from \"./archetypes\";\n")
-	b.WriteString("import type { CapabilityId } from \"./capabilities\";\n")
-	b.WriteString("import type { PresentationId } from \"./presentations\";\n\n")
-	ids := sortedKeys(core.Actions)
-	renderConstStringArray(&b, "actionIds", ids)
-	b.WriteString("export type ActionId = typeof actionIds[number];\n\n")
-	b.WriteString(`export type ActionSelector =
-  | { capability: CapabilityId; requiresCapabilities?: CapabilityId[] }
-  | { archetype: ArchetypeId; requiresCapabilities?: CapabilityId[] }
-  | { presentation: PresentationId }
-  | { domainType: string };
-
-export type ArgumentMode =
-  | "selected_presentation"
-  | "presentation_candidate"
-  | "free_text"
-  | "number_input"
-  | "choice"
-  | "confirmation"
-  | "parameter_form";
-
-export type ActionArgumentDefinition = {
-  mode: ArgumentMode | string;
-  required: boolean;
-  accepts: ActionSelector[];
-};
-
-export type ActionDefinition = {
-  id: ActionId;
-  description: string;
-  longDescription: string;
-  category: string;
-  accepts: ActionSelector[];
-  arguments: Record<string, ActionArgumentDefinition>;
-  result: { kind: string };
-};
-
-`)
-	b.WriteString("export const actions: Record<ActionId, ActionDefinition> = {\n")
-	for _, id := range ids {
-		a := core.Actions[id]
-		b.WriteString(fmt.Sprintf("  %s: {\n", tsProperty(id)))
-		b.WriteString(fmt.Sprintf("    id: %s,\n", tsString(id)))
-		b.WriteString(fmt.Sprintf("    description: %s,\n", tsString(a.Description)))
-		b.WriteString(fmt.Sprintf("    longDescription: %s,\n", tsString(a.LongDescription)))
-		b.WriteString(fmt.Sprintf("    category: %s,\n", tsString(a.Category)))
-		b.WriteString(fmt.Sprintf("    accepts: %s,\n", tsSelectors(a.Accepts)))
-		b.WriteString("    arguments: {\n")
-		for _, argID := range sortedKeys(a.Arguments) {
-			arg := a.Arguments[argID]
-			b.WriteString(fmt.Sprintf("      %s: { mode: %s, required: %t, accepts: %s },\n", tsProperty(argID), tsString(arg.Mode), arg.Required, tsSelectors(arg.Accepts)))
-		}
-		b.WriteString("    },\n")
-		b.WriteString(fmt.Sprintf("    result: { kind: %s },\n", tsString(a.Result.Kind)))
-		b.WriteString("  },\n")
-	}
-	b.WriteString("};\n\n")
-	b.WriteString(`export function isActionId(value: string): value is ActionId {
-  return (actionIds as readonly string[]).includes(value);
-}
-`)
-	return b.String()
-}
-
-func RenderPresentationRef() string {
-	return generatedHeader + `import type { ArchetypeId } from "./archetypes";
-import type { CapabilityId } from "./capabilities";
-import type { PresentationId } from "./presentations";
-
-export type PresentationRef = {
-  semanticId: string;
-  domainType: string;
-  archetypes: ArchetypeId[];
-  capabilities: CapabilityId[];
-  presentationId: PresentationId;
-  label: string;
-  value?: unknown;
-  copyValue?: string;
-  sourceSurface: string;
-  sourcePath?: string;
-};
-`
-}
-
-func RenderActionMatching() string {
-	return generatedHeader + `import { isArchetypeA } from "./archetypes";
-import type { ArchetypeId } from "./archetypes";
-import { actions } from "./actions";
-import type { ActionDefinition, ActionSelector } from "./actions";
-import { isCapabilityA } from "./capabilities";
-import type { CapabilityId } from "./capabilities";
-import type { PresentationRef } from "./PresentationRef";
-
-function refHasCapability(ref: PresentationRef, capability: CapabilityId): boolean {
-  return ref.capabilities.some((candidate) => isCapabilityA(candidate, capability));
-}
-
-function refHasArchetype(ref: PresentationRef, archetype: ArchetypeId): boolean {
-  return ref.archetypes.some((candidate) => isArchetypeA(candidate, archetype));
-}
-
-function requiresCapabilitiesMatch(required: readonly CapabilityId[] | undefined, ref: PresentationRef): boolean {
-  if (!required || required.length === 0) return true;
-  return required.every((capability) => refHasCapability(ref, capability));
-}
-
-export function selectorMatchesPresentationRef(selector: ActionSelector, ref: PresentationRef): boolean {
-  if ("capability" in selector) {
-    if (!refHasCapability(ref, selector.capability)) return false;
-    return requiresCapabilitiesMatch(selector.requiresCapabilities, ref);
-  }
-
-  if ("archetype" in selector) {
-    if (!refHasArchetype(ref, selector.archetype)) return false;
-    return requiresCapabilitiesMatch(selector.requiresCapabilities, ref);
-  }
-
-  if ("presentation" in selector) {
-    return ref.presentationId === selector.presentation;
-  }
-
-  if ("domainType" in selector) {
-    return ref.domainType === selector.domainType;
-  }
-
-  return false;
-}
-
-export function actionMatchesPresentationRef(action: ActionDefinition, ref: PresentationRef): boolean {
-  return action.accepts.some((selector) => selectorMatchesPresentationRef(selector, ref));
-}
-
-export function actionsForPresentationRef(ref: PresentationRef): ActionDefinition[] {
-  return Object.values(actions).filter((action) => actionMatchesPresentationRef(action, ref));
-}
-`
-}
-
 func RenderIndex() string {
 	return generatedHeader + `export * from "./archetypes";
 export * from "./capabilities";
-export * from "./presentations";
-export * from "./actions";
-export * from "./PresentationRef";
-export * from "./actionMatching";
 `
 }
 
@@ -455,33 +217,6 @@ func tsBoolMap(values map[string]bool) string {
 		parts = append(parts, fmt.Sprintf("%s: %t", tsProperty(key), values[key]))
 	}
 	return "{ " + strings.Join(parts, ", ") + " }"
-}
-
-func tsSelectors(selectors []validator.Selector) string {
-	if len(selectors) == 0 {
-		return "[]"
-	}
-	parts := make([]string, 0, len(selectors))
-	for _, selector := range selectors {
-		fields := []string{}
-		if selector.Capability != "" {
-			fields = append(fields, fmt.Sprintf("capability: %s", tsString(selector.Capability)))
-		}
-		if selector.Archetype != "" {
-			fields = append(fields, fmt.Sprintf("archetype: %s", tsString(selector.Archetype)))
-		}
-		if selector.Presentation != "" {
-			fields = append(fields, fmt.Sprintf("presentation: %s", tsString(selector.Presentation)))
-		}
-		if selector.DomainType != "" {
-			fields = append(fields, fmt.Sprintf("domainType: %s", tsString(selector.DomainType)))
-		}
-		if len(selector.RequiresCapabilities) > 0 {
-			fields = append(fields, fmt.Sprintf("requiresCapabilities: %s", tsArray(selector.RequiresCapabilities)))
-		}
-		parts = append(parts, "{ "+strings.Join(fields, ", ")+" }")
-	}
-	return "[" + strings.Join(parts, ", ") + "]"
 }
 
 func tsProperty(s string) string {

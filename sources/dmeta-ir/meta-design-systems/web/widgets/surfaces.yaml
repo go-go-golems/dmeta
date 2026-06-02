@@ -7,14 +7,16 @@ templates:
 - id: dmeta.detail_drawer
   name: DetailDrawer
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: semantic_detail_surface
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Inspect selected semantic subject while preserving list/table context.
-    adapter_boundary: Receives normalized detail sections, related presentations, and action callbacks.
+    adapter_boundary: Receives normalized detail sections, related representations, and action callbacks.
   consumes:
-    presentations:
+    representations:
     - detail_panel
     - compact_ref
     - relation_link
@@ -28,7 +30,7 @@ templates:
       DetailDrawerProps:
         fields:
           subject:
-            type: PresentationRef
+            type: RepresentationRef
             required: true
           sections:
             type: DetailSection[]
@@ -42,7 +44,7 @@ templates:
       onAction:
         accepts: PresentationActionRequest
       onOpenRelated:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - tool_run_detail
   - shipment_detail
@@ -74,10 +76,10 @@ templates:
         type: any
         required: false
         description: Storybook scenarios relevant to the selected variant and instance.
-      presentation_mapping:
+      representation_mapping:
         type: any
         required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
+        description: Mapping from Interaction representations to rendered slots/cells/regions.
       action_slots:
         type: any
         required: false

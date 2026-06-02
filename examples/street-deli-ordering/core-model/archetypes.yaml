@@ -15,7 +15,6 @@ archetypes:
     description: Root semantic role class.
     extends: []
     default_capabilities: []
-    recommended_presentations: []
     examples: []
     long_description: Every semantic archetype inherits from Archetype. The root is abstract and exists so validation, generated
       TypeScript, and documentation can reason about the complete archetype hierarchy explicitly.
@@ -29,9 +28,6 @@ archetypes:
     - labelable
     - inspectable
     - relatable
-    recommended_presentations:
-    - compact_ref
-    - detail_panel
     examples:
     - Agent
     - Order
@@ -50,11 +46,6 @@ archetypes:
     - actionable
     - relatable
     - inspectable
-    recommended_presentations:
-    - compact_ref
-    - inline_token
-    - summary_card
-    - detail_panel
     examples:
     - Agent
     - User
@@ -79,11 +70,6 @@ archetypes:
     - actionable
     - inspectable
     - relatable
-    recommended_presentations:
-    - compact_ref
-    - dense_row
-    - summary_card
-    - detail_panel
     examples:
     - ToolRun
     - Shipment
@@ -105,10 +91,6 @@ archetypes:
     - append_only
     - inspectable
     - relatable
-    recommended_presentations:
-    - inline_token
-    - dense_row
-    - detail_panel
     examples:
     - LogEvent
     - ToolEvent
@@ -129,10 +111,6 @@ archetypes:
     - labelable
     - relatable
     - inspectable
-    recommended_presentations:
-    - compact_ref
-    - summary_card
-    - detail_panel
     examples:
     - File
     - Package
@@ -153,10 +131,6 @@ archetypes:
     - labelable
     - relatable
     - inspectable
-    recommended_presentations:
-    - relation_link
-    - inline_token
-    - detail_panel
     examples:
     - AssignedTo
     - DependsOn
@@ -176,10 +150,6 @@ archetypes:
     - aggregatable
     - temporal
     - inspectable
-    recommended_presentations:
-    - metric_cell
-    - inline_token
-    - summary_card
     examples:
     - Duration
     - Latency
@@ -203,11 +173,6 @@ archetypes:
     - aggregatable
     - inspectable
     - relatable
-    recommended_presentations:
-    - timeline_marker
-    - dense_row
-    - summary_card
-    - detail_panel
     examples:
     - Session
     - ShipmentRoute
@@ -228,10 +193,6 @@ archetypes:
     - actionable
     - parameterized
     - inspectable
-    recommended_presentations:
-    - compact_ref
-    - summary_card
-    - detail_panel
     examples:
     - ToolDefinition
     - CommandDefinition
@@ -254,10 +215,6 @@ archetypes:
     - schedulable
     - inspectable
     - relatable
-    recommended_presentations:
-    - dense_row
-    - summary_card
-    - detail_panel
     examples:
     - ToolRun
     - JobRun
@@ -277,10 +234,6 @@ archetypes:
     - temporal
     - inspectable
     - relatable
-    recommended_presentations:
-    - inline_token
-    - summary_card
-    - detail_panel
     examples:
     - Comment
     - Flag
@@ -303,10 +256,6 @@ archetypes:
     - searchable
     - aggregatable
     - inspectable
-    recommended_presentations:
-    - filter_summary
-    - summary_card
-    - detail_panel
     examples:
     - EventStreamWindow
     - SessionSearchResults
@@ -327,10 +276,6 @@ archetypes:
     - labelable
     - actionable
     - inspectable
-    recommended_presentations:
-    - filter_chip
-    - inline_token
-    - detail_panel
     examples:
     - ClientEqualsWeb
     - SessionEqualsSess123
@@ -351,10 +296,6 @@ archetypes:
     - labelable
     - parameterized
     - inspectable
-    recommended_presentations:
-    - filter_dimension_label
-    - compact_ref
-    - detail_panel
     examples:
     - SessionIdFilter
     - ClientFilter
@@ -375,10 +316,6 @@ archetypes:
     - actionable
     - inspectable
     - parameterized
-    recommended_presentations:
-    - compact_ref
-    - summary_card
-    - detail_panel
     examples:
     - FailedToolCallsLastHour
     - CurrentClientSessions
@@ -397,9 +334,6 @@ archetypes:
     - identifiable
     - labelable
     - inspectable
-    recommended_presentations:
-    - compact_ref
-    - detail_panel
     examples:
     - MenuItem
     - RecipeTemplate
@@ -415,9 +349,6 @@ archetypes:
     - dietary
     - measurable
     - available
-    recommended_presentations:
-    - composition_card
-    - composition_detail
     examples:
     - SandwichSpec
     - SaladBowlSpec
@@ -432,10 +363,6 @@ archetypes:
     default_capabilities:
     - searchable
     - filterable
-    recommended_presentations:
-    - composition_card
-    - composition_detail
-    - ingredient_list
     examples:
     - BLT Sandwich
     - Turkey Club
@@ -448,9 +375,6 @@ archetypes:
     - MenuItem
     description: Menu item whose composition is organized around bread/wrap structure and layered fillings.
     default_capabilities: []
-    recommended_presentations:
-    - composition_card
-    - composition_detail
     examples:
     - BLT
     - Turkey Club
@@ -462,9 +386,6 @@ archetypes:
     - MenuItem
     description: Menu item whose composition is organized around greens/grain base, protein, toppings, and dressing.
     default_capabilities: []
-    recommended_presentations:
-    - composition_card
-    - composition_detail
     examples:
     - Greek Salad Bowl
     - Grain Bowl
@@ -475,8 +396,6 @@ archetypes:
     - MenuItem
     description: Menu item composed from multiple bundled product components such as sandwich, side, and drink.
     default_capabilities: []
-    recommended_presentations:
-    - composition_card
     examples:
     - Lunch Combo
     - Half Sandwich Soup Combo
@@ -492,10 +411,6 @@ archetypes:
     - labelable
     - composable
     - inspectable
-    recommended_presentations:
-    - composition_card
-    - composition_detail
-    - ingredient_list
     examples:
     - SandwichComposition
     - SaladComposition
@@ -518,9 +433,6 @@ archetypes:
     default_capabilities:
     - ingredient_composable
     - dietary
-    recommended_presentations:
-    - ingredient_list
-    - composition_detail
     examples:
     - SandwichComposition
     - SaladComposition
@@ -531,8 +443,6 @@ archetypes:
     - ProductComposition
     description: Ingredient composition for sandwiches and wraps.
     default_capabilities: []
-    recommended_presentations:
-    - ingredient_list
     examples:
     - BLT ingredients
     - Italian hoagie ingredients
@@ -543,8 +453,6 @@ archetypes:
     - ProductComposition
     description: Ingredient composition for salads.
     default_capabilities: []
-    recommended_presentations:
-    - ingredient_list
     examples:
     - Greek salad ingredients
     long_description: SaladComposition defines bowl/salad ingredient roles such as base greens, protein, crunch, dressing,
@@ -554,8 +462,6 @@ archetypes:
     - ProductComposition
     description: Ingredient composition for grain bowls or rice bowls.
     default_capabilities: []
-    recommended_presentations:
-    - ingredient_list
     examples:
     - Grain bowl ingredients
     long_description: BowlComposition extends ProductComposition for bowl-style products where a base and toppings are customized
@@ -567,9 +473,6 @@ archetypes:
     default_capabilities:
     - dietary
     - available
-    recommended_presentations:
-    - compact_ref
-    - ingredient_list
     examples:
     - Avocado
     - Cheese
@@ -584,9 +487,6 @@ archetypes:
     default_capabilities:
     - filterable
     - searchable
-    recommended_presentations:
-    - summary_card
-    - detail_panel
     examples:
     - 'Order #1842'
     long_description: Order is a concrete work item with lifecycle and duration semantics. It inherits WorkItem behavior for
@@ -598,9 +498,6 @@ archetypes:
     description: Concrete line item inside an order, based on a MenuItem with selected configuration and substitutions.
     default_capabilities:
     - configurable
-    recommended_presentations:
-    - order_item_row
-    - ingredient_list
     examples:
     - Turkey club, no cheese, add avocado
     long_description: 'OrderItem is intentionally multiple-inherited: it is work tracked through prep and also a concrete
@@ -611,9 +508,6 @@ archetypes:
     description: Kitchen preparation task assigned to a station for an order or order item.
     default_capabilities:
     - schedulable
-    recommended_presentations:
-    - dense_row
-    - prep_status_indicator
     examples:
     - Toast bread
     - Assemble sandwich
@@ -628,10 +522,6 @@ archetypes:
     - substitutable
     - inspectable
     - relatable
-    recommended_presentations:
-    - substitution_badge
-    - substitution_pair
-    - substitution_detail
     examples:
     - No cheese to avocado
     long_description: 'Substitution represents the core intelligence of the replacement engine. Each substitution declares
@@ -652,9 +542,6 @@ archetypes:
     - role_preserving_substitutable
     - dietary_substitutable
     - price_aware_substitutable
-    recommended_presentations:
-    - substitution_pair
-    - substitution_detail
     examples:
     - No cheese to avocado
     - No bacon to smoked tofu
@@ -668,9 +555,6 @@ archetypes:
     - role_preserving_substitutable
     - dietary_substitutable
     - price_aware_substitutable
-    recommended_presentations:
-    - substitution_badge
-    - substitution_pair
     examples:
     - Suggest avocado after cheese removal
     long_description: SubstitutionSuggestion is a candidate presented to the customer. It inherits the same substitution contract
@@ -684,9 +568,6 @@ archetypes:
     - dietary_substitutable
     - price_aware_substitutable
     - stateful
-    recommended_presentations:
-    - substitution_badge
-    - substitution_detail
     examples:
     - Cheese removed, avocado added
     long_description: AppliedSubstitution records the actual replacement in an order item so the cart, kitchen, and receipt

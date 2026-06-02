@@ -7,11 +7,10 @@ artifacts:
   core_model:
     path: ./01-core-model.yaml
     artifact_type: dmeta_core_model
-    description: Split core-model package index with references to archetypes, capabilities, presentations/actions, and per-domain examples.
+    description: Split core-model package index with references to archetypes, capabilities, and per-domain examples.
     consumers:
       - validate-dmeta-ir
-      - generate-presentation-registry
-      - generate-action-registry
+      - generate-core
   design_language:
     path: ./02-design-language.yaml
     artifact_type: dmeta_design_language

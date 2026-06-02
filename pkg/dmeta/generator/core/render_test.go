@@ -21,7 +21,7 @@ func TestGenerateCurrentCoreSmoke(t *testing.T) {
 	if err != nil {
 		t.Fatalf("generate: %v", err)
 	}
-	if got, want := len(files), 7; got != want {
+	if got, want := len(files), 3; got != want {
 		t.Fatalf("expected %d files, got %d", want, got)
 	}
 
@@ -41,12 +41,8 @@ func TestGenerateCurrentCoreSmoke(t *testing.T) {
 	assertContains(t, byPath["generated/dmeta-core/capabilities.ts"], "export type CapabilityId")
 	assertContains(t, byPath["generated/dmeta-core/capabilities.ts"], "effectiveProjections")
 	assertContains(t, byPath["generated/dmeta-core/capabilities.ts"], "isCapabilityA")
-	assertContains(t, byPath["generated/dmeta-core/presentations.ts"], "export type PresentationId")
-	assertContains(t, byPath["generated/dmeta-core/actions.ts"], "export type ActionId")
-	assertContains(t, byPath["generated/dmeta-core/PresentationRef.ts"], "export type PresentationRef")
-	assertContains(t, byPath["generated/dmeta-core/actionMatching.ts"], "actionsForPresentationRef")
-	assertContains(t, byPath["generated/dmeta-core/actionMatching.ts"], "isArchetypeA")
-	assertContains(t, byPath["generated/dmeta-core/actionMatching.ts"], "isCapabilityA")
+	assertContains(t, byPath["generated/dmeta-core/index.ts"], "./archetypes")
+	assertContains(t, byPath["generated/dmeta-core/index.ts"], "./capabilities")
 }
 
 func TestGenerateCurrentCoreDeterministic(t *testing.T) {

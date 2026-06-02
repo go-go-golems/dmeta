@@ -47,8 +47,7 @@ Use this playbook before editing target-specific Web or CLIM artifacts. The shar
 Application/domain package
   -> Semantic IR
      - archetypes
-     - capabilities
-     - presentations/actions
+     - capabilities and projections
      - domain examples and mappings
   -> Interaction IR
      - actions
@@ -77,7 +76,6 @@ sources/dmeta-ir/02-design-language.yaml
 sources/dmeta-ir/core-model/core-model.yaml
 sources/dmeta-ir/core-model/archetypes.yaml
 sources/dmeta-ir/core-model/capabilities.yaml
-sources/dmeta-ir/core-model/presentations.yaml
 sources/dmeta-ir/core-model/examples/*.yaml
 sources/dmeta-ir/interactions/00-index.yaml
 sources/dmeta-ir/interactions/actions.yaml
@@ -98,8 +96,8 @@ examples/street-deli-ordering/instantiations/street-deli-ordering.yaml
 - Mark taxonomy/helper nodes with `abstract: true` when domain mappings must not target them directly.
 - Domain types should map to concrete archetypes/capabilities, not abstract helper parents.
 - Required projections inherited from capabilities must be mapped by domain examples.
-- Presentations are display contracts, not React components.
-- Actions are typed semantic operations, not UI event handlers.
+- Visible display obligations are Interaction IR representations, not core-model fields.
+- Actions are Interaction IR operations, not core-model fields or UI event handlers.
 
 ### Interaction IR
 
@@ -165,7 +163,7 @@ Before merging a shared change, answer:
 - Does PBUI lowering still produce expected presentation obligations?
 - Did any action or representation id change?
 - Did any domain mapping start targeting an abstract archetype/capability?
-- Did a presentation move from shared semantics into a target layer or vice versa?
+- Did a visible obligation move into Interaction IR representations rather than the core model?
 - Do both `mobile-react` and `clim-react` still build if their generated/promoted artifacts were touched?
 
 ## Handoff to target playbooks

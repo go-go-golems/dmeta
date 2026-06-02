@@ -8,11 +8,13 @@ templates:
 - id: dmeta.key_value_list
   name: KeyValueList
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: property_inspector
+    generation_policy: scaffold_once
   intent:
-    purpose: Render compact key-value properties, optionally using presentation-aware value renderers.
+    purpose: Render compact key-value properties, optionally using representation-aware value renderers.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
       JSON or own trusted side effects.
   template:
@@ -22,7 +24,7 @@ templates:
     default_importance: optional
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       value_renderers:
         type: any
@@ -43,7 +45,7 @@ templates:
     avoid_when:
     - The instance has no generic inspector/detail properties.
   consumes:
-    presentations:
+    representations:
     - compact_ref
     - status_badge
     - metric_cell
@@ -60,7 +62,7 @@ templates:
             required: false
     action_slots:
       onSelectValue:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - basic
   - semantic_values
@@ -74,9 +76,11 @@ templates:
 - id: dmeta.comparison_table
   name: ComparisonTable
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: comparison_table
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Render side-by-side comparison of metrics, candidates, versions, or before/after records.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -88,7 +92,7 @@ templates:
     default_importance: optional
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       comparison_axis:
         type: any
@@ -115,7 +119,7 @@ templates:
     - WorkItem
     capabilities:
     - measurable
-    presentations:
+    representations:
     - metric_cell
     - duration_cell
     - compact_ref
@@ -131,7 +135,7 @@ templates:
             required: true
     action_slots:
       onSelectCell:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - metrics
   - candidates
@@ -145,9 +149,11 @@ templates:
 - id: dmeta.markdown_block
   name: MarkdownBlock
   status: template
-  classification:
+  component:
     level: molecule
+    specificity: generic
     role: markdown_content
+    generation_policy: scaffold_once
   intent:
     purpose: Render sanitized markdown documentation, runbooks, notes, or tool output.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -159,7 +165,7 @@ templates:
     default_importance: optional
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       sanitization:
         type: any
@@ -202,9 +208,11 @@ templates:
 - id: dmeta.preview_frame
   name: PreviewFrame
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: artifact_preview
+    generation_policy: scaffold_then_promote
   intent:
     purpose: Render a preview of an artifact such as a document, image, OCR page, web output, or generated report.
     adapter_boundary: Receives normalized view models and typed semantic refs; emits typed callbacks; does not parse raw backend
@@ -216,7 +224,7 @@ templates:
     default_importance: common
     selection_questions:
     - Does this concrete instance need this widget behavior, or is it better represented by a domain-specific local template?
-    - Which selected presentations/actions should this template expose?
+    - Which selected representations/actions should this template expose?
     adaptation_points:
       sandboxing:
         type: any
@@ -247,14 +255,14 @@ templates:
       PreviewFrameProps:
         fields:
           resource:
-            type: PresentationRef
+            type: RepresentationRef
             required: true
           preview:
             type: PreviewViewModel
             required: true
     action_slots:
       onOpenPreview:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - image
   - document

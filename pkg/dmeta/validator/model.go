@@ -36,17 +36,14 @@ type CoreModelFile struct {
 	LogicalTypes   LogicalTypes             `yaml:"logical_types"`
 	Archetypes     map[string]Archetype     `yaml:"archetypes"`
 	Capabilities   map[string]Capability    `yaml:"capabilities"`
-	Presentations  map[string]Presentation  `yaml:"presentations"`
-	Actions        map[string]Action        `yaml:"actions"`
 	DomainExamples map[string]DomainExample `yaml:"domain_examples"`
 	Validation     map[string]any           `yaml:"validation"`
 }
 
 type CoreModelFiles struct {
 	CoreModel     string   `yaml:"core_model"`
-	Archetypes    string   `yaml:"archetypes"`
-	Capabilities  string   `yaml:"capabilities"`
-	Presentations string   `yaml:"presentations"`
+	Archetypes    FileList `yaml:"archetypes"`
+	Capabilities  FileList `yaml:"capabilities"`
 	DomainExample string   `yaml:"domain_example"`
 	ExamplesDir   string   `yaml:"examples_dir"`
 	Examples      []string `yaml:"examples"`
@@ -80,16 +77,6 @@ type CapabilitiesFile struct {
 	Capabilities  map[string]Capability `yaml:"capabilities"`
 }
 
-type PresentationsFile struct {
-	SchemaVersion int                     `yaml:"schema_version"`
-	ArtifactType  string                  `yaml:"artifact_type"`
-	Summary       string                  `yaml:"summary"`
-	LongSummary   string                  `yaml:"long_summary"`
-	References    map[string]string       `yaml:"references"`
-	Presentations map[string]Presentation `yaml:"presentations"`
-	Actions       map[string]Action       `yaml:"actions"`
-}
-
 type DomainExampleFile struct {
 	SchemaVersion int               `yaml:"schema_version"`
 	ArtifactType  string            `yaml:"artifact_type"`
@@ -106,14 +93,13 @@ type LogicalTypes struct {
 }
 
 type Archetype struct {
-	Description              string   `yaml:"description"`
-	LongDescription          string   `yaml:"long_description"`
-	Extends                  []string `yaml:"extends"`
-	Abstract                 bool     `yaml:"abstract"`
-	DefaultCapabilities      []string `yaml:"default_capabilities"`
-	RecommendedPresentations []string `yaml:"recommended_presentations"`
-	Examples                 []string `yaml:"examples"`
-	Notes                    string   `yaml:"notes"`
+	Description         string   `yaml:"description"`
+	LongDescription     string   `yaml:"long_description"`
+	Extends             []string `yaml:"extends"`
+	Abstract            bool     `yaml:"abstract"`
+	DefaultCapabilities []string `yaml:"default_capabilities"`
+	Examples            []string `yaml:"examples"`
+	Notes               string   `yaml:"notes"`
 }
 
 type Capability struct {
@@ -122,9 +108,6 @@ type Capability struct {
 	Extends         []string              `yaml:"extends"`
 	Abstract        bool                  `yaml:"abstract"`
 	Projections     map[string]Projection `yaml:"projections"`
-	Presentations   []string              `yaml:"presentations"`
-	Actions         []string              `yaml:"actions"`
-	Filters         []string              `yaml:"filters"`
 	Notes           string                `yaml:"notes"`
 }
 
@@ -132,51 +115,6 @@ type Projection struct {
 	Type        string `yaml:"type"`
 	Required    bool   `yaml:"required"`
 	Description string `yaml:"description"`
-}
-
-type Presentation struct {
-	Description     string          `yaml:"description"`
-	LongDescription string          `yaml:"long_description"`
-	Layer           string          `yaml:"layer"`
-	AppliesTo       AppliesTo       `yaml:"applies_to"`
-	Requires        []string        `yaml:"requires"`
-	RequiresAny     []string        `yaml:"requires_any"`
-	Optional        []string        `yaml:"optional"`
-	Role            string          `yaml:"role"`
-	Density         string          `yaml:"density"`
-	Interaction     map[string]bool `yaml:"interaction"`
-	StyleRecipe     string          `yaml:"style_recipe"`
-	Fallbacks       []string        `yaml:"fallbacks"`
-	Extra           map[string]any  `yaml:",inline"`
-}
-
-type AppliesTo struct {
-	Capabilities []string `yaml:"capabilities"`
-	Archetypes   []string `yaml:"archetypes"`
-	DomainTypes  []string `yaml:"domain_types"`
-}
-
-type Action struct {
-	Description     string              `yaml:"description"`
-	LongDescription string              `yaml:"long_description"`
-	Category        string              `yaml:"category"`
-	Accepts         []Selector          `yaml:"accepts"`
-	Arguments       map[string]Argument `yaml:"arguments"`
-	Result          ActionResult        `yaml:"result"`
-}
-
-type Selector struct {
-	Capability           string   `yaml:"capability"`
-	Archetype            string   `yaml:"archetype"`
-	Presentation         string   `yaml:"presentation"`
-	DomainType           string   `yaml:"domain_type"`
-	RequiresCapabilities []string `yaml:"requires_capabilities"`
-}
-
-type Argument struct {
-	Mode     string     `yaml:"mode"`
-	Required bool       `yaml:"required"`
-	Accepts  []Selector `yaml:"accepts"`
 }
 
 type ActionResult struct {
@@ -324,15 +262,83 @@ type Widget struct {
 	ID              string                `yaml:"id"`
 	Name            string                `yaml:"name"`
 	Status          string                `yaml:"status"`
-	Classification  map[string]any        `yaml:"classification"`
+	Description     string                `yaml:"description"`
+	Component       WidgetComponent       `yaml:"component"`
+	Composition     WidgetComposition     `yaml:"composition"`
 	Intent          WidgetIntent          `yaml:"intent"`
 	Template        TemplateMetadata      `yaml:"template"`
 	Consumes        Consumes              `yaml:"consumes"`
 	SemanticContext WidgetSemanticContext `yaml:"semantic_context"`
 	ProjectionHints WidgetProjectionHints `yaml:"projection_hints"`
 	Contract        WidgetContract        `yaml:"contract"`
+	Style           SourceBlock           `yaml:"style"`
 	Stories         []string              `yaml:"stories"`
+	Storybook       WidgetStorybook       `yaml:"storybook"`
 	Outputs         map[string]string     `yaml:"outputs"`
+	ContractActions []string              `yaml:"contract_action_slots"`
+}
+
+// SourceBlock carries a source-language snippet embedded in IR. The first use is
+// pragmatic React generation: TypeScript owns rich prop contracts, and CSS owns
+// baseline generated style recipes, while YAML continues to own semantic
+// metadata, lifecycle, and compiler routing.
+type SourceBlock struct {
+	Language    string `yaml:"language"`
+	Description string `yaml:"description"`
+	Intent      string `yaml:"intent"`
+	Notes       string `yaml:"notes"`
+	Source      string `yaml:"source"`
+	Code        string `yaml:"code"`
+}
+
+type WidgetComponent struct {
+	Level            string           `yaml:"level"`
+	Specificity      string           `yaml:"specificity"`
+	Role             string           `yaml:"role"`
+	GenerationPolicy string           `yaml:"generation_policy"`
+	Layout           WidgetLayoutHint `yaml:"layout"`
+	Responsibilities []string         `yaml:"responsibilities"`
+	Notes            []string         `yaml:"notes"`
+}
+
+type WidgetLayoutHint struct {
+	Primitive  string `yaml:"primitive" json:"primitive,omitempty"`
+	Container  string `yaml:"container" json:"container,omitempty"`
+	GridRecipe string `yaml:"grid_recipe" json:"gridRecipe,omitempty"`
+}
+
+type WidgetComposition struct {
+	Uses     []WidgetDependency `yaml:"uses"`
+	Provides []string           `yaml:"provides"`
+	Slots    []ComponentSlot    `yaml:"slots"`
+}
+
+type WidgetDependency struct {
+	Template    string `yaml:"template"`
+	Component   string `yaml:"component"`
+	Role        string `yaml:"role"`
+	Required    bool   `yaml:"required"`
+	Description string `yaml:"description"`
+}
+
+type ComponentSlot struct {
+	Name        string `yaml:"name"`
+	Role        string `yaml:"role"`
+	Required    bool   `yaml:"required"`
+	Description string `yaml:"description"`
+}
+
+type WidgetStorybook struct {
+	TitlePrefix string      `yaml:"title_prefix"`
+	Coverage    []string    `yaml:"coverage"`
+	Stories     []StoryCase `yaml:"stories"`
+}
+
+type StoryCase struct {
+	Name        string         `yaml:"name"`
+	Description string         `yaml:"description"`
+	State       string         `yaml:"state"`
+	Props       map[string]any `yaml:"props"`
 }
 
 type TemplateMetadata struct {
@@ -359,13 +365,13 @@ type WidgetIntent struct {
 }
 
 type Consumes struct {
-	Presentations []string `yaml:"presentations"`
-	Capabilities  []string `yaml:"capabilities"`
-	Archetypes    []string `yaml:"archetypes"`
+	Representations []string `yaml:"representations"`
+	Capabilities    []string `yaml:"capabilities"`
+	Archetypes      []string `yaml:"archetypes"`
 }
 
 type WidgetSemanticContext struct {
-	Presentations        []string `yaml:"presentations"`
+	Representations      []string `yaml:"representations"`
 	Capabilities         []string `yaml:"capabilities"`
 	Archetypes           []string `yaml:"archetypes"`
 	Intent               string   `yaml:"intent"`
@@ -381,19 +387,46 @@ type WidgetProjectionHints struct {
 }
 
 type WidgetContract struct {
+	TypeScript  SourceBlock                  `yaml:"typescript"`
 	Props       map[string]InterfaceContract `yaml:"props"`
+	State       map[string]PropField         `yaml:"state"`
+	Events      map[string]EventContract     `yaml:"events"`
 	ActionSlots map[string]ActionSlot        `yaml:"action_slots"`
 }
 
 type InterfaceContract struct {
-	Fields map[string]PropField `yaml:"fields"`
+	Description string               `yaml:"description"`
+	Source      string               `yaml:"source"`
+	SourceRef   string               `yaml:"source_ref"`
+	Required    bool                 `yaml:"required"`
+	Fields      map[string]PropField `yaml:"fields"`
 }
 
 type PropField struct {
-	Type     string `yaml:"type"`
-	Required bool   `yaml:"required"`
+	Type        string   `yaml:"type"`
+	TypeRef     string   `yaml:"type_ref"`
+	ItemTypeRef string   `yaml:"item_type_ref"`
+	Source      string   `yaml:"source"`
+	SourceRef   string   `yaml:"source_ref"`
+	Required    bool     `yaml:"required"`
+	Values      []string `yaml:"values"`
+	Default     string   `yaml:"default"`
+	Description string   `yaml:"description"`
+}
+
+type EventContract struct {
+	ActionRef   string `yaml:"action_ref"`
+	PayloadType string `yaml:"payload_type"`
+	Source      string `yaml:"source"`
+	Required    bool   `yaml:"required"`
+	Description string `yaml:"description"`
 }
 
 type ActionSlot struct {
-	Accepts string `yaml:"accepts"`
+	Accepts     string `yaml:"accepts"`
+	ActionRef   string `yaml:"action_ref"`
+	PayloadType string `yaml:"payload_type"`
+	Source      string `yaml:"source"`
+	Prop        string `yaml:"prop"`
+	Description string `yaml:"description"`
 }

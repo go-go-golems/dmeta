@@ -151,27 +151,47 @@ func BuildScaffoldPlan(ctx context.Context, opts PlanOptions) (ScaffoldPlan, err
 		TargetFile:       targetFile,
 	}
 	obligationsByTemplate := groupWebObligations(webObligations)
+	selectedTemplates := selectedTemplateSet(instance.SelectedTemplates)
 	for _, selected := range instance.SelectedTemplates {
-		componentName := selected.As
-		if componentName == "" {
-			componentName = componentNameFromTemplate(selected.Template)
+		widget, ok := webPkg.Widgets[selected.Template]
+		if !ok {
+			return ScaffoldPlan{}, errors.Errorf("selected Web widget template %q does not exist", selected.Template)
 		}
+		componentName := strings.TrimSpace(widget.Name)
+		if componentName == "" {
+			return ScaffoldPlan{}, errors.Errorf("Web widget template %q has no name; React lowering requires a canonical template name", selected.Template)
+		}
+		if selected.As != "" && selected.As != componentName {
+			return ScaffoldPlan{}, errors.Errorf("selected Web widget template %q uses deprecated as=%q that differs from template name %q; rename the template or remove the override", selected.Template, selected.As, componentName)
+		}
+		componentKind := componentKindFromWidget(widget)
+		componentDir := componentOutputDir(outputDir, componentName, componentKind, target.Defaults.ComponentLayout)
 		component := ComponentPlan{
-			TemplateID:        selected.Template,
-			ComponentName:     componentName,
-			Variant:           selected.Variant,
-			OutputDir:         outputDir,
-			PackageName:       packageName,
-			Slots:             sortedSet(nil),
-			VisualStates:      sortedSet(nil),
-			EventBindings:     sortedSet(nil),
-			SourceDomainTypes: []string{},
-			SourceRules:       []string{},
+			TemplateID:           selected.Template,
+			ComponentName:        componentName,
+			Variant:              selected.Variant,
+			OutputDir:            outputDir,
+			ComponentDir:         componentDir,
+			PackageExportPath:    packageExportPath(outputDir, componentDir),
+			PackageName:          packageName,
+			Template:             widget,
+			ComponentKind:        componentKind,
+			ComponentSpecificity: componentSpecificityFromWidget(widget),
+			ComponentFamily:      componentFamilyFromWidget(widget),
+			ComponentRole:        componentRoleFromWidget(widget),
+			ComponentLifecycle:   componentLifecycleFromWidget(widget),
+			Slots:                sortedSet(nil),
+			VisualStates:         sortedSet(nil),
+			EventBindings:        sortedSet(nil),
+			SourceDomainTypes:    []string{},
+			SourceRules:          []string{},
 		}
 		if obligations, ok := obligationsByTemplate[selected.Template]; ok {
 			component = applyWebObligations(component, obligations)
 		}
+		component.DependencyClosure = dependencyClosureForTemplate(selected.Template, webPkg.Widgets, selectedTemplates)
 		component.Files = planFiles(component, target)
+		plan.DependencyClosure = append(plan.DependencyClosure, component.DependencyClosure...)
 		plan.Components = append(plan.Components, component)
 	}
 	plan.Files = planPackageFiles(plan, target)
@@ -185,12 +205,86 @@ func resolveRelative(base string, path string) string {
 	return filepath.Clean(filepath.Join(base, path))
 }
 
+func selectedTemplateSet(selected []instancegen.Selected) map[string]bool {
+	out := map[string]bool{}
+	for _, selectedTemplate := range selected {
+		if strings.TrimSpace(selectedTemplate.Template) != "" {
+			out[selectedTemplate.Template] = true
+		}
+	}
+	return out
+}
+
 func groupWebObligations(obligations []webmds.Obligation) map[string][]webmds.Obligation {
 	out := map[string][]webmds.Obligation{}
 	for _, obligation := range obligations {
 		out[obligation.WidgetTemplateID] = append(out[obligation.WidgetTemplateID], obligation)
 	}
 	return out
+}
+
+func dependencyClosureForTemplate(sourceTemplateID string, widgets map[string]validator.Widget, selectedTemplates map[string]bool) []ComponentDependencyPlan {
+	source, ok := widgets[sourceTemplateID]
+	if !ok {
+		return nil
+	}
+	var out []ComponentDependencyPlan
+	seen := map[string]bool{}
+	var walk func(parentID string, depth int, path []string)
+	walk = func(parentID string, depth int, path []string) {
+		parent, ok := widgets[parentID]
+		if !ok {
+			return
+		}
+		deps := append([]validator.WidgetDependency{}, parent.Composition.Uses...)
+		sort.SliceStable(deps, func(i, j int) bool {
+			return dependencyTemplateID(deps[i]) < dependencyTemplateID(deps[j])
+		})
+		for _, dep := range deps {
+			depID := dependencyTemplateID(dep)
+			if depID == "" {
+				continue
+			}
+			child, ok := widgets[depID]
+			if !ok {
+				continue
+			}
+			depPath := append(append([]string{}, path...), depID)
+			if !seen[depID] {
+				out = append(out, ComponentDependencyPlan{
+					SourceTemplateID:    sourceTemplateID,
+					SourceComponentName: source.Name,
+					ParentTemplateID:    parentID,
+					ParentComponentName: parent.Name,
+					TemplateID:          depID,
+					ComponentName:       child.Name,
+					ComponentKind:       componentKindFromWidget(child),
+					ComponentRole:       componentRoleFromWidget(child),
+					EdgeRole:            dep.Role,
+					EdgeDescription:     dep.Description,
+					Required:            dep.Required,
+					Direct:              depth == 0,
+					Depth:               depth + 1,
+					Planned:             selectedTemplates[depID],
+					Path:                depPath,
+				})
+				seen[depID] = true
+			}
+			if contains(path, depID) {
+				continue
+			}
+			walk(depID, depth+1, depPath)
+		}
+	}
+	walk(sourceTemplateID, 0, []string{sourceTemplateID})
+	return out
+}
+
+func dependencyTemplateID(dep validator.WidgetDependency) string {
+	if strings.TrimSpace(dep.Template) != "" {
+		return strings.TrimSpace(dep.Template)
+	}
+	return strings.TrimSpace(dep.Component)
 }
 
 func applyWebObligations(component ComponentPlan, obligations []webmds.Obligation) ComponentPlan {
@@ -222,19 +316,26 @@ func applyWebObligations(component ComponentPlan, obligations []webmds.Obligatio
 }
 
 func planPackageFiles(plan ScaffoldPlan, target TargetFile) []PlannedFile {
-	if !contains(target.FileKinds, "package_index") {
-		return nil
-	}
 	provenance := FileProvenance{
 		MetaDesignSystem: target.Provenance.MetaDesignSystem,
 		CodegenTarget:    target.Provenance.CodegenTarget,
 		Passes:           target.Provenance.SourcePasses,
 	}
-	return []PlannedFile{{Path: filepath.Join(plan.OutputDir, "index.ts"), Kind: "package_index", Symbol: plan.PackageName, Provenance: provenance}}
+	files := []PlannedFile{}
+	if contains(target.FileKinds, "package_index") {
+		files = append(files, PlannedFile{Path: filepath.Join(plan.OutputDir, "index.ts"), Kind: "package_index", Symbol: plan.PackageName, Lifecycle: "regenerate_only", Provenance: provenance})
+	}
+	if contains(target.FileKinds, "manifest") {
+		files = append(files, PlannedFile{Path: filepath.Join(plan.OutputDir, "dmeta.generated-manifest.json"), Kind: "manifest", Symbol: "DmetaGeneratedManifest", Lifecycle: "regenerate_only", Provenance: provenance})
+	}
+	return files
 }
 
 func planFiles(component ComponentPlan, target TargetFile) []PlannedFile {
-	base := filepath.Join(component.OutputDir, component.ComponentName)
+	base := component.ComponentDir
+	if base == "" {
+		base = filepath.Join(component.OutputDir, component.ComponentName)
+	}
 	provenance := FileProvenance{
 		MetaDesignSystem: target.Provenance.MetaDesignSystem,
 		CodegenTarget:    target.Provenance.CodegenTarget,
@@ -246,32 +347,135 @@ func planFiles(component ComponentPlan, target TargetFile) []PlannedFile {
 		SourceRules:      component.SourceRules,
 		Passes:           target.Provenance.SourcePasses,
 	}
+	generatedBase := generatedFileBase(component)
 	files := []PlannedFile{
-		{Path: filepath.Join(base, component.ComponentName+".tsx"), Kind: "component", Symbol: component.ComponentName, Provenance: provenance},
-		{Path: filepath.Join(base, component.ComponentName+".types.ts"), Kind: "types", Symbol: component.ComponentName + "Props", Provenance: provenance},
-		{Path: filepath.Join(base, component.ComponentName+".metadata.json"), Kind: "metadata", Symbol: component.ComponentName + "Metadata", Provenance: provenance},
-		{Path: filepath.Join(base, component.ComponentName+".stories.tsx"), Kind: "stories", Symbol: component.ComponentName + "Stories", Provenance: provenance},
-		{Path: filepath.Join(base, component.ComponentName+".module.css"), Kind: "style", Symbol: component.ComponentName + "Styles", Provenance: provenance},
-		{Path: filepath.Join(base, "index.ts"), Kind: "barrel", Symbol: component.ComponentName, Provenance: provenance},
-	}
-	if contains(target.FileKinds, "adapter_todo") {
-		files = append(files, PlannedFile{Path: filepath.Join(base, component.ComponentName+".adapter.todo.ts"), Kind: "adapter_todo", Symbol: component.ComponentName + "AdapterTODO", Provenance: provenance})
+		{Path: filepath.Join(base, generatedBase+".tsx"), Kind: "component", Symbol: component.ComponentName, Lifecycle: lifecycleForKind(component, "component"), Provenance: provenance},
+		{Path: filepath.Join(base, generatedBase+".types.ts"), Kind: "types", Symbol: component.ComponentName + "Props", Lifecycle: lifecycleForKind(component, "types"), Provenance: provenance},
+		{Path: filepath.Join(base, component.ComponentName+".metadata.json"), Kind: "metadata", Symbol: component.ComponentName + "Metadata", Lifecycle: lifecycleForKind(component, "metadata"), Provenance: provenance},
+		{Path: filepath.Join(base, generatedBase+".stories.tsx"), Kind: "stories", Symbol: component.ComponentName + "Stories", Lifecycle: lifecycleForKind(component, "stories"), Provenance: provenance},
+		{Path: filepath.Join(base, generatedBase+".module.css"), Kind: "style", Symbol: component.ComponentName + "Styles", Lifecycle: lifecycleForKind(component, "style"), Provenance: provenance},
+		{Path: filepath.Join(base, "index.ts"), Kind: "barrel", Symbol: component.ComponentName, Lifecycle: lifecycleForKind(component, "barrel"), Provenance: provenance},
 	}
 	if contains(target.FileKinds, "readme") {
-		files = append(files, PlannedFile{Path: filepath.Join(base, "README.md"), Kind: "readme", Symbol: component.ComponentName + "Readme", Provenance: provenance})
+		files = append(files, PlannedFile{Path: filepath.Join(base, "README.md"), Kind: "readme", Symbol: component.ComponentName + "Readme", Lifecycle: lifecycleForKind(component, "readme"), Provenance: provenance})
 	}
 	return files
 }
 
-func componentNameFromTemplate(templateID string) string {
-	parts := strings.FieldsFunc(templateID, func(r rune) bool { return r == '.' || r == '_' || r == '-' })
-	for i, part := range parts {
-		if part == "" {
-			continue
-		}
-		parts[i] = strings.ToUpper(part[:1]) + part[1:]
+func generatedFileBase(component ComponentPlan) string {
+	return component.ComponentName + ".generated"
+}
+
+func lifecycleForKind(component ComponentPlan, kind string) string {
+	if lifecycle := component.Template.Component.GenerationPolicy; lifecycle != "" {
+		return normalizeLifecycle(lifecycle)
 	}
-	return strings.Join(parts, "")
+	return defaultLifecycleForKind(kind)
+}
+
+func defaultLifecycleForKind(kind string) string {
+	switch kind {
+	case "metadata", "types", "package_index", "barrel":
+		return "regenerate_only"
+	case "component", "style", "stories", "readme":
+		return "generated_sidecar"
+	default:
+		return "generated_sidecar"
+	}
+}
+
+func normalizeLifecycle(lifecycle string) string {
+	normalized := strings.ToLower(strings.TrimSpace(strings.ReplaceAll(lifecycle, "-", "_")))
+	switch normalized {
+	case "regenerate", "regenerate_only", "regenerateonly", "generated", "generated_only":
+		return "regenerate_only"
+	case "scaffold", "scaffold_once", "scaffoldonce":
+		return "scaffold_once"
+	case "scaffold_then_promote", "scaffoldthenpromote", "sidecar", "sidecar_for_merge", "sidecarformerge", "generated_sidecar":
+		return "generated_sidecar"
+	default:
+		return normalized
+	}
+}
+
+func componentKindFromWidget(widget validator.Widget) string {
+	return normalizeComponentKind(widget.Component.Level)
+}
+
+func componentSpecificityFromWidget(widget validator.Widget) string {
+	return firstNonEmpty(widget.Component.Specificity, "app")
+}
+
+func componentFamilyFromWidget(widget validator.Widget) string {
+	return widget.Template.Category
+}
+
+func componentRoleFromWidget(widget validator.Widget) string {
+	return firstNonEmpty(widget.Component.Role, widget.Intent.Purpose)
+}
+
+func componentLifecycleFromWidget(widget validator.Widget) string {
+	return firstNonEmpty(widget.Component.GenerationPolicy, "scaffold")
+}
+
+func componentOutputDir(outputDir string, componentName string, componentKind string, layout ReactComponentLayout) string {
+	if layout.Strategy == "" || layout.Strategy == "flat" {
+		return filepath.Join(outputDir, componentName)
+	}
+	dirName := layout.Dirs[componentKind]
+	if dirName == "" {
+		dirName = defaultComponentDir(componentKind)
+	}
+	if dirName == "" || dirName == "." {
+		return filepath.Join(outputDir, componentName)
+	}
+	return filepath.Join(outputDir, dirName, componentName)
+}
+
+func packageExportPath(outputDir string, componentDir string) string {
+	rel, err := filepath.Rel(outputDir, componentDir)
+	if err != nil || rel == "." || rel == "" {
+		rel = filepath.Base(componentDir)
+	}
+	return "./" + filepath.ToSlash(rel)
+}
+
+func defaultComponentDir(kind string) string {
+	switch normalizeComponentKind(kind) {
+	case "atom":
+		return "atoms"
+	case "molecule":
+		return "molecules"
+	case "organism":
+		return "organisms"
+	case "rich_widget":
+		return "rich-widgets"
+	case "page":
+		return "pages"
+	default:
+		return "components"
+	}
+}
+
+func normalizeComponentKind(kind string) string {
+	normalized := strings.ToLower(strings.TrimSpace(strings.ReplaceAll(kind, "-", "_")))
+	switch normalized {
+	case "", "widget":
+		return "component"
+	case "richwidget", "rich_widget":
+		return "rich_widget"
+	default:
+		return normalized
+	}
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return value
+		}
+	}
+	return ""
 }
 
 func setFrom(values []string) map[string]bool {

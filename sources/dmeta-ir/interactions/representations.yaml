@@ -1,12 +1,12 @@
 schema_version: 0
 artifact_type: dmeta_interaction_representations
 summary: Shared modality-neutral DMETA representation catalog.
-long_summary: >-
-  Representations describe how semantic information becomes available for
-  interaction before any target design system chooses widgets, commands,
-  presentations, formatters, or prompts. This shared catalog intentionally keeps
-  only generic representation vocabulary. Domain/application representations
-  should live in inherited interaction packages.
+long_summary: 'Representations describe how semantic information becomes available for interaction before any target design
+  system chooses widgets, commands, presentations, formatters, or prompts. This shared catalog intentionally keeps only generic
+  representation vocabulary. Domain/application representations should live in inherited interaction packages.
+
+
+  Core-model presentations were merged into this Interaction IR catalog; this file now owns target-neutral visible obligations.'
 representations:
   Representation:
     abstract: true
@@ -18,55 +18,423 @@ representations:
     supports_actions: []
   object_reference:
     abstract: true
-    extends: [Representation]
+    extends:
+    - Representation
     intent: Base representation for referring to a semantic subject.
     description: Abstract parent for identity/reference representations.
     subjects:
-      - any_capabilities: [identifiable]
+    - any_capabilities:
+      - identifiable
     exposes:
       required_projections:
-        - identifiable.id
+      - identifiable.id
     supports_actions:
-      - inspect_subject
-      - copy_reference
+    - inspect_subject
+    - copy_reference
   compact_reference:
-    extends: [object_reference]
+    extends:
+    - object_reference
     intent: Identify a subject compactly while preserving stable identity and inspection affordances.
     description: Compact identity representation suitable for dense contexts.
     subjects:
-      - all_capabilities: [identifiable, labelable]
+    - all_capabilities:
+      - identifiable
+      - labelable
     exposes:
       required_projections:
-        - identifiable.id
-        - labelable.label
+      - identifiable.id
+      - labelable.label
       optional_projections:
-        - labelable.subtitle
+      - labelable.subtitle
     supports_actions:
-      - inspect_subject
-      - copy_reference
+    - inspect_subject
+    - copy_reference
   state_indicator:
-    extends: [Representation]
+    extends:
+    - Representation
     intent: Expose the current state of a stateful subject for scanning, filtering, and lifecycle decisions.
     description: Modality-neutral state/status representation.
     subjects:
-      - all_capabilities: [stateful]
+    - all_capabilities:
+      - stateful
     exposes:
       required_projections:
-        - stateful.state
+      - stateful.state
       optional_projections:
-        - stateful.state_label
-        - stateful.state_tone
+      - stateful.state_label
+      - stateful.state_tone
     supports_actions:
-      - filter_by_state
-      - inspect_subject
+    - filter_by_state
+    - inspect_subject
   inspection_entrypoint:
-    extends: [Representation]
+    extends:
+    - Representation
     intent: Make it clear that a subject has deeper inspectable detail.
     description: Representation of an inspection affordance independent of target surface.
     subjects:
-      - all_capabilities: [inspectable]
+    - all_capabilities:
+      - inspectable
     exposes:
       optional_projections:
-        - inspectable.detail_ref
+      - inspectable.detail_ref
     supports_actions:
-      - inspect_subject
+    - inspect_subject
+  compact_id:
+    extends:
+    - Representation
+    intent: 'Use compact_id when the most important fact is a stable, copyable identifier. This presentation should be visually
+      small, precise, and low-chrome: it is for ids, keys, handles, call ids, shipment ids, order ids, package ids, event
+      ids, and similar values. It supports selection, context menus, and copy because identifiers often become action arguments,
+      filters, debug anchors, or references in external systems. It should not try to provide rich human context; pair it
+      with display_label or compact_ref when label context matters.'
+    description: Compact copyable identifier.
+    subjects:
+    - all_capabilities:
+      - identifiable
+    exposes:
+      required_projections:
+      - id
+    supports_actions: []
+  display_label:
+    extends:
+    - Representation
+    intent: Use display_label when the subject needs a human-readable name or title in a non-interactive or lightly interactive
+      context. Labels improve scanability and comprehension, but they are not stable identifiers. This presentation intentionally
+      does not enable selection or copy by default because the label alone is usually insufficient as an action target. It
+      is commonly composed into richer presentations such as compact_ref, dense_row, summary_card, and detail_panel.
+    description: Primary human-readable label.
+    subjects:
+    - all_capabilities:
+      - labelable
+    exposes:
+      required_projections:
+      - label
+      optional_projections:
+      - subtitle
+    supports_actions: []
+  status_badge:
+    extends:
+    - Representation
+    intent: Use status_badge to represent the stateful capability in compact surfaces. It should convey state through text
+      first and semantic tone second; color reinforces meaning but must not be the only carrier of information. This is appropriate
+      for pending/running/failed/completed/delayed/blocked style states across domains. The badge should remain visually restrained
+      so dense tables and streams do not turn into noisy color blocks.
+    description: Compact state/status badge.
+    subjects:
+    - all_capabilities:
+      - stateful
+    exposes:
+      required_projections:
+      - state
+      optional_projections:
+      - state_label
+      - state_tone
+    supports_actions: []
+  state_cell:
+    extends:
+    - Representation
+    intent: Use state_cell when the same stateful information appears in a table or grid cell rather than as an inline badge
+      in prose. It follows the same semantic rules as status_badge but is optimized for alignment, sorting, filtering, and
+      comparison inside dense tabular layouts. State cells should be consistent across WorkItems, ActionInvocations, Shipments,
+      Orders, Sensors, and other stateful subjects.
+    description: Table cell state presentation.
+    subjects:
+    - all_capabilities:
+      - stateful
+    exposes:
+      required_projections:
+      - state
+      optional_projections:
+      - state_label
+      - state_tone
+    supports_actions: []
+  timestamp_inline:
+    extends:
+    - Representation
+    intent: Use timestamp_inline for compact temporal references in streams, tables, timelines, and detail summaries. It should
+      use monospace or tabular numeric treatment and should preserve exactness. The display may be shortened for density,
+      but full value should remain available through copy, tooltip, detail, or accessible label. This presentation is central
+      for logs, scans, tool events, sensor readings, and lifecycle updates.
+    description: Compact timestamp display.
+    subjects:
+    - all_capabilities:
+      - temporal
+    exposes:
+      recommended_projections:
+      - timestamp
+      - start_time
+    supports_actions: []
+  duration_cell:
+    extends:
+    - Representation
+    intent: 'Use duration_cell for elapsed time, latency, execution duration, transit time, or other duration values that
+      need comparison. It is a temporal presentation but visually behaves like a metric: values should align consistently,
+      include appropriate units, and support copy or comparison actions when useful. It should avoid decorative charting unless
+      the widget explicitly asks for trend or distribution context.'
+    description: Duration value for tables/details.
+    subjects:
+    - all_capabilities:
+      - temporal
+    exposes:
+      required_projections:
+      - duration_ms
+    supports_actions: []
+  metric_cell:
+    extends:
+    - Representation
+    intent: Use metric_cell for numeric values that users compare, sort, filter, or aggregate. Metric cells should emphasize
+      precision, units, and alignment rather than decoration. They are suitable for throughput, counts, cost, queue depth,
+      error rate, latency, duration, inventory quantity, and similar values. The presentation should be compact enough for
+      dense tables but semantic enough to become an action/filter/compare target.
+    description: Numeric metric display with unit and alignment.
+    subjects:
+    - all_capabilities:
+      - measurable
+    exposes:
+      required_projections:
+      - value
+      optional_projections:
+      - unit
+    supports_actions: []
+  relation_link:
+    extends:
+    - Representation
+    intent: 'Use relation_link when the displayed value points to another semantic subject. This presentation turns graph-shaped
+      operational data into navigable UI: a tool event links to a tool run, a shipment links to a carrier, an order links
+      to packages, a metric links to the monitored resource. Relation links should remain compact and action-aware; they should
+      support opening related objects, filtering by relation, and copying the reference.'
+    description: Compact link/reference to a related semantic object.
+    subjects:
+    - all_capabilities:
+      - relatable
+    exposes:
+      recommended_projections:
+      - relation_refs
+      - actor_ref
+      - work_item_ref
+      - resource_ref
+    supports_actions: []
+  compact_ref:
+    extends:
+    - Representation
+    intent: Use compact_ref as the default compact representation of an identifiable and labelable semantic object. It combines
+      stable identity with a readable label and may optionally include state tone or state indicator. It is the workhorse
+      presentation for Actors, WorkItems, Resources, ActionSpecs, and related subjects when they appear inside rows, chips,
+      detail panels, filters, and context menus. It should be dense, copyable, inspectable, and consistent across domains.
+    description: Compact reference combining id and label.
+    subjects:
+    - all_capabilities:
+      - identifiable
+      - labelable
+    exposes:
+      required_projections:
+      - id
+      - label
+      optional_projections:
+      - state
+      - state_tone
+    supports_actions: []
+  inline_token:
+    extends:
+    - Representation
+    intent: Use inline_token when semantic values appear inside dense prose-like streams such as logs, traces, scan feeds,
+      event rows, or operational messages. Inline tokens should feel like text first, not heavy pills. They must carry enough
+      metadata to support selection, context menus, action matching, and argument collection. The goal is to make semantic
+      structure available without destroying the rhythm of dense textual information.
+    description: Inline semantic token for dense streams.
+    subjects:
+    - any_archetypes:
+      - Actor
+      - WorkItem
+      - Event
+      - Resource
+      - Metric
+      - TimelineSpan
+    exposes:
+      recommended_projections:
+      - id
+      - label
+      - state
+      - timestamp
+      - value
+    supports_actions: []
+  dense_row:
+    extends:
+    - Representation
+    intent: "Use dense_row for records that need to appear in high-volume streams or tables. This presentation composes multiple\
+      \ capability-level presentations\u2014timestamp, state, compact reference, metric, relation\u2014into a scannable row.\
+      \ It must preserve identity, selection, context menu, keyboard focus, and detail-opening affordances while remaining\
+      \ visually quiet. It is the main presentation for WorkItems, Events, Resources, TimelineSpans, and ActionInvocations."
+    description: Dense row for streams or tables.
+    subjects:
+    - any_archetypes:
+      - WorkItem
+      - Event
+      - Resource
+      - TimelineSpan
+      - ActionInvocation
+    exposes:
+      recommended_projections:
+      - id
+      - label
+      - timestamp
+    supports_actions: []
+  summary_card:
+    extends:
+    - Representation
+    intent: Use summary_card when the UI needs a compact but more spacious overview than a row or token can provide. Summary
+      cards should not become decorative marketing cards; they are operational summaries with a small set of important fields,
+      state, metrics, and actions. They are useful in side panels, dashboards, grouped results, and search outputs where several
+      facts must be shown together without opening a full detail panel.
+    description: Compact card/summary surface.
+    subjects:
+    - any_archetypes:
+      - Actor
+      - WorkItem
+      - Resource
+      - TimelineSpan
+      - ActionSpec
+      - ActionInvocation
+    exposes:
+      recommended_projections:
+      - id
+      - label
+    supports_actions: []
+  detail_panel:
+    extends:
+    - Representation
+    intent: Use detail_panel as the full inspection surface for a selected semantic subject. It should expose canonical identity,
+      labels, state, related objects, timelines, metrics, raw payloads, and actions in structured sections. Detail panels
+      are not modal by default; they should preserve the surrounding operational context so users can inspect without losing
+      their place in a stream or table. The panel should favor copyable key-value fields and progressive disclosure for large
+      payloads.
+    description: Full inspection surface for selected semantic subject.
+    subjects:
+    - all_capabilities:
+      - inspectable
+    exposes:
+      recommended_projections:
+      - id
+      - label
+      - detail_ref
+    supports_actions: []
+  timeline_marker:
+    extends:
+    - Representation
+    intent: "Use timeline_marker for temporal subjects that need to be placed along an ordered time axis or phase progression.\
+      \ It may represent an instant Event, a WorkItem milestone, or a TimelineSpan boundary/segment. It should use a compact\
+      \ operational visual grammar\u2014line, dot, tick, badge, timestamp\u2014rather than illustrative timeline art. Timeline\
+      \ markers should remain selectable and related to the same RepresentationRef/action system as rows and tokens."
+    description: Compact marker or span for temporal processes.
+    subjects:
+    - any_archetypes:
+      - TimelineSpan
+      - Event
+      - WorkItem
+    exposes:
+      recommended_projections:
+      - timestamp
+      - start_time
+      - end_time
+    supports_actions: []
+  filter_chip:
+    extends:
+    - Representation
+    intent: Use filter_chip to render an active FilterCriterion as operational state rather than decorative chrome. A chip
+      should show the constrained dimension, operator when necessary, and value label. It should support removal, context-menu
+      actions, keyboard focus, and inspection/explanation when the filter was inferred from a semantic presentation. Filter
+      chips must remain compact because dense operational users often combine several constraints while still needing the
+      underlying table or stream to dominate the screen.
+    description: Compact active filter criterion shown in a FilterBar or result header.
+    subjects:
+    - any_archetypes:
+      - FilterCriterion
+    exposes:
+      recommended_projections:
+      - filter_expression
+      - filter_label
+    supports_actions: []
+  filter_dimension_label:
+    extends:
+    - Representation
+    intent: Use filter_dimension_label in filter builders, facet panels, command palettes, and generated reference documentation
+      when the user needs to choose or inspect a dimension such as session, client, state, timestamp, event type, carrier,
+      or facility. The presentation names the dimension and may expose its type/operator metadata through details or context
+      actions.
+    description: Label for an available filter dimension or filter specification.
+    subjects:
+    - any_archetypes:
+      - FilterSpec
+    exposes:
+      recommended_projections:
+      - id
+      - label
+    supports_actions: []
+  filter_value_token:
+    extends:
+    - Representation
+    intent: Use filter_value_token when a visible semantic object or scalar can become a filter value. Examples include agent
+      references, session ids, client ids, state values, event types, facilities, timestamps, or metric thresholds. It should
+      preserve the source RepresentationRef so the runtime can derive the correct FilterExpression for the current FilterTargetRef
+      rather than treating the displayed label as an untyped string.
+    description: Selectable value that can derive a filter expression for compatible targets.
+    subjects:
+    - all_capabilities:
+      - filter_source
+    exposes:
+      recommended_projections:
+      - filter_value
+      - id
+      - label
+    supports_actions: []
+  filter_summary:
+    extends:
+    - Representation
+    intent: "Use filter_summary to show the current constraint state of a ResultSet or filterable surface. It can communicate\
+      \ result count, number of active filters, search text, live-tail state, cursor/window state, or a compact textual description\
+      \ such as `42 sessions \xB7 client = web`. It should be selectable when the result set itself has actions such as clear\
+      \ filters, save preset, inspect query, or copy query state."
+    description: Compact summary of the filter/search/window state for a result set.
+    subjects:
+    - all_capabilities:
+      - filterable
+    exposes:
+      required_projections:
+      - filter_target_id
+      optional_projections:
+      - active_filters
+      - active_search
+    supports_actions: []
+  search_summary:
+    extends:
+    - Representation
+    intent: Use search_summary when text query state needs to be rendered separately from structured filter chips. Search
+      summaries should name the query and scope clearly because free-text search may behave differently from exact filter
+      expressions. They support clearing, copying, or inspecting the query but should not be visually conflated with typed
+      filter criteria.
+    description: Compact summary of text search applied to a searchable target.
+    subjects:
+    - all_capabilities:
+      - searchable
+    exposes:
+      recommended_projections:
+      - active_search
+      - search_scope
+    supports_actions: []
+  facet_bucket:
+    extends:
+    - Representation
+    intent: 'Use facet_bucket to render grouped counts returned for a facetable result surface, such as state counts, severity
+      counts, client counts, carrier counts, event-type counts, or facility counts. A facet bucket is both summary and action
+      source: selecting it typically applies a corresponding FilterExpression to the current target. Counts should be aligned
+      and text-first so facet panels remain scannable in dense applications.
+
+      '
+    description: Counted facet value that can be selected to apply a filter.
+    subjects:
+    - all_capabilities:
+      - facetable
+    exposes:
+      required_projections:
+      - facets
+    supports_actions: []

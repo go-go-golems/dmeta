@@ -16,8 +16,14 @@ type IndexFile struct {
 	Summary       string            `yaml:"summary"`
 	Status        string            `yaml:"status"`
 	Inherits      map[string]string `yaml:"inherits"`
-	Files         map[string]string `yaml:"files"`
+	Files         InteractionFiles  `yaml:"files"`
 	Validation    map[string]any    `yaml:"validation"`
+}
+
+type InteractionFiles struct {
+	Actions          validator.FileList `yaml:"actions"`
+	Representations  validator.FileList `yaml:"representations"`
+	ElaborationRules validator.FileList `yaml:"elaboration_rules"`
 }
 
 type ActionsFile struct {

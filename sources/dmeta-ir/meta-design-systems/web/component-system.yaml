@@ -1,0 +1,151 @@
+schema_version: 0
+artifact_type: dmeta_web_component_system
+id: web_component_system
+name: Web Component System
+summary: Component hierarchy, composition rules, and lifecycle defaults for the generic Web MetaDesignSystem.
+long_summary: |
+  This file is the reusable Web component-system policy for DMETA. It explains how Web widget templates should be classified and composed after Semantic IR and Interaction IR have already identified the relevant domain facts, representations, and actions.
+
+  The component system is intentionally target-family specific. It belongs in the Web MetaDesignSystem, not in the semantic core model and not in Interaction IR. Semantic IR should explain what the domain means. Interaction IR should explain what users can perceive and do. This file explains how browser UI templates are organized into atoms, molecules, organisms, rich widgets, and pages so generators and reviewers can produce consistent Web interfaces.
+status: draft
+levels:
+  atom:
+    description: Small reusable primitive with local rendering or local control state only.
+    can_be_emitted_by_lowering: false
+    layout_scope: internal_only
+    behavior_scope: local_control_state
+    allowed_children: []
+    default_generation_policy: scaffold_once
+    required_intent_fields:
+      - purpose
+      - adapter_boundary
+    examples:
+      - action_button
+      - icon
+      - pill_label
+      - status_badge
+  molecule:
+    description: Small composed component that renders one local presentation shape or control group.
+    can_be_emitted_by_lowering: false
+    layout_scope: local_composition
+    behavior_scope: presentational_callbacks
+    allowed_children:
+      - atom
+    default_generation_policy: scaffold_once
+    required_intent_fields:
+      - purpose
+      - adapter_boundary
+    examples:
+      - action_group
+      - section_header
+      - image_card
+      - product_card
+  organism:
+    description: Web widget or page section that satisfies one or more Interaction IR representation/action obligations.
+    can_be_emitted_by_lowering: true
+    layout_scope: section_or_widget
+    behavior_scope: action_slot_boundary
+    allowed_children:
+      - molecule
+      - atom
+    default_generation_policy: scaffold_then_promote
+    required_intent_fields:
+      - purpose
+      - adapter_boundary
+    examples:
+      - result_collection_widget
+      - category_discovery_widget
+      - filter_panel
+  rich_widget:
+    description: Larger interactive widget with substantial internal state, multiple regions, or multi-step behavior.
+    can_be_emitted_by_lowering: true
+    layout_scope: rich_widget_composition
+    behavior_scope: coordinated_widget_state
+    allowed_children:
+      - organism
+      - molecule
+      - atom
+    default_generation_policy: scaffold_then_promote
+    required_intent_fields:
+      - purpose
+      - adapter_boundary
+    examples:
+      - planner
+      - comparison_tool
+      - diagnostic_workspace
+  page:
+    description: Route or screen-level composition of organisms, rich widgets, and page chrome.
+    can_be_emitted_by_lowering: true
+    layout_scope: page_composition
+    behavior_scope: composition_and_routing_boundary
+    allowed_children:
+      - rich_widget
+      - organism
+      - molecule
+      - atom
+    default_generation_policy: scaffold_then_promote
+    required_intent_fields:
+      - purpose
+      - adapter_boundary
+    examples:
+      - landing_page
+      - dashboard_page
+      - assistant_page
+  component:
+    description: Compatibility level for generic components that have not yet been classified more precisely.
+    can_be_emitted_by_lowering: true
+    layout_scope: unspecified
+    behavior_scope: unspecified
+    allowed_children:
+      - rich_widget
+      - organism
+      - molecule
+      - atom
+      - component
+    default_generation_policy: scaffold_once
+    required_intent_fields:
+      - purpose
+specificity:
+  allowed:
+    - generic
+    - brand
+    - domain
+    - app
+  default: app
+composition_rules:
+  require_known_template: true
+  require_intent_per_edge: true
+  forbid_cycles: true
+  resolve_dependency_closure_for_react: true
+lowering_rules:
+  emitted_template_levels:
+    - organism
+    - rich_widget
+    - page
+    - component
+  dependency_only_levels:
+    - atom
+    - molecule
+  warn_when_emitting_dependency_only_level: true
+layout_recipe_policy:
+  description: Optional Web-target hints for the coarse layout shape a promoted/generated Web template should follow.
+  ownership: Web MetaDesignSystem only; do not copy layout hints into Semantic IR/core model or Interaction IR representations/actions.
+  expected_location: component.layout
+  allowed_primitives:
+    - section
+    - split
+    - grid
+    - stack
+  common_fields:
+    - primitive
+    - container
+    - grid_recipe
+  usage_notes:
+    - Layout hints are advisory documentation for humans and lightweight tooling.
+    - Keep hints coarse: identify the dominant primitive, optional container size, and optional named grid recipe.
+    - Do not encode exact React styling props, nested child layouts, provenance, spacing, tones, or breakpoint details until there is a clear tooling need.
+notes:
+  - Lowering rules should usually emit organisms, rich widgets, or pages that satisfy Interaction IR obligations.
+  - Atoms and molecules should usually enter generated/promoted systems through composition.uses dependency closure.
+  - Application packages may specialize this policy, but should not move Web component hierarchy into Semantic IR or Interaction IR.
+  - Web layout recipes are target-family metadata for scaffolding and promotion; they are not semantic facts and should not be authored in Semantic IR/core model or Interaction IR.

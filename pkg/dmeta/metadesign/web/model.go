@@ -3,10 +3,11 @@ package web
 import "github.com/go-go-golems/dmeta/pkg/dmeta/validator"
 
 type Package struct {
-	Root          string
-	Meta          MetaDesignSystemFile
-	LoweringRules LoweringRulesFile
-	Widgets       map[string]validator.Widget
+	Root            string
+	Meta            MetaDesignSystemFile
+	LoweringRules   LoweringRulesFile
+	ComponentSystem *ComponentSystemFile
+	Widgets         map[string]validator.Widget
 }
 
 type MetaDesignSystemFile struct {
@@ -27,6 +28,50 @@ type LoweringRulesFile struct {
 	Summary       string         `yaml:"summary"`
 	LongSummary   string         `yaml:"long_summary"`
 	Rules         []LoweringRule `yaml:"rules"`
+}
+
+type ComponentSystemFile struct {
+	SchemaVersion    int                       `yaml:"schema_version"`
+	ArtifactType     string                    `yaml:"artifact_type"`
+	ID               string                    `yaml:"id"`
+	Name             string                    `yaml:"name"`
+	Summary          string                    `yaml:"summary"`
+	LongSummary      string                    `yaml:"long_summary"`
+	Status           string                    `yaml:"status"`
+	Levels           map[string]ComponentLevel `yaml:"levels"`
+	Specificity      SpecificityPolicy         `yaml:"specificity"`
+	CompositionRules CompositionRules          `yaml:"composition_rules"`
+	LoweringRules    ComponentLoweringPolicy   `yaml:"lowering_rules"`
+	Notes            []string                  `yaml:"notes"`
+}
+
+type ComponentLevel struct {
+	Description             string   `yaml:"description"`
+	CanBeEmittedByLowering  bool     `yaml:"can_be_emitted_by_lowering"`
+	LayoutScope             string   `yaml:"layout_scope"`
+	BehaviorScope           string   `yaml:"behavior_scope"`
+	AllowedChildren         []string `yaml:"allowed_children"`
+	DefaultGenerationPolicy string   `yaml:"default_generation_policy"`
+	RequiredIntentFields    []string `yaml:"required_intent_fields"`
+	Examples                []string `yaml:"examples"`
+}
+
+type SpecificityPolicy struct {
+	Allowed []string `yaml:"allowed"`
+	Default string   `yaml:"default"`
+}
+
+type CompositionRules struct {
+	RequireKnownTemplate             bool `yaml:"require_known_template"`
+	RequireIntentPerEdge             bool `yaml:"require_intent_per_edge"`
+	ForbidCycles                     bool `yaml:"forbid_cycles"`
+	ResolveDependencyClosureForReact bool `yaml:"resolve_dependency_closure_for_react"`
+}
+
+type ComponentLoweringPolicy struct {
+	EmittedTemplateLevels               []string `yaml:"emitted_template_levels"`
+	DependencyOnlyLevels                []string `yaml:"dependency_only_levels"`
+	WarnWhenEmittingDependencyOnlyLevel bool     `yaml:"warn_when_emitting_dependency_only_level"`
 }
 
 type LoweringRule struct {

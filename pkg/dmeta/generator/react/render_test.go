@@ -3,6 +3,8 @@ package react
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/go-go-golems/dmeta/pkg/dmeta/validator"
 )
 
 func TestRenderMetadataSidecarIncludesWebAndReactProvenance(t *testing.T) {
@@ -19,6 +21,11 @@ func TestRenderMetadataSidecarIncludesWebAndReactProvenance(t *testing.T) {
 		RealizesRepresentations: []string{"composition_summary", "dietary_summary"},
 		SourceDomainTypes:       []string{"MenuItem", "OrderItem"},
 		SourceRules:             []string{"composition_summary_to_deli_card"},
+		Template: validator.Widget{
+			Component: validator.WidgetComponent{
+				Layout: validator.WidgetLayoutHint{Primitive: "section", Container: "site", GridRecipe: "productCards"},
+			},
+		},
 		Files: []PlannedFile{
 			{
 				Path:   "generated/react/StreetDeliCompositionCard/StreetDeliCompositionCard.tsx",
@@ -61,6 +68,10 @@ func TestRenderMetadataSidecarIncludesWebAndReactProvenance(t *testing.T) {
 	assertStringSlice(t, web["slots"], []string{"description", "dietary_tags", "price", "title"})
 	assertStringSlice(t, web["visualStates"], []string{"default", "selected", "unavailable"})
 	assertStringSlice(t, web["eventBindings"], []string{"inspect_subject"})
+	layout := web["layout"].(map[string]any)
+	assertEqual(t, layout["primitive"], "section")
+	assertEqual(t, layout["container"], "site")
+	assertEqual(t, layout["gridRecipe"], "productCards")
 }
 
 func assertEqual(t *testing.T, got any, want string) {

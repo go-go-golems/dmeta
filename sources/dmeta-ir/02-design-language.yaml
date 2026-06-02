@@ -7,7 +7,7 @@ mode: archetype_range
 references:
   dense_operational_ui_graphic_design_and_ux_archetype: ../../design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md
   design_language_tooling_spec: ../../design-docs/06-dmeta-design-language-and-tooling-spec.md
-  core_presentations: ./core-model/presentations.yaml
+  interaction_representations: ./interactions/representations.yaml
 source_guidance:
   archetype_name: Sober Dense Operational UI
   aliases:

@@ -23,9 +23,6 @@ func TestValidateWidgetReflectionFields(t *testing.T) {
 				},
 			},
 		},
-		Presentations: map[string]Presentation{
-			"status_badge": {Layer: "capability"},
-		},
 	}}
 	resolved, inheritanceFindings := ResolveCoreInheritance(pkg.CoreModel)
 	if HasErrors(inheritanceFindings) {
@@ -35,11 +32,11 @@ func TestValidateWidgetReflectionFields(t *testing.T) {
 		{
 			ID:       "ok",
 			Name:     "OKWidget",
-			Consumes: Consumes{Capabilities: []string{"available"}, Archetypes: []string{"WorkItem"}, Presentations: []string{"status_badge"}},
+			Consumes: Consumes{Capabilities: []string{"available"}, Archetypes: []string{"WorkItem"}, Representations: []string{"status_badge"}},
 			SemanticContext: WidgetSemanticContext{
-				Capabilities:  []string{"available"},
-				Archetypes:    []string{"WorkItem"},
-				Presentations: []string{"status_badge"},
+				Capabilities:    []string{"available"},
+				Archetypes:      []string{"WorkItem"},
+				Representations: []string{"status_badge"},
 			},
 			ProjectionHints: WidgetProjectionHints{
 				Recommended: []string{"available.availability_state", "available.state"},
@@ -50,7 +47,7 @@ func TestValidateWidgetReflectionFields(t *testing.T) {
 		{
 			ID:              "bad-context",
 			Name:            "BadContextWidget",
-			SemanticContext: WidgetSemanticContext{Capabilities: []string{"missing_cap"}, Archetypes: []string{"MissingArch"}, Presentations: []string{"missing_presentation"}},
+			SemanticContext: WidgetSemanticContext{Capabilities: []string{"missing_cap"}, Archetypes: []string{"MissingArch"}, Representations: []string{"missing_representation"}},
 			Outputs:         map[string]string{"metadata": "bad.metadata.ts"},
 		},
 		{
@@ -74,7 +71,6 @@ func TestValidateWidgetReflectionFields(t *testing.T) {
 	findings := validateWidgets(pkg, resolved)
 	assertFinding(t, findings, "unknown_semantic_context_capability", SeverityError)
 	assertFinding(t, findings, "unknown_semantic_context_archetype", SeverityError)
-	assertFinding(t, findings, "unknown_semantic_context_presentation", SeverityError)
 	assertFinding(t, findings, "unknown_required_projection_hint", SeverityWarning)
 	assertFinding(t, findings, "unknown_recommended_projection_hint", SeverityWarning)
 }

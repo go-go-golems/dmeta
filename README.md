@@ -25,7 +25,7 @@ Start with the shared playbook, then run the Web or PBUI playbook depending on t
 
 - `design-docs/00-document-map-and-cleanup-plan.md` — current decision matrix for which docs to keep, update, archive, or remove.
 - `design-docs/01-design-system-factory-vision-and-scope.md` — overall factory vision and scope.
-- `design-docs/02-semantic-archetype-and-capability-model.md` — reusable semantic archetypes, capabilities, projections, presentations, and action model.
+- `design-docs/02-semantic-archetype-and-capability-model.md` — reusable semantic archetypes, capabilities, projections, and the boundary to Interaction IR representations/actions.
 - `design-docs/03-dense-operational-ui-graphic-design-and-ux-archetype.md` — sober dense operational UI graphic design and UX archetype.
 - `design-docs/04-concrete-dmeta-system-spec.md` — current layered compiler system spec.
 - `design-docs/05-dmeta-core-model-and-widget-ir-spec.md` — current shared Semantic and Interaction IR spec.
@@ -34,7 +34,7 @@ Start with the shared playbook, then run the Web or PBUI playbook depending on t
 
 ## Current semantic model note
 
-The core semantic model uses explicit multi-level inheritance. `Archetype` and `Capability` are abstract roots, every non-root archetype/capability declares `extends`, validators resolve inherited capabilities/projections/actions before checking domain examples, and generated TypeScript exposes `isArchetypeA(...)`, `isCapabilityA(...)`, and effective inherited fields. Treat older flat archetype/capability examples as historical sketches unless they have been updated with `extends`.
+The core semantic model uses explicit multi-level inheritance. `Archetype` and `Capability` are abstract roots, every non-root archetype/capability declares `extends`, validators resolve inherited capabilities/projections before checking domain examples, and generated TypeScript exposes `isArchetypeA(...)`, `isCapabilityA(...)`, and effective inherited fields. Treat older flat archetype/capability examples as historical sketches unless they have been updated with `extends`.
 
 ## Source IR
 

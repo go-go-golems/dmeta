@@ -7,18 +7,20 @@ templates:
 - id: dmeta.record_stream
   name: RecordStream
   status: template
-  classification:
+  component:
     level: organism
+    specificity: generic
     role: dense_record_stream
+    generation_policy: scaffold_then_promote
   intent:
-    purpose: Render virtualizable ordered records/events/work items with selectable semantic presentations.
+    purpose: Render virtualizable ordered records/events/work items with selectable Interaction representations.
     adapter_boundary: Receives normalized row models and typed callbacks; does not own backend dispatch.
   consumes:
     archetypes:
     - Event
     - WorkItem
     - ActionInvocation
-    presentations:
+    representations:
     - dense_row
     - inline_token
     - status_badge
@@ -39,11 +41,11 @@ templates:
             required: false
     action_slots:
       onSelectRecord:
-        accepts: PresentationRef
+        accepts: RepresentationRef
       onOpenContextMenu:
-        accepts: PresentationRef
+        accepts: RepresentationRef
       onInspectRecord:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - log_events
   - tool_runs
@@ -76,10 +78,10 @@ templates:
         type: any
         required: false
         description: Storybook scenarios relevant to the selected variant and instance.
-      presentation_mapping:
+      representation_mapping:
         type: any
         required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
+        description: Mapping from Interaction representations to rendered slots/cells/regions.
       action_slots:
         type: any
         required: false

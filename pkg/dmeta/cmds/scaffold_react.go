@@ -18,6 +18,8 @@ import (
 
 type ScaffoldReactCommand struct {
 	*cmds.CommandDescription
+	commandName string
+	generatedBy string
 }
 
 var _ cmds.GlazeCommand = (*ScaffoldReactCommand)(nil)
@@ -35,6 +37,14 @@ type ScaffoldReactSettings struct {
 }
 
 func NewScaffoldReactCommand() (*ScaffoldReactCommand, error) {
+	return newReactLoweringCommand("scaffold-react", "dmeta scaffold-react")
+}
+
+func NewLowerReactCommand() (*ScaffoldReactCommand, error) {
+	return newReactLoweringCommand("lower-react", "dmeta lower-react")
+}
+
+func newReactLoweringCommand(commandName string, generatedBy string) (*ScaffoldReactCommand, error) {
 	glazedSection, err := settings.NewGlazedSchema()
 	if err != nil {
 		return nil, errors.Wrap(err, "create glazed section")
@@ -45,18 +55,18 @@ func NewScaffoldReactCommand() (*ScaffoldReactCommand, error) {
 	}
 
 	desc := cmds.NewCommandDescription(
-		"scaffold-react",
+		commandName,
 		cmds.WithShort("Render React target scaffolds from Web MetaDesignSystem obligations"),
-		cmds.WithLong(`Render React target scaffold files from Web MetaDesignSystem obligations.
+		cmds.WithLong(`Render React target files from Web MetaDesignSystem obligations.
 
-The command follows the new compiler path: Semantic IR -> Interaction IR -> Web
-MetaDesignSystem obligations -> React target plan -> rendered React files. It does
-not call the legacy generic widget renderer. Use --dry-run to inspect planned writes
-without touching the filesystem.
+The command follows the compiler path: Semantic IR -> Interaction IR -> Web
+MetaDesignSystem obligations -> React target plan -> rendered React files. It emits
+regenerable generated artifacts such as contracts, metadata, stories, styles, and
+manifests. Use --dry-run to inspect planned writes without touching the filesystem.
 
 Examples:
-  dmeta scaffold-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --dry-run --output table
-  dmeta scaffold-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --metadata-only --dry-run --output table
+  dmeta lower-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --dry-run --output table
+  dmeta lower-react --instance ./examples/street-deli-ordering/instantiations/street-deli-ordering.yaml --metadata-only --dry-run --output table
 `),
 		cmds.WithFlags(
 			fields.New("instance", fields.TypeString, fields.WithHelp("Path to dmeta_instance YAML manifest")),
@@ -72,13 +82,13 @@ Examples:
 		cmds.WithSections(glazedSection, commandSettingsSection),
 	)
 
-	return &ScaffoldReactCommand{CommandDescription: desc}, nil
+	return &ScaffoldReactCommand{CommandDescription: desc, commandName: commandName, generatedBy: generatedBy}, nil
 }
 
 func (c *ScaffoldReactCommand) RunIntoGlazeProcessor(ctx context.Context, vals *values.Values, gp middlewares.Processor) error {
 	s := &ScaffoldReactSettings{}
 	if err := vals.DecodeSectionInto(schema.DefaultSlug, s); err != nil {
-		return errors.Wrap(err, "decode scaffold-react settings")
+		return errors.Wrapf(err, "decode %s settings", c.commandName)
 	}
 	if s.Instance == "" {
 		return errors.New("--instance is required")
@@ -94,7 +104,7 @@ func (c *ScaffoldReactCommand) RunIntoGlazeProcessor(ctx context.Context, vals *
 	if err != nil {
 		return err
 	}
-	plan.Generated = genmeta.CurrentGeneratedInfo("dmeta scaffold-react")
+	plan.Generated = genmeta.CurrentGeneratedInfo(c.generatedBy)
 	var files []reactgen.GeneratedFile
 	if s.MetadataOnly {
 		files, err = reactgen.GenerateMetadataSidecars(plan)

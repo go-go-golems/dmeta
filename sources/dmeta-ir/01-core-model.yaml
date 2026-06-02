@@ -1,12 +1,11 @@
 schema_version: 0
 artifact_type: dmeta_core_model
-summary: Split semantic archetype, capability, presentation, action, and domain example package for DMETA v0.
+summary: Split semantic archetype, capability, and domain example package for DMETA v0.
 long_summary: 'The DMETA core model defines the semantic vocabulary used by the design-system factory. It describes reusable
-  operational archetypes, capabilities, presentation contracts, action signatures, and cross-domain examples. The model is
-  intentionally domain-neutral: agent workflow objects, retail logistics objects, sensor logs, ecommerce backend records,
-  and build pipeline records should map onto the same archetype/capability vocabulary when they are functionally congruent.
-  For detailed rationale, read dmeta/design-docs/02-semantic-archetype-and-capability-model.md and dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md
-  before editing these YAML files.'
+  operational archetypes, capabilities, and cross-domain examples. The model is intentionally domain-neutral: agent workflow
+  objects, retail logistics objects, sensor logs, ecommerce backend records, and build pipeline records should map onto the
+  same archetype/capability vocabulary when they are functionally congruent. For detailed rationale, read dmeta/design-docs/02-semantic-archetype-and-capability-model.md
+  and dmeta/design-docs/05-dmeta-core-model-and-widget-ir-spec.md before editing these YAML files.'
 status: draft
 references:
   semantic_model_design_doc: ../../design-docs/02-semantic-archetype-and-capability-model.md
@@ -17,7 +16,6 @@ files:
   core_model: ./core-model/core-model.yaml
   archetypes: ./core-model/archetypes.yaml
   capabilities: ./core-model/capabilities.yaml
-  presentations: ./core-model/presentations.yaml
   examples_dir: ./core-model/examples
   examples:
   - ./core-model/examples/agent-workflow.yaml
@@ -26,16 +24,8 @@ validation:
   require_unique_ids:
   - archetypes
   - capabilities
-  - presentations
-  - actions
   require_known_references:
     archetype_capabilities: true
-    archetype_presentations: true
-    capability_presentations: true
-    capability_actions: true
-    presentation_capabilities: true
-    presentation_archetypes: true
-    action_accepts: true
     domain_example_archetypes: true
     domain_example_capabilities: true
   require_domain_examples:

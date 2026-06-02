@@ -129,6 +129,27 @@ func main() {
 	}
 	addGlazedCommand(rootCmd, "scaffold-react", scaffoldReact)
 
+	lowerReact, err := dmetacmds.NewLowerReactCommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating lower-react command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "lower-react", lowerReact)
+
+	listComponents, err := dmetacmds.NewListComponentsCommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating list-components command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "list-components", listComponents)
+
+	showComponent, err := dmetacmds.NewShowComponentCommand()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating show-component command: %v\n", err)
+		os.Exit(1)
+	}
+	addGlazedCommand(rootCmd, "show-component", showComponent)
+
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}

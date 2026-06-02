@@ -16,6 +16,15 @@ defaults:
   style: css_modules
   storybook: true
   metadata_sidecars: true
+  component_layout:
+    strategy: component_hierarchy
+    dirs:
+      atom: atoms
+      molecule: molecules
+      organism: organisms
+      rich_widget: rich-widgets
+      page: pages
+      component: components
 file_kinds:
   - component
   - types

@@ -53,7 +53,7 @@ func LoadPackage(ctx context.Context, root string) (*Package, error) {
 func loadSplitCoreModel(root string, core *CoreModelFile) error {
 	// Backwards compatibility for the original monolithic 01-core-model.yaml:
 	// if it already contains the model sections, there is nothing to merge.
-	if len(core.Archetypes) > 0 || len(core.Capabilities) > 0 || len(core.Presentations) > 0 || len(core.Actions) > 0 || len(core.DomainExamples) > 0 {
+	if len(core.Archetypes) > 0 || len(core.Capabilities) > 0 || len(core.DomainExamples) > 0 {
 		return nil
 	}
 
@@ -64,27 +64,29 @@ func loadSplitCoreModel(root string, core *CoreModelFile) error {
 		}
 		core.LogicalTypes = meta.LogicalTypes
 	}
-	if core.Files.Archetypes != "" {
-		archetypes, err := loadYAML[ArchetypesFile](filepath.Join(root, core.Files.Archetypes))
-		if err != nil {
-			return errors.Wrap(err, "load archetypes")
+	if len(core.Files.Archetypes) > 0 {
+		core.Archetypes = map[string]Archetype{}
+		for _, archetypePath := range core.Files.Archetypes {
+			archetypes, err := loadYAML[ArchetypesFile](filepath.Join(root, archetypePath))
+			if err != nil {
+				return errors.Wrapf(err, "load archetypes %s", archetypePath)
+			}
+			if err := mergeArchetypes(core.Archetypes, archetypes.Archetypes, archetypePath); err != nil {
+				return err
+			}
 		}
-		core.Archetypes = archetypes.Archetypes
 	}
-	if core.Files.Capabilities != "" {
-		capabilities, err := loadYAML[CapabilitiesFile](filepath.Join(root, core.Files.Capabilities))
-		if err != nil {
-			return errors.Wrap(err, "load capabilities")
+	if len(core.Files.Capabilities) > 0 {
+		core.Capabilities = map[string]Capability{}
+		for _, capabilityPath := range core.Files.Capabilities {
+			capabilities, err := loadYAML[CapabilitiesFile](filepath.Join(root, capabilityPath))
+			if err != nil {
+				return errors.Wrapf(err, "load capabilities %s", capabilityPath)
+			}
+			if err := mergeCapabilities(core.Capabilities, capabilities.Capabilities, capabilityPath); err != nil {
+				return err
+			}
 		}
-		core.Capabilities = capabilities.Capabilities
-	}
-	if core.Files.Presentations != "" {
-		presentations, err := loadYAML[PresentationsFile](filepath.Join(root, core.Files.Presentations))
-		if err != nil {
-			return errors.Wrap(err, "load presentations")
-		}
-		core.Presentations = presentations.Presentations
-		core.Actions = presentations.Actions
 	}
 	if core.Files.DomainExample != "" || len(core.Files.Examples) > 0 {
 		core.DomainExamples = map[string]DomainExample{}
@@ -107,6 +109,26 @@ func loadSplitCoreModel(root string, core *CoreModelFile) error {
 	return nil
 }
 
+func mergeArchetypes(dst map[string]Archetype, src map[string]Archetype, sourcePath string) error {
+	for id, value := range src {
+		if _, exists := dst[id]; exists {
+			return errors.Errorf("duplicate archetype %q in %s", id, sourcePath)
+		}
+		dst[id] = value
+	}
+	return nil
+}
+
+func mergeCapabilities(dst map[string]Capability, src map[string]Capability, sourcePath string) error {
+	for id, value := range src {
+		if _, exists := dst[id]; exists {
+			return errors.Errorf("duplicate capability %q in %s", id, sourcePath)
+		}
+		dst[id] = value
+	}
+	return nil
+}
+
 func loadWidgetTemplates(root string) (WidgetIRFile, error) {
 	webRoot := filepath.Join(root, "meta-design-systems", "web")
 	widgets, err := loadYAML[WidgetIRFile](filepath.Join(webRoot, "meta-design-system.yaml"))
@@ -118,7 +140,7 @@ func loadWidgetTemplates(root string) (WidgetIRFile, error) {
 	}
 	widgets.Widgets = nil
 	for key, templatePath := range widgets.Files {
-		if key == "index" || key == "lowering_rules" || templatePath == "" {
+		if isNonWidgetMetaDesignSystemFile(key) || templatePath == "" {
 			continue
 		}
 		templateFile, err := loadYAML[WidgetTemplatesFile](filepath.Join(webRoot, templatePath))
@@ -131,6 +153,15 @@ func loadWidgetTemplates(root string) (WidgetIRFile, error) {
 		widgets.Widgets = append(widgets.Widgets, templateFile.Templates...)
 	}
 	return widgets, nil
+}
+
+func isNonWidgetMetaDesignSystemFile(key string) bool {
+	switch key {
+	case "index", "lowering_rules", "component_system", "style_tokens", "style_recipes":
+		return true
+	default:
+		return false
+	}
 }
 
 func loadYAML[T any](path string) (T, error) {

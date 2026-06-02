@@ -47,8 +47,9 @@ func NewGenerateCoreCommand() (*GenerateCoreCommand, error) {
 		cmds.WithLong(`Generate TypeScript core registry files from the validated DMETA v0 IR.
 
 The command loads the split core-model package under --root, validates it by default,
-and renders TypeScript metadata/types/helpers for archetypes, capabilities,
-presentations, actions, PresentationRef, and action matching.
+and renders TypeScript metadata/types/helpers for archetypes and capabilities.
+Interaction representations/actions are loaded and validated through Interaction IR tooling,
+not generated from the core model.
 
 Examples:
   dmeta generate-core --root ./sources/dmeta-ir --out ./generated/dmeta-core --dry-run --output table

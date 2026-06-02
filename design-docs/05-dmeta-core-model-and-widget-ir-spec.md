@@ -18,8 +18,6 @@ RelatedFiles:
     Note: Shared archetype catalog.
   - Path: ../sources/dmeta-ir/core-model/capabilities.yaml
     Note: Shared capability catalog.
-  - Path: ../sources/dmeta-ir/core-model/presentations.yaml
-    Note: Shared semantic presentations and actions.
   - Path: ../sources/dmeta-ir/interactions/00-index.yaml
     Note: Shared Interaction IR package index.
   - Path: ../sources/dmeta-ir/interactions/actions.yaml
@@ -30,8 +28,8 @@ RelatedFiles:
     Note: Rules that derive interaction obligations from semantic facts.
 ExternalSources: []
 Summary: Current specification for the shared DMETA Semantic IR and Interaction IR used by both Web React and PBUI/CLIM React target lines.
-LastUpdated: 2026-05-25T00:00:00-04:00
-WhatFor: Use before editing archetypes, capabilities, semantic presentations/actions, domain mappings, Interaction IR actions/representations, or elaboration rules.
+LastUpdated: 2026-05-28T00:00:00-04:00
+WhatFor: Use before editing archetypes, capabilities, domain mappings, Interaction IR actions/representations, or elaboration rules.
 WhenToUse: Read when designing a new domain package or changing shared compiler behavior that should feed both Web and PBUI targets.
 ---
 
@@ -70,7 +68,6 @@ sources/dmeta-ir/01-core-model.yaml
 sources/dmeta-ir/core-model/core-model.yaml
 sources/dmeta-ir/core-model/archetypes.yaml
 sources/dmeta-ir/core-model/capabilities.yaml
-sources/dmeta-ir/core-model/presentations.yaml
 sources/dmeta-ir/core-model/examples/*.yaml
 ```
 
@@ -119,9 +116,9 @@ These mappings do not dictate the UI. They tell every target what kind of operat
 
 ## 5. Capabilities
 
-A capability is a reusable affordance or property that can be attached to an archetype or domain type. Capabilities should be concrete enough to drive validation, presentations, actions, filters, or generated metadata.
+A capability is a reusable affordance or property that can be attached to an archetype or domain type. Capabilities should be concrete enough to drive projection validation, interaction elaboration, or generated metadata.
 
-A good capability says what it contributes. For example, `stateful` contributes state projections and status presentations. `temporal` contributes timestamps or intervals. `schedulable` contributes start/end/duration/timezone semantics. `inspectable` contributes inspect actions and detail presentations.
+A good capability says what semantic data it contributes. For example, `stateful` contributes state projections. `temporal` contributes timestamps or intervals. `schedulable` contributes start/end/duration/timezone semantics. `inspectable` contributes the semantic fact that downstream Interaction IR can elaborate into inspectable representations/actions.
 
 Common capabilities include:
 
@@ -157,7 +154,7 @@ Each capability implies obligations. A `temporal` appointment needs a start and 
 
 ## 6. Projections
 
-A projection is a named piece of information a capability or presentation can rely on. Projections keep generated and promoted UI from guessing which field means what.
+A projection is a named piece of information a capability or Interaction IR representation can rely on. Projections keep generated and promoted UI from guessing which field means what.
 
 For appointment management:
 
@@ -178,33 +175,20 @@ intake_state
 
 The exact storage field may differ between verticals. A clinic may store `provider_id`; a salon may store `stylist_id`. The semantic projection can still say this object has an assigned practitioner. The target can then build stable UI around the projection rather than one vertical's database naming.
 
-## 7. Semantic presentations and actions
+## 7. Visible obligations belong to Interaction IR
 
-Semantic presentations are display contracts. They name ways semantic information can appear without deciding the target component. `status_badge`, `compact_ref`, `calendar_block`, `timeline_marker`, and `detail_panel` are presentation concepts. They are not React components.
+The core-model package no longer carries formal presentation vocabulary. Core semantics stop at archetypes, capabilities, projections, and domain examples. If a concept describes something a user can see, select, inspect, copy, filter by, or act on, it belongs in Interaction IR as a representation and/or action.
 
-Semantic actions describe meaningful operations. They are not callbacks. An action such as `reschedule_appointment` may later become a button in Web React, an action presentation in PBUI, a keyboard command, or a menu item. The action itself belongs in the shared model if the operation is domain-level.
-
-Appointment-management actions include:
+The downstream chain is now:
 
 ```text
-book_appointment
-reschedule_appointment
-cancel_appointment
-check_in_client
-mark_arrived
-mark_no_show
-assign_practitioner
-assign_room
-collect_payment
-send_reminder
-open_intake_form
-resolve_conflict
-add_to_waitlist
-promote_waitlist_entry
-block_time
+core-model archetypes/capabilities/projections
+  -> Interaction IR representations/actions
+  -> Web or PBUI MetaDesignSystem lowering rules
+  -> widget contracts and generated/promoted components
 ```
 
-The shared layer should say which kinds of objects these actions accept and which arguments they require. It should not decide whether the action appears as a red button, a context menu item, or a typed command.
+Core-model prose may mention likely user-visible implications, but formal visible obligations, action catalogs, action effects, and action-to-representation relationships belong under `interactions/actions.yaml`, `interactions/representations.yaml`, and `interactions/elaboration-rules.yaml`.
 
 ## 8. Interaction IR
 
@@ -258,7 +242,6 @@ Validation should ensure that:
 - inheritance roots are valid;
 - abstract helper nodes are not used as concrete domain mappings;
 - required inherited projections are mapped;
-- semantic presentations and actions reference known concepts;
 - interaction actions reference known accepted object types;
 - representations have stable ids and prose intent;
 - elaboration rules reference known semantic and interaction concepts;

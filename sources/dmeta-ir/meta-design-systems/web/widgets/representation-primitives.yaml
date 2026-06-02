@@ -1,20 +1,22 @@
 schema_version: 0
 artifact_type: dmeta_web_widget_templates
-category: presentations
-summary: DMETA presentations Web widget templates.
-long_summary: Templates in this file are selectable/adaptable presentations starting points for concrete DMETA instances.
+category: representations
+summary: DMETA representation primitive Web widget templates.
+long_summary: Templates in this file are selectable/adaptable representation starting points for concrete DMETA instances.
 templates:
-- id: dmeta.presentation_token
+- id: dmeta.representation_token
   name: PresentationToken
   status: template
-  classification:
+  component:
     level: atom
-    role: semantic_presentation
+    specificity: generic
+    role: semantic_representation
+    generation_policy: scaffold_once
   intent:
-    purpose: Render a single presentation ref as inline selectable text/token/chip.
-    adapter_boundary: Receives typed PresentationRef; does not parse runtime JSON.
+    purpose: Render a single representation ref as inline selectable text/token/chip.
+    adapter_boundary: Receives typed RepresentationRef; does not parse runtime JSON.
   consumes:
-    presentations:
+    representations:
     - compact_id
     - display_label
     - status_badge
@@ -26,7 +28,7 @@ templates:
       PresentationTokenProps:
         fields:
           subject:
-            type: PresentationRef
+            type: RepresentationRef
             required: true
           variant:
             type: PresentationId
@@ -39,9 +41,9 @@ templates:
             required: false
     action_slots:
       onOpenContextMenu:
-        accepts: PresentationRef
+        accepts: RepresentationRef
       onSelectPresentation:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - default
   - selected
@@ -54,7 +56,7 @@ templates:
     stories: src/dmeta/widgets/PresentationToken/PresentationToken.stories.tsx
     barrel: src/dmeta/widgets/PresentationToken/index.ts
   template:
-    category: presentations
+    category: representations
     selection: common
     maturity: draft
     default_importance: common
@@ -73,10 +75,10 @@ templates:
         type: any
         required: false
         description: Storybook scenarios relevant to the selected variant and instance.
-      presentation_mapping:
+      representation_mapping:
         type: any
         required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
+        description: Mapping from Interaction representations to rendered slots/cells/regions.
       action_slots:
         type: any
         required: false
@@ -88,14 +90,16 @@ templates:
 - id: dmeta.status_badge
   name: StatusBadge
   status: template
-  classification:
+  component:
     level: atom
-    role: state_presentation
+    specificity: generic
+    role: state_representation
+    generation_policy: scaffold_once
   intent:
     purpose: Render the stateful capability as a compact semantic badge.
-    adapter_boundary: Receives normalized state presentation data and emits typed presentation callbacks.
+    adapter_boundary: Receives normalized state representation data and emits typed presentation callbacks.
   consumes:
-    presentations:
+    representations:
     - status_badge
     - state_cell
     capabilities:
@@ -105,7 +109,7 @@ templates:
       StatusBadgeProps:
         fields:
           subject:
-            type: PresentationRef
+            type: RepresentationRef
             required: true
           state:
             type: string
@@ -115,7 +119,7 @@ templates:
             required: false
     action_slots:
       onOpenContextMenu:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - neutral
   - success
@@ -130,7 +134,7 @@ templates:
     stories: src/dmeta/widgets/StatusBadge/StatusBadge.stories.tsx
     barrel: src/dmeta/widgets/StatusBadge/index.ts
   template:
-    category: presentations
+    category: representations
     selection: common
     maturity: draft
     default_importance: common
@@ -149,10 +153,10 @@ templates:
         type: any
         required: false
         description: Storybook scenarios relevant to the selected variant and instance.
-      presentation_mapping:
+      representation_mapping:
         type: any
         required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
+        description: Mapping from Interaction representations to rendered slots/cells/regions.
       action_slots:
         type: any
         required: false
@@ -164,7 +168,7 @@ templates:
   semantic_context:
     capabilities:
     - stateful
-    presentations:
+    representations:
     - status_badge
     - state_cell
     intent: Render stateful semantic state as a compact visual token. The inherited stateful projection contract is useful
@@ -181,14 +185,16 @@ templates:
 - id: dmeta.compact_reference
   name: CompactReference
   status: template
-  classification:
+  component:
     level: atom
-    role: reference_presentation
+    specificity: generic
+    role: reference_representation
+    generation_policy: scaffold_once
   intent:
     purpose: Render compact references for identifiable/labelable semantic objects.
-    adapter_boundary: Receives PresentationRef and optional resolved label/state data.
+    adapter_boundary: Receives RepresentationRef and optional resolved label/state data.
   consumes:
-    presentations:
+    representations:
     - compact_id
     - compact_ref
     - relation_link
@@ -201,7 +207,7 @@ templates:
       CompactReferenceProps:
         fields:
           subject:
-            type: PresentationRef
+            type: RepresentationRef
             required: true
           showState:
             type: boolean
@@ -211,11 +217,11 @@ templates:
             required: false
     action_slots:
       onCopy:
-        accepts: PresentationRef
+        accepts: RepresentationRef
       onInspect:
-        accepts: PresentationRef
+        accepts: RepresentationRef
       onOpenContextMenu:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - id_only
   - label_and_id
@@ -229,7 +235,7 @@ templates:
     stories: src/dmeta/widgets/CompactReference/CompactReference.stories.tsx
     barrel: src/dmeta/widgets/CompactReference/index.ts
   template:
-    category: presentations
+    category: representations
     selection: common
     maturity: draft
     default_importance: common
@@ -248,10 +254,10 @@ templates:
         type: any
         required: false
         description: Storybook scenarios relevant to the selected variant and instance.
-      presentation_mapping:
+      representation_mapping:
         type: any
         required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
+        description: Mapping from Interaction representations to rendered slots/cells/regions.
       action_slots:
         type: any
         required: false
@@ -264,7 +270,7 @@ templates:
     capabilities:
     - identifiable
     - labelable
-    presentations:
+    representations:
     - compact_id
     - compact_ref
     - relation_link
@@ -281,14 +287,16 @@ templates:
 - id: dmeta.metric_cell
   name: MetricCell
   status: template
-  classification:
+  component:
     level: atom
-    role: metric_presentation
+    specificity: generic
+    role: metric_representation
+    generation_policy: scaffold_once
   intent:
     purpose: Render comparable numeric values with units and tabular alignment.
-    adapter_boundary: Receives normalized metric value and optional PresentationRef.
+    adapter_boundary: Receives normalized metric value and optional RepresentationRef.
   consumes:
-    presentations:
+    representations:
     - metric_cell
     - duration_cell
     capabilities:
@@ -299,7 +307,7 @@ templates:
       MetricCellProps:
         fields:
           subject:
-            type: PresentationRef
+            type: RepresentationRef
             required: false
           value:
             type: number
@@ -312,9 +320,9 @@ templates:
             required: false
     action_slots:
       onCompare:
-        accepts: PresentationRef
+        accepts: RepresentationRef
       onCopy:
-        accepts: PresentationRef
+        accepts: RepresentationRef
   stories:
   - number
   - duration
@@ -328,7 +336,7 @@ templates:
     stories: src/dmeta/widgets/MetricCell/MetricCell.stories.tsx
     barrel: src/dmeta/widgets/MetricCell/index.ts
   template:
-    category: presentations
+    category: representations
     selection: common
     maturity: draft
     default_importance: common
@@ -347,10 +355,10 @@ templates:
         type: any
         required: false
         description: Storybook scenarios relevant to the selected variant and instance.
-      presentation_mapping:
+      representation_mapping:
         type: any
         required: false
-        description: Mapping from semantic presentations to rendered slots/cells/regions.
+        description: Mapping from Interaction representations to rendered slots/cells/regions.
       action_slots:
         type: any
         required: false

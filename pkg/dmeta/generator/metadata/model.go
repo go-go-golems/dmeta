@@ -59,11 +59,51 @@ type SemanticGuidance struct {
 }
 
 type WebGuidance struct {
-	TemplateID    string   `json:"templateId,omitempty"`
-	Variant       string   `json:"variant,omitempty"`
-	Slots         []string `json:"slots,omitempty"`
-	VisualStates  []string `json:"visualStates,omitempty"`
-	EventBindings []string `json:"eventBindings,omitempty"`
+	TemplateID      string                    `json:"templateId,omitempty"`
+	Variant         string                    `json:"variant,omitempty"`
+	Slots           []string                  `json:"slots,omitempty"`
+	VisualStates    []string                  `json:"visualStates,omitempty"`
+	EventBindings   []string                  `json:"eventBindings,omitempty"`
+	Layout          *LayoutHint               `json:"layout,omitempty"`
+	ComponentSystem *ComponentSystemGuidance  `json:"componentSystem,omitempty"`
+	Composition     *ComponentCompositionInfo `json:"composition,omitempty"`
+}
+
+// LayoutHint is a deliberately small Web-target hint. It describes the dominant
+// layout shape for generated metadata and promotion scaffolding without trying
+// to model every React layout primitive prop.
+type LayoutHint struct {
+	Primitive  string `json:"primitive,omitempty"`
+	Container  string `json:"container,omitempty"`
+	GridRecipe string `json:"gridRecipe,omitempty"`
+}
+
+type ComponentSystemGuidance struct {
+	Kind        string `json:"kind,omitempty"`
+	Specificity string `json:"specificity,omitempty"`
+	Family      string `json:"family,omitempty"`
+	Role        string `json:"role,omitempty"`
+	Lifecycle   string `json:"lifecycle,omitempty"`
+}
+
+type ComponentCompositionInfo struct {
+	Uses              []string                  `json:"uses,omitempty"`
+	DependencyClosure []ComponentDependencyInfo `json:"dependencyClosure,omitempty"`
+	Provides          []string                  `json:"provides,omitempty"`
+}
+
+type ComponentDependencyInfo struct {
+	TemplateID    string   `json:"templateId"`
+	ComponentName string   `json:"componentName,omitempty"`
+	Kind          string   `json:"kind,omitempty"`
+	Role          string   `json:"role,omitempty"`
+	EdgeRole      string   `json:"edgeRole,omitempty"`
+	Description   string   `json:"description,omitempty"`
+	Required      bool     `json:"required,omitempty"`
+	Direct        bool     `json:"direct,omitempty"`
+	Depth         int      `json:"depth,omitempty"`
+	Planned       bool     `json:"planned,omitempty"`
+	Path          []string `json:"path,omitempty"`
 }
 
 type PBUIGuidance struct {
@@ -77,8 +117,30 @@ type PBUIGuidance struct {
 }
 
 type ReactGuidance struct {
-	PackageName string    `json:"packageName,omitempty"`
-	Files       []FileRef `json:"files,omitempty"`
+	PackageName   string                  `json:"packageName,omitempty"`
+	Files         []FileRef               `json:"files,omitempty"`
+	ComponentPath string                  `json:"componentPath,omitempty"`
+	Props         []ReactPropContractRef  `json:"props,omitempty"`
+	Events        []ReactEventContractRef `json:"events,omitempty"`
+}
+
+type ReactPropContractRef struct {
+	Name        string   `json:"name"`
+	Type        string   `json:"type,omitempty"`
+	Source      string   `json:"source,omitempty"`
+	SourceRef   string   `json:"sourceRef,omitempty"`
+	Required    bool     `json:"required,omitempty"`
+	Values      []string `json:"values,omitempty"`
+	Description string   `json:"description,omitempty"`
+}
+
+type ReactEventContractRef struct {
+	Name        string `json:"name"`
+	ActionRef   string `json:"actionRef,omitempty"`
+	PayloadType string `json:"payloadType,omitempty"`
+	Source      string `json:"source,omitempty"`
+	Required    bool   `json:"required,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 type FileRef struct {
